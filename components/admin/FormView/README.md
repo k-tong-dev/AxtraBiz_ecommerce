@@ -140,6 +140,7 @@ export interface FormField {
   type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
   required?: boolean
   readonly?: boolean
+  helper?: string
   placeholder?: string
   options?: Array<{ label: string; value: string }>
   validation?: (value: any) => string | null
@@ -188,6 +189,7 @@ export interface FormConfig {
     className?: string
     badge?: string | number
     readonly?: boolean
+    helper?: string
   }>
   actions: { /* ... */ }
   breadcrumbs: { /* ... */ }
@@ -223,6 +225,23 @@ export interface FormConfig {
 - Gray background indicates read-only state
 - Cursor shows "not-allowed" on hover
 - Ideal for auto-generated fields, timestamps, IDs
+
+### Helper Field
+```typescript
+{
+  key: 'slug',
+  label: 'URL Slug',
+  type: 'text',
+  required: true,
+  helper: 'A URL-friendly version of the product name. Used for SEO and clean URLs.'
+}
+```
+
+**Helper Features:**
+- Info icon (ⓘ) appears next to field label
+- Click to show popover with helper text
+- Positioned to the right of the label
+- Ideal for explaining complex fields, providing guidance, or showing requirements
 
 ### Number Input
 ```typescript
@@ -392,6 +411,7 @@ export const productFormConfig: FormConfig = {
   className?: string,       // Additional CSS classes for custom styling
   badge?: string | number   // Optional badge to display (e.g., '5', 'New', '!')
   readonly?: boolean       // Disable action button (default: false)
+  helper?: string           // Helper text shown on hover (popover)
 }
 ```
 
@@ -461,6 +481,17 @@ customActions: [
     mode: 'edit',
     variant: 'danger',
     readonly: true  // Disabled action
+  },
+  {
+    key: 'bulk-update',
+    label: 'Bulk Update',
+    icon: '📊',
+    onClick: (data) => {
+      console.log('Bulk update for:', data)
+    },
+    mode: 'edit',
+    variant: 'warning',
+    helper: 'Update multiple products at once based on selected criteria'
   }
 ]
 ```
@@ -470,6 +501,12 @@ customActions: [
 - Gray background indicates read-only state
 - Cursor shows "not-allowed" on hover
 - Ideal for temporarily disabling actions based on conditions
+
+**Helper Custom Actions:**
+- Popover appears on hover with helper text
+- Positioned to the right of the button
+- Provides context and guidance for action purpose
+- Ideal for explaining complex actions or showing requirements
 
 **Order Management:**
 ```typescript

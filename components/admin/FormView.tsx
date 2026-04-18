@@ -2,7 +2,7 @@
 
 import {useState, useEffect} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
-import {Breadcrumb, Dropdown, Loader } from 'rsuite'
+import {Breadcrumb, Dropdown, Loader, Popover, Whisper} from 'rsuite'
 import {
     ActionBar,
     ActionBarItem,
@@ -26,6 +26,7 @@ export interface FormField {
     type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
     required?: boolean
     readonly?: boolean
+    helper?: string
     placeholder?: string
     options?: Array<{ label: string; value: string }>
     validation?: (value: any) => string | null
@@ -67,6 +68,7 @@ export interface FormConfig {
         className?: string
         badge?: string | number
         readonly?: boolean
+        helper?: string
     }>
     breadcrumbs: {
         base: string
@@ -811,9 +813,22 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                                 'md:col-span-1'
                                             }`}
                                         >
-                                            <label className="text-sm font-medium">
+                                            <label className="text-sm font-medium flex items-center gap-1">
                                                 {field.label}
                                                 {field.required && <span className="text-red-500 ml-1">*</span>}
+                                                {field.helper && (
+                                                    <Whisper
+                                                        placement="right"
+                                                        trigger="click"
+                                                        speaker={<Popover>{field.helper}</Popover>}
+                                                    >
+                                                        <button type="button" className="text-gray-400 hover:text-gray-600 focus:outline-none">
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                                            </svg>
+                                                        </button>
+                                                    </Whisper>
+                                                )}
                                             </label>
                                             {renderField(field)}
                                         </div>
@@ -833,9 +848,22 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             <div className="space-y-4">
                                 {config.fields.filter(f => f.type === 'file').map((field) => (
                                     <div key={field.key}>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                                             {field.label}
                                             {field.required && <span className="text-red-500 ml-1">*</span>}
+                                            {field.helper && (
+                                                <Whisper
+                                                    placement="right"
+                                                    trigger="click"
+                                                    speaker={<Popover>{field.helper}</Popover>}
+                                                >
+                                                    <button type="button" className="text-gray-400 hover:text-gray-600 focus:outline-none">
+                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </Whisper>
+                                            )}
                                         </label>
                                         {renderField(field)}
                                     </div>
@@ -850,7 +878,50 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                         <div className="space-y-2">
                             {config.customActions && config.customActions
                                 .filter(action => !action.mode || action.mode === mode || action.mode === 'both')
-                                .map((action) => (
+                                .map((action) => action.helper ? (
+                                    <Whisper
+                                        key={action.key}
+                                        placement="right"
+                                        trigger="hover"
+                                        speaker={<Popover>{action.helper}</Popover>}
+                                    >
+                                        <button
+                                            onClick={() => !action.readonly && action.onClick(data)}
+                                            disabled={action.readonly}
+                                            className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
+                                                action.readonly 
+                                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300' 
+                                                    : action.variant === 'primary' 
+                                                        ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary' 
+                                                        : action.variant === 'danger'
+                                                            ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
+                                                            : action.variant === 'success'
+                                                                ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                                : action.variant === 'warning'
+                                                                    ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
+                                                                    : action.variant === 'info'
+                                                                        ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
+                                                                        : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
+                                            } ${action.className || ''}`}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                {action.icon && (
+                                                    <span className="w-5 h-5 flex items-center justify-center">
+                                                        {typeof action.icon === 'function' ? action.icon() : 
+                                                         typeof action.icon === 'string' ? action.icon : 
+                                                         action.icon}
+                                                    </span>
+                                                )}
+                                                {action.label}
+                                            </div>
+                                            {action.badge && (
+                                                <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                    {action.badge}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </Whisper>
+                                ) : (
                                     <button
                                         key={action.key}
                                         onClick={() => !action.readonly && action.onClick(data)}

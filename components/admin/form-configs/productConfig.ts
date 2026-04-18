@@ -220,7 +220,7 @@ export const productFormConfig: FormConfig = {
             gridCols: 1,
             gridRow: 1,
             gridColumn: 1,
-            order: 12  // Twelfth field
+            order: 12,
         }
     ],
     actions: {
@@ -243,6 +243,28 @@ export const productFormConfig: FormConfig = {
             mode: 'edit',
             badge: 4,
             variant: 'default'
+        },
+        {
+            key: 'delete-permanent',
+            label: 'Delete Permanently',
+            icon: '🗑️',
+            onClick: (data) => {
+                if (confirm('Permanently delete?')) {
+                    fetch(`/api/products/${data.id}/delete`, { method: 'DELETE' })
+                }
+            },
+            mode: 'edit',
+            variant: 'danger',
+            readonly: true  // Disabled action
+        },
+        {
+            key: 'bulk-update',
+            label: 'Bulk Update',
+            icon: '📊',
+            onClick: (data) => console.log('Bulk update for:', data),
+            mode: 'edit',
+            variant: 'warning',
+            helper: 'Update multiple products at once based on selected criteria'
         }
     ],
     breadcrumbs: {
