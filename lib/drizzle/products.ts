@@ -57,3 +57,12 @@ export async function deleteProductFromDrizzle(productId: string): Promise<boole
     return false
   }
 }
+
+export async function deleteProductsFromDrizzle(productIds: string[]): Promise<boolean> {
+  try {
+    await Promise.all(productIds.map((id) => db.delete(products).where(eq(products.id, id))))
+    return true
+  } catch {
+    return false
+  }
+}

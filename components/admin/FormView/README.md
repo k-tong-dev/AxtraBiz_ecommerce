@@ -137,7 +137,7 @@ FormView supports multiple field types:
 export interface FormField {
   key: string
   label: string
-  type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json'
+  type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
   required?: boolean
   placeholder?: string
   options?: Array<{ label: string; value: string }>
@@ -154,7 +154,6 @@ export interface FormField {
   before?: string           // Position before specific field
   gridRow?: number          // Specific grid row position
   gridColumn?: number        // Specific grid column position
-  tab?: string             // Tab identifier for organizing fields in tabs
 }
 ```
 
@@ -177,8 +176,15 @@ export interface FormConfig {
   entityNamePlural: string
   apiEndpoint: string
   fields: FormField[]
-  tabs?: TabConfig[]        // NEW: Optional tabs configuration
-  defaultTab?: string       // NEW: Default active tab
+  tabs?: TabConfig[]        // Optional tabs configuration
+  customActions?: Array<{   // NEW: Custom button actions
+    key: string
+    label: string
+    icon?: React.ReactNode
+    onClick: (data: any) => void
+    mode?: 'create' | 'edit' | 'both'
+    variant?: 'default' | 'primary' | 'danger'
+  }>
   actions: { /* ... */ }
   breadcrumbs: { /* ... */ }
 }
@@ -266,6 +272,198 @@ export interface FormConfig {
   placeholder: 'Enter feature'
 }
 ```
+
+### Checkbox Field
+```typescript
+{
+  key: 'subscribe',
+  label: 'Subscribe to newsletter',
+  type: 'checkbox',
+  required: false
+}
+```
+
+### Boolean/Toggle Field
+```typescript
+{
+  key: 'active',
+  label: 'Active Status',
+  type: 'toggle',
+  required: false
+}
+```
+
+**Toggle Features:**
+- Visual switch component with color feedback
+- Shows "Active" when true (green), "Inactive" when false (gray)
+- Smooth transition animations
+- Ideal for boolean flags and status fields
+
+## 🎯 Custom Quick Actions
+
+FormView supports custom button actions in the Quick Actions sidebar, allowing you to add entity-specific actions beyond the built-in options.
+
+### Custom Actions Configuration
+
+```typescript
+export const productFormConfig: FormConfig = {
+  entityName: 'Product',
+  entityNamePlural: 'Products',
+  apiEndpoint: '/api/products',
+  fields: [/* ... */],
+  customActions: [
+    {
+      key: 'approve',
+      label: 'Approve Product',
+      icon: <Check className="w-4 h-4" />,
+      onClick: (data) => {
+        console.log('Approving product:', data)
+        // Custom logic to approve product
+      },
+      mode: 'edit',
+      variant: 'primary'
+    },
+    {
+      key: 'send-notification',
+      label: 'Send Notification',
+      icon: <Bell className="w-4 h-4" />,
+      onClick: (data) => {
+        console.log('Sending notification for:', data)
+        // Custom logic to send notification
+      },
+      mode: 'both',
+      variant: 'default'
+    },
+    {
+      key: 'delete-permanent',
+      label: 'Delete Permanently',
+      icon: <Trash2 className="w-4 h-4" />,
+      onClick: (data) => {
+        if (confirm('Are you sure you want to permanently delete this item?')) {
+          console.log('Permanently deleting:', data)
+          // Custom delete logic
+        }
+      },
+      mode: 'edit',
+      variant: 'danger'
+    }
+  ],
+  actions: {
+    print: false,  // Disable built-in print if using custom actions
+    export: false,
+    duplicate: false,
+    copy: false
+  },
+  breadcrumbs: { /* ... */ }
+}
+```
+
+### Custom Action Properties
+
+```typescript
+{
+  key: string,              // Unique identifier for the action
+  label: string,            // Button label text
+  icon?: React.ReactNode,   // Optional icon component
+  onClick: (data: any) => void,  // Click handler with form data
+  mode?: 'create' | 'edit' | 'both',  // When to show (default: 'both')
+  variant?: 'default' | 'primary' | 'danger'  // Button style (default: 'default')
+}
+```
+
+### Button Variants
+
+- **default**: Gray background with hover effect (standard action)
+- **primary**: Primary color background (important/prominent action)
+- **danger**: Red background (destructive/critical action)
+
+### Mode Behavior
+
+- **create**: Only shows in create mode
+- **edit**: Only shows in edit mode
+- **both**: Shows in both modes (default)
+
+### Example Use Cases
+
+**Product Management:**
+```typescript
+customActions: [
+  {
+    key: 'approve',
+    label: 'Approve Product',
+    icon: <Check className="w-4 h-4" />,
+    onClick: (data) => {
+      // Call API to approve product
+      fetch(`/api/products/${data.id}/approve`, { method: 'POST' })
+    },
+    mode: 'edit',
+    variant: 'primary'
+  },
+  {
+    key: 'sync-inventory',
+    label: 'Sync Inventory',
+    icon: <RefreshCw className="w-4 h-4" />,
+    onClick: (data) => {
+      // Sync with external inventory system
+      fetch(`/api/products/${data.id}/sync`, { method: 'POST' })
+    },
+    mode: 'both',
+    variant: 'default'
+  }
+]
+```
+
+**Order Management:**
+```typescript
+customActions: [
+  {
+    key: 'process-payment',
+    label: 'Process Payment',
+    icon: <CreditCard className="w-4 h-4" />,
+    onClick: (data) => {
+      // Process payment gateway
+      fetch(`/api/orders/${data.id}/payment`, { method: 'POST' })
+    },
+    mode: 'edit',
+    variant: 'primary'
+  },
+  {
+    key: 'cancel-order',
+    label: 'Cancel Order',
+    icon: <XCircle className="w-4 h-4" />,
+    onClick: (data) => {
+      if (confirm('Cancel this order?')) {
+        fetch(`/api/orders/${data.id}/cancel`, { method: 'POST' })
+      }
+    },
+    mode: 'edit',
+    variant: 'danger'
+  }
+]
+```
+
+### Fallback to Built-in Actions
+
+If `customActions` is not defined, FormView will render the built-in actions based on the `actions` configuration:
+
+```typescript
+// Without customActions - uses built-in actions
+actions: {
+  print: true,
+  export: true,
+  duplicate: true,
+  copy: true
+}
+```
+
+### Best Practices
+
+1. **Use descriptive keys**: Unique identifiers for each action
+2. **Provide icons**: Icons improve visual recognition
+3. **Choose appropriate variants**: Use 'danger' for destructive actions
+4. **Set correct mode**: Only show actions relevant to current mode
+5. **Handle errors**: Include error handling in onClick handlers
+6. **Use confirmations**: For destructive actions, confirm with user
 
 ## 🔧 Advanced Usage
 

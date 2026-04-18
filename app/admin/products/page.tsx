@@ -14,8 +14,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { ChevronDown, ChevronUp, Search } from 'lucide-react'
-import type { Product } from '@/lib/types'
-import { fetchProductsFromSupabase, deleteProductFromSupabase } from '@/lib/supabase/products'
+import type { Product } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 
 function stringToNumberOrZero(value: string) {
@@ -34,44 +33,32 @@ export default function AdminProductsPage() {
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'stock' | 'rating'>('name')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
 
-  
   useEffect(() => {
     let mounted = true
     ;(async () => {
-      const allProducts = await fetchProductsFromSupabase()
-      console.log(allProducts)
-      if (!mounted) return
-      setProducts(allProducts)
-      setLoading(false)
-      if (allProducts.length === 0) {
-        showToast(
-          'info',
-          'No products found',
-          'Your Supabase `products` table is empty. Add some sample data or create your first product.',
-        )
+      try {
+        const response = await fetch('/api/products')
+        const allProducts = await response.json()
+        console.log(allProducts)
+        if (!mounted) return
+        setProducts(allProducts)
+        setLoading(false)
+        if (allProducts.length === 0) {
+          showToast(
+            'info',
+            'No products found',
+            'Your products table is empty. Add some sample data or create your first product.',
+          )
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error)
+        if (!mounted) return
+        showToast('error', 'Error', 'Failed to load products')
+        setLoading(false)
       }
     })()
     return () => {
       mounted = false
-    }
-  }, [])
-
-  // Refresh products when page gains focus (user navigates back from create/edit)
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchProductsFromSupabase().then(rows => {
-        setProducts(rows)
-        setLoading(false)
-      })
-    }
-
-    // Listen for focus events
-    document.addEventListener('visibilitychange', handleFocus)
-    window.addEventListener('focus', handleFocus)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleFocus)
-      window.removeEventListener('focus', handleFocus)
     }
   }, [])
 
@@ -83,17 +70,22 @@ export default function AdminProductsPage() {
     router.push(`/admin/products/${p.id}/edit`)
   }
 
-
   const remove = async (id: string) => {
     const ok = window.confirm('Delete this product?')
     if (!ok) return
 
-    setProducts((prev) => prev.filter((p) => p.id !== id))
-    const success = await deleteProductFromSupabase(id)
-    if (!success) {
-      showToast('error', 'Delete failed', 'The product was removed from the UI, but Drizzle delete did not succeed.')
-    } else {
-      showToast('success', 'Product deleted', 'The product was removed successfully.')
+    try {
+      setProducts((prev) => prev.filter((p) => p.id !== id))
+      const response = await fetch(`/api/products/${id}`, { method: 'DELETE' })
+      const result = await response.json()
+      if (result.success) {
+        showToast('success', 'Product deleted', 'The product was removed successfully.')
+      } else {
+        showToast('error', 'Delete failed', 'The product was removed from the UI, but delete did not succeed.')
+      }
+    } catch (error) {
+      showToast('error', 'Delete failed', 'The product was removed from the UI, but delete did not succeed.')
+      console.error('Delete error:', error)
     }
   }
 
@@ -105,7 +97,7 @@ export default function AdminProductsPage() {
     setProducts((prev) => prev.filter((p) => !selectedIds.includes(p.id)))
     const ids = [...selectedIds]
     setSelectedIds([])
-    await Promise.all(ids.map((id) => deleteProductFromSupabase(id)))
+    await Promise.all(ids.map((id) => fetch(`/api/products/${id}`, { method: 'DELETE' })))
     showToast('success', 'Products deleted', `${ids.length} product(s) were removed.`)
   }
 
@@ -139,11 +131,11 @@ export default function AdminProductsPage() {
       const direction = sortDir === 'asc' ? 1 : -1
       switch (sortBy) {
         case 'price':
-          return (a.price - b.price) * direction
+          return (Number(a.price) - Number(b.price)) * direction
         case 'stock':
-          return (a.stock - b.stock) * direction
+          return (Number(a.stock) - Number(b.stock)) * direction
         case 'rating':
-          return (a.rating - b.rating) * direction
+          return (Number(a.rating) - Number(b.rating)) * direction
         default:
           return a.name.localeCompare(b.name) * direction
       }
@@ -279,7 +271,7 @@ export default function AdminProductsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedProducts.map((p) => (
+            {paginatedProducts.map((p:any) => (
               <TableRow key={p.id} className="hover:bg-muted/30 transition-colors">
                 <TableCell>
                   <input
@@ -307,7 +299,7 @@ export default function AdminProductsPage() {
                     {p.category}
                   </span>
                 </TableCell>
-                <TableCell className="text-right font-medium">${p.price.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-medium">${Number(p.price).toFixed(2)}</TableCell>
                 <TableCell className="text-right">
                   <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                     p.stock > 10 ? 'bg-green-100 text-green-800' : 
@@ -319,7 +311,7 @@ export default function AdminProductsPage() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center gap-1">
-                    <span className="font-medium">{p.rating.toFixed(1)}</span>
+                    <span className="font-medium">{Number(p.rating).toFixed(1)}</span>
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
                         <div

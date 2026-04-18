@@ -62,24 +62,32 @@ export async function PUT(
         { status: 400 }
       )
     }
-
-    // Prepare update data
-    const updateData = {
-      name: body.name.trim(),
+    const updateData:any = {
+      name: body.name?.trim(),
       description: body.description?.trim() || '',
-      price: body.price || '0',
+      price: body.price ? parseFloat(body.price) : 0,
+      compare_price: body.compare_price ? parseFloat(body.compare_price) : 0,
+      cost_price: body.cost_price ? parseFloat(body.cost_price) : 0,
       original_price: body.original_price || null,
       image: body.image?.trim() || '',
       images: body.images || [],
       image_ids: body.image_ids || [],
+      sku: body.sku || '',
+      barcode: body.barcode || '',
+      slug: body.slug || '',
+      Slug: body.Slug || '',
       category: body.category?.trim() || 'General',
-      rating: Math.min(Number(body.rating) || 0, 9.99).toString(), // Ensure rating doesn't exceed database limit
+      rating: Math.min(Number(body.rating) || 0, 9.99).toString(),
       reviews: Number(body.reviews) || 0,
       stock: Number(body.stock) || 0,
+      weight: body.weight ? parseFloat(body.weight) : 0,
+      dimensions: body.dimensions || '',
+      active: body.active !== undefined
+          ? (body.active === 'true' || body.active === true)
+          : true,
       features: body.features || [],
       updated_at: new Date().toISOString()
     }
-
     // Update the product
     const updatedProduct = await db
       .update(products)

@@ -16,6 +16,7 @@ export const users = pgTable('users', {
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
   role: text('role').notNull().default('customer'),
+  active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
@@ -24,6 +25,7 @@ export const users = pgTable('users', {
 export const products = pgTable('products', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
+  slug: text('slug').notNull(),
   description: text('description').notNull().default(''),
   price: numeric('price', { precision: 12, scale: 2 }).notNull().default('0'),
   compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
@@ -33,12 +35,14 @@ export const products = pgTable('products', {
   images: jsonb('images').notNull().default('[]'),
   image_ids: jsonb('image_ids').notNull().default('[]'),
   sku: text('sku').default(''),
+  barcode: text('barcode').default(''),
   category: text('category').notNull().default('General'),
   rating: numeric('rating', { precision: 3, scale: 2 }).notNull().default('0'),
   reviews: integer('reviews').notNull().default(0),
   stock: integer('stock').notNull().default(0),
   weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
   dimensions: text('dimensions').default(''),
+  active: boolean('active').default(true).notNull(),
   features: jsonb('features').notNull().default('[]'),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
@@ -53,6 +57,7 @@ export const orders = pgTable('orders', {
   total_price: numeric('total_price', { precision: 12, scale: 2 }).notNull().default('0'),
   status: text('status').notNull().default('pending'),
   tracking_number: text('tracking_number'),
+  active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });

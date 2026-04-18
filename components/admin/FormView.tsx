@@ -17,12 +17,13 @@ import {Textarea} from '@/components/ui/textarea'
 import {SelectPicker} from 'rsuite'
 import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'lucide-react'
 import {useToast} from '@/hooks/use-toast'
+import {IoMdCloudDone, IoMdSettings} from "react-icons/io";
 
 // Generic field types for the FormView
 export interface FormField {
     key: string
     label: string
-    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json'
+    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
     required?: boolean
     placeholder?: string
     options?: Array<{ label: string; value: string }>
@@ -55,6 +56,14 @@ export interface FormConfig {
         archive?: boolean
         delete?: boolean
     }
+    customActions?: Array<{
+        key: string
+        label: string
+        icon?: React.ReactNode
+        onClick: (data: any) => void
+        mode?: 'create' | 'edit' | 'both'
+        variant?: 'default' | 'primary' | 'danger'
+    }>
     breadcrumbs: {
         base: string
         list: string
@@ -116,6 +125,29 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             setLoading(false)
         }
     }, [mode, initialData, config.fields])
+
+    // Check if form is valid (all required fields filled)
+    const isFormValid = () => {
+        for (const field of config.fields) {
+            const value = data[field.key]
+            
+            // Only check if required field is missing or empty string
+            if (field.required) {
+                if (value === undefined || value === null || value === '') {
+                    return false
+                }
+            }
+            
+            // Only run validation if field has a value and is not empty
+            if (field.validation && value !== undefined && value !== null && value !== '') {
+                const error = field.validation(value)
+                if (error) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
 
     // Track changes
     useEffect(() => {
@@ -192,6 +224,17 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             })
 
             const result = await response.json()
+            console.log('API Response:', result)
+
+            if (!response.ok) {
+                // Handle HTTP errors
+                toast({
+                    title: 'Error',
+                    description: `HTTP ${response.status}: ${result.error || result.message || 'Failed to save'}`,
+                    variant: 'destructive'
+                })
+                return
+            }
 
             if (result.success) {
                 if (mode === 'create') {
@@ -205,13 +248,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                         title: `${config.entityName} Updated`,
                         description: `${config.entityName} has been successfully updated`
                     })
-                    setOriginalData(data)
+                    setOriginalData({...data, active: payload.active})
                     setHasChanges(false)
                 }
             } else {
+                // Handle API success=false response
                 toast({
                     title: 'Error',
-                    description: result.error || `Failed to save ${config.entityName.toLowerCase()}`,
+                    description: result.error || result.message || 'Failed to save',
                     variant: 'destructive'
                 })
             }
@@ -366,52 +410,83 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             setData({...data, [field.key]: newValue})
         }
 
+        // Check for validation error
+        let errorMessage = null
+        if (field.required && (!value || value === '')) {
+            errorMessage = `${field.label} is required`
+        } else if (field.validation && value !== undefined && value !== null && value !== '') {
+            errorMessage = field.validation(value)
+        }
+
+        // Determine if field should have error styling
+        const hasError = errorMessage !== null
+
         switch (field.type) {
             case 'text':
                 return (
-                    <Input
-                        value={value || ''}
-                        onChange={(e) => onChange(e.target.value)}
-                        placeholder={field.placeholder}
-                        className={field.className}
-                        style={field.width ? { width: field.width } : {}}
-                    />
+                    <div>
+                        <Input
+                            value={value || ''}
+                            onChange={(e) => onChange(e.target.value)}
+                            placeholder={field.placeholder}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                            style={field.width ? { width: field.width } : {}}
+                        />
+                        {errorMessage && (
+                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+                        )}
+                    </div>
                 )
 
             case 'textarea':
                 return (
-                    <Textarea
-                        value={value || ''}
-                        onChange={(e) => onChange(e.target.value)}
-                        placeholder={field.placeholder}
-                        rows={4}
-                        className={field.className}
-                        style={field.width ? { width: field.width } : {}}
-                    />
+                    <div>
+                        <Textarea
+                            value={value || ''}
+                            onChange={(e) => onChange(e.target.value)}
+                            placeholder={field.placeholder}
+                            rows={4}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                            style={field.width ? { width: field.width } : {}}
+                        />
+                        {errorMessage && (
+                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+                        )}
+                    </div>
                 )
 
             case 'number':
                 return (
-                    <Input
-                        type="number"
-                        value={value || ''}
-                        onChange={(e) => onChange(Number(e.target.value) || 0)}
-                        placeholder={field.placeholder}
-                        className={field.className}
-                        style={field.width ? { width: field.width } : {}}
-                    />
+                    <div>
+                        <Input
+                            type="number"
+                            value={value || ''}
+                            onChange={(e) => onChange(Number(e.target.value) || 0)}
+                            placeholder={field.placeholder}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                            style={field.width ? { width: field.width } : {}}
+                        />
+                        {errorMessage && (
+                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+                        )}
+                    </div>
                 )
 
             case 'select':
                 return (
-                    <SelectPicker
-                        data={field.options || []}
-                        value={value}
-                        onChange={(newValue) => onChange(newValue)}
-                        placeholder={field.placeholder}
-                        className={field.className}
-                        style={field.width ? { width: field.width } : {width: '100%'}}
-                    />
+                    <div>
+                        <SelectPicker
+                            data={field.options || []}
+                            value={value}
+                            onChange={(newValue) => onChange(newValue)}
+                            placeholder={field.placeholder}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500' : ''}`}
+                            style={field.width ? { width: field.width } : {width: '100%'}}
+                        />
+                        {errorMessage && (
+                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+                        )}
+                    </div>
                 )
 
             case 'file':
@@ -503,6 +578,42 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     </div>
                 )
 
+            case 'checkbox':
+                return (
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            id={field.key}
+                            checked={value || false}
+                            onChange={(e) => onChange(e.target.checked)}
+                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                        <label htmlFor={field.key} className="text-sm font-medium">
+                            {field.label}
+                        </label>
+                    </div>
+                )
+
+            case 'boolean':
+            case 'toggle':
+                return (
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => onChange(!value)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                value ? 'bg-primary' : 'bg-gray-200'
+                            }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    value ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                            />
+                        </button>
+                    </div>
+                )
+
             default:
                 return null
         }
@@ -580,12 +691,13 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             title="Actions"
                             placement="bottomEnd"
                             renderToggle={(props, ref) => (
-                                <Button {...props} ref={ref} className="gap-2">
+                                <Button
+                                    {...props}
+                                    ref={ref}
+                                    className="gap-2"
+                                    startIcon={<IoMdSettings className={"w-5 h-5"}/>}
+                                >
                                     Actions
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                              d="M19 9l-7 7-7-7"/>
-                                    </svg>
                                 </Button>
                             )}
                         >
@@ -684,32 +796,63 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     <div className="bg-card rounded-lg border p-6">
                         <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
                         <div className="space-y-2">
-                            <button 
-                                onClick={handlePrint}
-                                className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                            >
-                                🖨️ Print {config.entityName}
-                            </button>
-                            <button 
-                                onClick={handleExport}
-                                className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                            >
-                                📤 Export Data
-                            </button>
-                            {mode === 'edit' && (
-                                <button 
-                                    onClick={handleDuplicate}
-                                    className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                >
-                                    📋 Duplicate {config.entityName}
-                                </button>
+                            {config.customActions && config.customActions
+                                .filter(action => !action.mode || action.mode === mode || action.mode === 'both')
+                                .map((action) => (
+                                    <button
+                                        key={action.key}
+                                        onClick={() => action.onClick(data)}
+                                        className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center gap-2 ${
+                                            action.variant === 'primary' 
+                                                ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary' 
+                                                : action.variant === 'danger'
+                                                    ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
+                                                    : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
+                                        }`}
+                                    >
+                                        {action.icon && <span className="w-5 h-5">{action.icon}</span>}
+                                        {action.label}
+                                    </button>
+                                ))
+                            }
+                            
+                            {/* Built-in actions if no custom actions defined */}
+                            {!config.customActions && (
+                                <>
+                                    {config.actions.print && (
+                                        <button
+                                            onClick={handlePrint}
+                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
+                                        >
+                                            🖨️ Print {config.entityName}
+                                        </button>
+                                    )}
+                                    {config.actions.export && (
+                                        <button
+                                            onClick={handleExport}
+                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
+                                        >
+                                            📤 Export Data
+                                        </button>
+                                    )}
+                                    {mode === 'edit' && config.actions.duplicate && (
+                                        <button
+                                            onClick={handleDuplicate}
+                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
+                                        >
+                                            📋 Duplicate {config.entityName}
+                                        </button>
+                                    )}
+                                    {config.actions.copy && (
+                                        <button
+                                            onClick={handleCopy}
+                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
+                                        >
+                                            📋 Copy Data
+                                        </button>
+                                    )}
+                                </>
                             )}
-                            <button 
-                                onClick={handleCopy}
-                                className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                            >
-                                📋 Copy Data
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -737,9 +880,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                         appearance="primary"
                         color="green"
                         onClick={handleSubmit}
-                        disabled={saving}
+                        disabled={saving || !isFormValid()}
                     >
-                        <Save className="w-4 h-4 mr-2"/>
+                        <IoMdCloudDone className="w-4 h-4 mr-2"/>
                         {saving ? (mode === 'create' ? 'Creating...' : 'Saving...') : (mode === 'create' ? 'Create' : 'Save')}
                     </ActionBarItem>
                 </ActionBarGroup>
