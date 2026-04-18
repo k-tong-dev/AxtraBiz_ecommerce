@@ -1,8 +1,8 @@
 'use client'
 
 import {useState, useEffect} from 'react'
-import {useRouter} from 'next/navigation'
-import {Breadcrumb, Dropdown} from 'rsuite'
+import {useRouter, useSearchParams} from 'next/navigation'
+import {Breadcrumb, Dropdown, Loader } from 'rsuite'
 import {
     ActionBar,
     ActionBarItem,
@@ -25,6 +25,7 @@ export interface FormField {
     label: string
     type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
     required?: boolean
+    readonly?: boolean
     placeholder?: string
     options?: Array<{ label: string; value: string }>
     validation?: (value: any) => string | null
@@ -59,10 +60,13 @@ export interface FormConfig {
     customActions?: Array<{
         key: string
         label: string
-        icon?: React.ReactNode
+        icon?: React.ReactNode | (() => React.ReactNode)
         onClick: (data: any) => void
         mode?: 'create' | 'edit' | 'both'
-        variant?: 'default' | 'primary' | 'danger'
+        variant?: 'default' | 'primary' | 'danger' | 'success' | 'warning' | 'info'
+        className?: string
+        badge?: string | number
+        readonly?: boolean
     }>
     breadcrumbs: {
         base: string
@@ -93,6 +97,7 @@ interface FormViewProps<T extends Entity> {
 
 export function FormView<T extends Entity>({mode, config, initialData, entityId}: FormViewProps<T>) {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const {toast} = useToast()
 
     const [data, setData] = useState<MutableEntity>({} as MutableEntity)
@@ -104,27 +109,63 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
 
     // Initialize form data
     useEffect(() => {
+        // Check for duplicate data in URL params (context system)
+        const duplicateParam = searchParams.get('duplicate')
+        
+        console.log('FormView useEffect - mode:', mode, 'duplicateParam:', duplicateParam)
+        
         if (mode === 'edit' && initialData) {
             setData(initialData as MutableEntity)
             setOriginalData(initialData as MutableEntity)
             setLoading(false)
         } else if (mode === 'create') {
             // Initialize with default values
-            const defaultData: MutableEntity = {} as MutableEntity
+            let defaultData: MutableEntity = {} as MutableEntity
+            let isDuplicate = false
+            
+            // If duplicate data exists in URL, use it as base
+            if (duplicateParam) {
+                try {
+                    const duplicateData = JSON.parse(decodeURIComponent(duplicateParam))
+                    console.log('Duplicate data parsed:', duplicateData)
+                    defaultData = duplicateData as MutableEntity
+                    // Clear ID to ensure it's treated as new
+                    delete defaultData.id
+                    isDuplicate = true
+                } catch (error) {
+                    console.error('Error parsing duplicate data:', error)
+                }
+            }
+            
+            // Initialize missing fields with defaults
             config.fields.forEach(field => {
-                if (field.type === 'array' || field.type === 'json') {
-                    defaultData[field.key] = []
-                } else if (field.type === 'number') {
-                    defaultData[field.key] = 0
-                } else {
-                    defaultData[field.key] = ''
+                if (defaultData[field.key] === undefined || defaultData[field.key] === null) {
+                    if (field.type === 'array' || field.type === 'json') {
+                        defaultData[field.key] = []
+                    } else if (field.type === 'number') {
+                        defaultData[field.key] = 0
+                    } else if (field.type === 'toggle' || field.type === 'boolean' || field.type === 'checkbox') {
+                        defaultData[field.key] = false
+                    } else {
+                        defaultData[field.key] = ''
+                    }
                 }
             })
+            
+            console.log('Setting defaultData:', defaultData)
             setData(defaultData)
-            setOriginalData(defaultData)
+            
+            // When duplicating, don't set originalData so hasChanges remains true
+            if (!isDuplicate) {
+                setOriginalData(defaultData)
+            } else {
+                setOriginalData({} as MutableEntity) // Empty object to ensure hasChanges stays true
+                setHasChanges(true)
+            }
+            
             setLoading(false)
         }
-    }, [mode, initialData, config.fields])
+    }, [mode, initialData, config.fields, searchParams])
 
     // Check if form is valid (all required fields filled)
     const isFormValid = () => {
@@ -429,7 +470,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             value={value || ''}
                             onChange={(e) => onChange(e.target.value)}
                             placeholder={field.placeholder}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                            disabled={field.readonly}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             style={field.width ? { width: field.width } : {}}
                         />
                         {errorMessage && (
@@ -445,8 +487,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             value={value || ''}
                             onChange={(e) => onChange(e.target.value)}
                             placeholder={field.placeholder}
+                            disabled={field.readonly}
                             rows={4}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             style={field.width ? { width: field.width } : {}}
                         />
                         {errorMessage && (
@@ -463,7 +506,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             value={value || ''}
                             onChange={(e) => onChange(Number(e.target.value) || 0)}
                             placeholder={field.placeholder}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''}`}
+                            disabled={field.readonly}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             style={field.width ? { width: field.width } : {}}
                         />
                         {errorMessage && (
@@ -480,7 +524,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             value={value}
                             onChange={(newValue) => onChange(newValue)}
                             placeholder={field.placeholder}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500' : ''}`}
+                            disabled={field.readonly}
+                            className={`${field.className || ''} ${hasError ? 'border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             style={field.width ? { width: field.width } : {width: '100%'}}
                         />
                         {errorMessage && (
@@ -648,8 +693,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-lg">Loading...</div>
+            <div className="flex flex-col items-center justify-center h-64">
+                <Loader backdrop content="Loading..." vertical />
             </div>
         )
     }
@@ -658,7 +703,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const formSubtitle = mode === 'create' ? `Add a new ${config.entityName.toLowerCase()} to your catalog` : `Modify ${config.entityName.toLowerCase()} details and settings`
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 relative">
+            {/* Saving overlay */}
+            {saving && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <Loader backdrop content="Saving..." vertical />
+                </div>
+            )}
+            
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
@@ -680,7 +732,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                         </Breadcrumb.Item>
                     </Breadcrumb>
 
-                    <h1 className="text-2xl font-bold">{formTitle}</h1>
+                    <h1 className="text-xl font-bold">{formTitle}</h1>
                     <p className="text-sm text-muted-foreground">{formSubtitle}</p>
                 </div>
 
@@ -777,7 +829,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     {/* File Upload Section */}
                     {config.fields.filter(f => f.type === 'file').length > 0 && (
                         <div className="bg-card rounded-lg border p-6">
-                            <h2 className="text-lg font-semibold mb-4">Media & Files</h2>
+                            <h2 className="text-md font-semibold mb-4">Media & Files</h2>
                             <div className="space-y-4">
                                 {config.fields.filter(f => f.type === 'file').map((field) => (
                                     <div key={field.key}>
@@ -794,24 +846,46 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     
                     {/* Quick Actions */}
                     <div className="bg-card rounded-lg border p-6">
-                        <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+                        <h2 className="text-md font-semibold mb-4">Quick Actions</h2>
                         <div className="space-y-2">
                             {config.customActions && config.customActions
                                 .filter(action => !action.mode || action.mode === mode || action.mode === 'both')
                                 .map((action) => (
                                     <button
                                         key={action.key}
-                                        onClick={() => action.onClick(data)}
-                                        className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center gap-2 ${
-                                            action.variant === 'primary' 
-                                                ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary' 
-                                                : action.variant === 'danger'
-                                                    ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
-                                                    : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
-                                        }`}
+                                        onClick={() => !action.readonly && action.onClick(data)}
+                                        disabled={action.readonly}
+                                        className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
+                                            action.readonly 
+                                                ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300' 
+                                                : action.variant === 'primary' 
+                                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary' 
+                                                    : action.variant === 'danger'
+                                                        ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
+                                                        : action.variant === 'success'
+                                                            ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                            : action.variant === 'warning'
+                                                                ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
+                                                                : action.variant === 'info'
+                                                                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
+                                                                    : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
+                                        } ${action.className || ''}`}
                                     >
-                                        {action.icon && <span className="w-5 h-5">{action.icon}</span>}
-                                        {action.label}
+                                        <div className="flex items-center gap-2">
+                                            {action.icon && (
+                                                <span className="w-5 h-5 flex items-center justify-center">
+                                                    {typeof action.icon === 'function' ? action.icon() : 
+                                                     typeof action.icon === 'string' ? action.icon : 
+                                                     action.icon}
+                                                </span>
+                                            )}
+                                            {action.label}
+                                        </div>
+                                        {action.badge && (
+                                            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                {action.badge}
+                                            </span>
+                                        )}
                                     </button>
                                 ))
                             }

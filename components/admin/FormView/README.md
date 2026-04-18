@@ -139,6 +139,7 @@ export interface FormField {
   label: string
   type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
   required?: boolean
+  readonly?: boolean
   placeholder?: string
   options?: Array<{ label: string; value: string }>
   validation?: (value: any) => string | null
@@ -183,7 +184,10 @@ export interface FormConfig {
     icon?: React.ReactNode
     onClick: (data: any) => void
     mode?: 'create' | 'edit' | 'both'
-    variant?: 'default' | 'primary' | 'danger'
+    variant?: 'default' | 'primary' | 'danger' | 'success' | 'warning' | 'info'
+    className?: string
+    badge?: string | number
+    readonly?: boolean
   }>
   actions: { /* ... */ }
   breadcrumbs: { /* ... */ }
@@ -202,6 +206,23 @@ export interface FormConfig {
   gridCols: 2
 }
 ```
+
+### Readonly Field
+```typescript
+{
+  key: 'created_at',
+  label: 'Created At',
+  type: 'text',
+  readonly: true,
+  placeholder: 'Auto-generated'
+}
+```
+
+**Readonly Features:**
+- Input is disabled and cannot be edited
+- Gray background indicates read-only state
+- Cursor shows "not-allowed" on hover
+- Ideal for auto-generated fields, timestamps, IDs
 
 ### Number Input
 ```typescript
@@ -367,7 +388,10 @@ export const productFormConfig: FormConfig = {
   icon?: React.ReactNode,   // Optional icon component
   onClick: (data: any) => void,  // Click handler with form data
   mode?: 'create' | 'edit' | 'both',  // When to show (default: 'both')
-  variant?: 'default' | 'primary' | 'danger'  // Button style (default: 'default')
+  variant?: 'default' | 'primary' | 'danger' | 'success' | 'warning' | 'info'  // Button style (default: 'default')
+  className?: string,       // Additional CSS classes for custom styling
+  badge?: string | number   // Optional badge to display (e.g., '5', 'New', '!')
+  readonly?: boolean       // Disable action button (default: false)
 }
 ```
 
@@ -376,6 +400,9 @@ export const productFormConfig: FormConfig = {
 - **default**: Gray background with hover effect (standard action)
 - **primary**: Primary color background (important/prominent action)
 - **danger**: Red background (destructive/critical action)
+- **success**: Green background (positive/completed actions)
+- **warning**: Yellow background (cautionary actions)
+- **info**: Blue background (informational actions)
 
 ### Mode Behavior
 
@@ -400,6 +427,17 @@ customActions: [
     variant: 'primary'
   },
   {
+    key: 'view-stock',
+    label: 'View Stock',
+    icon: '📦',
+    onClick: (data) => {
+      console.log('View stock for:', data)
+    },
+    mode: 'both',
+    variant: 'info',
+    badge: 5  // Shows badge with number 5
+  },
+  {
     key: 'sync-inventory',
     label: 'Sync Inventory',
     icon: <RefreshCw className="w-4 h-4" />,
@@ -408,10 +446,30 @@ customActions: [
       fetch(`/api/products/${data.id}/sync`, { method: 'POST' })
     },
     mode: 'both',
-    variant: 'default'
+    variant: 'default',
+    className: 'font-bold'  // Custom CSS class
+  },
+  {
+    key: 'delete-permanent',
+    label: 'Delete Permanently',
+    icon: '🗑️',
+    onClick: (data) => {
+      if (confirm('Permanently delete?')) {
+        fetch(`/api/products/${data.id}/delete`, { method: 'DELETE' })
+      }
+    },
+    mode: 'edit',
+    variant: 'danger',
+    readonly: true  // Disabled action
   }
 ]
 ```
+
+**Readonly Custom Actions:**
+- Button is disabled and cannot be clicked
+- Gray background indicates read-only state
+- Cursor shows "not-allowed" on hover
+- Ideal for temporarily disabling actions based on conditions
 
 **Order Management:**
 ```typescript

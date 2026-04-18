@@ -167,6 +167,7 @@ export const productFormConfig: FormConfig = {
         {
             key: 'stock',
             label: 'Stock Quantity',
+            readonly: true,
             type: 'number',
             required: false,
             placeholder: '0',
@@ -227,9 +228,23 @@ export const productFormConfig: FormConfig = {
         export: true,
         duplicate: true,
         copy: true,
-        archive: true,
+        archive: false,
         delete: true
     },
+    customActions: [
+        {
+            key: 'update-stock',
+            label: 'Update Stock',
+            icon: '📦',
+            onClick: (data) => {
+                console.log('Update Stock for:', data)
+                // TODO: Implement stock update logic
+            },
+            mode: 'edit',
+            badge: 4,
+            variant: 'default'
+        }
+    ],
     breadcrumbs: {
         base: '/admin',
         list: '/admin/products',
