@@ -1,0 +1,53 @@
+:root {
+  --danger: #e11d48;
+  --danger-hover: #be123c;
+  --danger-foreground: #ffffff;
+  --rs-red-500: rgb(219 59 62);
+  --rs-btn-primary-bg: #dc2626;        /* red-600 */
+  --rs-btn-primary-hover-bg: #b91c1c;  /* red-700 */
+  --rs-btn-primary-active-bg: #991b1b; /* red-800 */
+  --ease-smooth: ease;
+  --disabled-opacity: 0.5;
+}
+
+
+
+/* 2. Primary appearance (applies to all colored buttons) */
+.rs-btn[data-appearance="primary"],
+.rs-uploader[data-list-type="picture"] [data-appearance="primary"].rs-uploader-trigger-btn {
+  color: var(--rs-btn-primary-text);
+  background-color: var(--rs-btn-primary-bg);
+  border-color: var(--rs-btn-primary-border-color);
+}
+
+/* 3. Modern HeroUI-style base for ALL RSuite buttons */
+.rs-btn {
+  transition: transform 0.25s var(--ease-smooth, ease),
+  background-color 0.1s var(--ease-out, ease),
+  box-shadow 0.1s var(--ease-out, ease);
+  transform: translateZ(0);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  font-weight: 500;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing, 0.25rem) * 2);
+}
+
+.rs-btn:hover {
+  transform: translateY(-1px);
+}
+
+.rs-btn:active {
+  transform: translateY(0);
+}
+
+.rs-btn:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 30%, transparent);
+}
+
+.rs-btn[disabled] {
+  opacity: var(--disabled-opacity, 0.5);
+  cursor: not-allowed;
+}
