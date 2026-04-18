@@ -2,7 +2,7 @@
 
 import {useState, useEffect} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
-import {Breadcrumb, Dropdown, Loader, Popover, Whisper} from 'rsuite'
+import {Breadcrumb, Dropdown, Loader, Popover, Whisper, Drawer} from 'rsuite'
 import {
     ActionBar,
     ActionBarItem,
@@ -18,6 +18,7 @@ import {SelectPicker} from 'rsuite'
 import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'lucide-react'
 import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings} from "react-icons/io";
+import {BsTools} from "react-icons/bs";
 
 // Generic field types for the FormView
 export interface FormField {
@@ -108,6 +109,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
+    const [showQuickActions, setShowQuickActions] = useState(false)
 
     // Initialize form data
     useEffect(() => {
@@ -871,9 +873,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             </div>
                         </div>
                     )}
-                    
-                    {/* Quick Actions */}
-                    <div className="bg-card rounded-lg border p-6">
+
+                    {/* Quick Actions - Desktop */}
+                    <div className="hidden lg:block bg-card rounded-lg border p-6">
                         <h2 className="text-md font-semibold mb-4">Quick Actions</h2>
                         <div className="space-y-2">
                             {config.customActions && config.customActions
@@ -889,10 +891,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                             onClick={() => !action.readonly && action.onClick(data)}
                                             disabled={action.readonly}
                                             className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
-                                                action.readonly 
-                                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300' 
-                                                    : action.variant === 'primary' 
-                                                        ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary' 
+                                                action.readonly
+                                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
+                                                    : action.variant === 'primary'
+                                                        ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
                                                         : action.variant === 'danger'
                                                             ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
                                                             : action.variant === 'success'
@@ -907,8 +909,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                             <div className="flex items-center gap-2">
                                                 {action.icon && (
                                                     <span className="w-5 h-5 flex items-center justify-center">
-                                                        {typeof action.icon === 'function' ? action.icon() : 
-                                                         typeof action.icon === 'string' ? action.icon : 
+                                                        {typeof action.icon === 'function' ? action.icon() :
+                                                         typeof action.icon === 'string' ? action.icon :
                                                          action.icon}
                                                     </span>
                                                 )}
@@ -927,10 +929,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                         onClick={() => !action.readonly && action.onClick(data)}
                                         disabled={action.readonly}
                                         className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
-                                            action.readonly 
-                                                ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300' 
-                                                : action.variant === 'primary' 
-                                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary' 
+                                            action.readonly
+                                                ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
+                                                : action.variant === 'primary'
+                                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
                                                     : action.variant === 'danger'
                                                         ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
                                                         : action.variant === 'success'
@@ -945,8 +947,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                         <div className="flex items-center gap-2">
                                             {action.icon && (
                                                 <span className="w-5 h-5 flex items-center justify-center">
-                                                    {typeof action.icon === 'function' ? action.icon() : 
-                                                     typeof action.icon === 'string' ? action.icon : 
+                                                    {typeof action.icon === 'function' ? action.icon() :
+                                                     typeof action.icon === 'string' ? action.icon :
                                                      action.icon}
                                                 </span>
                                             )}
@@ -960,7 +962,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                     </button>
                                 ))
                             }
-                            
+
                             {/* Built-in actions if no custom actions defined */}
                             {!config.customActions && (
                                 <>
@@ -969,7 +971,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                             onClick={handlePrint}
                                             className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
                                         >
-                                            🖨️ Print {config.entityName}
+                                            <Printer className="w-4 h-4 inline mr-2"/>
+                                            Print
                                         </button>
                                     )}
                                     {config.actions.export && (
@@ -977,7 +980,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                             onClick={handleExport}
                                             className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
                                         >
-                                            📤 Export Data
+                                            <Settings className="w-4 h-4 inline mr-2"/>
+                                            Export
                                         </button>
                                     )}
                                     {mode === 'edit' && config.actions.duplicate && (
@@ -985,20 +989,166 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                             onClick={handleDuplicate}
                                             className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
                                         >
-                                            📋 Duplicate {config.entityName}
-                                        </button>
-                                    )}
-                                    {config.actions.copy && (
-                                        <button
-                                            onClick={handleCopy}
-                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                        >
-                                            📋 Copy Data
+                                            <Copy className="w-4 h-4 inline mr-2"/>
+                                            Duplicate
                                         </button>
                                     )}
                                 </>
                             )}
                         </div>
+                    </div>
+
+                    {/* Quick Actions - Mobile Drawer */}
+                    <div className="lg:hidden">
+                        <button
+                            onClick={() => setShowQuickActions(true)}
+                            // className="fixed right-4 top-1/2 -translate-y-1/2 bg-white rounded-lg border shadow-lg p-2 flex items-center justify-center hover:bg-gray-50 z-50"
+                            className="fixed right-4 bottom-4 bg-white rounded-lg border shadow-lg p-2 flex items-center justify-center hover:bg-gray-50 z-50"
+                        >
+                            <BsTools className="w-5 h-5" />
+                        </button>
+
+                        <Drawer open={showQuickActions} onClose={() => setShowQuickActions(false)} size="xs" backdrop="static" placement="right">
+                            <Drawer.Header>
+                                <Drawer.Title>Quick Actions</Drawer.Title>
+                            </Drawer.Header>
+                            <Drawer.Body>
+                                <div className="space-y-2">
+                                    {config.customActions && config.customActions
+                                        .filter(action => !action.mode || action.mode === mode || action.mode === 'both')
+                                        .map((action) => action.helper ? (
+                                            <Whisper
+                                                key={action.key}
+                                                placement="right"
+                                                trigger="hover"
+                                                speaker={<Popover>{action.helper}</Popover>}
+                                            >
+                                                <button
+                                                    onClick={() => {
+                                                        !action.readonly && action.onClick(data)
+                                                        setShowQuickActions(false)
+                                                    }}
+                                                    disabled={action.readonly}
+                                                    className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
+                                                        action.readonly
+                                                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
+                                                            : action.variant === 'primary'
+                                                                ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
+                                                                : action.variant === 'danger'
+                                                                    ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
+                                                                    : action.variant === 'success'
+                                                                        ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                                        : action.variant === 'warning'
+                                                                            ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
+                                                                            : action.variant === 'info'
+                                                                                ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
+                                                                                : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
+                                                    } ${action.className || ''}`}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        {action.icon && (
+                                                            <span className="w-5 h-5 flex items-center justify-center">
+                                                                {typeof action.icon === 'function' ? action.icon() :
+                                                                 typeof action.icon === 'string' ? action.icon :
+                                                                 action.icon}
+                                                            </span>
+                                                        )}
+                                                        {action.label}
+                                                    </div>
+                                                    {action.badge && (
+                                                        <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                            {action.badge}
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            </Whisper>
+                                        ) : (
+                                            <button
+                                                key={action.key}
+                                                onClick={() => {
+                                                    !action.readonly && action.onClick(data)
+                                                    setShowQuickActions(false)
+                                                }}
+                                                disabled={action.readonly}
+                                                className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
+                                                    action.readonly
+                                                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
+                                                        : action.variant === 'primary'
+                                                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
+                                                            : action.variant === 'danger'
+                                                                ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
+                                                                : action.variant === 'success'
+                                                                    ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                                    : action.variant === 'warning'
+                                                                        ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
+                                                                        : action.variant === 'info'
+                                                                            ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
+                                                                            : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
+                                                } ${action.className || ''}`}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    {action.icon && (
+                                                        <span className="w-5 h-5 flex items-center justify-center">
+                                                            {typeof action.icon === 'function' ? action.icon() :
+                                                             typeof action.icon === 'string' ? action.icon :
+                                                             action.icon}
+                                                        </span>
+                                                    )}
+                                                    {action.label}
+                                                </div>
+                                                {action.badge && (
+                                                    <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                        {action.badge}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        ))
+                                    }
+
+                                    {/* Built-in actions if no custom actions defined */}
+                                    {!config.customActions && (
+                                        <>
+                                            {config.actions.print && (
+                                                <button
+                                                    onClick={() => {
+                                                        handlePrint()
+                                                        setShowQuickActions(false)
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
+                                                >
+                                                    <Printer className="w-4 h-4 inline mr-2"/>
+                                                    Print
+                                                </button>
+                                            )}
+                                            {config.actions.export && (
+                                                <button
+                                                    onClick={() => {
+                                                        handleExport()
+                                                        setShowQuickActions(false)
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
+                                                >
+                                                    <Settings className="w-4 h-4 inline mr-2"/>
+                                                    Export
+                                                </button>
+                                            )}
+                                            {mode === 'edit' && config.actions.duplicate && (
+                                                <button
+                                                    onClick={() => {
+                                                        handleDuplicate()
+                                                        setShowQuickActions(false)
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
+                                                >
+                                                    <Copy className="w-4 h-4 inline mr-2"/>
+                                                    Duplicate
+                                                </button>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            </Drawer.Body>
+                        </Drawer>
                     </div>
                 </div>
             </div>
