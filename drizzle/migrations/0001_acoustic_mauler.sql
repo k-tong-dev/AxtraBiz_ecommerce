@@ -37,6 +37,21 @@ CREATE TABLE "invoices" (
 	CONSTRAINT "invoices_invoice_number_unique" UNIQUE("invoice_number")
 );
 --> statement-breakpoint
+CREATE TABLE "ir_attachment" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"filename" text NOT NULL,
+	"mimetype" text NOT NULL,
+	"url" text NOT NULL,
+	"size" integer NOT NULL,
+	"res_model" text NOT NULL,
+	"res_id" text NOT NULL,
+	"type" text DEFAULT 'binary' NOT NULL,
+	"active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "orders" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
@@ -54,16 +69,14 @@ CREATE TABLE "products" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
-	"barcode" text DEFAULT '',
 	"description" text DEFAULT '' NOT NULL,
 	"price" numeric(12, 2) DEFAULT '0' NOT NULL,
 	"compare_price" numeric(12, 2) DEFAULT '0',
 	"cost_price" numeric(12, 2) DEFAULT '0',
 	"original_price" numeric(12, 2),
-	"image" text DEFAULT '' NOT NULL,
-	"images" jsonb DEFAULT '[]' NOT NULL,
 	"image_ids" jsonb DEFAULT '[]' NOT NULL,
 	"sku" text DEFAULT '',
+	"barcode" text DEFAULT '',
 	"category" text DEFAULT 'General' NOT NULL,
 	"rating" numeric(3, 2) DEFAULT '0' NOT NULL,
 	"reviews" integer DEFAULT 0 NOT NULL,

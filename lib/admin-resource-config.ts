@@ -174,8 +174,6 @@ export function createDefaultRecord(resource: AdminResource): AdminRecord {
         description: '',
         price: 0,
         original_price: undefined,
-        image: '',
-        images: [],
         image_ids: [],
         category: 'General',
         rating: 0,

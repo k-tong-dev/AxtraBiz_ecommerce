@@ -8,6 +8,13 @@
       "when": 1776526676226,
       "tag": "0000_left_sunset_bain",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776675591854,
+      "tag": "0001_acoustic_mauler",
+      "breakpoints": true
     }
   ]
 }

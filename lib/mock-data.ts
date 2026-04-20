@@ -13,11 +13,11 @@ export const mockProducts: Product[] = [
   {
     id: '1',
     name: 'Premium Wireless Headphones',
+    slug: 'premium-wireless-headphones',
     description: 'High-quality wireless headphones with noise cancellation and 30-hour battery life.',
     price: 199.99,
     original_price: 299.99,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
-    images: [
+    image_ids: [
       'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
       'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=500&q=80',
     ],
@@ -30,11 +30,11 @@ export const mockProducts: Product[] = [
   {
     id: '2',
     name: 'Luxury Smartwatch',
+    slug: 'luxury-smartwatch',
     description: 'Advanced smartwatch with health tracking, fitness modes, and long battery life.',
     price: 349.99,
     original_price: 499.99,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
-    images: [
+    image_ids: [
       'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
       'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&q=80',
     ],
@@ -47,11 +47,11 @@ export const mockProducts: Product[] = [
   {
     id: '3',
     name: 'Professional Camera',
+    slug: 'professional-camera',
     description: '24MP mirrorless camera with 4K video recording and professional features.',
     price: 1299.99,
     original_price: 1599.99,
-    image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=500&q=80',
-    images: [
+    image_ids: [
       'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=500&q=80',
       'https://images.unsplash.com/photo-1611532736579-6b16e2b50449?w=500&q=80',
     ],
@@ -64,10 +64,10 @@ export const mockProducts: Product[] = [
   {
     id: '4',
     name: 'Ultra-Light Laptop',
+    slug: 'ultra-light-laptop',
     description: 'Premium ultrabook with Intel i7, 16GB RAM, and long battery life.',
     price: 899.99,
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=80',
-    images: [
+    image_ids: [
       'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=80',
       'https://images.unsplash.com/photo-1588872657840-790ff3bde4c5?w=500&q=80',
     ],
@@ -80,11 +80,11 @@ export const mockProducts: Product[] = [
   {
     id: '5',
     name: 'Portable Bluetooth Speaker',
+    slug: 'portable-bluetooth-speaker',
     description: 'Waterproof speaker with 360-degree sound and 12-hour battery.',
     price: 79.99,
     original_price: 129.99,
-    image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&q=80',
-    images: [
+    image_ids: [
       'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500&q=80',
     ],
     category: 'Audio',
@@ -96,10 +96,10 @@ export const mockProducts: Product[] = [
   {
     id: '6',
     name: 'Mechanical Gaming Keyboard',
+    slug: 'mechanical-gaming-keyboard',
     description: 'RGB mechanical keyboard with custom switches and programmable keys.',
     price: 149.99,
-    image: 'https://images.unsplash.com/photo-1587829191301-75371900bb80?w=500&q=80',
-    images: [
+    image_ids: [
       'https://images.unsplash.com/photo-1587829191301-75371900bb80?w=500&q=80',
     ],
     category: 'Gaming',

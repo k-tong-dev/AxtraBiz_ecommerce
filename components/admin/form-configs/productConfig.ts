@@ -8,7 +8,7 @@ export const productFormConfig: FormConfig = {
     fields: [
         // Media & Files Section - Always first
         {
-            key: 'images',
+            key: 'image_ids',
             label: 'Product Images',
             type: 'file',
             required: false,

@@ -3,6 +3,7 @@
 import {useState, useEffect} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {Breadcrumb, Dropdown, Loader, Popover, Whisper, Drawer} from 'rsuite'
+import {uploadFile, deleteFile, fetchAttachmentUrls} from '@/lib/utils/file-upload'
 import {
     ActionBar,
     ActionBarItem,
@@ -108,7 +109,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const [hasChanges, setHasChanges] = useState(false)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [uploadedFiles, setUploadedFiles] = useState<string[]>([])
+    const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, url: string}>>([])
     const [showQuickActions, setShowQuickActions] = useState(false)
 
     // Initialize form data
@@ -121,7 +122,27 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
         if (mode === 'edit' && initialData) {
             setData(initialData as MutableEntity)
             setOriginalData(initialData as MutableEntity)
-            setLoading(false)
+            // Initialize uploadedFiles from existing file fields
+            const existingFileIds = config.fields
+                .filter(f => f.type === 'file' && initialData[f.key])
+                .flatMap(f => Array.isArray(initialData[f.key]) ? initialData[f.key] : [initialData[f.key]])
+            // Fetch URLs from ir_attachment table
+            if (existingFileIds.length > 0) {
+                fetchAttachmentUrls(existingFileIds)
+                    .then(attachments => {
+                        setUploadedFiles(attachments)
+                        setLoading(false)
+                    })
+                    .catch(error => {
+                        console.error('Failed to fetch attachment URLs:', error)
+                        // Fallback to empty URLs
+                        setUploadedFiles(existingFileIds.map(id => ({id, url: ''})))
+                        setLoading(false)
+                    })
+            } else {
+                setUploadedFiles([])
+                setLoading(false)
+            }
         } else if (mode === 'create') {
             // Initialize with default values
             let defaultData: MutableEntity = {} as MutableEntity
@@ -203,7 +224,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             // Handle file uploads separately
             ...config.fields
                 .filter(f => f.type === 'file')
-                .reduce((acc, field) => ({...acc, [field.key]: uploadedFiles}), {})
+                .reduce((acc, field) => ({...acc, [field.key]: uploadedFiles.map(f => f.id)}), {})
         }) !== JSON.stringify({
             ...originalData,
             // Handle file uploads separately
@@ -250,7 +271,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                 .filter(f => f.type === 'file')
                 .forEach(field => {
                     if (uploadedFiles.length > 0) {
-                        payload[field.key] = uploadedFiles
+                        payload[field.key] = uploadedFiles.map(f => f.id)
                     }
                 })
 
@@ -293,7 +314,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                         title: `${config.entityName} Updated`,
                         description: `${config.entityName} has been successfully updated`
                     })
-                    setOriginalData({...data, active: payload.active})
+                    // Update originalData with current data including uploaded files
+                    const updatedData = {
+                        ...data,
+                        ...config.fields
+                            .filter(f => f.type === 'file')
+                            .reduce((acc, field) => ({...acc, [field.key]: uploadedFiles.map(f => f.id)}), {})
+                    }
+                    setOriginalData(updatedData)
                     setHasChanges(false)
                 }
             } else {
@@ -414,15 +442,37 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
         }
     }
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
         if (files) {
-            const newFiles = Array.from(files).map(file => URL.createObjectURL(file))
-            setUploadedFiles([...uploadedFiles, ...newFiles])
+            const fileArray = Array.from(files)
+            try {
+                const uploadPromises = fileArray.map(file => uploadFile(file, {
+                    res_model: 'products',
+                    res_id: entityId || ''
+                }))
+                const results = await Promise.all(uploadPromises)
+                const newFiles = results.map(r => ({id: r.id, url: r.url}))
+                setUploadedFiles([...uploadedFiles, ...newFiles])
+            } catch (error) {
+                toast({
+                    title: 'Upload Error',
+                    description: error instanceof Error ? error.message : 'Failed to upload files',
+                    variant: 'destructive'
+                })
+            }
         }
     }
 
-    const removeFile = (index: number) => {
+    const removeFile = async (index: number) => {
+        const fileToRemove = uploadedFiles[index]
+        if (fileToRemove) {
+            try {
+                await deleteFile(fileToRemove.id)
+            } catch (error) {
+                console.error('Delete error:', error)
+            }
+        }
         setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
     }
 
@@ -572,7 +622,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                         <div className="space-y-2">
                             {uploadedFiles.map((file, index) => (
                                 <div key={index} className="flex items-center gap-2">
-                                    <img src={file} alt={`File ${index + 1}`}
+                                    <img src={file.url} alt={`File ${index + 1}`}
                                          className="w-16 h-16 object-cover rounded"/>
                                     <div className="flex-1">
                                         <p className="text-sm font-medium">File {index + 1}</p>
@@ -820,7 +870,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                                 {field.required && <span className="text-red-500 ml-1">*</span>}
                                                 {field.helper && (
                                                     <Whisper
-                                                        placement="right"
+                                                        placement="bottom"
                                                         trigger="click"
                                                         speaker={<Popover>{field.helper}</Popover>}
                                                     >
@@ -855,8 +905,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                             {field.required && <span className="text-red-500 ml-1">*</span>}
                                             {field.helper && (
                                                 <Whisper
-                                                    placement="right"
-                                                    trigger="click"
+                                                    placement="bottom"
+                                                    trigger="hover"
                                                     speaker={<Popover>{field.helper}</Popover>}
                                                 >
                                                     <button type="button" className="text-gray-400 hover:text-gray-600 focus:outline-none">
@@ -883,7 +933,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                 .map((action) => action.helper ? (
                                     <Whisper
                                         key={action.key}
-                                        placement="right"
+                                        placement="bottom"
                                         trigger="hover"
                                         speaker={<Popover>{action.helper}</Popover>}
                                     >
@@ -1000,13 +1050,20 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
 
                     {/* Quick Actions - Mobile Drawer */}
                     <div className="lg:hidden">
-                        <button
-                            onClick={() => setShowQuickActions(true)}
-                            // className="fixed right-4 top-1/2 -translate-y-1/2 bg-white rounded-lg border shadow-lg p-2 flex items-center justify-center hover:bg-gray-50 z-50"
-                            className="fixed right-4 bottom-4 bg-white rounded-lg border shadow-lg p-2 flex items-center justify-center hover:bg-gray-50 z-50"
-                        >
-                            <BsTools className="w-5 h-5" />
-                        </button>
+                        <Whisper
+                            trigger="hover"
+                            placement={"topEnd"}
+                            speaker={<Popover>Quick Actions</Popover>}
+                            >
+                            <button
+                                onClick={() => setShowQuickActions(true)}
+                                // className="fixed right-4 top-1/2 -translate-y-1/2 bg-white rounded-lg border shadow-lg p-2 flex items-center justify-center hover:bg-gray-50 z-50"
+                                className="fixed right-4 bottom-4 bg-white rounded-lg border shadow-lg p-2 flex items-center justify-center hover:bg-gray-50 z-50"
+                            >
+                                <BsTools className="w-5 h-5" />
+                            </button>
+                        </Whisper>
+
 
                         <Drawer open={showQuickActions} onClose={() => setShowQuickActions(false)} size="xs" backdrop="static" placement="right">
                             <Drawer.Header>
@@ -1019,7 +1076,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                         .map((action) => action.helper ? (
                                             <Whisper
                                                 key={action.key}
-                                                placement="right"
+                                                placement="bottom"
                                                 trigger="hover"
                                                 speaker={<Popover>{action.helper}</Popover>}
                                             >
@@ -1156,7 +1213,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             {/* Bottom Action Bar - Smart Minimal */}
             <ActionBar
                 open={hasChanges}
-                onOpenChange={(open) => !open && setHasChanges(false)}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        // Only set hasChanges to false if manually closed (not via state)
+                        // This prevents interference with programmatic state changes
+                        if (hasChanges) {
+                            setHasChanges(false)
+                        }
+                    }
+                }}
                 side="bottom"
                 align="center"
             >
@@ -1166,7 +1231,33 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     <ActionBarItem
                         color="red"
                         size="sm"
-                        onClick={() => router.push(config.breadcrumbs.list)}
+                        onClick={() => {
+                            if (mode === 'edit' && originalData) {
+                                setData(originalData)
+                                // Reset uploadedFiles to original file values
+                                const originalFileIds = config.fields
+                                    .filter(f => f.type === 'file' && originalData[f.key])
+                                    .flatMap(f => Array.isArray(originalData[f.key]) ? originalData[f.key] : [originalData[f.key]])
+                                // Fetch URLs from ir_attachment table
+                                if (originalFileIds.length > 0) {
+                                    fetchAttachmentUrls(originalFileIds)
+                                        .then(attachments => {
+                                            setUploadedFiles(attachments)
+                                            setHasChanges(false)
+                                        })
+                                        .catch(error => {
+                                            console.error('Failed to fetch attachment URLs:', error)
+                                            setUploadedFiles(originalFileIds.map(id => ({id, url: ''})))
+                                            setHasChanges(false)
+                                        })
+                                } else {
+                                    setUploadedFiles([])
+                                    setHasChanges(false)
+                                }
+                            } else {
+                                router.push(config.breadcrumbs.list)
+                            }
+                        }}
                         disabled={saving}
                     >
                         Cancel

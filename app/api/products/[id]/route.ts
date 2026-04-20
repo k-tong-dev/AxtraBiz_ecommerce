@@ -69,8 +69,6 @@ export async function PUT(
       compare_price: body.compare_price ? parseFloat(body.compare_price) : 0,
       cost_price: body.cost_price ? parseFloat(body.cost_price) : 0,
       original_price: body.original_price || null,
-      image: body.image?.trim() || '',
-      images: body.images || [],
       image_ids: body.image_ids || [],
       sku: body.sku || '',
       barcode: body.barcode || '',

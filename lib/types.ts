@@ -12,11 +12,10 @@ export interface User {
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   description: string;
   price: number;
   original_price?: number;
-  image: string;
-  images?: string[];
   image_ids?: string[];
   category: string;
   rating: number;

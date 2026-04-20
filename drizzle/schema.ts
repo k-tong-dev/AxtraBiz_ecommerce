@@ -31,8 +31,6 @@ export const products = pgTable('products', {
   compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
   cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
   original_price: numeric('original_price', { precision: 12, scale: 2 }),
-  image: text('image').notNull().default(''),
-  images: jsonb('images').notNull().default('[]'),
   image_ids: jsonb('image_ids').notNull().default('[]'),
   sku: text('sku').default(''),
   barcode: text('barcode').default(''),
@@ -44,6 +42,22 @@ export const products = pgTable('products', {
   dimensions: text('dimensions').default(''),
   active: boolean('active').default(true).notNull(),
   features: jsonb('features').notNull().default('[]'),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Attachments table (ir_attachment)
+export const ir_attachment = pgTable('ir_attachment', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  filename: text('filename').notNull(),
+  mimetype: text('mimetype').notNull(),
+  url: text('url').notNull(),
+  size: integer('size').notNull(),
+  res_model: text('res_model').notNull(), // Model name (e.g., 'products')
+  res_id: text('res_id').notNull(), // Record ID
+  type: text('type').notNull().default('binary'), // 'binary', 'url'
+  active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
@@ -120,3 +134,4 @@ export type Invoice = typeof invoices.$inferSelect;
 export type Announcement = typeof announcements.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Configuration = typeof configurations.$inferSelect;
+export type IrAttachment = typeof ir_attachment.$inferSelect;
