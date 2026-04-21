@@ -21,9 +21,8 @@ export async function POST(request: Request) {
   try {
     const { data, error } = await supabase
       .from('ir_attachment')
-      .select('id, url')
+      .select('id, url, active')
       .in('id', ids)
-      .eq('active', true)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

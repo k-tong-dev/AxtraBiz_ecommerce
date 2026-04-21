@@ -95,7 +95,7 @@ export type MutableEntity = {
 interface FormViewProps<T extends Entity> {
     mode: 'create' | 'edit'
     config: FormConfig
-    initialData?: T
+    initialData?: T | null
     entityId?: string
 }
 
@@ -111,13 +111,17 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const [saving, setSaving] = useState(false)
     const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, url: string, file?: File}>>([])
     const [showQuickActions, setShowQuickActions] = useState(false)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     // Initialize form data
     useEffect(() => {
         // Check for duplicate data in URL params (context system)
         const duplicateParam = searchParams.get('duplicate')
         
-        console.log('FormView useEffect - mode:', mode, 'duplicateParam:', duplicateParam)
         
         if (mode === 'edit' && initialData) {
             setData(initialData as MutableEntity)
@@ -130,7 +134,12 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             if (existingFileIds.length > 0) {
                 fetchAttachmentUrls(existingFileIds)
                     .then(attachments => {
-                        setUploadedFiles(attachments)
+                        // If fetch returns empty but we have IDs, create entries with empty URLs
+                        if (attachments.length === 0 && existingFileIds.length > 0) {
+                            setUploadedFiles(existingFileIds.map(id => ({id, url: ''})))
+                        } else {
+                            setUploadedFiles(attachments)
+                        }
                         setLoading(false)
                     })
                     .catch(error => {
@@ -152,7 +161,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             if (duplicateParam) {
                 try {
                     const duplicateData = JSON.parse(decodeURIComponent(duplicateParam))
-                    console.log('Duplicate data parsed:', duplicateData)
                     defaultData = duplicateData as MutableEntity
                     // Clear ID to ensure it's treated as new
                     delete defaultData.id
@@ -177,7 +185,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                 }
             })
             
-            console.log('Setting defaultData:', defaultData)
             setData(defaultData)
             
             // When duplicating, don't set originalData so hasChanges remains true
@@ -253,14 +260,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
 
         const isChanged = dataChanged || filesChanged
 
-        console.log('Change tracking:', {
-            currentFileIds,
-            originalFileIds,
-            hasNewFiles,
-            filesChanged,
-            dataChanged,
-            isChanged
-        })
 
         setHasChanges(isChanged)
     }, [data, originalData, uploadedFiles, config.fields])
@@ -297,6 +296,19 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
 
             // Upload new files to storage first
             const newFiles = uploadedFiles.filter(f => f.file && !f.id)
+            // Track original file IDs to detect deleted attachments
+            const originalFileIds: string[] = []
+            if (originalData) {
+                for (const field of config.fields) {
+                    if (field.type === 'file' && originalData[field.key]) {
+                        const fieldIds = Array.isArray(originalData[field.key])
+                            ? originalData[field.key]
+                            : [originalData[field.key]]
+                        originalFileIds.push(...fieldIds.filter((id: string) => id))
+                    }
+                }
+            }
+
             if (newFiles.length > 0) {
                 try {
                     const uploadPromises = newFiles.map(f => uploadFile(f.file!, {
@@ -344,6 +356,19 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     })
             }
 
+            // Delete attachments that were removed from the UI
+            const currentFileIds = uploadedFiles.map(f => f.id).filter(id => id)
+            const deletedIds = originalFileIds.filter(id => !currentFileIds.includes(id))
+            if (deletedIds.length > 0) {
+                for (const id of deletedIds) {
+                    try {
+                        await deleteFile(id)
+                    } catch (error) {
+                        console.error('Failed to delete attachment:', id, error)
+                    }
+                }
+            }
+
             // Remove ID for create mode
             if (mode === 'create' && payload.id) {
                 delete payload.id
@@ -359,7 +384,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             })
 
             const result = await response.json()
-            console.log('API Response:', result)
 
             if (!response.ok) {
                 // Handle HTTP errors
@@ -395,16 +419,39 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             serverFileIds.push(...fieldIds.filter((id: string) => id))
                         }
                     }
-                    console.log('Server returned file IDs:', serverFileIds)
-                    // Clean up uploadedFiles - remove file property, keep only uploaded files with IDs
-                    const cleanedUploadedFiles = uploadedFiles
-                        .map(f => ({id: f.id, url: f.url}))
-                        .filter(f => f.id) // Only keep files with IDs
-                    setUploadedFiles(cleanedUploadedFiles)
-                    // Update originalData with server response data
-                    setOriginalData(serverData)
-                    console.log('Updating originalData from server:', serverData)
-                    setHasChanges(false)
+                    // Fetch attachment URLs for the server file IDs
+                    if (serverFileIds.length > 0) {
+                        fetchAttachmentUrls(serverFileIds)
+                            .then(attachments => {
+                                // Use the fetched attachments (which actually exist) for uploadedFiles
+                                setUploadedFiles(attachments)
+                                // Update originalData with the actual attachment IDs that exist
+                                const actualFileIds = attachments.map(a => a.id)
+                                const updatedServerData = {
+                                    ...serverData,
+                                    ...config.fields
+                                        .filter(f => f.type === 'file')
+                                        .reduce((acc, field) => ({...acc, [field.key]: actualFileIds}), {})
+                                }
+                                setOriginalData(updatedServerData)
+                                setData(updatedServerData)
+                                setHasChanges(false)
+                            })
+                            .catch(error => {
+                                console.error('Failed to fetch attachment URLs:', error)
+                                // Fallback: create entries with empty URLs
+                                setUploadedFiles(serverFileIds.map(id => ({id, url: ''})))
+                                setOriginalData(serverData)
+                                setData(serverData)
+                                setHasChanges(false)
+                            })
+                    } else {
+                        // No files, clear uploadedFiles
+                        setUploadedFiles([])
+                        setOriginalData(serverData)
+                        setData(serverData)
+                        setHasChanges(false)
+                    }
                 }
             } else {
                 // Handle API success=false response
@@ -543,19 +590,12 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const removeFile = async (index: number) => {
         const fileToRemove = uploadedFiles[index]
         if (fileToRemove) {
-            // Only delete from storage if the file was already uploaded (has an ID)
-            if (fileToRemove.id) {
-                try {
-                    await deleteFile(fileToRemove.id)
-                } catch (error) {
-                    console.error('Delete error:', error)
-                }
-            }
             // Revoke local object URL if it exists
             if (fileToRemove.url && fileToRemove.url.startsWith('blob:')) {
                 URL.revokeObjectURL(fileToRemove.url)
             }
         }
+        // Don't delete from database immediately - only update UI state
         setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
     }
 
@@ -703,7 +743,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                         </div>
 
                         <div className="space-y-2">
-                            {uploadedFiles.map((file, index) => (
+                            {uploadedFiles.filter(f => f.url).map((file, index) => (
                                 <div key={index} className="flex items-center gap-2">
                                     <img src={file.url} alt={`File ${index + 1}`}
                                          className="w-16 h-16 object-cover rounded"/>
@@ -828,23 +868,22 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
         return acc
     }, {} as Record<number, FormField[]>)
 
-    if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center">
-                <Loader backdrop content="Loading..." vertical />
-            </div>
-        )
-    }
-
     const formTitle = mode === 'create' ? `Create New ${config.entityName}` : `Edit: ${data.name || config.entityName}`
     const formSubtitle = mode === 'create' ? `Add a new ${config.entityName.toLowerCase()} to your catalog` : `Modify ${config.entityName.toLowerCase()} details and settings`
 
     return (
         <div className="space-y-6 relative">
-            {/* Saving overlay */}
-            {saving && (
+            {/* Loading overlay */}
+            {loading && mounted && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <Loader backdrop content="Saving..." vertical />
+                    <Loader backdrop content="Loading..." vertical />
+                </div>
+            )}
+
+            {/* Saving overlay */}
+            {saving && mounted && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <Loader backdrop content={mode === 'create' ? 'Creating...' : 'Saving...'} vertical />
                 </div>
             )}
             
@@ -1327,12 +1366,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                 const originalFileIds = config.fields
                                     .filter(f => f.type === 'file' && originalData[f.key])
                                     .flatMap(f => Array.isArray(originalData[f.key]) ? originalData[f.key] : [originalData[f.key]])
-                                console.log('Cancel clicked - resetting to original files:', originalFileIds)
                                 // Fetch URLs from ir_attachment table
                                 if (originalFileIds.length > 0) {
                                     fetchAttachmentUrls(originalFileIds)
                                         .then(attachments => {
-                                            console.log('Cancel - fetched attachments:', attachments)
                                             setUploadedFiles(attachments)
                                             setHasChanges(false)
                                         })
@@ -1342,7 +1379,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                             setHasChanges(false)
                                         })
                                 } else {
-                                    console.log('Cancel - no original files, clearing uploadedFiles')
                                     setUploadedFiles([])
                                     setHasChanges(false)
                                 }

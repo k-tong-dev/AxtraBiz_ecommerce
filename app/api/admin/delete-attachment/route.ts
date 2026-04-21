@@ -6,7 +6,6 @@ export const runtime = 'nodejs'
 export async function POST(request: Request) {
   const { path, attachmentId, bucket } = await request.json()
 
-  console.log('Delete attachment request:', { path, attachmentId, bucket })
 
   if (!path && !attachmentId) {
     return NextResponse.json({ error: 'Missing path or attachmentId' }, { status: 400 })
@@ -20,7 +19,6 @@ export async function POST(request: Request) {
 
   const supabase = createClient(url, serviceRole, { auth: { persistSession: false } })
   const bucketName = bucket || 'ir_attachments'
-  console.log('Using bucket:', bucketName)
 
   // Fetch attachment to get URL and extract path if not provided
   let filePath = path
@@ -48,13 +46,11 @@ export async function POST(request: Request) {
         const filename = urlParts[urlParts.length - 1]
         filePath = `ir_attachments/${filename}`
       }
-      console.log('Extracted path from URL:', filePath, 'Full URL:', attachment.url)
     }
   }
 
   // Delete from storage
   if (filePath) {
-    console.log('Deleting from storage:', bucketName, filePath)
     const { error: deleteError } = await supabase.storage
       .from(bucketName)
       .remove([filePath])
@@ -63,7 +59,6 @@ export async function POST(request: Request) {
       console.error('Storage delete error:', deleteError)
       return NextResponse.json({ error: deleteError.message }, { status: 500 })
     }
-    console.log('Successfully deleted from storage')
   }
 
   // Delete ir_attachment record
