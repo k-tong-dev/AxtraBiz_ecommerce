@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   const resModel = form.get('res_model') as string || 'products'
   const resId = form.get('res_id') as string || ''
   const bucket = form.get('bucket') as string || 'ir_attachments'
-  const folder = form.get('folder') as string || 'ir_attachments'
+  const folder = 'ir_attachments'
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: 'Missing file' }, { status: 400 })
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const supabase = createClient(url, serviceRole, { auth: { persistSession: false } })
   const ext = file.name.split('.').pop() || 'bin'
   const attachmentId = crypto.randomUUID()
-  const path = `${folder}/${attachmentId}.${ext}`
+  const path = folder ? `${folder}/${attachmentId}.${ext}` : `${attachmentId}.${ext}`
 
   // Upload file to storage
   const { error: uploadError } = await supabase.storage
@@ -52,6 +52,9 @@ export async function POST(request: Request) {
       type: 'binary',
       active: true,
     })
+
+  // Note: We'll store the path in a separate column or derive it from the URL
+  // For now, the path is: ir_attachments/${attachmentId}.${ext}
 
   if (insertError) {
     // Rollback: delete the uploaded file if ir_attachment insert fails

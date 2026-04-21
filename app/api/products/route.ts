@@ -26,6 +26,7 @@ export async function POST(request: Request) {
       weight: body.weight ? parseFloat(body.weight) : 0,
       barcode: body.barcode || '',
       slug: body.slug || '',
+      image_ids: body.image_ids || [],
     }
     
     console.log('Processed body:', JSON.stringify(processedBody, null, 2))

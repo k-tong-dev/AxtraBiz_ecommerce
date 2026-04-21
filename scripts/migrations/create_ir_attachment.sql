@@ -22,23 +22,8 @@ CREATE INDEX IF NOT EXISTS ir_attachment_created_at_idx ON ir_attachment(created
 -- Note: Files are stored in Supabase Storage bucket 'ir_attachments'
 -- Make sure to create this bucket in Supabase Storage before running this migration
 
--- Create trigger function to cascade delete ir_attachment when a product is deleted
-CREATE OR REPLACE FUNCTION delete_product_attachments()
-RETURNS TRIGGER AS $$
-BEGIN
-    DELETE FROM ir_attachment
-    WHERE res_model = 'products'
-    AND res_id = OLD.id;
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
--- Create trigger on products table
-DROP TRIGGER IF EXISTS trigger_delete_product_attachments ON products;
-CREATE TRIGGER trigger_delete_product_attachments
-    AFTER DELETE ON products
-    FOR EACH ROW
-    EXECUTE FUNCTION delete_product_attachments();
+-- Note: Cascade delete is handled at the application level in lib/drizzle/products.ts
+-- When a product is deleted, the deleteAttachmentsByResModelAndResId function is called first
 
 -- Drop old image and images columns from products table
 ALTER TABLE products DROP COLUMN IF EXISTS image;

@@ -31,7 +31,7 @@ export async function uploadFile(
   file: File,
   options: UploadOptions = {}
 ): Promise<UploadResult> {
-  const { bucket = 'ir_attachments', folder = 'ir_attachments', res_model = 'products', res_id = '', onProgress } = options
+  const { bucket = 'ir_attachments', folder = '', res_model = 'products', res_id = '', onProgress } = options
 
   const formData = new FormData()
   formData.append('file', file)
@@ -88,7 +88,7 @@ export async function deleteFile(
   path?: string,
   options: DeleteOptions = {}
 ): Promise<{ success: boolean }> {
-  const { bucket = 'product-images' } = options
+  const { bucket = 'ir_attachments' } = options
 
   try {
     const response = await fetch('/api/admin/delete-attachment', {

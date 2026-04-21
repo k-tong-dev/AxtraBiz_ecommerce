@@ -1,6 +1,7 @@
 import { db, products } from './server'
 import { eq } from 'drizzle-orm'
 import type { Product } from './server'
+import { deleteAttachmentsByResModelAndResId } from './ir_attachment'
 
 export async function fetchProductsFromDrizzle(): Promise<Product[]> {
   try {
@@ -51,6 +52,10 @@ export async function upsertProductInDrizzle(product: Product): Promise<{ succes
 
 export async function deleteProductFromDrizzle(productId: string): Promise<boolean> {
   try {
+    // First, delete all attachments for this product
+    await deleteAttachmentsByResModelAndResId('products', productId)
+    
+    // Then delete the product
     await db.delete(products).where(eq(products.id, productId))
     return true
   } catch {
@@ -60,6 +65,12 @@ export async function deleteProductFromDrizzle(productId: string): Promise<boole
 
 export async function deleteProductsFromDrizzle(productIds: string[]): Promise<boolean> {
   try {
+    // First, delete all attachments for these products
+    await Promise.all(
+      productIds.map((id) => deleteAttachmentsByResModelAndResId('products', id))
+    )
+    
+    // Then delete the products
     await Promise.all(productIds.map((id) => db.delete(products).where(eq(products.id, id))))
     return true
   } catch {
