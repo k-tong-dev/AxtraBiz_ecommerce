@@ -20,12 +20,14 @@ import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'l
 import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
+import {DatePickerField} from './DatePickerField'
+import {VariantManager} from './VariantManager'
 
 // Generic field types for the FormView
 export interface FormField {
     key: string
     label: string
-    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
+    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime'
     required?: boolean
     readonly?: boolean
     helper?: string
@@ -110,6 +112,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, url: string, file?: File}>>([])
+    const [variants, setVariants] = useState<any[]>([])
+    const [attributes, setAttributes] = useState<Array<{name: string, values: string[]}>>([])
     const [showQuickActions, setShowQuickActions] = useState(false)
     const [mounted, setMounted] = useState(false)
 
@@ -836,6 +840,21 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     </div>
                 )
 
+            case 'date':
+            case 'datetime':
+                return (
+                    <DatePickerField
+                        label={field.label}
+                        value={value}
+                        onChange={onChange}
+                        placeholder={field.placeholder || 'Select date'}
+                        includeTime={field.type === 'datetime'}
+                        disabled={field.readonly}
+                        required={field.required}
+                        className={field.className}
+                    />
+                )
+
             default:
                 return null
         }
@@ -1011,6 +1030,17 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             </div>
                         )
                     })}
+
+                    {/* Variant Manager - only show for variable products */}
+                    {data.product_type === 'variable' && (
+                        <VariantManager
+                            productType={data.product_type}
+                            variants={variants}
+                            attributes={attributes}
+                            onVariantsChange={setVariants}
+                            onAttributesChange={setAttributes}
+                        />
+                    )}
                 </div>
 
                 {/* Right Sidebar */}

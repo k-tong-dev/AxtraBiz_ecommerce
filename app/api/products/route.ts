@@ -15,25 +15,57 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const processedBody = {
-      ...body,
-      active: body.active !== undefined ? (body.active === 'true' || body.active === true) : true,
-      compare_price: body.compare_price ? parseFloat(body.compare_price) : 0,
-      cost_price: body.cost_price ? parseFloat(body.cost_price) : 0,
-      price: body.price ? parseFloat(body.price) : 0,
-      stock: body.stock ? parseInt(body.stock) : 0,
-      reviews: body.reviews ? parseInt(body.reviews) : 0,
-      weight: body.weight ? parseFloat(body.weight) : 0,
-      barcode: body.barcode || '',
-      slug: body.slug || '',
-      image_ids: body.image_ids || [],
-    }
     
-    console.log('Processed body:', JSON.stringify(processedBody, null, 2))
+    // Convert date fields to ISO strings
+    const formatDate = (dateValue: any): string | null => {
+      if (!dateValue) return null
+      if (dateValue instanceof Date) return dateValue.toISOString()
+      if (typeof dateValue === 'string') {
+        const parsed = new Date(dateValue)
+        if (!isNaN(parsed.getTime())) return parsed.toISOString()
+      }
+      return null
+    }
+
+    // Dynamic field processing - automatically handle all fields
+    const processedBody: any = {}
+    
+    // Process each field in the body dynamically
+    for (const [key, value] of Object.entries(body)) {
+      // Skip internal fields
+      if (key === 'id') continue
+      
+      // Handle date fields
+      if (key.includes('date') || key.includes('published_at') || key.includes('created_at') || key.includes('updated_at')) {
+        processedBody[key] = formatDate(value)
+      }
+      // Handle numeric fields
+      else if (['price', 'compare_price', 'cost_price', 'weight', 'rating'].includes(key)) {
+        processedBody[key] = typeof value === 'string' || typeof value === 'number' ? parseFloat(String(value)) : 0
+      }
+      else if (['stock', 'reviews', 'low_stock_threshold'].includes(key)) {
+        processedBody[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
+      }
+      // Handle boolean fields
+      else if (['active', 'track_inventory', 'allow_backorders'].includes(key)) {
+        processedBody[key] = value !== undefined ? (value === 'true' || value === true) : true
+      }
+      // Handle array/json fields
+      else if (['tags', 'features', 'image_ids'].includes(key)) {
+        processedBody[key] = Array.isArray(value) ? value : (typeof value === 'string' ? value.split(',').map((t: string) => t.trim()) : [])
+      }
+      // Handle text fields with defaults
+      else if (['barcode', 'slug', 'description', 'name'].includes(key)) {
+        processedBody[key] = value || ''
+      }
+      // Handle other fields (FKs, status, type, etc.)
+      else {
+        processedBody[key] = value !== undefined && value !== null ? value : null
+      }
+    }
     
     // Check if this is a new product (no ID) or update (has ID)
     if (!body.id) {
-      console.log('Creating new product with processed data:', processedBody)
       // Insert new product
       const newProduct = {
         ...processedBody,
@@ -43,28 +75,42 @@ export async function POST(request: Request) {
       }
       await db.insert(products).values(newProduct as any)
     } else {
-      console.log('Updating existing product with ID:', body.id, 'Data:', processedBody)
-      // Update existing product
+      // Update existing product - partial update (only changed fields)
       const { id, ...productData } = processedBody
-      const updateData = {
-        ...productData,
+      
+      // Fetch current product to compare changes
+      const currentProduct = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, id))
+        .limit(1)
+      
+      if (!currentProduct || currentProduct.length === 0) {
+        return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+      }
+      
+      const current = currentProduct[0]
+      const updateData: any = {
         updated_at: new Date().toISOString()
       }
       
-      console.log('Update data for database:', JSON.stringify(updateData, null, 2))
+      // Only include fields that actually changed
+      for (const [key, value] of Object.entries(productData)) {
+        if (value !== undefined && value !== null && value !== (current as any)[key]) {
+          updateData[key] = value
+        }
+      }
       
-      const result = await db
-        .update(products)
-        .set(updateData as any)
-        .where(eq(products.id, id))
-      
-      console.log('Database update result:', result)
+      // If no fields changed (except updated_at), skip the update
+      if (Object.keys(updateData).length > 1) {
+        await db
+          .update(products)
+          .set(updateData as any)
+          .where(eq(products.id, id))
+      }
     }
     
     const response = { success: true, data: processedBody }
-    console.log('=== API RESPONSE ===')
-    console.log('Response:', JSON.stringify(response, null, 2))
-    
     return NextResponse.json(response)
   } catch (error) {
     console.error('Product API Error:', error)

@@ -63,27 +63,74 @@ export const productFormConfig: FormConfig = {
             order: 4
         },
         {
-            key: 'category',
+            key: 'category_id',
             label: 'Category',
             type: 'select',
-            required: true,
+            required: false,
             placeholder: 'Select category',
-            options: [
-                {label: 'General', value: 'General'},
-                {label: 'Electronics', value: 'Electronics'},
-                {label: 'Clothing', value: 'Clothing'},
-                {label: 'Books', value: 'Books'},
-                {label: 'Home & Garden', value: 'Home & Garden'},
-                {label: 'Sports', value: 'Sports'},
-                {label: 'Toys', value: 'Toys'},
-                {label: 'Food', value: 'Food'},
-                {label: 'Health', value: 'Health'},
-                {label: 'Beauty', value: 'Beauty'}
-            ],
+            options: [], // Will be populated dynamically
             gridCols: 1,
             gridRow: 1,
             gridColumn: 2,
             order: 5
+        },
+        {
+            key: 'brand_id',
+            label: 'Brand',
+            type: 'select',
+            required: false,
+            placeholder: 'Select brand',
+            options: [], // Will be populated dynamically
+            gridCols: 1,
+            gridRow: 1,
+            gridColumn: 2,
+            order: 6
+        },
+        {
+            key: 'tax_rate_id',
+            label: 'Tax Rate',
+            type: 'select',
+            required: false,
+            placeholder: 'Select tax rate',
+            options: [], // Will be populated dynamically
+            gridCols: 1,
+            gridRow: 1,
+            gridColumn: 2,
+            order: 7
+        },
+        {
+            key: 'product_type',
+            label: 'Product Type',
+            type: 'select',
+            required: true,
+            placeholder: 'Select product type',
+            options: [
+                {label: 'Simple', value: 'simple'},
+                {label: 'Variable', value: 'variable'},
+                {label: 'Grouped', value: 'grouped'},
+                {label: 'Bundle', value: 'bundle'},
+                {label: 'Digital', value: 'digital'}
+            ],
+            gridCols: 1,
+            gridRow: 1,
+            gridColumn: 2,
+            order: 8
+        },
+        {
+            key: 'status',
+            label: 'Status',
+            type: 'select',
+            required: true,
+            placeholder: 'Select status',
+            options: [
+                {label: 'Draft', value: 'draft'},
+                {label: 'Published', value: 'published'},
+                {label: 'Archived', value: 'archived'}
+            ],
+            gridCols: 1,
+            gridRow: 1,
+            gridColumn: 2,
+            order: 9
         },
         {
             key: 'description',
@@ -95,7 +142,56 @@ export const productFormConfig: FormConfig = {
             gridCols: 3,
             gridRow: 2,
             gridColumn: 1,
-            order: 4  // Fourth field
+            order: 10
+        },
+
+        // SEO Section
+        {
+            key: 'meta_title',
+            label: 'Meta Title',
+            type: 'text',
+            required: false,
+            placeholder: 'SEO title (max 60 chars)',
+            gridCols: 1,
+            gridRow: 3,
+            gridColumn: 1,
+            order: 11
+        },
+        {
+            key: 'meta_description',
+            label: 'Meta Description',
+            type: 'textarea',
+            required: false,
+            placeholder: 'SEO description (max 160 chars)',
+            rows: 2,
+            gridCols: 2,
+            gridRow: 3,
+            gridColumn: 2,
+            order: 12
+        },
+        {
+            key: 'meta_keywords',
+            label: 'Meta Keywords',
+            type: 'text',
+            required: false,
+            placeholder: 'Comma-separated keywords',
+            gridCols: 3,
+            gridRow: 4,
+            gridColumn: 1,
+            order: 13
+        },
+
+        // Tags
+        {
+            key: 'tags',
+            label: 'Tags',
+            type: 'text',
+            required: false,
+            placeholder: 'Comma-separated tags',
+            gridCols: 3,
+            gridRow: 5,
+            gridColumn: 1,
+            order: 14
         },
 
         // Pricing Section - Ordered fields
@@ -177,9 +273,44 @@ export const productFormConfig: FormConfig = {
                 return null
             },
             gridCols: 1,
-            gridRow: 4,
+            gridRow: 7,
             gridColumn: 2,
-            order: 9  // Ninth field
+            order: 17
+        },
+        {
+            key: 'track_inventory',
+            label: 'Track Inventory',
+            type: 'toggle',
+            required: false,
+            gridCols: 1,
+            gridRow: 7,
+            gridColumn: 1,
+            order: 18
+        },
+        {
+            key: 'low_stock_threshold',
+            label: 'Low Stock Threshold',
+            type: 'number',
+            required: false,
+            placeholder: '10',
+            validation: (value) => {
+                if (value < 0) return 'Threshold must be greater than or equal to 0'
+                return null
+            },
+            gridCols: 1,
+            gridRow: 7,
+            gridColumn: 3,
+            order: 19
+        },
+        {
+            key: 'allow_backorders',
+            label: 'Allow Backorders',
+            type: 'toggle',
+            required: false,
+            gridCols: 1,
+            gridRow: 8,
+            gridColumn: 1,
+            order: 20
         },
         {
             key: 'weight',
@@ -218,9 +349,44 @@ export const productFormConfig: FormConfig = {
             type: 'toggle',
             required: false,
             gridCols: 1,
-            gridRow: 1,
+            gridRow: 9,
             gridColumn: 1,
-            order: 12,
+            order: 23
+        },
+
+        // Sale Schedule
+        {
+            key: 'sale_start_date',
+            label: 'Sale Start Date',
+            type: 'date',
+            required: false,
+            placeholder: 'Select start date',
+            gridCols: 1,
+            gridRow: 10,
+            gridColumn: 1,
+            order: 24
+        },
+        {
+            key: 'sale_end_date',
+            label: 'Sale End Date',
+            type: 'date',
+            required: false,
+            placeholder: 'Select end date',
+            gridCols: 1,
+            gridRow: 10,
+            gridColumn: 2,
+            order: 25
+        },
+        {
+            key: 'published_at',
+            label: 'Published At',
+            type: 'date',
+            required: false,
+            placeholder: 'Select publish date',
+            gridCols: 1,
+            gridRow: 10,
+            gridColumn: 3,
+            order: 26
         }
     ],
     actions: {

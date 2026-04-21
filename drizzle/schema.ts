@@ -34,14 +34,132 @@ export const products = pgTable('products', {
   image_ids: jsonb('image_ids').notNull().default('[]'),
   sku: text('sku').default(''),
   barcode: text('barcode').default(''),
-  category: text('category').notNull().default('General'),
+  category_id: text('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
+  brand_id: text('brand_id').references(() => brands.id, { onDelete: 'set null' }),
+  tax_rate_id: text('tax_rate_id').references(() => tax_rates.id, { onDelete: 'set null' }),
+  product_type: text('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
+  status: text('status').notNull().default('draft'), // draft, published, archived
+  meta_title: text('meta_title'),
+  meta_description: text('meta_description'),
+  meta_keywords: text('meta_keywords'),
+  tags: jsonb('tags').notNull().default('[]'),
   rating: numeric('rating', { precision: 3, scale: 2 }).notNull().default('0'),
   reviews: integer('reviews').notNull().default(0),
   stock: integer('stock').notNull().default(0),
+  track_inventory: boolean('track_inventory').default(true).notNull(),
+  low_stock_threshold: integer('low_stock_threshold').default(10),
+  allow_backorders: boolean('allow_backorders').default(false),
   weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
   dimensions: text('dimensions').default(''),
+  sale_start_date: timestamp('sale_start_date', { mode: 'string' }),
+  sale_end_date: timestamp('sale_end_date', { mode: 'string' }),
+  published_at: timestamp('published_at', { mode: 'string' }),
   active: boolean('active').default(true).notNull(),
   features: jsonb('features').notNull().default('[]'),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Brands table
+export const brands = pgTable('brands', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
+  logo_id: text('logo_id'),
+  website: text('website'),
+  active: boolean('active').default(true).notNull(),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Tax rates table
+export const tax_rates = pgTable('tax_rates', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  rate: numeric('rate', { precision: 5, scale: 2 }).notNull(),
+  country: text('country').notNull(),
+  region: text('region'),
+  postal_code: text('postal_code'),
+  active: boolean('active').default(true).notNull(),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Product categories table
+export const product_categories = pgTable('product_categories', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
+  parent_id: text('parent_id').references(() => product_categories.id, { onDelete: 'set null' }),
+  image_id: text('image_id'),
+  position: integer('position').default(0),
+  active: boolean('active').default(true).notNull(),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+}) as any;
+
+// Shipping zones table
+export const shipping_zones = pgTable('shipping_zones', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
+  countries: jsonb('countries').notNull().default('[]'),
+  regions: jsonb('regions').notNull().default('[]'),
+  base_rate: numeric('base_rate', { precision: 12, scale: 2 }).default('0'),
+  free_shipping_threshold: numeric('free_shipping_threshold', { precision: 12, scale: 2 }),
+  active: boolean('active').default(true).notNull(),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Shipping zone product relation table
+export const shipping_zone_product = pgTable('shipping_zone_product', {
+  id: text('id').primaryKey(),
+  shipping_zone_id: text('shipping_zone_id').notNull().references(() => shipping_zones.id, { onDelete: 'cascade' }),
+  product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  custom_rate: numeric('custom_rate', { precision: 12, scale: 2 }),
+  active: boolean('active').default(true).notNull(),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Product attributes table
+export const product_attributes = pgTable('product_attributes', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  type: text('type').notNull(), // select, radio, color, text
+  values: jsonb('values').notNull().default('[]'),
+  position: integer('position').default(0),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Product attributes relation table
+export const product_attributes_rel = pgTable('product_attributes_rel', {
+  id: text('id').primaryKey(),
+  product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
+  position: integer('position').default(0),
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+});
+
+// Product variants table
+export const product_variants = pgTable('product_variants', {
+  id: text('id').primaryKey(),
+  product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  sku: text('sku').unique(),
+  barcode: text('barcode').unique(),
+  price: numeric('price', { precision: 12, scale: 2 }).notNull().default('0'),
+  compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
+  cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
+  stock: integer('stock').notNull().default(0),
+  weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
+  image_ids: jsonb('image_ids').notNull().default('[]'),
+  attributes: jsonb('attributes').notNull().default('{}'),
+  position: integer('position').default(0),
+  active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
@@ -135,3 +253,11 @@ export type Announcement = typeof announcements.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Configuration = typeof configurations.$inferSelect;
 export type IrAttachment = typeof ir_attachment.$inferSelect;
+export type Brand = typeof brands.$inferSelect;
+export type TaxRate = typeof tax_rates.$inferSelect;
+export type ProductCategory = typeof product_categories.$inferSelect;
+export type ShippingZone = typeof shipping_zones.$inferSelect;
+export type ShippingZoneProduct = typeof shipping_zone_product.$inferSelect;
+export type ProductAttribute = typeof product_attributes.$inferSelect;
+export type ProductAttributesRel = typeof product_attributes_rel.$inferSelect;
+export type ProductVariant = typeof product_variants.$inferSelect;

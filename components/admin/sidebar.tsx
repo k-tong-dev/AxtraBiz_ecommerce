@@ -14,6 +14,10 @@ import {
   Menu,
   X,
   SlidersHorizontal,
+  Tag,
+  Percent,
+  FolderTree,
+  Truck,
 } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
 import { Button } from '@/components/ui/button'
@@ -125,6 +129,18 @@ export function AdminSidebar() {
                 </Nav.Item>
                 <Nav.Menu eventKey="projects" title="Catalog" icon={<Package className="h-4 w-4" />}>
                   <Nav.Item eventKey="/admin/products">All Products</Nav.Item>
+                  <Nav.Item eventKey="/admin/brands" icon={<Tag className="h-4 w-4" />}>
+                    Brands
+                  </Nav.Item>
+                  <Nav.Item eventKey="/admin/tax-rates" icon={<Percent className="h-4 w-4" />}>
+                    Taxes
+                  </Nav.Item>
+                  <Nav.Item eventKey="/admin/categories" icon={<FolderTree className="h-4 w-4" />}>
+                    Categories
+                  </Nav.Item>
+                  <Nav.Item eventKey="/admin/shipping-zones" icon={<Truck className="h-4 w-4" />}>
+                    Shipping Zones
+                  </Nav.Item>
                 </Nav.Menu>
                 <Nav.Menu eventKey="sales" title="Sales" icon={<ShoppingCart className="h-4 w-4" />}>
                   <Nav.Item eventKey="/admin/orders">Orders</Nav.Item>
