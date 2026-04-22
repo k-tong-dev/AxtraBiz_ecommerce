@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { FormView } from '@/components/admin/FormView/FormView'
-import { productFormConfig } from '@/components/admin/form-configs/productConfig'
+import { FormView } from '@/components/admin/ResourceView/FormView'
+import { productFormConfig } from '../../config'
 import type { Product } from '@/lib/drizzle/server'
 
 export default function EditProductPage() {

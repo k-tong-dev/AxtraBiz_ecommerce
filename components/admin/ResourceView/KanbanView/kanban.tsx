@@ -47,6 +47,7 @@ import * as ReactDOM from "react-dom";
 
 import { useComposedRefs } from "@/lib/compose-refs";
 import { cn } from "@/lib/utils";
+import string from "zod";
 
 const directions: string[] = [
   KeyboardCode.Down,
@@ -190,16 +191,17 @@ interface GetItemValue<T> {
 }
 
 type KanbanProps<T> = Omit<DndContextProps, "collisionDetection"> &
-  (T extends object ? GetItemValue<T> : Partial<GetItemValue<T>>) & {
-    value: Record<UniqueIdentifier, T[]>;
-    onValueChange?: (columns: Record<UniqueIdentifier, T[]>) => void;
+    (T extends object ? GetItemValue<T> : Partial<GetItemValue<T>>) & {
+    value: Record<UniqueIdentifier, T[]>,
+    onValueChange?: (columns: Record<UniqueIdentifier, T[]>) => void,
     onMove?: (
-      event: DragEndEvent & { activeIndex: number; overIndex: number },
-    ) => void;
-    strategy?: SortableContextProps["strategy"];
-    orientation?: "horizontal" | "vertical";
-    flatCursor?: boolean;
-  };
+        event: DragEndEvent & { activeIndex: number; overIndex: number },
+    ) => void,
+    strategy?: SortableContextProps["strategy"],
+    orientation?: "horizontal" | "vertical",
+    flatCursor?: boolean,
+    className?: string
+};
 
 function Kanban<T>(props: KanbanProps<T>) {
   const {

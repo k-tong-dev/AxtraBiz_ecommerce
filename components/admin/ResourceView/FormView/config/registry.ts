@@ -1,7 +1,9 @@
 // Global form configuration registry for FormView
 import { FormConfig } from '../FormView'
-import { productFormConfig } from '../../form-configs/productConfig'
-import { customerFormConfig } from '../../form-configs/customerConfig'
+// Note: Model-specific configs are now in app/admin/[model]/config/
+// - productFormConfig: app/admin/products/config/formView.ts
+// - customerFormConfig: Should be moved to app/admin/customers/config/formView.ts
+// FormView component is generic and doesn't include specific model configs
 
 export type EntityType = 'product' | 'customer' | 'order' | 'invoice' | 'announcement' | 'user' | 'setting'
 
@@ -11,8 +13,8 @@ export interface FormConfigRegistry {
 
 // Global registry of all form configurations
 export const formConfigRegistry: FormConfigRegistry = {
-  product: productFormConfig,
-  customer: customerFormConfig,
+  // product: productFormConfig, // Now at app/admin/products/config/formView.ts
+  // customer: customerFormConfig, // Should be moved to app/admin/customers/config/formView.ts
   // Add more configurations as they are created
   // order: orderFormConfig,
   // invoice: invoiceFormConfig,
@@ -157,13 +159,9 @@ export function hasFormConfig(key: string): boolean {
 }
 
 // Type-safe getters
-export function getProductConfig(): typeof productFormConfig {
-  return formViewRegistry.get('product') as typeof productFormConfig
-}
-
-export function getCustomerConfig(): typeof customerFormConfig {
-  return formViewRegistry.get('customer') as typeof customerFormConfig
-}
+// Note: getProductConfig and getCustomerConfig removed - use model-specific configs
+// - app/admin/products/config/formView.ts
+// - app/admin/customers/config/formView.ts (to be created)
 
 // Dynamic configuration loader (for future use with lazy loading)
 export async function loadFormConfig(key: string): Promise<FormConfig | undefined> {
@@ -174,16 +172,18 @@ export async function loadFormConfig(key: string): Promise<FormConfig | undefine
   }
 
   // Try dynamic import (for future lazy loading)
-  try {
-    const module = await import(`../form-configs/${key}Config`)
-    const config = module[`${key}FormConfig`]
-    if (config) {
-      formViewRegistry.register(key, config)
-      return config
-    }
-  } catch (error) {
-    console.warn(`Failed to load form config for ${key}:`, error)
-  }
+  // Note: Configs are now in app/admin/[model]/config/
+  // This function would need to be updated to use the new structure
+  // try {
+  //   const module = await import(`@/app/admin/${key}s/config/formView`)
+  //   const config = module[`${key}FormConfig`]
+  //   if (config) {
+  //     formViewRegistry.register(key, config)
+  //     return config
+  //   }
+  // } catch (error) {
+  //   console.warn(`Failed to load form config for ${key}:`, error)
+  // }
 
   return undefined
 }

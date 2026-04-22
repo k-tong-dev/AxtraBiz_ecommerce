@@ -2,51 +2,70 @@
 
 ## Overview
 
-The `ListView` is a reusable, feature-rich table component built with shadcn/ui components. It provides a modern, responsive interface for displaying and managing tabular data with advanced features like filtering, sorting, pagination, and multiple view types.
+The `ListView` is a table component built with rsuite Table. It provides a clean interface for displaying tabular data with features like filtering, sorting, pagination, and tree view. **Note:** Header controls (view switcher, filters, search, export) are now handled by the parent `ResourceView` component.
 
 ## Features
 
-- **Multiple View Types**: Switch between List, Kanban, Grid, Tree, and Gantt views
+- **Table Display**: Clean table display using rsuite Table
 - **Advanced Filtering**: Column-level filtering with text, number, date, options, and boolean filters
-- **Custom Header Cell**: Sort and filter columns via popover interface
-- **Checkbox Selection**: Select individual rows or all rows for bulk operations
-- **Export Functionality**: Export selected records to CSV
-- **Global Search**: Search across all fields in the dataset with InputGroup
-- **Filter Panel**: Show/hide panel for applying multiple column filters
 - **Column Sorting**: Sort data by clicking column headers with visual indicators
-- **Resizable Columns**: Drag column edges to resize (using rsuite Table)
-- **Column Visibility Toggle**: Show/hide columns dynamically
 - **Tree View**: Group data by specified field for hierarchical display
-- **Gantt Chart View**: Visual timeline representation of data
-- **Odoo-style Pagination**: Navigate through large datasets efficiently
-- **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
+- **Pagination**: Navigate through large datasets efficiently
+- **Header Summary**: Display column summaries (sum, count, avg, min, max)
 - **Custom Render Functions**: Format cell data with custom renderers
 - **Configurable**: Highly customizable through configuration objects
 
+## Architecture Note
+
+ListView is designed to be used within the `ResourceView` parent component, which provides:
+- View switcher (List, Kanban, Gantt)
+- Search input
+- Filter toggle
+- Export button
+- Add New button
+
+When using ListView directly, these controls need to be implemented externally.
+
 ## Installation
 
-The ListView component is located at `components/admin/ListView.tsx`. It uses the following dependencies:
-
-```typescript
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Search, Filter, X, Download, Grid3x3, List, ChevronLeft, ChevronRight } from 'lucide-react'
-```
+The ListView component is located at `components/admin/ResourceView/ListView`. It uses rsuite Table and related components.
 
 ## Usage
 
-### Basic Example
+### Within ResourceView (Recommended)
 
 ```typescript
-import { ListView } from '@/components/admin/ListView'
-import { getProductListConfig } from '@/components/admin/list-configs/productListConfig'
+import { ResourceView } from '@/components/admin/ResourceView'
+import { getProductListConfig } from '@/app/admin/products/config'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   
-  // Fetch products data...
+  const config = {
+    type: 'list' as const,
+    listViewConfig: getProductListConfig(products),
+    formViewConfig: productFormConfig,
+  }
+  
+  return (
+    <ResourceView
+      config={config}
+      onEdit={(row) => router.push(`/admin/products/${row.id}/edit`)}
+      onDelete={(row) => handleDelete(row.id)}
+      loading={loading}
+    />
+  )
+}
+```
+
+### Direct Usage (Without ResourceView)
+
+```typescript
+import { ListView } from '@/components/admin/ResourceView/ListView'
+import { getProductListConfig } from '@/app/admin/products/config'
+
+export default function ProductsPage() {
+  const [products, setProducts] = useState<Product[]>([])
   
   const config = getProductListConfig(products)
   
@@ -81,14 +100,22 @@ export interface ListViewConfig {
   title: string                      // Title used for export filename
   columns: ListColumn[]              // Array of column definitions
   data: any[]                       // Array of data to display
-  showColumnToggle?: boolean        // Show column visibility toggle (default: true)
-  showSearch?: boolean              // Show global search (default: true)
-  showFilters?: boolean             // Show column filters (default: true)
-  showViewSwitcher?: boolean        // Show view type switcher (default: true)
-  showExport?: boolean              // Show export button (default: true)
+  showColumnToggle?: boolean        // Show column visibility toggle (default: false)
+  showSearch?: boolean              // Show global search (default: false)
+  showFilters?: boolean             // Show column filters (default: false)
+  showViewSwitcher?: boolean        // Show view type switcher (default: false)
+  showExport?: boolean              // Show export button (default: false)
   defaultVisibleColumns?: string[]  // Array of column keys to show by default
   pageSize?: number                 // Number of rows per page (default: 20)
+  enableGroupBy?: boolean           // Enable group-by/tree view (default: false)
+  enableGanttView?: boolean         // Enable Gantt view (default: false)
+  ganttStartDateKey?: string        // Field key for Gantt start date
+  ganttEndDateKey?: string          // Field key for Gantt end date
+  ganttTitleKey?: string            // Field key for Gantt title
 }
+```
+
+**Note:** When using ListView within ResourceView, set `showSearch`, `showFilters`, `showViewSwitcher`, and `showExport` to `false` as ResourceView handles these controls.
 ```
 
 ## Column Definition
@@ -100,11 +127,18 @@ export interface ListColumn {
   width?: number                    // Column width (in pixels)
   resizable?: boolean              // Allow column resizing
   sortable?: boolean               // Enable sorting for this column
-  filterable?: boolean             // Enable filtering for this column
+  filterable: boolean             // Enable filtering for this column
   filterType?: FilterType          // Type of filter (text, number, date, options, boolean)
   filterOptions?: Array<{ label: string; value: any }>  // Options for filterType: 'options'
+  filterDataFetcher?: () => Promise<Array<{ label: string; value: any }>>  // Async fetch for filter options
+  filterDefault?: any             // Default filter value
   render?: (value: any, rowData: any) => React.ReactNode  // Custom cell renderer
   align?: 'left' | 'center' | 'right'  // Text alignment
+  groupable?: boolean             // Enable group-by for this column
+  isDate?: boolean                // Mark column as date for date filtering
+  isNumber?: boolean              // Mark column as number for number filtering
+  summary?: boolean               // Enable header summary for this column
+  summaryType?: 'sum' | 'count' | 'avg' | 'min' | 'max'  // Type of summary calculation
 }
 ```
 
@@ -119,11 +153,11 @@ import { ListViewConfig, ListColumn } from '../ListView'
 export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
   title: 'Products',
   data: data,
-  showColumnToggle: true,
-  showSearch: true,
-  showFilters: true,
-  showViewSwitcher: true,
-  showExport: true,
+  showColumnToggle: false,  // Disabled when using ResourceView
+  showSearch: false,        // Disabled when using ResourceView
+  showFilters: false,       // Disabled when using ResourceView
+  showViewSwitcher: false,  // Disabled when using ResourceView
+  showExport: false,        // Disabled when using ResourceView
   defaultVisibleColumns: [
     'name',
     'sku',
@@ -285,8 +319,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { ListView } from '@/components/admin/ListView'
-import { getProductListConfig } from '@/components/admin/list-configs/productListConfig'
+import { ListView } from '@/components/admin/ResourceView/ListView'
+import { getProductListConfig } from '@/app/admin/products/config'
 import { showToast } from '@/lib/ui/toast'
 
 export default function AdminProductsPage() {
@@ -331,7 +365,7 @@ export default function AdminProductsPage() {
 
   return (
     <Card className="mx-auto max-w-7xl border-border/50">
-      <div className="flex items-center justify-between gap-4 px-6 pt-6">
+      <div className="flex items-center justify-between gap-4 px-6 pt-2">
         <div>
           <h1 className="text-2xl font-bold">Products</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage your product catalog.</p>
@@ -341,7 +375,7 @@ export default function AdminProductsPage() {
         </Button>
       </div>
 
-      <div className="p-6 pt-0">
+      <div className="p-3 pt-1">
         <ListView 
           config={config} 
           onRowClick={handleRowClick}

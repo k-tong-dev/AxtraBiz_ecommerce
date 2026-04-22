@@ -15,10 +15,13 @@ components/admin/FormView/
 ├── README.md                 # This documentation
 ├── config/
 │   └── registry.ts          # Configuration registry
-├── form-configs/
-│   ├── productConfig.ts      # Product form configuration
-│   └── customerConfig.ts     # Customer form configuration
 └── utils/
+
+Note: Model-specific form configurations are now in app/admin/[model]/config/
+- Product config: app/admin/products/config/formView.ts
+- Customer config: app/admin/customers/config/formView.ts (to be created)
+
+utils/
     ├── api-client.ts         # Unified API operations
     ├── validation.ts          # Form validation utilities
     └── file-upload.ts        # File upload handling
@@ -57,7 +60,7 @@ components/admin/FormView/
 ### 1. Basic Usage
 
 ```typescript
-import { FormView, productFormConfig } from '@/components/admin/FormView'
+import { FormView, productFormConfig } from '@/components/admin/ResourceView/FormView'
 
 export default function ProductPage() {
   return (
@@ -72,7 +75,7 @@ export default function ProductPage() {
 ### 2. Edit Mode
 
 ```typescript
-import { FormView, productFormConfig } from '@/components/admin/FormView'
+import { FormView, productFormConfig } from '@/components/admin/ResourceView/FormView'
 
 export default function EditProductPage() {
   const [product, setProduct] = useState(null)
@@ -93,7 +96,7 @@ export default function EditProductPage() {
 ### 3. Custom Configuration
 
 ```typescript
-import { createFormConfig } from '@/components/admin/FormView'
+import { createFormConfig } from '@/components/admin/ResourceView/FormView'
 
 const customConfig = createFormConfig()
   .entityName('Custom Entity')
@@ -565,7 +568,7 @@ actions: {
 ### API Client
 
 ```typescript
-import { formViewAPI } from '@/components/admin/FormView'
+import { formViewAPI } from '@/components/admin/ResourceView/FormView'
 
 // Get all items
 const products = await formViewAPI.get('/api/products', {
@@ -598,7 +601,7 @@ const result = await formViewAPI.batchDelete('/api/products', ['id1', 'id2'])
 ### Validation
 
 ```typescript
-import { FormViewValidator, commonValidations } from '@/components/admin/FormView'
+import { FormViewValidator, commonValidations } from '@/components/admin/ResourceView/FormView'
 
 // Use built-in validations
 const fieldConfig = {
@@ -636,7 +639,7 @@ const errors = FormViewValidator.validateForm(formData, {
 ### File Upload
 
 ```typescript
-import { FormViewFileUploader, defaultUploadOptions } from '@/components/admin/FormView'
+import { FormViewFileUploader, defaultUploadOptions } from '@/components/admin/ResourceView/FormView'
 
 // Upload files
 const files = await FormViewFileUploader.uploadFiles(selectedFiles, {
@@ -658,7 +661,7 @@ import {
   formViewRegistry, 
   registerFormConfig, 
   getFormConfig 
-} from '@/components/admin/FormView'
+} from '@/components/admin/ResourceView/FormView'
 
 // Register new configuration
 registerFormConfig('order', orderFormConfig)
@@ -931,7 +934,7 @@ function ProductPage() {
 ```bash
 # Error: Export doesn't exist
 # Solution: Use direct imports
-import { productFormConfig } from '@/components/admin/form-configs/productConfig'
+import { productFormConfig } from '@/app/admin/products/config'
 ```
 
 #### Type Errors

@@ -2,11 +2,10 @@
 export { FormView } from './FormView'
 export type { FormConfig, FormField, Entity, MutableEntity } from './FormView'
 
-// Export all form configurations
-export { productFormConfig } from '../form-configs/productConfig'
-export { customerFormConfig } from '../form-configs/customerConfig'
-export type { ProductFormConfig } from '../form-configs/productConfig'
-export type { CustomerFormConfig } from '../form-configs/customerConfig'
+// Note: Form configurations are now model-specific
+// - productFormConfig: app/admin/products/config/formView.ts
+// - customerFormConfig: Should be moved to app/admin/customers/config/formView.ts
+// FormView component is generic and doesn't include specific model configs
 
 // Export utilities
 export { FormViewAPI, formViewAPI, createFormViewAPI } from './utils/api-client'
@@ -24,8 +23,6 @@ export {
   getFormConfig, 
   getAllFormConfigs, 
   hasFormConfig,
-  getProductConfig,
-  getCustomerConfig,
   loadFormConfig,
   createFormConfig
 } from './config/registry'

@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Product } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
-import { ListView } from '@/components/admin/ListView'
-import { getProductListConfig } from '@/components/admin/ListView/config'
+import { ResourceView } from '@/components/admin/ResourceView'
+import { getProductListConfig, productFormConfig, getProductKanbanConfig } from './config'
 
 export default function AdminProductsPage() {
   const router = useRouter()
@@ -77,21 +76,22 @@ export default function AdminProductsPage() {
 
   return (
     <Card className="mx-auto max-w-7xl border-border/50">
-      <div className="flex items-center justify-between gap-4 px-6 pt-6">
-        <div>
-          <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-sm text-muted-foreground mt-1">Create, edit, and manage your product catalog.</p>
-        </div>
-        <Button onClick={openCreate} size="sm" className="shadow-sm">
-          Add Product
-        </Button>
+      <div className="px-6 pt-6">
+        <h1 className="text-2xl font-bold">Products</h1>
+        <p className="text-sm text-muted-foreground mt-1">Create, edit, and manage your product catalog.</p>
       </div>
 
       <div className="p-6 pt-0">
-        <ListView 
-          config={config} 
-          onRowClick={handleRowClick}
+        <ResourceView
+          config={{
+            type: 'list',
+            listViewConfig: config,
+            kanbanViewConfig: getProductKanbanConfig(products),
+            formViewConfig: productFormConfig,
+          }}
+          onEdit={handleRowClick}
           onDelete={(rowData) => remove(rowData.id)}
+          onCreate={openCreate}
           loading={loading}
         />
       </div>

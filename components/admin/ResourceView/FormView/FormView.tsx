@@ -20,8 +20,8 @@ import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'l
 import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
-import {DatePickerField} from '../DatePickerField'
-import {VariantManager} from '../VariantManager'
+import {DatePickerField} from '@/components/admin/DatePickerField'
+import {VariantManager} from '@/components/admin/VariantManager'
 
 // Generic field types for the FormView
 export interface FormField {
@@ -1100,7 +1100,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                                         : action.variant === 'danger'
                                                             ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
                                                             : action.variant === 'success'
-                                                                ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                                ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
                                                                 : action.variant === 'warning'
                                                                     ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
                                                                     : action.variant === 'info'
@@ -1138,7 +1138,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                                     : action.variant === 'danger'
                                                         ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
                                                         : action.variant === 'success'
-                                                            ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                            ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
                                                             : action.variant === 'warning'
                                                                 ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
                                                                 : action.variant === 'info'
@@ -1246,7 +1246,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                                                 : action.variant === 'danger'
                                                                     ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
                                                                     : action.variant === 'success'
-                                                                        ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                                        ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
                                                                         : action.variant === 'warning'
                                                                             ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
                                                                             : action.variant === 'info'
@@ -1287,7 +1287,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                                             : action.variant === 'danger'
                                                                 ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
                                                                 : action.variant === 'success'
-                                                                    ? 'bg-green-50 text-green-700 hover:bg-green-100 border-green-300'
+                                                                    ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
                                                                     : action.variant === 'warning'
                                                                         ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
                                                                         : action.variant === 'info'

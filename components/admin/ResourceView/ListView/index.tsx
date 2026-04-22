@@ -17,7 +17,9 @@ import {
   Divider,
   Pagination,
   Placeholder,
-  Loader
+  Loader,
+  Checkbox,
+  Center
 } from 'rsuite'
 import {
   Search, 
@@ -36,9 +38,6 @@ import {
 import { cn } from '@/lib/utils'
 
 const { Column, HeaderCell, Cell } = Table
-
-// Export configs
-export * from './config'
 
 // Types
 export type FilterType = 'text' | 'number' | 'date' | 'options' | 'boolean'
@@ -99,9 +98,15 @@ export interface ListViewProps {
   onEdit?: (rowData: any) => void
   onDelete?: (rowData: any) => void
   loading?: boolean
+  showFilterPanel?: boolean
+  setShowFilterPanel?: (show: boolean) => void
+  searchKeyword?: string
+  setSearchKeyword?: (keyword: string) => void
+  showColumnPicker?: boolean
+  setShowColumnPicker?: (show: boolean) => void
 }
 
-export function ListView({ config, onRowClick, onEdit, onDelete, loading }: ListViewProps) {
+export function ListView({ config, onRowClick, onEdit, onDelete, loading, showFilterPanel: externalShowFilterPanel, setShowFilterPanel: externalSetShowFilterPanel, searchKeyword: externalSearchKeyword, setSearchKeyword: externalSetSearchKeyword, showColumnPicker: externalShowColumnPicker, setShowColumnPicker: externalSetShowColumnPicker }: ListViewProps) {
   const {
     columns: allColumns,
     data: initialData,
@@ -129,6 +134,14 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
   const [currentPage, setCurrentPage] = useState(1)
   const [showColumnPicker, setShowColumnPicker] = useState(false)
   const [showFilterPanel, setShowFilterPanel] = useState(false)
+
+  // Use external state if provided (from ResourceView), otherwise use local state
+  const filterPanelVisible = externalShowFilterPanel !== undefined ? externalShowFilterPanel : showFilterPanel
+  const setFilterPanelVisible = externalSetShowFilterPanel || setShowFilterPanel
+  const currentSearchKeyword = externalSearchKeyword !== undefined ? externalSearchKeyword : searchKeyword
+  const setCurrentSearchKeyword = externalSetSearchKeyword || setSearchKeyword
+  const columnPickerVisible = externalShowColumnPicker !== undefined ? externalShowColumnPicker : showColumnPicker
+  const setColumnPickerVisible = externalSetShowColumnPicker || setShowColumnPicker
   const [groupColumn, setGroupColumn] = useState<string>()
   const [columnFilters, setColumnFilters] = useState<ColumnFilter[]>([])
   const [pendingFilters, setPendingFilters] = useState<ColumnFilter[]>([])
@@ -172,10 +185,10 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
 
   // Sync pending filters with applied filters when panel opens
   useEffect(() => {
-    if (showFilterPanel) {
+    if (filterPanelVisible) {
       setPendingFilters(columnFilters)
     }
-  }, [showFilterPanel, columnFilters])
+  }, [filterPanelVisible, columnFilters])
 
   // Update data when config changes
   useEffect(() => {
@@ -206,10 +219,10 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
     let result = [...data]
 
     // Apply global search
-    if (searchKeyword) {
+    if (currentSearchKeyword) {
       result = result.filter(item =>
         Object.keys(item).some(key =>
-          String(item[key]).toLowerCase().includes(searchKeyword.toLowerCase())
+          String(item[key]).toLowerCase().includes(currentSearchKeyword.toLowerCase())
         )
       )
     }
@@ -275,7 +288,7 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
     }
 
     return result
-  }, [data, searchKeyword, sortColumn, sortType, columnFilters, allColumns])
+  }, [data, currentSearchKeyword, sortColumn, sortType, columnFilters, allColumns])
 
   // Pagination
   const totalPages = Math.ceil(filteredData.length / pageSize)
@@ -415,7 +428,7 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
 
   const handleApplyFilters = () => {
     setColumnFilters(pendingFilters)
-    setShowFilterPanel(false)
+    setFilterPanelVisible(false)
   }
 
   const handleClearPendingFilters = () => {
@@ -491,9 +504,10 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
 
   // Render list view
   const renderListView = () => (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto pt-4">
       <Table
         height={500}
+        headerHeight={80}
         data={viewType === 'tree' ? treeData : paginatedData}
         bordered
         cellBordered
@@ -508,25 +522,23 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
         renderLoading={renderLoading}
       >
         <Column width={50} align="center" fixed resizable>
-          <HeaderCell>
-            <input
-              type="checkbox"
-              checked={paginatedData.length > 0 && paginatedData.every(row => selectedIds.includes(row.id || row._id))}
-              onChange={(e) => handleSelectAll(e.target.checked)}
-              className="rounded"
-            />
+          <HeaderCell style={{ padding: 0 }}>
+            <Center>
+              <Checkbox
+                inline
+                checked={paginatedData.length > 0 && paginatedData.every(row => selectedIds.includes(row.id || row._id))}
+                indeterminate={paginatedData.length > 0 && selectedIds.length > 0 && !paginatedData.every(row => selectedIds.includes(row.id || row._id))}
+                onChange={(value, checked) => handleSelectAll(checked)}
+              />
+            </Center>
           </HeaderCell>
           <Cell>
             {(rowData: any) => (
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={selectedIds.includes(rowData.id || rowData._id)}
-                onChange={(e) => {
-                  e.stopPropagation()
-                  handleSelectRow(rowData.id || rowData._id, e.target.checked)
+                onChange={(value, checked) => {
+                  handleSelectRow(rowData.id || rowData._id, checked)
                 }}
-                onClick={(e) => e.stopPropagation()}
-                className="rounded"
               />
             )}
           </Cell>
@@ -573,40 +585,6 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
             </Column>
           )
         })}
-
-        <Column width={150} fixed>
-          <HeaderCell>Actions</HeaderCell>
-          <Cell>
-            {(rowData: any) => (
-              <div className="flex gap-2">
-                {onEdit && (
-                  <Button
-                    size="sm"
-                    appearance="subtle"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onEdit(rowData)
-                    }}
-                  >
-                    Edit
-                  </Button>
-                )}
-                {onDelete && (
-                  <Button
-                    size="sm"
-                    appearance="subtle"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDelete(rowData)
-                    }}
-                  >
-                    Delete
-                  </Button>
-                )}
-              </div>
-            )}
-          </Cell>
-        </Column>
       </Table>
     </div>
   )
@@ -778,119 +756,9 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
 
   return (
     <div className="space-y-4">
-      {/* Header with actions */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex-1 w-full">
-          {showSearch && (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={searchKeyword}
-                onChange={(value:string) => setSearchKeyword(value)}
-                className="pl-10"
-              />
-            </div>
-          )}
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {showFilters && (
-            <Button 
-              size="sm" 
-              appearance={showFilterPanel ? 'primary' : 'default'}
-              onClick={() => setShowFilterPanel(!showFilterPanel)}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-              {getActiveFilterCount() > 0 && (
-                <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                  {getActiveFilterCount()}
-                </span>
-              )}
-            </Button>
-          )}
-          {enableGroupBy && (
-            <InputPicker
-              size="sm"
-              placeholder="Group by..."
-              data={allColumns.filter(col => col.groupable).map(col => ({ label: col.title, value: col.key }))}
-              value={groupColumn}
-              onChange={(value) => {
-                setGroupColumn(value)
-                if (value) {
-                  setViewType('tree')
-                } else {
-                  setViewType('list')
-                }
-              }}
-              cleanable
-              style={{ width: 150 }}
-            />
-          )}
-          {showViewSwitcher && (
-            <div className="flex gap-1">
-              <Button
-                size="sm"
-                appearance={viewType === 'list' ? 'primary' : 'default'}
-                onClick={() => setViewType('list')}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                appearance={viewType === 'kanban' ? 'primary' : 'default'}
-                onClick={() => setViewType('kanban')}
-              >
-                <Grid3x3 className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                appearance={viewType === 'grid' ? 'primary' : 'default'}
-                onClick={() => setViewType('grid')}
-              >
-                <Grid3x3 className="h-4 w-4" />
-              </Button>
-              {enableGroupBy && (
-                <Button
-                  size="sm"
-                  appearance={viewType === 'tree' ? 'primary' : 'default'}
-                  onClick={() => setViewType('tree')}
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              )}
-              {enableGanttView && (
-                <Button
-                  size="sm"
-                  appearance={viewType === 'gantt' ? 'primary' : 'default'}
-                  onClick={() => setViewType('gantt')}
-                >
-                  <Grid3x3 className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          )}
-          {showExport && (
-            <Button size="sm" appearance="default" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export ({selectedIds.length})
-            </Button>
-          )}
-          {selectedIds.length > 0 && onDelete && (
-            <Button size="sm" appearance="primary" color="red" onClick={handleDeleteSelected}>
-              Delete ({selectedIds.length})
-            </Button>
-          )}
-          {showColumnToggle && (
-            <Button size="sm" appearance="default" onClick={() => setShowColumnPicker(!showColumnPicker)}>
-              Columns
-            </Button>
-          )}
-        </div>
-      </div>
 
       {/* Filter panel */}
-      {showFilterPanel && (
+      {filterPanelVisible && (
         <Card className="p-6">
           <HStack className="mb-4" spacing={16} alignItems="center">
             <h3 className="font-medium">Filters</h3>
@@ -984,7 +852,7 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
           </div>
           <Divider className="my-6" />
           <HStack justifyContent="flex-end" spacing={8}>
-            <Button size="sm" appearance="subtle" onClick={() => setShowFilterPanel(false)}>
+            <Button size="sm" appearance="subtle" onClick={() => setFilterPanelVisible(false)}>
               Cancel
             </Button>
             <Button size="sm" appearance="primary" onClick={handleApplyFilters}>
@@ -995,7 +863,7 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
       )}
 
       {/* Column picker */}
-      {showColumnPicker && (
+      {columnPickerVisible && (
         <Card className="p-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {allColumns.map(column => (
