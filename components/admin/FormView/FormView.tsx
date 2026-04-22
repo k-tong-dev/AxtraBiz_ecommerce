@@ -20,8 +20,8 @@ import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'l
 import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
-import {DatePickerField} from './DatePickerField'
-import {VariantManager} from './VariantManager'
+import {DatePickerField} from '../DatePickerField'
+import {VariantManager} from '../VariantManager'
 
 // Generic field types for the FormView
 export interface FormField {

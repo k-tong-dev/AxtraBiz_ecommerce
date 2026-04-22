@@ -1,11 +1,8 @@
 :root {
-  --danger: #e11d48;
-  --danger-hover: #be123c;
+  /*--danger: #e11d48;*/
+  /*--danger-hover: #be123c;*/
   --danger-foreground: #ffffff;
-  --rs-red-500: rgb(219 59 62);
-  --rs-btn-primary-bg: #dc2626;        /* red-600 */
-  --rs-btn-primary-hover-bg: #b91c1c;  /* red-700 */
-  --rs-btn-primary-active-bg: #991b1b; /* red-800 */
+  /*--rs-red-500: rgb(219 59 62);*/
   --ease-smooth: ease;
   --disabled-opacity: 0.5;
 }

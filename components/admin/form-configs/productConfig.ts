@@ -1,4 +1,4 @@
-import {FormConfig} from '../FormView'
+import {FormConfig} from '../FormView/FormView'
 import type {Product} from '@/lib/drizzle/server'
 
 export const productFormConfig: FormConfig = {

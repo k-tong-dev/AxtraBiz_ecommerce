@@ -1,5 +1,5 @@
 // Global form configuration registry for FormView
-import { FormConfig } from '../../FormView'
+import { FormConfig } from '../FormView'
 import { productFormConfig } from '../../form-configs/productConfig'
 import { customerFormConfig } from '../../form-configs/customerConfig'
 

@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card'
 import type { Product } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ListView } from '@/components/admin/ListView'
-import { getProductListConfig } from '@/components/admin/list-configs/productListConfig'
+import { getProductListConfig } from '@/components/admin/ListView/config'
 
 export default function AdminProductsPage() {
   const router = useRouter()

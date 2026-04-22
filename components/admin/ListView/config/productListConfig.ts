@@ -1,5 +1,5 @@
 import React from 'react'
-import { ListViewConfig, ListColumn } from '../ListView'
+import { ListViewConfig, ListColumn } from '../index'
 
 export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
   title: 'Products',
@@ -57,7 +57,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'number',
       align: 'right',
-      render: (value) => `$${parseFloat(value).toFixed(2)}`
+      render: (value:any) => `$${parseFloat(value).toFixed(2)}`
     },
     {
       key: 'compare_price',
@@ -68,7 +68,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'number',
       align: 'right',
-      render: (value) => value ? `$${parseFloat(value).toFixed(2)}` : '-'
+      render: (value:any) => value ? `$${parseFloat(value).toFixed(2)}` : '-'
     },
     {
       key: 'cost_price',
@@ -79,7 +79,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'number',
       align: 'right',
-      render: (value) => value ? `$${parseFloat(value).toFixed(2)}` : '-'
+      render: (value:any) => value ? `$${parseFloat(value).toFixed(2)}` : '-'
     },
     {
       key: 'stock',
@@ -90,7 +90,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'number',
       align: 'center',
-      render: (value) => {
+      render: (value:any) => {
         const stock = parseInt(value)
         if (stock <= 0) return React.createElement('span', { className: 'text-red-500 font-semibold' }, stock)
         if (stock < 10) return React.createElement('span', { className: 'text-yellow-500 font-semibold' }, stock)
@@ -111,7 +111,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
         { label: 'Grouped', value: 'grouped' }
       ],
       align: 'center',
-      render: (value) => {
+      render: (value:any) => {
         const typeMap: Record<string, string> = {
           simple: 'Simple',
           variable: 'Variable',
@@ -134,7 +134,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
         { label: 'Archived', value: 'archived' }
       ],
       align: 'center',
-      render: (value) => {
+      render: (value:any) => {
         const statusColors: Record<string, string> = {
           draft: 'gray',
           published: 'green',
@@ -152,8 +152,9 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       sortable: true,
       filterable: true,
       filterType: 'boolean',
+      filterDefault: true,
       align: 'center',
-      render: (value) => React.createElement('span', { className: value ? 'text-green-500' : 'text-red-500' }, value ? 'Yes' : 'No')
+      render: (value:any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-red-500' }, value ? 'Yes' : 'No')
     },
     {
       key: 'category_id',
@@ -184,7 +185,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'number',
       align: 'right',
-      render: (value) => value ? `${parseFloat(value).toFixed(2)} kg` : '-'
+      render: (value:any) => value ? `${parseFloat(value).toFixed(2)} kg` : '-'
     },
     {
       key: 'track_inventory',
@@ -195,7 +196,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'boolean',
       align: 'center',
-      render: (value) => React.createElement('span', { className: value ? 'text-green-500' : 'text-gray-500' }, value ? 'Yes' : 'No')
+      render: (value:any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-gray-500' }, value ? 'Yes' : 'No')
     },
     {
       key: 'allow_backorders',
@@ -206,7 +207,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'boolean',
       align: 'center',
-      render: (value) => React.createElement('span', { className: value ? 'text-green-500' : 'text-gray-500' }, value ? 'Yes' : 'No')
+      render: (value:any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-gray-500' }, value ? 'Yes' : 'No')
     },
     {
       key: 'created_at',
@@ -217,7 +218,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'date',
       align: 'left',
-      render: (value) => new Date(value).toLocaleDateString()
+      render: (value:any) => new Date(value).toLocaleDateString()
     },
     {
       key: 'updated_at',
@@ -228,7 +229,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterable: true,
       filterType: 'date',
       align: 'left',
-      render: (value) => new Date(value).toLocaleDateString()
+      render: (value:any) => new Date(value).toLocaleDateString()
     }
   ]
 })

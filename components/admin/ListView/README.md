@@ -6,12 +6,18 @@ The `ListView` is a reusable, feature-rich table component built with shadcn/ui 
 
 ## Features
 
-- **Multiple View Types**: Switch between List, Kanban, and Grid views
+- **Multiple View Types**: Switch between List, Kanban, Grid, Tree, and Gantt views
+- **Advanced Filtering**: Column-level filtering with text, number, date, options, and boolean filters
+- **Custom Header Cell**: Sort and filter columns via popover interface
 - **Checkbox Selection**: Select individual rows or all rows for bulk operations
 - **Export Functionality**: Export selected records to CSV
-- **Global Search**: Search across all fields in the dataset
-- **Column Sorting**: Sort data by clicking on column headers
+- **Global Search**: Search across all fields in the dataset with InputGroup
+- **Filter Panel**: Show/hide panel for applying multiple column filters
+- **Column Sorting**: Sort data by clicking column headers with visual indicators
+- **Resizable Columns**: Drag column edges to resize (using rsuite Table)
 - **Column Visibility Toggle**: Show/hide columns dynamically
+- **Tree View**: Group data by specified field for hierarchical display
+- **Gantt Chart View**: Visual timeline representation of data
 - **Odoo-style Pagination**: Navigate through large datasets efficiently
 - **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
 - **Custom Render Functions**: Format cell data with custom renderers

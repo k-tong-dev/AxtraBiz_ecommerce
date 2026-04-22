@@ -1,6 +1,6 @@
 // Global FormView exports for easy usage across the application
-export { FormView } from '../FormView'
-export type { FormConfig, FormField, Entity, MutableEntity } from '../FormView'
+export { FormView } from './FormView'
+export type { FormConfig, FormField, Entity, MutableEntity } from './FormView'
 
 // Export all form configurations
 export { productFormConfig } from '../form-configs/productConfig'

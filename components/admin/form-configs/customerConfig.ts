@@ -1,4 +1,4 @@
-import { FormConfig } from '../FormView'
+import { FormConfig } from '../FormView/FormView'
 import type { User } from '@/lib/drizzle/server'
 
 export const customerFormConfig: FormConfig = {

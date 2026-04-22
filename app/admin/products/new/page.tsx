@@ -1,6 +1,6 @@
 'use client'
 
-import { FormView } from '@/components/admin/FormView'
+import { FormView } from '@/components/admin/FormView/FormView'
 import { productFormConfig } from '@/components/admin/form-configs/productConfig'
 
 export default function NewProductPage() {

@@ -5,6 +5,7 @@ import { DatePicker } from 'rsuite'
 import { cn } from '@/lib/utils'
 
 interface DatePickerFieldProps {
+  label?: string
   value?: string | Date
   onChange?: (value: Date | null) => void
   placeholder?: string
@@ -31,6 +32,7 @@ interface DatePickerFieldProps {
 }
 
 export function DatePickerField({
+  label,
   value,
   onChange,
   placeholder = 'Select date',
@@ -68,16 +70,23 @@ export function DatePickerField({
   }
 
   return (
-    <DatePicker
-      format={dateFormat}
-      value={dateValue}
-      onChange={handleDateChange}
-      placeholder={placeholder}
-      editable={false}
-      disabled={disabled}
-      locale={locale || defaultLocale}
-      style={{ width: '100%' }}
-      className={className}
-    />
+    <div className={cn('space-y-2', className)}>
+      {label && (
+        <label className="text-sm font-medium">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
+      <DatePicker
+        format={dateFormat}
+        value={dateValue}
+        onChange={handleDateChange}
+        placeholder={placeholder}
+        editable={false}
+        disabled={disabled}
+        locale={locale || defaultLocale}
+        style={{ width: '100%' }}
+      />
+    </div>
   )
 }
