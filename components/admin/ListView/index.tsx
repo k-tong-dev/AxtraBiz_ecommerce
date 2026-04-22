@@ -242,8 +242,15 @@ export function ListView({ config, onRowClick, onEdit, onDelete, loading }: List
             case 'boolean':
               return Boolean(value) === Boolean(filterValue.value)
             case 'date':
-              // Simple date comparison
+              // Date comparison
               const dateValue = new Date(value)
+              if (filterValue.operator === 'between' && Array.isArray(filterValue.value) && filterValue.value.length === 2) {
+                const startDate = new Date(filterValue.value[0])
+                const endDate = new Date(filterValue.value[1])
+                // Set end date to end of day for inclusive comparison
+                endDate.setHours(23, 59, 59, 999)
+                return dateValue >= startDate && dateValue <= endDate
+              }
               const filterDate = new Date(filterValue.value)
               if (filterValue.operator === 'gt') return dateValue > filterDate
               if (filterValue.operator === 'lt') return dateValue < filterDate
