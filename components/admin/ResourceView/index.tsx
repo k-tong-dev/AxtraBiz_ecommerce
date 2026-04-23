@@ -12,6 +12,7 @@ import {IconButton} from 'rsuite'
 import {Search, Filter, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2} from 'lucide-react'
 import {ResourceViewProps, ResourceType} from './types'
 import {InputGroup} from "@/components/ui/input";
+import {MdAdd} from "react-icons/md";
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
@@ -83,6 +84,8 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         onEdit={handleEdit}
                         onDelete={onDelete}
                         loading={loading}
+                        searchKeyword={searchKeyword}
+                        setSearchKeyword={setSearchKeyword}
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
                         serverActions={mergedServerActions}
@@ -280,9 +283,10 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     )}
                     <Button onClick={handleCreate}
                             color="violet"
+                            startIcon={<MdAdd />}
                             appearance={"primary"}
                             size="sm">
-                        Add New
+                        New
                     </Button>
                 </div>
             </div>
