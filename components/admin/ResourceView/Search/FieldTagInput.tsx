@@ -3,6 +3,21 @@
 import React, {useState, useRef, useEffect} from 'react'
 import {X, ChevronDown} from 'lucide-react'
 
+// Add scrollbar hiding styles
+if (typeof document !== 'undefined') {
+    const style = document.createElement('style')
+    style.textContent = `
+        .search-tags-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .search-tags-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    `
+    document.head.appendChild(style)
+}
+
 export interface SearchField {
     key: string
     label: string
@@ -147,11 +162,13 @@ export function FieldTagInput({
             )}
 
             {/* Tags */}
-            <div className="flex items-center gap-2 flex-wrap flex-1">
+            <div 
+                className="flex items-center gap-2 flex-1 overflow-x-auto search-tags-scroll"
+            >
                 {value.map((tag, index) => (
                     <div
                         key={`${tag.fieldKey}-${index}`}
-                        className="flex items-center gap-1 bg-violet-100 text-violet-700 px-2 py-1 rounded text-sm"
+                        className="flex items-center gap-1 bg-violet-100 text-violet-700 px-2 py-1 rounded text-sm flex-shrink-0"
                     >
                         <span className="font-medium">{getFieldLabel(tag.fieldKey)}:</span>
                         <span>{tag.value}</span>
@@ -173,7 +190,7 @@ export function FieldTagInput({
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder={value.length === 0 ? placeholder : ''}
-                    className="flex-1 min-w-[100px] outline-none text-sm"
+                    className="flex-1 min-w-[100px] outline-none text-sm flex-shrink-0"
                 />
             </div>
         </div>

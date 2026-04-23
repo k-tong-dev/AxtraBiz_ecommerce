@@ -285,10 +285,10 @@ export function ListView({
     const filteredData = useMemo(() => {
         let result = [...data]
 
-        // Apply search with field-based values (OR logic - match any search value)
+        // Apply search with field-based values (AND logic - match all search values)
         if (currentSearchValues.length > 0) {
             result = result.filter(item =>
-                currentSearchValues.some(searchValue => {
+                currentSearchValues.every(searchValue => {
                     if (searchValue.fieldKey === 'all') {
                         // Search across all fields
                         return Object.keys(item).some(key =>

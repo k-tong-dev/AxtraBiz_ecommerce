@@ -183,7 +183,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             })) || []}
                         onSearchChange={setSearchValues}
                         placeholder="Search..."
-                        width={300}
+                        width={400}
                     />
                     <IconButton
                         icon={<Filter size={16}/>}
