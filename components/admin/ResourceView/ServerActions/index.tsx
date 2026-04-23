@@ -3,6 +3,149 @@
 import React, {useState} from 'react'
 import {Button, Modal, Popover, Whisper} from 'rsuite'
 import {cn} from '@/lib/utils'
+import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestore} from 'lucide-react'
+import {createElement} from 'react'
+
+// Built-in default ServerActions - generic utility that can be used by any resource
+export const getDefaultServerActions = (flags: {
+    print?: boolean
+    exportExcel?: boolean
+    delete?: boolean
+    duplicate?: boolean
+    copyJson?: boolean
+    archive?: boolean
+    unarchive?: boolean
+} = {}): ServerActionConfig[] => {
+    const actions: ServerActionConfig[] = []
+    
+    if (flags.print !== false) {
+        actions.push({
+            key: 'print',
+            label: 'Print',
+            icon: createElement(Printer, {size: 16}),
+            color: 'blue',
+            mode: 'both',
+            helper: 'Print this record',
+            onClick: async (data, context) => {
+                window.print()
+            }
+        })
+    }
+    
+    if (flags.exportExcel !== false) {
+        actions.push({
+            key: 'export_excel',
+            label: 'Export Excel',
+            icon: createElement(FileSpreadsheet, {size: 16}),
+            color: 'green',
+            mode: 'bulk',
+            helper: 'Export selected records to Excel',
+            onClick: async (data, context) => {
+                if (context?.mode === 'bulk') {
+                    const ids = context.selectedIds || data.map(d => d.id)
+                    console.log('Export to Excel:', ids)
+                    // TODO: Implement Excel export
+                }
+            }
+        })
+    }
+    
+    if (flags.delete !== false) {
+        actions.push({
+            key: 'delete',
+            label: 'Delete',
+            icon: createElement(Trash2, {size: 16}),
+            color: 'red',
+            mode: 'both',
+            confirm: (data, context) => {
+                if (context?.mode === 'bulk') {
+                    return `Delete ${context.selectedIds?.length || data.length} record(s)? This action cannot be undone.`
+                } else {
+                    return 'Delete this record? This action cannot be undone.'
+                }
+            },
+            helper: 'Permanently remove record(s)',
+            onClick: async (data, context) => {
+                if (context?.mode === 'bulk') {
+                    const ids = context.selectedIds || data.map(d => d.id)
+                    console.log('Bulk delete:', ids)
+                    // TODO: Implement bulk delete API call
+                } else {
+                    const id = context?.record?.id || data[0]?.id
+                    console.log('Delete:', id)
+                    // TODO: Implement delete API call
+                }
+            }
+        })
+    }
+    
+    if (flags.duplicate !== false) {
+        actions.push({
+            key: 'duplicate',
+            label: 'Duplicate',
+            icon: createElement(Copy, {size: 16}),
+            color: 'blue',
+            mode: 'both',
+            helper: 'Create a copy of this record',
+            onClick: async (data, context) => {
+                const record = context?.record || data[0]
+                console.log('Duplicate:', record)
+                // TODO: Implement duplication logic
+            }
+        })
+    }
+    
+    if (flags.copyJson !== false) {
+        actions.push({
+            key: 'copy_json',
+            label: 'Copy JSON',
+            icon: createElement(Download, {size: 16}),
+            color: 'blue',
+            mode: 'both',
+            helper: 'Copy record data as JSON',
+            onClick: async (data, context) => {
+                const record = context?.record || data[0]
+                const json = JSON.stringify(record, null, 2)
+                navigator.clipboard.writeText(json)
+                console.log('Copied to clipboard')
+            }
+        })
+    }
+    
+    if (flags.archive !== false) {
+        actions.push({
+            key: 'archive',
+            label: 'Archive',
+            icon: createElement(Archive, {size: 16}),
+            color: 'orange',
+            mode: 'both',
+            helper: 'Archive this record',
+            onClick: async (data, context) => {
+                const id = context?.record?.id || data[0]?.id
+                console.log('Archive:', id)
+                // TODO: Implement archive logic
+            }
+        })
+    }
+    
+    if (flags.unarchive !== false) {
+        actions.push({
+            key: 'unarchive',
+            label: 'Unarchive',
+            icon: createElement(ArchiveRestore, {size: 16}),
+            color: 'green',
+            mode: 'both',
+            helper: 'Unarchive this record',
+            onClick: async (data, context) => {
+                const id = context?.record?.id || data[0]?.id
+                console.log('Unarchive:', id)
+                // TODO: Implement unarchive logic
+            }
+        })
+    }
+    
+    return actions
+}
 
 export interface ServerActionConfig {
     label: string
@@ -19,6 +162,43 @@ export interface ServerActionConfig {
     badge?: string | number
     className?: string
 }
+
+/**
+ * ActionContext provides information about the context in which an action is executed.
+ * 
+ * For ListView (bulk mode):
+ * - mode: 'bulk'
+ * - view: 'list'
+ * - selectedIds: Array of selected record IDs
+ * - record: undefined
+ * - data: Array of selected records
+ * 
+ * For FormView (single mode):
+ * - mode: 'single'
+ * - view: 'form'
+ * - selectedIds: undefined
+ * - record: Single record object
+ * - data: Array with single record [record]
+ * 
+ * Example action that works in both contexts:
+ * ```typescript
+ * const deleteAction: ServerActionConfig = {
+ *   key: 'delete',
+ *   label: 'Delete',
+ *   onClick: (data, context) => {
+ *     if (context.mode === 'bulk') {
+ *       // ListView: delete multiple records
+ *       const ids = context.selectedIds || data.map(d => d.id)
+ *       deleteRecords(ids)
+ *     } else {
+ *       // FormView: delete single record
+ *       const id = context.record?.id || data[0]?.id
+ *       deleteRecord(id)
+ *     }
+ *   }
+ * }
+ * ```
+ */
 
 export interface ActionContext {
     mode: 'bulk' | 'single'

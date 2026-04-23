@@ -6,17 +6,83 @@ A unified parent component that manages ListView, KanbanView, FormView, and Gant
 
 The ServerActions component is a shared action system inspired by Odoo's server actions. It allows you to define reusable actions that can be used across different views (ListView, FormView) for the same model, reducing code duplication and improving maintainability.
 
+### Architecture Overview (Odoo-like)
+
+ServerActions provides a **centralized action system** that handles both bulk operations (ListView) and single-record operations (FormView) through a context-aware interface.
+
+**Centralized Configuration:**
+- Actions are defined ONCE in the model's central config (e.g., `app/admin/products/config/index.ts`)
+- ResourceView passes `serverActions` to both ListView and FormView
+- No need to duplicate actions in ListView config (`bulkActions`) or FormView config (`actions`/`customActions`)
+
+**Context Modes:**
+- **Bulk Mode (ListView)**: Actions operate on multiple selected records
+  - `context.mode = 'bulk'`
+  - `context.view = 'list'`
+  - `context.selectedIds = ['id1', 'id2', ...]`
+  - `data = [record1, record2, ...]`
+
+- **Single Mode (FormView)**: Actions operate on a single record
+  - `context.mode = 'single'`
+  - `context.view = 'form'`
+  - `context.record = { id: 'id1', ... }`
+  - `data = [{ id: 'id1', ... }]`
+
 ### Location
-`components/admin/ResourceView/ServerActions/index.tsx`
+- Component: `components/admin/ResourceView/ServerActions/index.tsx`
+- Documentation: `components/admin/ResourceView/ServerActions/README.md`
 
 ### Features
-- **Shared Actions**: Define actions once, use them across ListView (bulk actions) and FormView (quick actions)
+- **Centralized Actions**: Define actions once in model config, use across all views
+- **Built-in Default Actions**: Pre-configured actions (Print, Export Excel, Delete, Duplicate, Copy JSON, Archive, Unarchive) that can be enabled/disabled via flags
+- **Context-Aware**: Actions automatically adapt to bulk vs single record context
 - **Confirmation Dialogs**: Built-in confirmation support via Modal
 - **Helper Tooltips**: Whisper tooltips with bottom placement for action descriptions
 - **Mode Filtering**: Actions can be filtered by mode (create, edit, both, bulk)
 - **Conditional Display**: Actions can be shown/hidden based on data/context
 - **Loading States**: Built-in loading state management for async actions
 - **Multiple Layouts**: Support for inline, toolbar, drawer, and dropdown layouts
+
+### Built-in Default Actions
+
+The system provides built-in default actions that can be enabled/disabled via flags in the ResourceView config:
+
+**Available Default Actions:**
+- `print`: Print the current record
+- `exportExcel`: Export selected records to Excel (bulk mode only)
+- `delete`: Delete record(s) (both bulk and single mode)
+- `duplicate`: Create a copy of the record (edit mode only)
+- `copyJson`: Copy record data as JSON to clipboard (both modes)
+- `archive`: Archive the record (edit mode only)
+- `unarchive`: Unarchive the record (edit mode only)
+
+**Usage Example:**
+```typescript
+<ResourceView
+  config={{
+    type: 'list',
+    title: 'Products',
+    description: 'Create, edit, and manage your product catalog.',
+    listViewConfig: listViewConfig,
+    formViewConfig: formViewConfig,
+    enableDefaultActions: true,  // Enable default actions
+    defaultActions: {
+      print: true,
+      exportExcel: true,
+      delete: true,
+      duplicate: true,
+      copyJson: true,
+      archive: true,
+      unarchive: true
+    },
+    serverActions: customActions  // Additional custom actions
+  }}
+/>
+```
+
+**Action Placement:**
+- **ListView**: Default actions appear in the bulk actions drawer (when records are selected)
+- **FormView**: Default actions appear in the Top Action Buttons dropdown (in edit mode)
 
 ### ServerActionConfig Interface
 
@@ -49,34 +115,56 @@ export interface ActionContext {
 }
 ```
 
-### Usage Example
+### Example: Delete Action in Both Contexts
 
 ```typescript
-import { ServerActions, ServerActionConfig, ActionContext } from '@/components/admin/ResourceView/ServerActions'
-
-const actions: ServerActionConfig[] = [
-    {
-        key: 'delete_selected',
-        label: 'Delete Selected',
-        icon: <Trash2 size={16} />,
-        color: 'red',
-        mode: 'bulk',
-        confirm: (data, context) => `Delete ${context.selectedIds?.length || data.length} selected records?`,
-        helper: 'Permanently remove selected records',
-        onClick: async (data, context) => {
-            // Delete logic here
+const deleteAction: ServerActionConfig = {
+    key: 'delete',
+    label: 'Delete',
+    icon: <Trash2 size={16} />,
+    color: 'red',
+    mode: 'both',
+    confirm: (data, context) => {
+        if (context.mode === 'bulk') {
+            return `Delete ${context.selectedIds?.length || data.length} selected records?`
+        } else {
+            return 'Delete this record? This action cannot be undone.'
+        }
+    },
+    helper: 'Permanently remove record(s)',
+    onClick: async (data, context) => {
+        if (context.mode === 'bulk') {
+            // ListView: Delete multiple records
+            const ids = context.selectedIds || data.map(d => d.id)
+            await fetch('/api/bulk-delete', {
+                method: 'POST',
+                body: JSON.stringify({ ids })
+            })
+        } else {
+            // FormView: Delete single record
+            const id = context.record?.id || data[0]?.id
+            await fetch(`/api/records/${id}`, { method: 'DELETE' })
         }
     }
-]
-
-<ServerActions
-    actions={actions}
-    data={selectedData}
-    context={{ mode: 'bulk', view: 'list', selectedIds: selectedIds }}
-    layout="drawer"
-    block
-/>
+}
 ```
+
+### Integration with ResourceView Views
+
+**ListView (Bulk Actions):**
+- Actions appear in a drawer when rows are selected
+- Context provides `selectedIds` array
+- Actions receive array of selected records
+
+**FormView (Quick Actions):**
+- Actions appear in the Quick Actions sidebar
+- Context provides single `record` object
+- Actions receive array with single record
+
+For detailed documentation, see:
+- [ServerActions README](./ServerActions/README.md)
+- [ListView README](./ListView/README.md)
+- [FormView README](./FormView/README.md)
 
 ---
 

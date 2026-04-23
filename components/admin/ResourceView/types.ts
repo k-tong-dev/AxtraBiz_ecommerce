@@ -4,6 +4,7 @@ import { ListViewConfig } from './ListView'
 import { KanbanViewConfig } from './KanbanView'
 import { GanttViewConfig } from './GanttView'
 import { FormConfig } from './FormView'
+import { ServerActionConfig } from './ServerActions'
 
 export type ResourceType = 'list' | 'kanban' | 'gantt' | 'form'
 
@@ -13,6 +14,20 @@ export interface ResourceViewConfig {
   kanbanViewConfig?: KanbanViewConfig
   ganttViewConfig?: GanttViewConfig
   formViewConfig?: FormConfig
+  serverActions?: ServerActionConfig[]  // Centralized ServerActions
+  title?: string  // Page title
+  description?: string  // Page description
+  // Default action flags
+  enableDefaultActions?: boolean
+  defaultActions?: {
+    print?: boolean
+    exportExcel?: boolean
+    delete?: boolean
+    duplicate?: boolean
+    copyJson?: boolean
+    archive?: boolean
+    unarchive?: boolean
+  }
 }
 
 export interface ResourceViewProps {
@@ -21,4 +36,6 @@ export interface ResourceViewProps {
   onCreate?: () => void
   onDelete?: (rowData: any) => void
   loading?: boolean
+  entityId?: string  // For form mode - determines if edit or create
+  initialData?: any  // Initial data for form mode (edit)
 }

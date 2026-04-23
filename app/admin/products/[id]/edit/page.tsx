@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { FormView } from '@/components/admin/ResourceView/FormView'
-import { productFormConfig } from '../../config'
+import { ResourceView } from '@/components/admin/ResourceView'
+import { productConfig } from '../../config'
 import type { Product } from '@/lib/drizzle/server'
 
 export default function EditProductPage() {
@@ -53,11 +53,18 @@ export default function EditProductPage() {
     }
 
     return (
-        <FormView 
-            mode="edit" 
-            config={productFormConfig}
-            initialData={product}
+        <ResourceView
+            config={{
+                type: 'form',
+                title: 'Edit Product',
+                description: 'Edit product details.',
+                formViewConfig: productConfig.formViewConfig,
+                enableDefaultActions: true,
+                defaultActions: productConfig.defaultActions,
+                serverActions: productConfig.customServerActions,
+            }}
             entityId={productId}
+            initialData={product}
         />
     )
 }

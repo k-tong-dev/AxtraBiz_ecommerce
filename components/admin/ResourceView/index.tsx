@@ -1,24 +1,46 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ListView } from './ListView'
 import { KanbanView } from './KanbanView'
 import { GanttView } from './GanttView'
 import { FormView } from './FormView'
 import { Button } from '@/components/ui/button'
-import { Input, Drawer } from 'rsuite'
+import { Card } from '@/components/ui/card'
+import { Input, Drawer, Whisper, Popover, Divider } from 'rsuite'
 import { IconButton } from 'rsuite'
 import { Search, Filter, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2 } from 'lucide-react'
 import { ResourceViewProps, ResourceType } from './types'
 import {InputGroup} from "@/components/ui/input";
 
-export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: ResourceViewProps) {
+export function ResourceView({ config, onEdit, onCreate, onDelete, loading, entityId, initialData }: ResourceViewProps) {
   const [viewType, setViewType] = useState<ResourceType>(config.type)
   const [editingId, setEditingId] = useState<string | undefined>(undefined)
   const [searchKeyword, setSearchKeyword] = useState('')
   const [showFilterPanel, setShowFilterPanel] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [actionsDrawerOpen, setActionsDrawerOpen] = useState(false)
+  const [formInitialData, setFormInitialData] = useState<any>(initialData)
+  const [mounted, setMounted] = useState(false)
+  
+  // Set editingId after mount to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+    setEditingId(entityId)
+  }, [entityId])
+  
+  // Merge default actions with custom actions
+  const mergedServerActions = React.useMemo(() => {
+    let actions = config.serverActions || []
+    
+    if (config.enableDefaultActions !== false && config.defaultActions) {
+      const { getDefaultServerActions } = require('@/components/admin/ResourceView/ServerActions')
+      const defaultActions = getDefaultServerActions(config.defaultActions)
+      actions = [...defaultActions, ...actions]
+    }
+    
+    return actions
+  }, [config.serverActions, config.enableDefaultActions, config.defaultActions])
 
   const handleEdit = (rowData: any) => {
     setEditingId(rowData.id || rowData._id)
@@ -63,6 +85,7 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: Re
             setSelectedIds={setSelectedIds}
             actionsDrawerOpen={actionsDrawerOpen}
             setActionsDrawerOpen={setActionsDrawerOpen}
+            serverActions={mergedServerActions}
           />
         )
 
@@ -91,10 +114,9 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: Re
               mode={editingId ? 'edit' : 'create'}
               config={config.formViewConfig}
               entityId={editingId}
+              initialData={formInitialData}
+              serverActions={mergedServerActions}
             />
-            <div className="mt-4 flex gap-2">
-              <Button onClick={handleFormComplete}>Back to List</Button>
-            </div>
           </div>
         )
 
@@ -165,14 +187,84 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: Re
             onClick={() => setShowFilterPanel(!showFilterPanel)}
           />
           {selectedIds.length > 0 && (
-            <Button 
-              size="sm" 
-              appearance="primary"
-              startIcon={<Settings size={14} />}
-              onClick={() => setActionsDrawerOpen(true)}
+            <Whisper
+              trigger="click"
+              placement="bottomEnd"
+              speaker={
+                <Popover>
+                  <div className="flex flex-col gap-2 p-2 min-w-[200px]">
+                    {mergedServerActions?.filter(action =>
+                        ['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key) &&
+                        (action.mode === 'bulk' || action.mode === 'both')
+                      )
+                      .map((action) => {
+                        const handleClick = () => {
+                          if (action.key === 'delete') {
+                            console.log('Bulk delete:', selectedIds)
+                            // TODO: Implement bulk delete
+                          } else if (action.key === 'export_excel') {
+                            console.log('Export to Excel:', selectedIds)
+                            // TODO: Implement Excel export
+                          } else if (action.key === 'print') {
+                            console.log('Print:', selectedIds)
+                            window.print()
+                          } else if (action.key === 'duplicate') {
+                            console.log('Duplicate:', selectedIds)
+                            // TODO: Implement duplication
+                          } else if (action.key === 'copy_json') {
+                            const selectedData = selectedIds.map(id => {
+                              // Find the data from the current view
+                              // This would need to be passed from the view
+                              return { id }
+                            })
+                            navigator.clipboard.writeText(JSON.stringify(selectedData, null, 2))
+                          } else {
+                            action.onClick(selectedIds.map(id => ({ id })), { mode: 'bulk', view: 'list' })
+                          }
+                        }
+                        return (
+                          <Button
+                            key={action.key}
+                            appearance="subtle"
+                            block
+                            startIcon={action.icon as React.ReactElement}
+                            onClick={handleClick}
+                          >
+                            {action.label}
+                          </Button>
+                        )
+                      })
+                    }
+                    {(mergedServerActions?.filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key)).length || 0) > 0 && (
+                      <>
+                        <Divider/>
+                        {mergedServerActions?.filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key))
+                          .map((action) => (
+                            <Button
+                              key={action.key}
+                              appearance="subtle"
+                              block
+                              startIcon={action.icon as React.ReactElement}
+                              onClick={() => action.onClick(selectedIds.map(id => ({ id })), { mode: 'bulk', view: 'list' })}
+                            >
+                              {action.label}
+                            </Button>
+                          ))
+                        }
+                      </>
+                    )}
+                  </div>
+                </Popover>
+              }
             >
-              Actions ({selectedIds.length})
-            </Button>
+              <Button 
+                size="sm" 
+                appearance="primary"
+                startIcon={<Settings size={14} />}
+              >
+                Actions ({selectedIds.length})
+              </Button>
+            </Whisper>
           )}
           <Button onClick={handleCreate} size="sm">
             Add New
@@ -183,10 +275,20 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: Re
   }
 
   return (
-    <div className="w-full h-full">
-      {renderHeader()}
-      {renderView()}
-    </div>
+    <Card className="mx-auto max-w-7xl border-border/50 gap-0">
+      {config.title && (
+        <div className="px-6 pt-1">
+          <h1 className="text-2xl font-bold">{config.title}</h1>
+          {config.description && (
+            <p className="text-sm text-muted-foreground mt-1">{config.description}</p>
+          )}
+        </div>
+      )}
+      <div className="p-6 pt-0">
+        {renderHeader()}
+        {renderView()}
+      </div>
+    </Card>
   )
 }
 

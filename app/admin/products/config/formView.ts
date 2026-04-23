@@ -389,49 +389,7 @@ export const productFormConfig: FormConfig = {
       order: 28
     }
   ],
-  actions: {
-    print: true,
-    export: true,
-    duplicate: true,
-    copy: true,
-    archive: false,
-    delete: true
-  },
-  customActions: [
-    {
-      key: 'update-stock',
-      label: 'Update Stock',
-      icon: '📦',
-      onClick: (data) => {
-        console.log('Update Stock for:', data)
-      },
-      mode: 'edit',
-      badge: 4,
-      variant: 'default'
-    },
-    {
-      key: 'delete-permanent',
-      label: 'Delete Permanently',
-      icon: '🗑️',
-      onClick: (data) => {
-        if (confirm('Permanently delete?')) {
-          fetch(`/api/products/${data.id}/delete`, { method: 'DELETE' })
-        }
-      },
-      mode: 'edit',
-      variant: 'danger',
-      readonly: true
-    },
-    {
-      key: 'bulk-update',
-      label: 'Bulk Update',
-      icon: '📊',
-      onClick: (data) => console.log('Bulk update for:', data),
-      mode: 'edit',
-      variant: 'warning',
-      helper: 'Update multiple products at once based on selected criteria'
-    }
-  ],
+  // actions and customActions removed - now using centralized serverActions from ResourceView
   breadcrumbs: {
     base: '/admin',
     list: '/admin/products',

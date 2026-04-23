@@ -1,13 +1,20 @@
 'use client'
 
-import { FormView } from '@/components/admin/ResourceView/FormView'
-import { productFormConfig } from '../config'
+import { ResourceView } from '@/components/admin/ResourceView'
+import { productConfig } from '../config'
 
 export default function NewProductPage() {
     return (
-        <FormView 
-            mode="create" 
-            config={productFormConfig}
+        <ResourceView
+            config={{
+                type: 'form',
+                title: 'New Product',
+                description: 'Create a new product.',
+                formViewConfig: productConfig.formViewConfig,
+                enableDefaultActions: true,
+                defaultActions: productConfig.defaultActions,
+                serverActions: productConfig.customServerActions,
+            }}
         />
     )
 }

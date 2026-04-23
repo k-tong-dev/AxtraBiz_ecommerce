@@ -18,7 +18,7 @@ import {Textarea} from '@/components/ui/textarea'
 import {SelectPicker} from 'rsuite'
 import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'lucide-react'
 import {useToast} from '@/hooks/use-toast'
-import {IoMdCloudDone, IoMdSettings} from "react-icons/io";
+import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
 import {DatePickerField} from '@/components/admin/DatePickerField'
 import {VariantManager} from '@/components/admin/VariantManager'
@@ -46,6 +46,93 @@ function convertFormActionToServerAction(action: any, mode: 'create' | 'edit'): 
         badge: action.badge,
         className: action.className
     }
+}
+
+// Convert FormView built-in actions to ServerActionConfig
+function convertBuiltInActionsToServerActions(config: FormConfig, mode: 'create' | 'edit', handlers: {
+    handlePrint: () => void
+    handleExport: () => void
+    handleDuplicate: () => void
+    handleCopy: () => void
+    handleDelete: () => void
+    handleArchive: () => void
+}): ServerActionConfig[] {
+    const actions: ServerActionConfig[] = []
+    
+    if (config.actions?.print) {
+        actions.push({
+            key: 'print',
+            label: 'Print',
+            icon: <Printer size={16} />,
+            color: 'blue',
+            mode: 'both',
+            helper: 'Print this record',
+            onClick: () => handlers.handlePrint()
+        })
+    }
+    
+    if (config.actions?.export) {
+        actions.push({
+            key: 'export',
+            label: 'Export',
+            icon: <Settings size={16} />,
+            color: 'blue',
+            mode: 'both',
+            helper: 'Export this record',
+            onClick: () => handlers.handleExport()
+        })
+    }
+    
+    if (mode === 'edit' && config.actions?.duplicate) {
+        actions.push({
+            key: 'duplicate',
+            label: 'Duplicate',
+            icon: <Copy size={16} />,
+            color: 'blue',
+            mode: 'edit',
+            helper: 'Create a copy of this record',
+            onClick: () => handlers.handleDuplicate()
+        })
+    }
+    
+    if (config.actions?.copy) {
+        actions.push({
+            key: 'copy',
+            label: 'Copy to Clipboard',
+            icon: <Copy size={16} />,
+            color: 'blue',
+            mode: 'both',
+            helper: 'Copy record data to clipboard',
+            onClick: () => handlers.handleCopy()
+        })
+    }
+    
+    if (mode === 'edit' && config.actions?.archive) {
+        actions.push({
+            key: 'archive',
+            label: 'Archive',
+            icon: <Archive size={16} />,
+            color: 'orange',
+            mode: 'edit',
+            helper: 'Archive this record',
+            onClick: () => handlers.handleArchive()
+        })
+    }
+    
+    if (mode === 'edit' && config.actions?.delete) {
+        actions.push({
+            key: 'delete',
+            label: 'Delete',
+            icon: <Trash2 size={16} />,
+            color: 'red',
+            mode: 'edit',
+            confirm: 'Delete this record? This action cannot be undone.',
+            helper: 'Permanently remove this record',
+            onClick: () => handlers.handleDelete()
+        })
+    }
+    
+    return actions
 }
 
 // Generic field types for the FormView
@@ -79,7 +166,7 @@ export interface FormConfig {
     entityNamePlural: string
     apiEndpoint: string
     fields: FormField[]
-    actions: {
+    actions?: {  // Made optional - now using centralized serverActions from ResourceView
         print?: boolean
         export?: boolean
         duplicate?: boolean
@@ -124,9 +211,10 @@ interface FormViewProps<T extends Entity> {
     config: FormConfig
     initialData?: T | null
     entityId?: string
+    serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
 }
 
-export function FormView<T extends Entity>({mode, config, initialData, entityId}: FormViewProps<T>) {
+export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const {toast} = useToast()
@@ -141,7 +229,18 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const [attributes, setAttributes] = useState<Array<{name: string, values: string[]}>>([])
     const [showQuickActions, setShowQuickActions] = useState(false)
     const [mounted, setMounted] = useState(false)
-    
+    const [actionContext, setActionContext] = useState<ActionContext>({
+        mode: 'single',
+        view: 'form',
+        record: data
+    })
+
+    useEffect(() => {
+        setActionContext(prev => ({
+            ...prev,
+            record: data
+        }))
+    }, [data])
 
     useEffect(() => {
         setMounted(true)
@@ -917,7 +1016,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
     const formSubtitle = mode === 'create' ? `Add a new ${config.entityName.toLowerCase()} to your catalog` : `Modify ${config.entityName.toLowerCase()} details and settings`
 
     return (
-        <div className="space-y-6 relative">
+        <div className="relative">
             {/* Loading overlay */}
             {loading && mounted && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -933,29 +1032,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
             )}
             
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <Breadcrumb
-                        className="mb-4 flex gap-2 items-center"
-                        separator="/"
-                    >
-                        <Breadcrumb.Item>
-                            <a href={config.breadcrumbs.base}
-                               className="hover:text-primary text-sm transition-colors">Dashboard</a>
-                        </Breadcrumb.Item>
-                        <Breadcrumb.Item>
-                            <a href={config.breadcrumbs.list}
-                               className="hover:text-primary text-sm transition-colors">{config.entityNamePlural}</a>
-                        </Breadcrumb.Item>
-                        <Breadcrumb.Item active>
-                            <span
-                                className="text-sm font-medium">{mode === 'create' ? `Create ${config.entityName}` : `Edit ${config.entityName}`}</span>
-                        </Breadcrumb.Item>
-                    </Breadcrumb>
-
-                    <h1 className="text-xl font-bold">{formTitle}</h1>
-                    <p className="text-sm text-muted-foreground">{formSubtitle}</p>
-                </div>
+            <div className="flex items-center justify-between mb-4">
+                <Button
+                    size="sm"
+                    onClick={() => router.push(config.breadcrumbs.list)}
+                    className="gap-2"
+                >
+                    <IoMdArrowBack className="w-4 h-4" />
+                    Back
+                </Button>
 
                 {/* Top Action Buttons - Only in Edit Mode */}
                 {mode === 'edit' && (
@@ -974,37 +1059,31 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                                 </Button>
                             )}
                         >
-                            {config.actions.print && (
-                                <Dropdown.Item icon={<Printer className="w-4 h-4"/>} onClick={handlePrint}>
-                                    Print
-                                </Dropdown.Item>
-                            )}
-                            {config.actions.export && (
-                                <Dropdown.Item icon={<Copy className="w-4 h-4"/>} onClick={handleExport}>
-                                    Export
-                                </Dropdown.Item>
-                            )}
-                            {config.actions.duplicate && (
-                                <Dropdown.Item icon={<Copy className="w-4 h-4"/>} onClick={handleDuplicate}>
-                                    Duplicate
-                                </Dropdown.Item>
-                            )}
-                            {config.actions.copy && (
-                                <Dropdown.Item icon={<Copy className="w-4 h-4"/>} onClick={handleCopy}>
-                                    Copy {config.entityName}
-                                </Dropdown.Item>
-                            )}
-                            {config.actions.archive && (
-                                <Dropdown.Item icon={<Archive className="w-4 h-4"/>} onClick={handleArchive}>
-                                    Archive {config.entityName}
-                                </Dropdown.Item>
-                            )}
-                            {config.actions.delete && (
-                                <Dropdown.Item icon={<Trash2 className="w-4 h-4"/>} onClick={handleDelete}
-                                               className="text-red-600">
-                                    Delete
-                                </Dropdown.Item>
-                            )}
+                            {/* Default actions from serverActions */}
+                            {serverActions?.filter(action =>
+                                    ['print', 'export_excel', 'duplicate', 'copy_json', 'archive', 'unarchive', 'delete'].includes(action.key)
+                                )
+                                .map((action) => {
+                                    const handleClick = () => {
+                                        if (action.key === 'print') handlePrint()
+                                        else if (action.key === 'export_excel') handleExport()
+                                        else if (action.key === 'duplicate') handleDuplicate()
+                                        else if (action.key === 'copy_json') handleCopy()
+                                        else if (action.key === 'archive') handleArchive()
+                                        else if (action.key === 'delete') handleDelete()
+                                    }
+                                    return (
+                                        <Dropdown.Item
+                                            key={action.key}
+                                            icon={action.icon as any}
+                                            onClick={handleClick}
+                                            className={action.color === 'red' ? 'text-red-600' : ''}
+                                        >
+                                            {action.label}
+                                        </Dropdown.Item>
+                                    )
+                                })
+                            }
                         </Dropdown>
                     </div>
                 )}
@@ -1105,125 +1184,17 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                     {/* Quick Actions - Desktop */}
                     <div className="hidden lg:block bg-card rounded-lg border p-6">
                         <h2 className="text-md font-semibold mb-4">Quick Actions</h2>
-                        <div className="space-y-2">
-                            {config.customActions && config.customActions
-                                .filter(action => !action.mode || action.mode === mode || action.mode === 'both')
-                                .map((action) => action.helper ? (
-                                    <Whisper
-                                        key={action.key}
-                                        placement="bottom"
-                                        trigger="hover"
-                                        speaker={<Popover>{action.helper}</Popover>}
-                                    >
-                                        <button
-                                            onClick={() => !action.readonly && action.onClick(data)}
-                                            disabled={action.readonly}
-                                            className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
-                                                action.readonly
-                                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
-                                                    : action.variant === 'primary'
-                                                        ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
-                                                        : action.variant === 'danger'
-                                                            ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
-                                                            : action.variant === 'success'
-                                                                ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
-                                                                : action.variant === 'warning'
-                                                                    ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
-                                                                    : action.variant === 'info'
-                                                                        ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
-                                                                        : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
-                                            } ${action.className || ''}`}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                {action.icon && (
-                                                    <span className="w-5 h-5 flex items-center justify-center">
-                                                        {typeof action.icon === 'function' ? action.icon() :
-                                                         typeof action.icon === 'string' ? action.icon :
-                                                         action.icon}
-                                                    </span>
-                                                )}
-                                                {action.label}
-                                            </div>
-                                            {action.badge && (
-                                                <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
-                                                    {action.badge}
-                                                </span>
-                                            )}
-                                        </button>
-                                    </Whisper>
-                                ) : (
-                                    <button
-                                        key={action.key}
-                                        onClick={() => !action.readonly && action.onClick(data)}
-                                        disabled={action.readonly}
-                                        className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
-                                            action.readonly
-                                                ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
-                                                : action.variant === 'primary'
-                                                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
-                                                    : action.variant === 'danger'
-                                                        ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
-                                                        : action.variant === 'success'
-                                                            ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
-                                                            : action.variant === 'warning'
-                                                                ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
-                                                                : action.variant === 'info'
-                                                                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
-                                                                    : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
-                                        } ${action.className || ''}`}
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            {action.icon && (
-                                                <span className="w-5 h-5 flex items-center justify-center">
-                                                    {typeof action.icon === 'function' ? action.icon() :
-                                                     typeof action.icon === 'string' ? action.icon :
-                                                     action.icon}
-                                                </span>
-                                            )}
-                                            {action.label}
-                                        </div>
-                                        {action.badge && (
-                                            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
-                                                {action.badge}
-                                            </span>
-                                        )}
-                                    </button>
-                                ))
-                            }
-
-                            {/* Built-in actions if no custom actions defined */}
-                            {!config.customActions && (
-                                <>
-                                    {config.actions.print && (
-                                        <button
-                                            onClick={handlePrint}
-                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                        >
-                                            <Printer className="w-4 h-4 inline mr-2"/>
-                                            Print
-                                        </button>
-                                    )}
-                                    {config.actions.export && (
-                                        <button
-                                            onClick={handleExport}
-                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                        >
-                                            <Settings className="w-4 h-4 inline mr-2"/>
-                                            Export
-                                        </button>
-                                    )}
-                                    {mode === 'edit' && config.actions.duplicate && (
-                                        <button
-                                            onClick={handleDuplicate}
-                                            className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                        >
-                                            <Copy className="w-4 h-4 inline mr-2"/>
-                                            Duplicate
-                                        </button>
-                                    )}
-                                </>
-                            )}
-                        </div>
+                        {serverActions && serverActions.length > 0 && (
+                            <ServerActions
+                                actions={serverActions
+                                    .filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key))
+                                }
+                                data={[data]}
+                                context={actionContext}
+                                layout="inline"
+                                block
+                            />
+                        )}
                     </div>
 
                     {/* Quick Actions - Mobile Drawer */}
@@ -1242,153 +1213,29 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId}
                             </button>
                         </Whisper>
 
-
                         <Drawer open={showQuickActions} onClose={() => setShowQuickActions(false)} size="xs" backdrop="static" placement="right">
                             <Drawer.Header>
                                 <Drawer.Title>Quick Actions</Drawer.Title>
                             </Drawer.Header>
                             <Drawer.Body>
-                                <div className="space-y-2">
-                                    {config.customActions && config.customActions
-                                        .filter(action => !action.mode || action.mode === mode || action.mode === 'both')
-                                        .map((action) => action.helper ? (
-                                            <Whisper
-                                                key={action.key}
-                                                placement="bottom"
-                                                trigger="hover"
-                                                speaker={<Popover>{action.helper}</Popover>}
-                                            >
-                                                <button
-                                                    onClick={() => {
-                                                        !action.readonly && action.onClick(data)
-                                                        setShowQuickActions(false)
-                                                    }}
-                                                    disabled={action.readonly}
-                                                    className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
-                                                        action.readonly
-                                                            ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
-                                                            : action.variant === 'primary'
-                                                                ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
-                                                                : action.variant === 'danger'
-                                                                    ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
-                                                                    : action.variant === 'success'
-                                                                        ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
-                                                                        : action.variant === 'warning'
-                                                                            ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
-                                                                            : action.variant === 'info'
-                                                                                ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
-                                                                                : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
-                                                    } ${action.className || ''}`}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        {action.icon && (
-                                                            <span className="w-5 h-5 flex items-center justify-center">
-                                                                {typeof action.icon === 'function' ? action.icon() :
-                                                                 typeof action.icon === 'string' ? action.icon :
-                                                                 action.icon}
-                                                            </span>
-                                                        )}
-                                                        {action.label}
-                                                    </div>
-                                                    {action.badge && (
-                                                        <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
-                                                            {action.badge}
-                                                        </span>
-                                                    )}
-                                                </button>
-                                            </Whisper>
-                                        ) : (
-                                            <button
-                                                key={action.key}
-                                                onClick={() => {
-                                                    !action.readonly && action.onClick(data)
-                                                    setShowQuickActions(false)
-                                                }}
-                                                disabled={action.readonly}
-                                                className={`w-full text-left px-4 py-2 text-sm rounded-md border flex items-center justify-between gap-2 ${
-                                                    action.readonly
-                                                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-300'
-                                                        : action.variant === 'primary'
-                                                            ? 'bg-primary text-primary-foreground hover:bg-primary/90 border-primary'
-                                                            : action.variant === 'danger'
-                                                                ? 'bg-red-50 text-red-700 hover:bg-red-100 border-red-300'
-                                                                : action.variant === 'success'
-                                                                    ? 'bg-green-50 text-green-700 hover:bg-green-300 border-green-500'
-                                                                    : action.variant === 'warning'
-                                                                        ? 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-300'
-                                                                        : action.variant === 'info'
-                                                                            ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-300'
-                                                                            : 'bg-gray-50 hover:bg-gray-100 border-gray-300'
-                                                } ${action.className || ''}`}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    {action.icon && (
-                                                        <span className="w-5 h-5 flex items-center justify-center">
-                                                            {typeof action.icon === 'function' ? action.icon() :
-                                                             typeof action.icon === 'string' ? action.icon :
-                                                             action.icon}
-                                                        </span>
-                                                    )}
-                                                    {action.label}
-                                                </div>
-                                                {action.badge && (
-                                                    <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs font-medium">
-                                                        {action.badge}
-                                                    </span>
-                                                )}
-                                            </button>
-                                        ))
-                                    }
-
-                                    {/* Built-in actions if no custom actions defined */}
-                                    {!config.customActions && (
-                                        <>
-                                            {config.actions.print && (
-                                                <button
-                                                    onClick={() => {
-                                                        handlePrint()
-                                                        setShowQuickActions(false)
-                                                    }}
-                                                    className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                                >
-                                                    <Printer className="w-4 h-4 inline mr-2"/>
-                                                    Print
-                                                </button>
-                                            )}
-                                            {config.actions.export && (
-                                                <button
-                                                    onClick={() => {
-                                                        handleExport()
-                                                        setShowQuickActions(false)
-                                                    }}
-                                                    className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                                >
-                                                    <Settings className="w-4 h-4 inline mr-2"/>
-                                                    Export
-                                                </button>
-                                            )}
-                                            {mode === 'edit' && config.actions.duplicate && (
-                                                <button
-                                                    onClick={() => {
-                                                        handleDuplicate()
-                                                        setShowQuickActions(false)
-                                                    }}
-                                                    className="w-full text-left px-4 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md border border-gray-300"
-                                                >
-                                                    <Copy className="w-4 h-4 inline mr-2"/>
-                                                    Duplicate
-                                                </button>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
+                                {serverActions && serverActions.length > 0 && (
+                                    <ServerActions
+                                        actions={serverActions
+                                            .filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key))
+                                        }
+                                        data={[data]}
+                                        context={actionContext}
+                                        onActionComplete={() => setShowQuickActions(false)}
+                                        layout="inline"
+                                        block
+                                    />
+                                )}
                             </Drawer.Body>
                         </Drawer>
                     </div>
                 </div>
             </div>
 
-            {/* Bottom Action Bar - Smart Minimal */}
             <ActionBar
                 open={hasChanges}
                 onOpenChange={(open) => {

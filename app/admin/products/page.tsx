@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card'
 import type { Product } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/admin/ResourceView'
-import { getProductListConfig, productFormConfig, getProductKanbanConfig } from './config'
+import { productConfig } from './config'
 
 export default function AdminProductsPage() {
   const router = useRouter()
@@ -76,30 +76,26 @@ export default function AdminProductsPage() {
     remove(product.id)
   }
 
-  const config = getProductListConfig(products, handleDelete)
+  const config = productConfig.listViewConfig(products)
 
   return (
-    <Card className="mx-auto max-w-7xl border-border/50">
-      <div className="px-6 pt-6">
-        <h1 className="text-2xl font-bold">Products</h1>
-        <p className="text-sm text-muted-foreground mt-1">Create, edit, and manage your product catalog.</p>
-      </div>
-
-      <div className="p-6 pt-0">
-        <ResourceView
-          config={{
-            type: 'list',
-            listViewConfig: config,
-            kanbanViewConfig: getProductKanbanConfig(products),
-            formViewConfig: productFormConfig,
-          }}
-          onEdit={handleRowClick}
-          onDelete={(rowData) => remove(rowData.id)}
-          onCreate={openCreate}
-          loading={loading}
-        />
-      </div>
-    </Card>
+    <ResourceView
+      config={{
+        type: 'list',
+        title: 'Products',
+        description: 'Create, edit, and manage your product catalog.',
+        listViewConfig: config,
+        kanbanViewConfig: productConfig.kanbanViewConfig(products),
+        formViewConfig: productConfig.formViewConfig,
+        enableDefaultActions: true,
+        defaultActions: productConfig.defaultActions,
+        serverActions: productConfig.customServerActions,
+      }}
+      onEdit={handleRowClick}
+      onDelete={(rowData) => remove(rowData.id)}
+      onCreate={openCreate}
+      loading={loading}
+    />
   )
 }
 

@@ -145,6 +145,7 @@ export interface ListViewProps {
     onEdit?: (rowData: any) => void
     onDelete?: (rowData: any) => void
     loading?: boolean
+    serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
     showFilterPanel?: boolean
     setShowFilterPanel?: (show: boolean) => void
     searchKeyword?: string
@@ -163,6 +164,7 @@ export function ListView({
                              onEdit,
                              onDelete,
                              loading,
+                             serverActions,
                              showFilterPanel: externalShowFilterPanel,
                              setShowFilterPanel: externalSetShowFilterPanel,
                              searchKeyword: externalSearchKeyword,
@@ -1031,85 +1033,7 @@ export function ListView({
                 </Card>
             )}
 
-            {/* Actions Drawer */}
-            <Drawer
-                open={currentActionsDrawerOpen}
-                onClose={() => setCurrentActionsDrawerOpen(false)}
-                placement="right"
-                size="200"
-            >
-                <Drawer.Header>
-                    <Drawer.Title>Bulk Actions ({currentSelectedIds.length} selected)</Drawer.Title>
-                </Drawer.Header>
-                <Drawer.Body>
-                    <div className="flex flex-col gap-4">
-                        {/* Default Export to Excel action */}
-                        <Button
-                            appearance="primary"
-                            block
-                            startIcon={<FileSpreadsheet size={16}/>}
-                            onClick={() => {
-                                // Export selected to Excel
-                                console.log('Export selected to Excel', currentSelectedIds)
-                                setCurrentActionsDrawerOpen(false)
-                            }}
-                        >
-                            Export to Excel
-                        </Button>
-
-                        {/* Default Delete action */}
-                        {onDelete && (
-                            <Button
-                                appearance="primary"
-                                color="red"
-                                block
-                                startIcon={<Trash2 size={16}/>}
-                                onClick={() => {
-                                    setConfirmModalConfig({
-                                        message: `Delete ${currentSelectedIds.length} selected records?`,
-                                        onConfirm: () => {
-                                            currentSelectedIds.forEach(id => {
-                                                const row = paginatedData.find(r => (r.id || r._id) === id)
-                                                if (row) onDelete(row)
-                                            })
-                                            setCurrentSelectedIds([])
-                                            setCurrentActionsDrawerOpen(false)
-                                            setConfirmModalOpen(false)
-                                        }
-                                    })
-                                    setConfirmModalOpen(true)
-                                }}
-                            >
-                                Delete Selected
-                            </Button>
-                        )}
-
-                        {/* Custom bulk actions from config */}
-                        {configBulkActions && configBulkActions.length > 0 && (
-                            <>
-                                <Divider/>
-                                <ServerActions
-                                    actions={configBulkActions.map(convertToServerAction)}
-                                    data={currentSelectedIds.map(id =>
-                                        paginatedData.find(r => (r.id || r._id) === id)
-                                    ).filter(Boolean)}
-                                    context={actionContext}
-                                    onActionComplete={(actionKey) => {
-                                        setCurrentActionsDrawerOpen(false)
-                                    }}
-                                    layout="drawer"
-                                    block
-                                />
-                            </>
-                        )}
-                    </div>
-                </Drawer.Body>
-                <Drawer.Footer>
-                    <Button appearance="subtle" onClick={() => setCurrentActionsDrawerOpen(false)}>
-                        Cancel
-                    </Button>
-                </Drawer.Footer>
-            </Drawer>
+            {/* Actions Drawer - Removed, now using Popover dropdown in ResourceView */}
 
             {/* Confirmation Modal */}
             <ConfirmationModal

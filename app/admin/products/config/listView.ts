@@ -21,50 +21,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
     'active'
   ],
   pageSize: 5,
-  bulkActions: [
-    {
-      label: 'Delete Selected',
-      icon: createElement(Trash2, { size: 16 }),
-      color: 'red',
-      confirm: (selectedIds: string[], selectedData: any[]) => {
-        return `Are you sure you want to delete ${selectedIds.length} product(s)? This action cannot be undone.`
-      },
-      helper: 'Permanently remove selected products from the catalog',
-      onClick: (selectedIds: string[], selectedData: any[]) => {
-        if (onDelete) {
-          selectedData.forEach(item => onDelete(item))
-        }
-      }
-    },
-    {
-      label: 'Apply Stock',
-      icon: createElement(Package, { size: 16 }),
-      color: 'green',
-      confirm: 'Apply stock adjustments to selected products?',
-      helper: 'Update inventory levels for selected products',
-      onClick: (selectedIds: string[], selectedData: any[]) => {
-        console.log('Apply stock to:', selectedIds)
-        // Custom logic to apply stock to selected products
-      }
-    },
-    {
-      label: 'Mark as Low Stock',
-      icon: createElement(AlertTriangle, { size: 16 }),
-      color: 'orange',
-      show: (selectedIds: string[], selectedData: any[]) => {
-        // Only show if at least one item has stock < 10
-        return selectedData.some(item => item.stock < 10)
-      },
-      confirm: (selectedIds: string[], selectedData: any[]) => {
-        return `Mark ${selectedIds.length} product(s) as low stock?`
-      },
-      helper: 'Flag products as low stock for reordering',
-      onClick: (selectedIds: string[], selectedData: any[]) => {
-        console.log('Mark as low stock:', selectedIds)
-        // Custom logic to mark items as low stock
-      }
-    }
-  ],
+  // bulkActions removed - now using centralized serverActions from ResourceView
   columns: [
     {
       key: 'id',

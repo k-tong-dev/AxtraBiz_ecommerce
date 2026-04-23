@@ -55,6 +55,13 @@ utils/
 - Type safety throughout
 - Performance optimized
 
+### ✅ **ServerActions Integration**
+- Shared action system with ListView
+- Context-aware actions (single vs bulk)
+- Built-in confirmation dialogs
+- Helper tooltips for guidance
+- Reusable action definitions across views
+
 ## 🚀 Quick Start
 
 ### 1. Basic Usage
@@ -553,6 +560,145 @@ actions: {
   copy: true
 }
 ```
+
+## ServerActions Integration
+
+FormView now supports the **ServerActions** component for a unified action system that works across both ListView and FormView. This allows you to define actions once and reuse them in different contexts.
+
+### Why ServerActions?
+
+- **Shared Actions**: Define actions once, use in both ListView (bulk) and FormView (single)
+- **Context-Aware**: Actions automatically adapt to bulk vs single record context
+- **Built-in Features**: Confirmation dialogs, helper tooltips, loading states
+- **Better Architecture**: Reduces code duplication and improves maintainability
+
+### Migration from customActions to ServerActions
+
+The old `customActions` system is being replaced with `ServerActions`. Here's how to migrate:
+
+**Old (customActions):**
+```typescript
+customActions: [
+  {
+    key: 'approve',
+    label: 'Approve Product',
+    icon: <Check className="w-4 h-4" />,
+    onClick: (data) => {
+      fetch(`/api/products/${data.id}/approve`, { method: 'POST' })
+    },
+    mode: 'edit',
+    variant: 'primary'
+  }
+]
+```
+
+**New (ServerActions):**
+```typescript
+import { ServerActionConfig } from '@/components/admin/ResourceView/ServerActions'
+
+const actions: ServerActionConfig[] = [
+  {
+    key: 'approve',
+    label: 'Approve Product',
+    icon: <Check className="w-4 h-4" />,
+    color: 'green',
+    mode: 'edit',
+    confirm: 'Approve this product?',
+    helper: 'Mark product as approved',
+    onClick: async (data, context) => {
+      const record = context.record || data[0]
+      await fetch(`/api/products/${record.id}/approve`, { method: 'POST' })
+    }
+  }
+]
+```
+
+### Context Handling in FormView
+
+In FormView, the action context provides:
+- `context.mode = 'single'`: Single record mode
+- `context.view = 'form'`: Form view context
+- `context.record`: The current form data object
+- `data`: Array with single record `[record]`
+
+**Example: Delete action that works in both contexts:**
+```typescript
+const deleteAction: ServerActionConfig = {
+  key: 'delete',
+  label: 'Delete',
+  icon: <Trash2 size={16} />,
+  color: 'red',
+  mode: 'edit',
+  confirm: (data, context) => {
+    if (context.mode === 'bulk') {
+      return `Delete ${context.selectedIds?.length} records?`
+    } else {
+      return 'Delete this record? This action cannot be undone.'
+    }
+  },
+  onClick: async (data, context) => {
+    if (context.mode === 'bulk') {
+      // ListView: Delete multiple
+      const ids = context.selectedIds || data.map(d => d.id)
+      await fetch('/api/bulk-delete', {
+        method: 'POST',
+        body: JSON.stringify({ ids })
+      })
+    } else {
+      // FormView: Delete single
+      const id = context.record?.id || data[0]?.id
+      await fetch(`/api/records/${id}`, { method: 'DELETE' })
+    }
+  }
+}
+```
+
+### Built-in Actions as ServerActions
+
+FormView's built-in actions (Delete, Print, Export, Duplicate, Copy) can also be defined as ServerActions for consistency:
+
+```typescript
+const builtInActions: ServerActionConfig[] = [
+  {
+    key: 'delete',
+    label: 'Delete',
+    icon: <Trash2 size={16} />,
+    color: 'red',
+    mode: 'edit',
+    confirm: 'Delete this record?',
+    helper: 'Permanently remove this record',
+    onClick: async (data, context) => {
+      const id = context.record?.id || data[0]?.id
+      await fetch(`/api/records/${id}`, { method: 'DELETE' })
+      router.push('/list')
+    }
+  },
+  {
+    key: 'duplicate',
+    label: 'Duplicate',
+    icon: <Copy size={16} />,
+    color: 'blue',
+    mode: 'edit',
+    helper: 'Create a copy of this record',
+    onClick: async (data, context) => {
+      const record = context.record || data[0]
+      const duplicate = { ...record, id: undefined, name: `${record.name} (Copy)` }
+      router.push(`/create?data=${JSON.stringify(duplicate)}`)
+    }
+  },
+  {
+    key: 'print',
+    label: 'Print',
+    icon: <Printer size={16} />,
+    color: 'blue',
+    mode: 'both',
+    helper: 'Print this record',
+    onClick: () => window.print()
+  }
+]
+```
+
+For detailed ServerActions documentation, see: [ServerActions README](../ServerActions/README.md)
 
 ### Best Practices
 

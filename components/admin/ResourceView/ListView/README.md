@@ -14,6 +14,7 @@ The `ListView` is a table component built with rsuite Table. It provides a clean
 - **Header Summary**: Display column summaries (sum, count, avg, min, max)
 - **Custom Render Functions**: Format cell data with custom renderers
 - **Configurable**: Highly customizable through configuration objects
+- **ServerActions Integration**: Shared action system with FormView for bulk operations
 
 ## Architecture Note
 
@@ -253,7 +254,7 @@ Compact card layout displaying up to 2 fields per card. Best for high-density di
 ### Checkbox Selection
 - **Master Checkbox**: Located in the table header, selects/deselects all rows on the current page
 - **Row Checkboxes**: Located in each row, selects/deselects individual rows
-- **Bulk Actions**: When rows are selected, the "Delete (N)" button appears for bulk deletion
+- **Bulk Actions**: When rows are selected, an "Actions" button appears in the toolbar
 - **Export**: Export button shows count of selected rows
 
 ### Export Functionality
@@ -408,6 +409,104 @@ export default function AdminProductsPage() {
 - Ensure Tailwind CSS is properly configured
 - Check that shadcn/ui components are installed
 - Verify component imports are correct
+
+## ServerActions Integration
+
+ListView now uses the **ServerActions** component for bulk operations, providing a unified action system that works across both ListView and FormView.
+
+### Bulk Actions Drawer
+
+When rows are selected, an "Actions" button appears in the toolbar. Clicking it opens a right-side drawer containing bulk action buttons.
+
+### Migration from BulkActionConfig to ServerActions
+
+The old `BulkActionConfig` interface is being replaced with `ServerActionConfig`. A converter function is provided for backward compatibility:
+
+**Old (BulkActionConfig):**
+```typescript
+bulkActions: [
+  {
+    label: 'Delete Selected',
+    icon: <Trash2 size={16} />,
+    color: 'red',
+    onClick: (selectedIds, selectedData) => {
+      selectedData.forEach(item => onDelete(item))
+    },
+    confirm: 'Delete selected records?',
+    helper: 'Permanently remove selected records'
+  }
+]
+```
+
+**New (ServerActionConfig):**
+```typescript
+import { ServerActionConfig } from '@/components/admin/ResourceView/ServerActions'
+
+const bulkActions: ServerActionConfig[] = [
+  {
+    key: 'delete_selected',
+    label: 'Delete Selected',
+    icon: <Trash2 size={16} />,
+    color: 'red',
+    mode: 'bulk',
+    confirm: (data, context) => `Delete ${context.selectedIds?.length} records?`,
+    helper: 'Permanently remove selected records',
+    onClick: async (data, context) => {
+      const ids = context.selectedIds || data.map(d => d.id)
+      await fetch('/api/bulk-delete', {
+        method: 'POST',
+        body: JSON.stringify({ ids })
+      })
+    }
+  }
+]
+```
+
+### Context Handling in ListView
+
+In ListView, the action context provides:
+- `context.mode = 'bulk'`: Bulk record mode
+- `context.view = 'list'`: List view context
+- `context.selectedIds`: Array of selected record IDs
+- `data`: Array of selected records
+
+**Example: Action that works in both ListView and FormView:**
+```typescript
+const deleteAction: ServerActionConfig = {
+  key: 'delete',
+  label: 'Delete',
+  icon: <Trash2 size={16} />,
+  color: 'red',
+  mode: 'both',
+  confirm: (data, context) => {
+    if (context.mode === 'bulk') {
+      return `Delete ${context.selectedIds?.length} records?`
+    } else {
+      return 'Delete this record?'
+    }
+  },
+  onClick: async (data, context) => {
+    if (context.mode === 'bulk') {
+      // ListView: Delete multiple
+      const ids = context.selectedIds || data.map(d => d.id)
+      await fetch('/api/bulk-delete', {
+        method: 'POST',
+        body: JSON.stringify({ ids })
+      })
+    } else {
+      // FormView: Delete single
+      const id = context.record?.id || data[0]?.id
+      await fetch(`/api/records/${id}`, { method: 'DELETE' })
+    }
+  }
+}
+```
+
+### Backward Compatibility
+
+Existing configurations using `BulkActionConfig` are automatically converted using the `convertToServerAction` function in ListView. No immediate changes are required, but migrating to `ServerActionConfig` is recommended for consistency.
+
+For detailed ServerActions documentation, see: [ServerActions README](../ServerActions/README.md)
 
 ## Future Enhancements
 
