@@ -36,8 +36,8 @@ export const productConfig = {
       key: 'update_stock',
       label: 'Update Stock',
       icon: createElement(Package, { size: 16 }),
-      color: 'blue',
-      mode: 'both',
+      color: 'blue' as const,
+      mode: 'both' as const,
       helper: 'Update stock levels for this product',
       onClick: async (data: any[], context?: any) => {
         const record = context?.record || data[0]
@@ -50,8 +50,8 @@ export const productConfig = {
       key: 'view_variants',
       label: 'View Variants',
       icon: createElement(Layers, { size: 16 }),
-      color: 'violet',
-      mode: 'edit',
+      color: 'violet' as const,
+      mode: 'edit' as const,
       helper: 'View and manage product variants',
       onClick: async (data: any[], context?: any) => {
         const record = context?.record || data[0]
@@ -60,7 +60,7 @@ export const productConfig = {
         alert('View Variants functionality - Coming soon!')
       }
     }
-  ],
+  ] as ServerActionConfig[],
   
   // View-specific configs (without actions)
   listViewConfig: (data: any[] = []) => getProductListConfig(data),

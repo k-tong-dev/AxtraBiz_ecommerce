@@ -7,7 +7,7 @@ import { GanttView } from './GanttView'
 import { FormView } from './FormView'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input, Drawer, Whisper, Popover, Divider } from 'rsuite'
+import {Input, Drawer, Whisper, Popover, Divider, Loader} from 'rsuite'
 import { IconButton } from 'rsuite'
 import { Search, Filter, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2 } from 'lucide-react'
 import { ResourceViewProps, ResourceType } from './types'
@@ -28,6 +28,13 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading, enti
     setMounted(true)
     setEditingId(entityId)
   }, [entityId])
+  
+  // Sync formInitialData when initialData changes (e.g., after fetch completes)
+  useEffect(() => {
+    if (initialData) {
+      setFormInitialData(initialData)
+    }
+  }, [initialData])
   
   // Merge default actions with custom actions
   const mergedServerActions = React.useMemo(() => {
@@ -270,6 +277,15 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading, enti
             Add New
           </Button>
         </div>
+      </div>
+    )
+  }
+
+  // Show loading state for form view when editing and data is not yet loaded
+  if (viewType === 'form' && entityId && !formInitialData && !mounted) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <Loader backdrop content="Loading..." vertical />
       </div>
     )
   }

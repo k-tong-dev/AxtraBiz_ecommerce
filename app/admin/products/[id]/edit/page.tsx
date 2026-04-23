@@ -36,22 +36,6 @@ export default function EditProductPage() {
         }
     }, [productId, router])
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-lg">Loading product...</div>
-            </div>
-        )
-    }
-
-    if (!product) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-lg">Product not found</div>
-            </div>
-        )
-    }
-
     return (
         <ResourceView
             config={{
