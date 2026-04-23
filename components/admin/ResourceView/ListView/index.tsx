@@ -165,16 +165,8 @@ export function ListView({
                              onDelete,
                              loading,
                              serverActions,
-                             showFilterPanel: externalShowFilterPanel,
-                             setShowFilterPanel: externalSetShowFilterPanel,
-                             searchKeyword: externalSearchKeyword,
-                             setSearchKeyword: externalSetSearchKeyword,
-                             showColumnPicker: externalShowColumnPicker,
-                             setShowColumnPicker: externalSetShowColumnPicker,
                              selectedIds: externalSelectedIds,
-                             setSelectedIds: externalSetSelectedIds,
-                             actionsDrawerOpen: externalActionsDrawerOpen,
-                             setActionsDrawerOpen: externalSetActionsDrawerOpen
+                             setSelectedIds: externalSetSelectedIds
                          }: ListViewProps) {
     const {
         columns: allColumns,
@@ -218,16 +210,8 @@ export function ListView({
     })
 
     // Use external state if provided (from ResourceView), otherwise use local state
-    const filterPanelVisible = externalShowFilterPanel !== undefined ? externalShowFilterPanel : showFilterPanel
-    const setFilterPanelVisible = externalSetShowFilterPanel || setShowFilterPanel
-    const currentSearchKeyword = externalSearchKeyword !== undefined ? externalSearchKeyword : searchKeyword
-    const setCurrentSearchKeyword = externalSetSearchKeyword || setSearchKeyword
-    const columnPickerVisible = externalShowColumnPicker !== undefined ? externalShowColumnPicker : showColumnPicker
-    const setColumnPickerVisible = externalSetShowColumnPicker || setShowColumnPicker
     const currentSelectedIds = externalSelectedIds !== undefined ? externalSelectedIds : selectedIds
     const setCurrentSelectedIds = externalSetSelectedIds || setSelectedIds
-    const currentActionsDrawerOpen = externalActionsDrawerOpen !== undefined ? externalActionsDrawerOpen : actionsDrawerOpen
-    const setCurrentActionsDrawerOpen = externalSetActionsDrawerOpen || setActionsDrawerOpen
 
     // Update action context when selectedIds change
     useEffect(() => {
@@ -278,13 +262,6 @@ export function ListView({
         }
     }, [allColumns])
 
-    // Sync pending filters with applied filters when panel opens
-    useEffect(() => {
-        if (filterPanelVisible) {
-            setPendingFilters(columnFilters)
-        }
-    }, [filterPanelVisible, columnFilters])
-
     // Update data when config changes
     useEffect(() => {
         setData(initialData)
@@ -314,10 +291,10 @@ export function ListView({
         let result = [...data]
 
         // Apply global search
-        if (currentSearchKeyword) {
+        if (searchKeyword) {
             result = result.filter(item =>
                 Object.keys(item).some(key =>
-                    String(item[key]).toLowerCase().includes(currentSearchKeyword.toLowerCase())
+                    String(item[key]).toLowerCase().includes(searchKeyword.toLowerCase())
                 )
             )
         }
@@ -383,7 +360,7 @@ export function ListView({
         }
 
         return result
-    }, [data, currentSearchKeyword, sortColumn, sortType, columnFilters, allColumns])
+    }, [data, searchKeyword, sortColumn, sortType, columnFilters, allColumns])
 
     // Pagination
     const totalPages = Math.ceil(filteredData.length / pageSize)
@@ -506,7 +483,6 @@ export function ListView({
 
     const handleApplyFilters = () => {
         setColumnFilters(pendingFilters)
-        setFilterPanelVisible(false)
     }
 
     const handleClearPendingFilters = () => {
@@ -730,352 +706,13 @@ export function ListView({
         </div>
     )
 
-    // Render kanban view
-    const renderKanbanView = () => (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {paginatedData.map((row, rowIndex) => (
-                <Card
-                    key={row.id || row._id || rowIndex}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => onRowClick && onRowClick(row)}
-                >
-                    <div className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                            <Checkbox
-                                checked={selectedIds.includes(row.id || row._id)}
-                                onChange={(value, checked, event) => {
-                                    event?.stopPropagation()
-                                    handleSelectRow(row.id || row._id, checked)
-                                }}
-                            />
-                            <div className="flex gap-1">
-                                {onEdit && (
-                                    <Button size="sm" appearance="subtle" onClick={(e) => {
-                                        e.stopPropagation();
-                                        onEdit(row)
-                                    }}>
-                                        Edit
-                                    </Button>
-                                )}
-                                {onDelete && (
-                                    <Button size="sm" appearance="subtle" onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDelete(row)
-                                    }}>
-                                        Delete
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                        {visibleColumns.slice(0, 3).map(column => (
-                            <div key={column.key} className="mb-2">
-                                <div className="text-xs text-muted-foreground">{column.title}</div>
-                                <div className="font-medium">
-                                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            ))}
-        </div>
-    )
-
-    // Render grid view
-    const renderGridView = () => (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {paginatedData.map((row, rowIndex) => (
-                <Card
-                    key={row.id || row._id || rowIndex}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => onRowClick && onRowClick(row)}
-                >
-                    <div className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                            <Checkbox
-                                checked={selectedIds.includes(row.id || row._id)}
-                                onChange={(value, checked, event) => {
-                                    event?.stopPropagation()
-                                    handleSelectRow(row.id || row._id, checked)
-                                }}
-                            />
-                            <div className="flex gap-1">
-                                {onEdit && (
-                                    <Button size="sm" appearance="subtle" onClick={(e) => {
-                                        e.stopPropagation();
-                                        onEdit(row)
-                                    }}>
-                                        Edit
-                                    </Button>
-                                )}
-                                {onDelete && (
-                                    <Button size="sm" appearance="subtle" onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDelete(row)
-                                    }}>
-                                        Delete
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                        {visibleColumns.slice(0, 2).map(column => (
-                            <div key={column.key} className="mb-2">
-                                <div className="text-xs text-muted-foreground">{column.title}</div>
-                                <div className="font-medium">
-                                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            ))}
-        </div>
-    )
-
-    // Render Gantt view
-    const renderGanttView = () => {
-        if (!ganttStartDateKey || !ganttEndDateKey || !ganttTitleKey) {
-            return <div className="text-center py-8 text-muted-foreground">Gantt view requires startDate, endDate, and
-                title keys in config</div>
-        }
-
-        // Calculate date range
-        const allDates = paginatedData.flatMap(row => [
-            new Date(row[ganttStartDateKey]),
-            new Date(row[ganttEndDateKey])
-        ])
-        const minDate = new Date(Math.min(...allDates.map(d => d.getTime())))
-        const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())))
-        const dayRange = Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
-
-        return (
-            <div className="overflow-x-auto">
-                <div className="min-w-[800px]">
-                    {/* Timeline header */}
-                    <div className="flex border-b">
-                        <div className="w-64 flex-shrink-0 p-2 font-medium border-r">Task</div>
-                        <div className="flex-1 flex">
-                            {Array.from({length: dayRange}, (_, i) => {
-                                const date = new Date(minDate)
-                                date.setDate(date.getDate() + i)
-                                return (
-                                    <div key={i} className="flex-1 p-2 text-xs border-r text-center">
-                                        {date.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Timeline rows */}
-                    {paginatedData.map((row, index) => {
-                        const startDate = new Date(row[ganttStartDateKey])
-                        const endDate = new Date(row[ganttEndDateKey])
-                        const startOffset = Math.ceil((startDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24))
-                        const duration = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
-
-                        return (
-                            <div key={row.id || row._id || index} className="flex border-b hover:bg-muted/50">
-                                <div className="w-64 flex-shrink-0 p-2 border-r text-sm">
-                                    {row[ganttTitleKey] || `Task ${index + 1}`}
-                                </div>
-                                <div className="flex-1 relative p-1">
-                                    <div
-                                        className="absolute h-6 bg-blue-500 rounded cursor-pointer hover:bg-blue-600 transition-colors"
-                                        style={{
-                                            left: `${(startOffset / dayRange) * 100}%`,
-                                            width: `${(duration / dayRange) * 100}%`,
-                                            top: '4px'
-                                        }}
-                                        onClick={() => onRowClick && onRowClick(row)}
-                                    >
-                    <span className="text-xs text-white px-1 truncate block">
-                      {row[ganttTitleKey] || `Task ${index + 1}`}
-                    </span>
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            </div>
-        )
-    }
-
     return (
         <div className="space-y-4">
-
-            {/* Filter panel */}
-            {filterPanelVisible && (
-                <Card className="p-6">
-                    <HStack className="mb-4" spacing={16} alignItems="center">
-                        <h3 className="font-medium">Filters</h3>
-                        <div className="flex gap-2">
-                            {getActiveFilterCount() > 0 && (
-                                <Tag color="green">{getActiveFilterCount()} Applied</Tag>
-                            )}
-                            {getPendingFilterCount() > 0 && getPendingFilterCount() !== getActiveFilterCount() && (
-                                <Tag color="blue">Changed</Tag>
-                            )}
-                            <Button size="sm" appearance="subtle" onClick={handleClearPendingFilters}>
-                                Reset
-                            </Button>
-                            <Button size="sm" appearance="subtle" onClick={handleClearAllFilters}>
-                                Clear All
-                            </Button>
-                        </div>
-
-                    </HStack>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {allColumns.filter(col => col.filterable).map(column => (
-                            <div key={column.key} className="space-y-2">
-                                <label className="text-sm font-medium text-muted-foreground">{column.title}</label>
-                                {column.filterType === 'text' && (
-                                    <InputGroup inside>
-                                        <Input
-                                            placeholder={`Filter by ${column.title}...`}
-                                            value={pendingFilters.find(f => f.columnKey === column.key)?.values[0]?.value || ''}
-                                            onChange={(value) => handleAddPendingFilter(column.key, {
-                                                type: 'text',
-                                                value,
-                                                operator: 'contains'
-                                            })}
-                                        />
-                                        <InputGroup.Button>
-                                            <Filter className="h-4 w-4"/>
-                                        </InputGroup.Button>
-                                    </InputGroup>
-                                )}
-                                {column.filterType === 'number' && (
-                                    <div className="flex gap-2">
-                                        <Input
-                                            type="number"
-                                            placeholder="Min"
-                                            value={pendingFilters.find(f => f.columnKey === column.key)?.values.find(v => v.operator === 'gte')?.value || ''}
-                                            onChange={(value) => handleAddPendingFilter(column.key, {
-                                                type: 'number',
-                                                value,
-                                                operator: 'gte'
-                                            })}
-                                        />
-                                        <Input
-                                            type="number"
-                                            placeholder="Max"
-                                            value={pendingFilters.find(f => f.columnKey === column.key)?.values.find(v => v.operator === 'lte')?.value || ''}
-                                            onChange={(value) => handleAddPendingFilter(column.key, {
-                                                type: 'number',
-                                                value,
-                                                operator: 'lte'
-                                            })}
-                                        />
-                                    </div>
-                                )}
-                                {column.filterType === 'date' && (
-                                    <DateRangePicker
-                                        placeholder="Select date range"
-                                        value={pendingFilters.find(f => f.columnKey === column.key)?.values[0]?.value || null}
-                                        onChange={(value) => {
-                                            if (value && value.length === 2) {
-                                                handleAddPendingFilter(column.key, {
-                                                    type: 'date',
-                                                    value: value,
-                                                    operator: 'between'
-                                                })
-                                            } else if (!value) {
-                                                handleAddPendingFilter(column.key, {
-                                                    type: 'date',
-                                                    value: null,
-                                                    operator: 'between'
-                                                })
-                                            }
-                                        }}
-                                        block
-                                        cleanable
-                                    />
-                                )}
-                                {column.filterType === 'options' && (
-                                    <InputPicker
-                                        data={column.filterOptions || dynamicFilterData[column.key] || []}
-                                        placeholder={`Select ${column.title}...`}
-                                        value={pendingFilters.find(f => f.columnKey === column.key)?.values[0]?.value || null}
-                                        onChange={(value) => handleAddPendingFilter(column.key, {
-                                            type: 'options',
-                                            value
-                                        })}
-                                        block
-                                        cleanable
-                                    />
-                                )}
-                                {column.filterType === 'boolean' && (
-                                    <div className="flex items-center gap-2">
-                                        <Switch
-                                            checked={pendingFilters.find(f => f.columnKey === column.key)?.values[0]?.value === true}
-                                            onChange={(checked) => {
-                                                handleAddPendingFilter(column.key, {type: 'boolean', value: checked})
-                                            }}
-                                            checkedChildren="True"
-                                            unCheckedChildren="False"
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                    <Divider className="my-6"/>
-                    <HStack justifyContent="flex-end" spacing={8}>
-                        <Button size="sm" appearance="subtle" onClick={() => setFilterPanelVisible(false)}>
-                            Cancel
-                        </Button>
-                        <Button size="sm" appearance="primary" onClick={handleApplyFilters}>
-                            Apply Filters
-                        </Button>
-                    </HStack>
-                </Card>
-            )}
-
-            {/* Actions Drawer - Removed, now using Popover dropdown in ResourceView */}
-
-            {/* Confirmation Modal */}
-            <ConfirmationModal
-                open={confirmModalOpen}
-                onClose={() => setConfirmModalOpen(false)}
-                config={confirmModalConfig}
-            />
-
-            {/* Column picker - kept for backward compatibility but header picker is preferred */}
-            {columnPickerVisible && (
-                <Card className="p-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                        {allColumns.map(column => (
-                            <label key={column.key} className="flex items-center gap-2 cursor-pointer">
-                                <Checkbox
-                                    checked={visibleColumns.some(col => col.key === column.key)}
-                                    onChange={(value, checked) => {
-                                        if (checked) {
-                                            setVisibleColumns([...visibleColumns, column])
-                                        } else {
-                                            setVisibleColumns(visibleColumns.filter(col => col.key !== column.key))
-                                        }
-                                    }}
-                                />
-                                <span className="text-sm">{column.title}</span>
-                            </label>
-                        ))}
-                    </div>
-                </Card>
-            )}
-
             {/* Table content */}
             {loading ? (
                 <div className="text-center py-8 text-muted-foreground">Loading...</div>
             ) : (
-                <>
-                    {viewType === 'list' && renderListView()}
-                    {viewType === 'kanban' && renderKanbanView()}
-                    {viewType === 'grid' && renderGridView()}
-                    {viewType === 'tree' && renderListView()}
-                    {viewType === 'gantt' && renderGanttView()}
-                </>
+                renderListView()
             )}
 
             {/* Pagination */}

@@ -19,7 +19,6 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     const [searchKeyword, setSearchKeyword] = useState('')
     const [showFilterPanel, setShowFilterPanel] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
-    const [actionsDrawerOpen, setActionsDrawerOpen] = useState(false)
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
     const [mounted, setMounted] = useState(false)
 
@@ -84,14 +83,8 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         onEdit={handleEdit}
                         onDelete={onDelete}
                         loading={loading}
-                        showFilterPanel={showFilterPanel}
-                        setShowFilterPanel={setShowFilterPanel}
-                        searchKeyword={searchKeyword}
-                        setSearchKeyword={setSearchKeyword}
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
-                        actionsDrawerOpen={actionsDrawerOpen}
-                        setActionsDrawerOpen={setActionsDrawerOpen}
                         serverActions={mergedServerActions}
                     />
                 )
