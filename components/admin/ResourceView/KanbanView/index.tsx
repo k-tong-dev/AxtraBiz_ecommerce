@@ -9,7 +9,7 @@ import { Search } from 'lucide-react'
 import { KanbanViewProps, KanbanMode } from './types'
 import { cn } from '@/lib/utils'
 
-export function KanbanView({ config, loading, showFilterPanel, setShowFilterPanel, searchKeyword, setSearchKeyword }: KanbanViewProps & { showFilterPanel?: boolean; setShowFilterPanel?: (show: boolean) => void; searchKeyword?: string; setSearchKeyword?: (keyword: string) => void }) {
+export function KanbanView({ config, loading, showFilterPanel, setShowFilterPanel, searchKeyword, setSearchKeyword, filterValues }: KanbanViewProps & { showFilterPanel?: boolean; setShowFilterPanel?: (show: boolean) => void; searchKeyword?: string; setSearchKeyword?: (keyword: string) => void; filterValues?: {fieldKey: string; operator: string; value: any}[] }) {
   const {
     mode = 'normal',
     columns,
@@ -33,13 +33,65 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
   const setFilterPanelVisible = setShowFilterPanel || setLocalShowFilterPanel
   const currentSearchKeyword = searchKeyword !== undefined ? searchKeyword : localSearchKeyword
   const setCurrentSearchKeyword = setSearchKeyword || setLocalSearchKeyword
+  const currentFilterValues = filterValues || []
 
   const [kanbanData, setKanbanData] = useState<Record<string, any[]>>(() => {
-    const filteredData = currentSearchKeyword ? data.filter(item =>
+    // Apply search keyword filter
+    let filteredData = currentSearchKeyword ? data.filter(item =>
       Object.keys(item).some(key =>
         String(item[key]).toLowerCase().includes(currentSearchKeyword.toLowerCase())
       )
     ) : data
+
+    // Apply filter values (AND logic - match all filters)
+    if (currentFilterValues.length > 0) {
+      filteredData = filteredData.filter(item =>
+        currentFilterValues.every(filterValue => {
+          const value = item[filterValue.fieldKey]
+          const filterVal = filterValue.value
+          
+          switch (filterValue.operator) {
+            case 'equals':
+              // Use number comparison if filter value is a number
+              if (typeof filterVal === 'number') {
+                return Number(value) === filterVal
+              }
+              // Handle boolean comparison
+              if (typeof filterVal === 'boolean') {
+                return Boolean(value) === filterVal
+              }
+              // Handle date comparison - convert both to date and compare
+              const itemDate = new Date(value)
+              const filterDate = new Date(filterVal)
+              if (!isNaN(itemDate.getTime()) && !isNaN(filterDate.getTime())) {
+                return itemDate.toDateString() === filterDate.toDateString()
+              }
+              return String(value) === String(filterVal)
+            case 'contains':
+              return String(value).toLowerCase().includes(String(filterVal).toLowerCase())
+            case 'startsWith':
+              return String(value).toLowerCase().startsWith(String(filterVal).toLowerCase())
+            case 'endsWith':
+              return String(value).toLowerCase().endsWith(String(filterVal).toLowerCase())
+            case 'gt':
+              return Number(value) > Number(filterVal)
+            case 'lt':
+              return Number(value) < Number(filterVal)
+            case 'gte':
+              return Number(value) >= Number(filterVal)
+            case 'lte':
+              return Number(value) <= Number(filterVal)
+            case 'between':
+              if (Array.isArray(filterVal) && filterVal.length === 2) {
+                return Number(value) >= Number(filterVal[0]) && Number(value) <= Number(filterVal[1])
+              }
+              return true
+            default:
+              return true
+          }
+        })
+      )
+    }
 
     if (mode === 'state-control' && stateField) {
       // Group data by state field
@@ -60,13 +112,64 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
     }
   })
 
-  // Update kanbanData when search keyword changes
+  // Update kanbanData when search keyword or filter values changes
   React.useEffect(() => {
-    const filteredData = currentSearchKeyword ? data.filter(item =>
+    // Apply search keyword filter
+    let filteredData = currentSearchKeyword ? data.filter(item =>
       Object.keys(item).some(key =>
         String(item[key]).toLowerCase().includes(currentSearchKeyword.toLowerCase())
       )
     ) : data
+
+    // Apply filter values (AND logic - match all filters)
+    if (currentFilterValues.length > 0) {
+      filteredData = filteredData.filter(item =>
+        currentFilterValues.every(filterValue => {
+          const value = item[filterValue.fieldKey]
+          const filterVal = filterValue.value
+          
+          switch (filterValue.operator) {
+            case 'equals':
+              // Use number comparison if filter value is a number
+              if (typeof filterVal === 'number') {
+                return Number(value) === filterVal
+              }
+              // Handle boolean comparison
+              if (typeof filterVal === 'boolean') {
+                return Boolean(value) === filterVal
+              }
+              // Handle date comparison - convert both to date and compare
+              const itemDate = new Date(value)
+              const filterDate = new Date(filterVal)
+              if (!isNaN(itemDate.getTime()) && !isNaN(filterDate.getTime())) {
+                return itemDate.toDateString() === filterDate.toDateString()
+              }
+              return String(value) === String(filterVal)
+            case 'contains':
+              return String(value).toLowerCase().includes(String(filterVal).toLowerCase())
+            case 'startsWith':
+              return String(value).toLowerCase().startsWith(String(filterVal).toLowerCase())
+            case 'endsWith':
+              return String(value).toLowerCase().endsWith(String(filterVal).toLowerCase())
+            case 'gt':
+              return Number(value) > Number(filterVal)
+            case 'lt':
+              return Number(value) < Number(filterVal)
+            case 'gte':
+              return Number(value) >= Number(filterVal)
+            case 'lte':
+              return Number(value) <= Number(filterVal)
+            case 'between':
+              if (Array.isArray(filterVal) && filterVal.length === 2) {
+                return Number(value) >= Number(filterVal[0]) && Number(value) <= Number(filterVal[1])
+              }
+              return true
+            default:
+              return true
+          }
+        })
+      )
+    }
 
     if (mode === 'state-control' && stateField) {
       const grouped: Record<string, any[]> = {}
@@ -83,7 +186,7 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
       })
       setKanbanData(grouped)
     }
-  }, [data, currentSearchKeyword, mode, stateField, columns])
+  }, [data, currentSearchKeyword, currentFilterValues, mode, stateField, columns])
 
   const handleDragEnd = async (event: any) => {
     if (!draggable || mode !== 'state-control' || !onStateChange) return

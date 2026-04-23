@@ -147,6 +147,7 @@ export interface ListViewProps {
     loading?: boolean
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
     searchValues?: {fieldKey: string; value: string}[]
+    filterValues?: {fieldKey: string; operator: string; value: any}[]
     selectedIds?: string[]
     setSelectedIds?: (ids: string[]) => void
 }
@@ -159,6 +160,7 @@ export function ListView({
                              loading,
                              serverActions,
                              searchValues: externalSearchValues,
+                             filterValues: externalFilterValues,
                              selectedIds: externalSelectedIds,
                              setSelectedIds: externalSetSelectedIds
                          }: ListViewProps) {
@@ -205,6 +207,7 @@ export function ListView({
 
     // Use external state if provided (from ResourceView), otherwise use local state
     const currentSearchValues = externalSearchValues !== undefined ? externalSearchValues : []
+    const currentFilterValues = externalFilterValues !== undefined ? externalFilterValues : []
     const currentSelectedIds = externalSelectedIds !== undefined ? externalSelectedIds : selectedIds
     const setCurrentSelectedIds = externalSetSelectedIds || setSelectedIds
 
@@ -302,6 +305,57 @@ export function ListView({
             )
         }
 
+        // Apply new filter values from Filter component (AND logic - match all filters)
+        if (currentFilterValues.length > 0) {
+            result = result.filter(item =>
+                currentFilterValues.every(filterValue => {
+                    const value = item[filterValue.fieldKey]
+                    const filterVal = filterValue.value
+                    
+                    switch (filterValue.operator) {
+                        case 'equals':
+                            // Use number comparison if filter value is a number
+                            if (typeof filterVal === 'number') {
+                                return Number(value) === filterVal
+                            }
+                            // Handle boolean comparison
+                            if (typeof filterVal === 'boolean') {
+                                return Boolean(value) === filterVal
+                            }
+                            // Handle date comparison - convert both to date and compare
+                            const itemDate = new Date(value)
+                            const filterDate = new Date(filterVal)
+                            if (!isNaN(itemDate.getTime()) && !isNaN(filterDate.getTime())) {
+                                return itemDate.toDateString() === filterDate.toDateString()
+                            }
+                            return String(value) === String(filterVal)
+                        case 'contains':
+                            return String(value).toLowerCase().includes(String(filterVal).toLowerCase())
+                        case 'startsWith':
+                            return String(value).toLowerCase().startsWith(String(filterVal).toLowerCase())
+                        case 'endsWith':
+                            return String(value).toLowerCase().endsWith(String(filterVal).toLowerCase())
+                        case 'gt':
+                            return Number(value) > Number(filterVal)
+                        case 'lt':
+                            return Number(value) < Number(filterVal)
+                        case 'gte':
+                            return Number(value) >= Number(filterVal)
+                        case 'lte':
+                            return Number(value) <= Number(filterVal)
+                        case 'between':
+                            // filterVal should be an array [min, max] for between
+                            if (Array.isArray(filterVal) && filterVal.length === 2) {
+                                return Number(value) >= Number(filterVal[0]) && Number(value) <= Number(filterVal[1])
+                            }
+                            return true
+                        default:
+                            return true
+                    }
+                })
+            )
+        }
+
         // Apply column filters
         columnFilters.forEach(filter => {
             const column = allColumns.find(col => col.key === filter.columnKey)
@@ -363,7 +417,7 @@ export function ListView({
         }
 
         return result
-    }, [data, currentSearchValues, sortColumn, sortType, columnFilters, allColumns])
+    }, [data, currentSearchValues, currentFilterValues, sortColumn, sortType, columnFilters, allColumns])
 
     // Pagination
     const totalPages = Math.ceil(filteredData.length / pageSize)

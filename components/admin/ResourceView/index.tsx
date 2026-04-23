@@ -9,16 +9,18 @@ import {Button} from '@/components/ui/button'
 import {Card} from '@/components/ui/card'
 import {Input, Drawer, Whisper, Popover, Divider, Loader, Tag} from 'rsuite'
 import {IconButton} from 'rsuite'
-import {Search, Filter, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2} from 'lucide-react'
+import {Search as SearchIcon, Filter as FilterIcon, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2} from 'lucide-react'
 import {ResourceViewProps, ResourceType} from './types'
 import {InputGroup} from "@/components/ui/input";
 import {MdAdd} from "react-icons/md";
 import {Search as SearchComponent, SearchValue} from './Search'
+import {Filter, FilterValue} from './Filter'
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
     const [editingId, setEditingId] = useState<string | undefined>(undefined)
     const [searchValues, setSearchValues] = useState<SearchValue[]>([])
+    const [filterValues, setFilterValues] = useState<FilterValue[]>([])
     const [showFilterPanel, setShowFilterPanel] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
@@ -86,6 +88,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         onDelete={onDelete}
                         loading={loading}
                         searchValues={searchValues}
+                        filterValues={filterValues}
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
                         serverActions={mergedServerActions}
@@ -104,6 +107,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         setShowFilterPanel={setShowFilterPanel}
                         searchKeyword={searchValues.map(v => v.value).join(' ')}
                         setSearchKeyword={() => {}}
+                        filterValues={filterValues}
                     />
                 )
 
@@ -185,10 +189,17 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         placeholder="Search..."
                         width={400}
                     />
-                    <IconButton
-                        icon={<Filter size={16}/>}
-                        appearance={showFilterPanel ? 'primary' : 'subtle'}
-                        onClick={() => setShowFilterPanel(!showFilterPanel)}
+                    <Filter
+                        fields={config.listViewConfig?.columns
+                            .filter(col => col.filterable !== false)
+                            .map(col => ({
+                                key: col.key,
+                                label: col.title,
+                                type: col.filterType || 'text',
+                                options: col.filterOptions
+                            })) || []}
+                        value={filterValues}
+                        onChange={setFilterValues}
                     />
                     {selectedIds.length > 0 && (
                         <Whisper

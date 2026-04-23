@@ -168,6 +168,7 @@ For detailed documentation, see:
 - [ListView README](./ListView/README.md)
 - [FormView README](./FormView/README.md)
 - [Search README](./Search/README.md)
+- [Filter README](./Filter/README.md)
 
 ---
 
@@ -179,6 +180,7 @@ For detailed documentation, see:
 - **Config-Based**: All views are configured through a single config object
 - **Reusable**: Designed for reuse across different models and projects
 - **Field-based Search**: Advanced search component with field selection and tag-based UI
+- **Field-based Filter**: Advanced filter component with field, operator, and value selection
 
 ## Search Component
 
@@ -187,14 +189,32 @@ ResourceView includes a flexible Search component that supports field-based sear
 **Features:**
 - **Field Selection**: Search by specific fields (name, price, phone, etc.) or search across all fields
 - **Tag-based UI**: Search terms are displayed as tags with close buttons for easy removal
-- **Multiple Search Terms**: Add multiple search criteria with OR logic
-- **Keyboard Support**: Press Enter to add search terms
+- **Multiple Search Terms**: Add multiple search criteria with AND logic (all must match)
+- **Keyboard Support**: Press Enter to add search terms, Backspace to remove last tag
 - **Auto-populated Fields**: Search fields are automatically populated from ListView config columns
 
 **Usage:**
 The Search component is automatically rendered in the ResourceView header when in list view. It receives field definitions from the ListView config columns and passes search values to the ListView for filtering.
 
 For detailed documentation, see [Search README](./Search/README.md).
+
+## Filter Component
+
+ResourceView includes a flexible Filter component that supports field-based filtering with operator selection.
+
+**Features:**
+- **Field Selection**: Filter by specific fields (name, price, phone, etc.)
+- **Operator Selection**: Choose comparison operators (equals, contains, >, <, etc.) based on field type
+- **Tag-based UI**: Active filters are displayed as tags with close buttons for easy removal
+- **Multiple Filters**: Add multiple filter criteria with AND logic (all must match)
+- **Type Support**: Supports text, number, date, options, and boolean field types
+- **Keyboard Support**: Press Enter to add filters
+- **Auto-populated Fields**: Filter fields are automatically populated from ListView config columns
+
+**Usage:**
+The Filter component is automatically rendered in the ResourceView header when in list view. It receives field definitions from the ListView config columns and passes filter values to both ListView and KanbanView for filtering.
+
+For detailed documentation, see [Filter README](./Filter/README.md).
 
 ## Folder Structure
 
@@ -204,7 +224,12 @@ components/admin/ResourceView/
 ├── types.ts           # TypeScript type definitions
 ├── Search/            # Search component
 │   ├── index.tsx      # Search component implementation
+│   ├── FieldTagInput.tsx  # Custom tag input with field selector
 │   └── README.md      # Search component documentation
+├── Filter/            # Filter component
+│   ├── index.tsx      # Filter component implementation
+│   ├── FieldFilterInput.tsx  # Custom filter input with field/operator selectors
+│   └── README.md      # Filter component documentation
 ├── ListView/          # List view component
 ├── KanbanView/        # Kanban view component
 ├── GanttView/         # Gantt view component

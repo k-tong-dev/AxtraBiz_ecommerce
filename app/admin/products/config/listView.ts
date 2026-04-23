@@ -143,15 +143,31 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
         { label: 'Archived', value: 'archived' }
       ],
       align: 'center',
+      // render: (value: any) => {
+      //   const statusColors: Record<string, string> = {
+      //     draft: 'gray',
+      //     published: 'green',
+      //     archived: 'red'
+      //   }
+      //   const color = statusColors[value] || 'gray'
+      //   return React.createElement('span', { className: `bg-${color}-100 text-${color}-800 px-2 py-1 rounded text-xs font-medium capitalize` }, value)
+      // }
       render: (value: any) => {
-        const statusColors: Record<string, string> = {
-          draft: 'gray',
-          published: 'green',
-          archived: 'red'
+        const statusStyles: Record<string, string> = {
+          draft:     'bg-gray-100 text-gray-800',
+          published: 'bg-green-100 text-green-800',
+          archived:  'bg-red-100 text-red-800',
         }
-        const color = statusColors[value] || 'gray'
-        return React.createElement('span', { className: `bg-${color}-100 text-${color}-800 px-2 py-1 rounded text-xs font-medium capitalize` }, value)
+
+        const classes = statusStyles[value] ?? statusStyles.draft
+
+        return React.createElement(
+            'span',
+            { className: `${classes} px-2 py-1 rounded text-xs font-medium capitalize` },
+            value
+        )
       }
+
     },
     {
       key: 'active',
