@@ -51,10 +51,12 @@ The system provides built-in default actions that can be enabled/disabled via fl
 - `print`: Print the current record
 - `exportExcel`: Export selected records to Excel (bulk mode only)
 - `delete`: Delete record(s) (both bulk and single mode)
-- `duplicate`: Create a copy of the record (edit mode only)
+- `duplicate`: Create a copy of the record (both modes)
 - `copyJson`: Copy record data as JSON to clipboard (both modes)
-- `archive`: Archive the record (edit mode only)
-- `unarchive`: Unarchive the record (edit mode only)
+- `archive`: Archive the record (both modes)
+- `unarchive`: Unarchive the record (both modes)
+
+**Note:** The `duplicate`, `archive`, and `unarchive` actions now use `mode: 'both'` to appear in both FormView and ListView bulk actions.
 
 **Usage Example:**
 ```typescript
@@ -81,7 +83,7 @@ The system provides built-in default actions that can be enabled/disabled via fl
 ```
 
 **Action Placement:**
-- **ListView**: Default actions appear in the bulk actions drawer (when records are selected)
+- **ListView**: Default actions appear in the bulk actions Popover dropdown in ResourceView header (when records are selected)
 - **FormView**: Default actions appear in the Top Action Buttons dropdown (in edit mode)
 
 ### ServerActionConfig Interface
@@ -352,13 +354,18 @@ ResourceView
 │   │   ├── Column Picker Column (three-dot menu)
 │   │   └── Data Columns
 │   ├── Filter Panel
-│   ├── Column Picker (legacy, kept for backward compatibility)
-│   └── Actions Drawer
+│   └── Column Picker (legacy, kept for backward compatibility)
 ├── KanbanView
 ├── GridView
 ├── GanttView
 └── FormView
 ```
+
+### Loading State
+ResourceView provides a loading state for form view when editing and data is not yet loaded:
+- Shows a full-screen overlay with RSuite Loader component
+- Automatically displays when `viewType === 'form'`, `entityId` is set, but `formInitialData` is not yet available
+- Improves perceived performance by showing loading indicator instead of empty form
 
 ### State Management
 - **External State**: ResourceView manages global state (search, filter panel, selected IDs, actions drawer)
@@ -382,11 +389,11 @@ ResourceView
 - **Filtering**: Filter panel with various input types based on column filterType
 - **Bulk Actions**: When records are selected via checkboxes:
   - Actions Button appears in the ResourceView header toolbar (next to Search, Filter, Add New)
-  - Clicking the Actions button opens a right-side Drawer with:
+  - Clicking the Actions button opens a Popover dropdown with:
     - Export to Excel (with FileSpreadsheet icon)
     - Delete Selected (with Trash2 icon, red color)
     - **Custom Bulk Actions** (configured per model/entity)
-  - The drawer shows the count of selected items in the title
+  - The Popover shows the count of selected items in the button label
   - Custom bulk actions can be configured via `bulkActions` property in ListViewConfig:
     ```typescript
     import { Package, AlertTriangle } from 'lucide-react'

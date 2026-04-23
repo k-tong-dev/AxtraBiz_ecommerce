@@ -2,7 +2,41 @@
 
 A shared action system inspired by Odoo's server actions. Allows defining reusable actions that work across ListView (bulk actions) and FormView (quick actions).
 
+## Location
+- Component: `components/admin/ResourceView/ServerActions/index.tsx`
+- Default Actions: `getDefaultServerActions()` function in the same file
+- Documentation: This file
+
 ## Architecture
+
+### Centralized Default Actions
+
+The `getDefaultServerActions()` function provides built-in default actions that can be used by any resource. This is a generic utility that can be imported and used across different models (products, customers, orders, etc.).
+
+```typescript
+import { getDefaultServerActions } from '@/components/admin/ResourceView/ServerActions'
+
+const defaultActions = getDefaultServerActions({
+  print: true,
+  exportExcel: true,
+  delete: true,
+  duplicate: true,
+  copyJson: true,
+  archive: true,
+  unarchive: true
+})
+```
+
+**Available Default Actions:**
+- `print`: Print the current record (mode: 'both')
+- `exportExcel`: Export selected records to Excel (mode: 'bulk')
+- `delete`: Delete record(s) (mode: 'both')
+- `duplicate`: Create a copy of the record (mode: 'both')
+- `copyJson`: Copy record data as JSON to clipboard (mode: 'both')
+- `archive`: Archive the record (mode: 'both')
+- `unarchive`: Unarchive the record (mode: 'both')
+
+**Note:** All default actions except `exportExcel` use `mode: 'both'` to appear in both FormView and ListView bulk actions.
 
 ### Context-Aware Actions
 

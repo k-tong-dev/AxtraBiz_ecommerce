@@ -254,8 +254,8 @@ Compact card layout displaying up to 2 fields per card. Best for high-density di
 ### Checkbox Selection
 - **Master Checkbox**: Located in the table header, selects/deselects all rows on the current page
 - **Row Checkboxes**: Located in each row, selects/deselects individual rows
-- **Bulk Actions**: When rows are selected, an "Actions" button appears in the toolbar
-- **Export**: Export button shows count of selected rows
+- **Bulk Actions**: When rows are selected, an "Actions" button appears in the ResourceView header toolbar
+- Clicking the Actions button opens a Popover dropdown with bulk action options
 
 ### Export Functionality
 - Exports selected rows to CSV format
@@ -414,9 +414,9 @@ export default function AdminProductsPage() {
 
 ListView now uses the **ServerActions** component for bulk operations, providing a unified action system that works across both ListView and FormView.
 
-### Bulk Actions Drawer
+### Bulk Actions Popover
 
-When rows are selected, an "Actions" button appears in the toolbar. Clicking it opens a right-side drawer containing bulk action buttons.
+When rows are selected, an "Actions" button appears in the ResourceView header toolbar. Clicking it opens a Popover dropdown containing bulk action buttons.
 
 ### Migration from BulkActionConfig to ServerActions
 
