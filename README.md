@@ -1,3 +1,5 @@
+# E-Commerce Website
+
 ## Database Setup:
 - Email : kiingbronak5555@gmail.com
 - Database Integration: Supabase
@@ -19,3 +21,7 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0amlzaGd
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0amlzaGdsZ2VoZHJ5b3Z2emliIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjMzNzEyNCwiZXhwIjoyMDkxOTEzMTI0fQ.PjDVmzCfm8copy1Lx8tj3bV2l-iuYRZ5f9w6_K_mw9A
 ```
+
+## Architecture
+
+For detailed architecture documentation, see `components/admin/ResourceView/README.md`

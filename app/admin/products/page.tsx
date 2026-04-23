@@ -72,7 +72,11 @@ export default function AdminProductsPage() {
     openEdit(rowData)
   }
 
-  const config = getProductListConfig(products)
+  const handleDelete = (product: Product) => {
+    remove(product.id)
+  }
+
+  const config = getProductListConfig(products, handleDelete)
 
   return (
     <Card className="mx-auto max-w-7xl border-border/50">

@@ -6,17 +6,19 @@ import { KanbanView } from './KanbanView'
 import { GanttView } from './GanttView'
 import { FormView } from './FormView'
 import { Button } from '@/components/ui/button'
-import { Input } from 'rsuite'
+import { Input, Drawer } from 'rsuite'
 import { IconButton } from 'rsuite'
-import { Search, Filter, List, Grid3x3, Calendar, Download, Columns } from 'lucide-react'
+import { Search, Filter, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2 } from 'lucide-react'
 import { ResourceViewProps, ResourceType } from './types'
+import {InputGroup} from "@/components/ui/input";
 
 export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: ResourceViewProps) {
   const [viewType, setViewType] = useState<ResourceType>(config.type)
   const [editingId, setEditingId] = useState<string | undefined>(undefined)
   const [searchKeyword, setSearchKeyword] = useState('')
   const [showFilterPanel, setShowFilterPanel] = useState(false)
-  const [showColumnPicker, setShowColumnPicker] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [actionsDrawerOpen, setActionsDrawerOpen] = useState(false)
 
   const handleEdit = (rowData: any) => {
     setEditingId(rowData.id || rowData._id)
@@ -57,8 +59,10 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: Re
             setShowFilterPanel={setShowFilterPanel}
             searchKeyword={searchKeyword}
             setSearchKeyword={setSearchKeyword}
-            showColumnPicker={showColumnPicker}
-            setShowColumnPicker={setShowColumnPicker}
+            selectedIds={selectedIds}
+            setSelectedIds={setSelectedIds}
+            actionsDrawerOpen={actionsDrawerOpen}
+            setActionsDrawerOpen={setActionsDrawerOpen}
           />
         )
 
@@ -140,31 +144,36 @@ export function ResourceView({ config, onEdit, onCreate, onDelete, loading }: Re
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search..."
-              value={searchKeyword}
-              onChange={setSearchKeyword}
-              style={{ width: 200, paddingLeft: 36 }}
-            />
+            <InputGroup>
+              <InputGroup.Addon>
+                <Search className="h-4 w-4" />
+              </InputGroup.Addon>
+              <Input
+                  className="lg:min-w-[400px] md:min-w-[300px] sm:min-w-[200px]"
+                  placeholder="Search..."
+                  value={searchKeyword}
+                  onChange={setSearchKeyword}
+                  style={{ width: 200, paddingLeft: 36 }}
+              />
+            </InputGroup>
+
+
           </div>
           <IconButton 
             icon={<Filter size={16} />} 
             appearance={showFilterPanel ? 'primary' : 'subtle'}
             onClick={() => setShowFilterPanel(!showFilterPanel)}
           />
-          {config.listViewConfig && viewType === 'list' && (
-            <IconButton 
-              icon={<Columns size={16} />} 
-              appearance={showColumnPicker ? 'primary' : 'subtle'}
-              onClick={() => setShowColumnPicker(!showColumnPicker)}
-            />
+          {selectedIds.length > 0 && (
+            <Button 
+              size="sm" 
+              appearance="primary"
+              startIcon={<Settings size={14} />}
+              onClick={() => setActionsDrawerOpen(true)}
+            >
+              Actions ({selectedIds.length})
+            </Button>
           )}
-          <IconButton 
-            icon={<Download size={16} />} 
-            appearance="subtle"
-            onClick={handleExport}
-          />
           <Button onClick={handleCreate} size="sm">
             Add New
           </Button>

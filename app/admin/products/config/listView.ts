@@ -1,7 +1,9 @@
 import React from 'react'
-import { ListViewConfig, ListColumn } from '@/components/admin/ResourceView/ListView'
+import { ListViewConfig, ListColumn, BulkActionConfig } from '@/components/admin/ResourceView/ListView'
+import { Trash2, Package, AlertTriangle } from 'lucide-react'
+import { createElement } from 'react'
 
-export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
+export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any) => void): ListViewConfig => ({
   title: 'Products',
   data: data,
   showColumnToggle: false,  // Disabled when using ResourceView
@@ -19,6 +21,50 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
     'active'
   ],
   pageSize: 5,
+  bulkActions: [
+    {
+      label: 'Delete Selected',
+      icon: createElement(Trash2, { size: 16 }),
+      color: 'red',
+      confirm: (selectedIds: string[], selectedData: any[]) => {
+        return `Are you sure you want to delete ${selectedIds.length} product(s)? This action cannot be undone.`
+      },
+      helper: 'Permanently remove selected products from the catalog',
+      onClick: (selectedIds: string[], selectedData: any[]) => {
+        if (onDelete) {
+          selectedData.forEach(item => onDelete(item))
+        }
+      }
+    },
+    {
+      label: 'Apply Stock',
+      icon: createElement(Package, { size: 16 }),
+      color: 'green',
+      confirm: 'Apply stock adjustments to selected products?',
+      helper: 'Update inventory levels for selected products',
+      onClick: (selectedIds: string[], selectedData: any[]) => {
+        console.log('Apply stock to:', selectedIds)
+        // Custom logic to apply stock to selected products
+      }
+    },
+    {
+      label: 'Mark as Low Stock',
+      icon: createElement(AlertTriangle, { size: 16 }),
+      color: 'orange',
+      show: (selectedIds: string[], selectedData: any[]) => {
+        // Only show if at least one item has stock < 10
+        return selectedData.some(item => item.stock < 10)
+      },
+      confirm: (selectedIds: string[], selectedData: any[]) => {
+        return `Mark ${selectedIds.length} product(s) as low stock?`
+      },
+      helper: 'Flag products as low stock for reordering',
+      onClick: (selectedIds: string[], selectedData: any[]) => {
+        console.log('Mark as low stock:', selectedIds)
+        // Custom logic to mark items as low stock
+      }
+    }
+  ],
   columns: [
     {
       key: 'id',
@@ -50,7 +96,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
     },
     {
       key: 'price',
-      title: 'Price',
+      title: 'Price ( $ )',
       width: 100,
       resizable: true,
       sortable: true,
@@ -59,7 +105,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       align: 'right',
       isNumber: true,
       summary: true,
-      summaryType: 'avg',
+      summaryType: 'sum',
       render: (value: any) => `$${parseFloat(value).toFixed(2)}`
     },
     {
@@ -160,7 +206,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       filterType: 'boolean',
       filterDefault: true,
       align: 'center',
-      render: (value: any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-red-500' }, value ? 'Yes' : 'No')
+      render: (value: any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-red-500' }, value ? 'TRUE' : 'FALSE')
     },
     {
       key: 'category_id',

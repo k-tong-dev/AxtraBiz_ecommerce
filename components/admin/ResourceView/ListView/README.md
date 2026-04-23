@@ -230,7 +230,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
           archived: 'red'
         }
         const color = statusColors[value] || 'gray'
-        return <span className={`bg-${color}-100 text-${color}-800 px-2 py-1 rounded text-xs font-medium capitalize`}>{value}</span>
+        return <span className={`bg-${color}-100 text-${color}-300 px-2 py-1 rounded text-xs font-medium capitalize`}>{value}</span>
       }
     }
   ]
