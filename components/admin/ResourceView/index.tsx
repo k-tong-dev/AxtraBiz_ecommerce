@@ -13,12 +13,12 @@ import {Search, Filter, List, Grid3x3, Calendar, Download, Settings, FileSpreads
 import {ResourceViewProps, ResourceType} from './types'
 import {InputGroup} from "@/components/ui/input";
 import {MdAdd} from "react-icons/md";
+import {Search as SearchComponent, SearchValue} from './Search'
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
     const [editingId, setEditingId] = useState<string | undefined>(undefined)
-    const [searchTags, setSearchTags] = useState<string[]>([])
-    const [searchInput, setSearchInput] = useState('')
+    const [searchValues, setSearchValues] = useState<SearchValue[]>([])
     const [showFilterPanel, setShowFilterPanel] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
@@ -85,7 +85,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         onEdit={handleEdit}
                         onDelete={onDelete}
                         loading={loading}
-                        searchTags={searchTags}
+                        searchValues={searchValues}
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
                         serverActions={mergedServerActions}
@@ -102,7 +102,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         loading={loading}
                         showFilterPanel={showFilterPanel}
                         setShowFilterPanel={setShowFilterPanel}
-                        searchKeyword={searchTags.join(' ')}
+                        searchKeyword={searchValues.map(v => v.value).join(' ')}
                         setSearchKeyword={() => {}}
                     />
                 )
@@ -174,41 +174,17 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="relative flex items-center gap-2 flex-wrap">
-                        {searchTags.map((tag, index) => (
-                            <Tag
-                                key={index}
-                                closable
-                                onClose={() => {
-                                    setSearchTags(searchTags.filter((_, i) => i !== index))
-                                }}
-                                color="violet"
-                            >
-                                {tag}
-                            </Tag>
-                        ))}
-                        <InputGroup>
-                            <InputGroup.Addon>
-                                <Search className="h-4 w-4"/>
-                            </InputGroup.Addon>
-                            <Input
-                                className="lg:min-w-[400px] md:min-w-[300px] sm:min-w-[200px]"
-                                placeholder="Search... (Press Enter to add tag)"
-                                value={searchInput}
-                                onChange={setSearchInput}
-                                onPressEnter={(e: any) => {
-                                    const value = e.target.value.trim()
-                                    if (value && !searchTags.includes(value)) {
-                                        setSearchTags([...searchTags, value])
-                                        setSearchInput('')
-                                    }
-                                }}
-                                style={{width: 200}}
-                            />
-                        </InputGroup>
-
-
-                    </div>
+                    <SearchComponent
+                        fields={config.listViewConfig?.columns
+                            .map(col => ({
+                                key: col.key,
+                                label: col.title,
+                                type: 'text'
+                            })) || []}
+                        onSearchChange={setSearchValues}
+                        placeholder="Search..."
+                        width={300}
+                    />
                     <IconButton
                         icon={<Filter size={16}/>}
                         appearance={showFilterPanel ? 'primary' : 'subtle'}

@@ -146,7 +146,7 @@ export interface ListViewProps {
     onDelete?: (rowData: any) => void
     loading?: boolean
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
-    searchTags?: string[]
+    searchValues?: {fieldKey: string; value: string}[]
     selectedIds?: string[]
     setSelectedIds?: (ids: string[]) => void
 }
@@ -158,7 +158,7 @@ export function ListView({
                              onDelete,
                              loading,
                              serverActions,
-                             searchTags: externalSearchTags,
+                             searchValues: externalSearchValues,
                              selectedIds: externalSelectedIds,
                              setSelectedIds: externalSetSelectedIds
                          }: ListViewProps) {
@@ -204,7 +204,7 @@ export function ListView({
     })
 
     // Use external state if provided (from ResourceView), otherwise use local state
-    const currentSearchTags = externalSearchTags !== undefined ? externalSearchTags : []
+    const currentSearchValues = externalSearchValues !== undefined ? externalSearchValues : []
     const currentSelectedIds = externalSelectedIds !== undefined ? externalSelectedIds : selectedIds
     const setCurrentSelectedIds = externalSetSelectedIds || setSelectedIds
 
@@ -285,14 +285,20 @@ export function ListView({
     const filteredData = useMemo(() => {
         let result = [...data]
 
-        // Apply global search with tags (OR logic - match any tag)
-        if (currentSearchTags.length > 0) {
+        // Apply search with field-based values (OR logic - match any search value)
+        if (currentSearchValues.length > 0) {
             result = result.filter(item =>
-                currentSearchTags.some(tag =>
-                    Object.keys(item).some(key =>
-                        String(item[key]).toLowerCase().includes(tag.toLowerCase())
-                    )
-                )
+                currentSearchValues.some(searchValue => {
+                    if (searchValue.fieldKey === 'all') {
+                        // Search across all fields
+                        return Object.keys(item).some(key =>
+                            String(item[key]).toLowerCase().includes(searchValue.value.toLowerCase())
+                        )
+                    } else {
+                        // Search specific field
+                        return String(item[searchValue.fieldKey]).toLowerCase().includes(searchValue.value.toLowerCase())
+                    }
+                })
             )
         }
 
@@ -357,7 +363,7 @@ export function ListView({
         }
 
         return result
-    }, [data, currentSearchTags, sortColumn, sortType, columnFilters, allColumns])
+    }, [data, currentSearchValues, sortColumn, sortType, columnFilters, allColumns])
 
     // Pagination
     const totalPages = Math.ceil(filteredData.length / pageSize)

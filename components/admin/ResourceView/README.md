@@ -167,6 +167,7 @@ For detailed documentation, see:
 - [ServerActions README](./ServerActions/README.md)
 - [ListView README](./ListView/README.md)
 - [FormView README](./FormView/README.md)
+- [Search README](./Search/README.md)
 
 ---
 
@@ -177,6 +178,23 @@ For detailed documentation, see:
 - **Edit/Create Workflow**: Automatically switch to FormView for editing or creating records
 - **Config-Based**: All views are configured through a single config object
 - **Reusable**: Designed for reuse across different models and projects
+- **Field-based Search**: Advanced search component with field selection and tag-based UI
+
+## Search Component
+
+ResourceView includes a flexible Search component that supports field-based searching with a tag-based UI.
+
+**Features:**
+- **Field Selection**: Search by specific fields (name, price, phone, etc.) or search across all fields
+- **Tag-based UI**: Search terms are displayed as tags with close buttons for easy removal
+- **Multiple Search Terms**: Add multiple search criteria with OR logic
+- **Keyboard Support**: Press Enter to add search terms
+- **Auto-populated Fields**: Search fields are automatically populated from ListView config columns
+
+**Usage:**
+The Search component is automatically rendered in the ResourceView header when in list view. It receives field definitions from the ListView config columns and passes search values to the ListView for filtering.
+
+For detailed documentation, see [Search README](./Search/README.md).
 
 ## Folder Structure
 
@@ -184,6 +202,14 @@ For detailed documentation, see:
 components/admin/ResourceView/
 ├── index.tsx          # Main ResourceView component
 ├── types.ts           # TypeScript type definitions
+├── Search/            # Search component
+│   ├── index.tsx      # Search component implementation
+│   └── README.md      # Search component documentation
+├── ListView/          # List view component
+├── KanbanView/        # Kanban view component
+├── GanttView/         # Gantt view component
+├── FormView/          # Form view component
+├── ServerActions/     # Server actions system
 └── README.md          # This file
 ```
 
