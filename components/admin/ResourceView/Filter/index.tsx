@@ -167,7 +167,6 @@ export function Filter({
                 }
             >
                 <button
-                    size={"sm"}
                     onClick={() => whisperRef.current?.open()}
                     className={`flex items-center gap-1 px-3 py-1.5 border rounded text-sm transition-colors ${
                         filterValues.length > 0 

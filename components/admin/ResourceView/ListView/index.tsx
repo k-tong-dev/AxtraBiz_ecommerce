@@ -44,6 +44,7 @@ import {
 } from 'lucide-react'
 import {cn} from '@/lib/utils'
 import {CiMenuKebab} from "react-icons/ci";
+import {Badge} from "@/components/ui/badge";
 
 const {Column, HeaderCell, Cell} = Table
 
@@ -148,6 +149,7 @@ export interface ListViewProps {
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
     searchValues?: {fieldKey: string; value: string}[]
     filterValues?: {fieldKey: string; operator: string; value: any}[]
+    groupByField?: string | null
     selectedIds?: string[]
     setSelectedIds?: (ids: string[]) => void
 }
@@ -161,6 +163,7 @@ export function ListView({
                              serverActions,
                              searchValues: externalSearchValues,
                              filterValues: externalFilterValues,
+                             groupByField: externalGroupByField,
                              selectedIds: externalSelectedIds,
                              setSelectedIds: externalSetSelectedIds
                          }: ListViewProps) {
@@ -208,6 +211,7 @@ export function ListView({
     // Use external state if provided (from ResourceView), otherwise use local state
     const currentSearchValues = externalSearchValues !== undefined ? externalSearchValues : []
     const currentFilterValues = externalFilterValues !== undefined ? externalFilterValues : []
+    const currentGroupByField = externalGroupByField !== undefined ? externalGroupByField : null
     const currentSelectedIds = externalSelectedIds !== undefined ? externalSelectedIds : selectedIds
     const setCurrentSelectedIds = externalSetSelectedIds || setSelectedIds
 
@@ -287,6 +291,9 @@ export function ListView({
     // Apply search, filters, and sorting
     const filteredData = useMemo(() => {
         let result = [...data]
+
+        // Filter out group rows if present
+        result = result.filter(item => !item._isGroup)
 
         // Apply search with field-based values (AND logic - match all search values)
         if (currentSearchValues.length > 0) {
@@ -426,6 +433,39 @@ export function ListView({
         currentPage * pageSize
     )
 
+    // Transform data to tree structure when grouped
+    const groupedTreeData = useMemo(() => {
+        if (!currentGroupByField) return paginatedData
+
+        // Group data by the selected field
+        const grouped: Record<string, any[]> = {}
+        filteredData.forEach(item => {
+            const groupValue = item[currentGroupByField] || 'Uncategorized'
+            if (!grouped[groupValue]) {
+                grouped[groupValue] = []
+            }
+            grouped[groupValue].push(item)
+        })
+
+        // Convert to tree structure
+        const tree: any[] = []
+        Object.keys(grouped).forEach((groupValue, groupIndex) => {
+            const groupItem = {
+                id: `group-${groupIndex}-${String(groupValue).replace(/[^a-zA-Z0-9]/g, '-')}`,
+                [currentGroupByField]: groupValue,
+                _isGroup: true,
+                children: grouped[groupValue].map((item, childIndex) => ({
+                    ...item,
+                    _originalId: item.id || item._id || childIndex,
+                    id: `${item.id || item._id || childIndex}-${groupIndex}`
+                }))
+            }
+            tree.push(groupItem)
+        })
+
+        return tree
+    }, [filteredData, currentGroupByField, paginatedData])
+
     const handleSort = (columnKey: string) => {
         if (sortColumn === columnKey) {
             setSortType(sortType === 'asc' ? 'desc' : 'asc')
@@ -448,11 +488,36 @@ export function ListView({
         }
     }
 
-    const handleSelectRow = (id: string, checked: boolean) => {
-        if (checked) {
-            setCurrentSelectedIds([...currentSelectedIds, id])
+    const handleSelectRow = (id: string, checked: boolean, rowData?: any) => {
+        // Use original ID for selection tracking
+        const selectionId = rowData?._originalId || id
+        
+        // Handle group row selection - select/deselect all children
+        if (rowData?._isGroup && rowData.children) {
+            const childIds = rowData.children.map((child: any) => child._originalId || child.id || child._id)
+            if (checked) {
+                // Add group ID and all child IDs
+                const newIds = [...currentSelectedIds]
+                if (!newIds.includes(selectionId)) {
+                    newIds.push(selectionId)
+                }
+                childIds.forEach((childId: string) => {
+                    if (!newIds.includes(childId)) {
+                        newIds.push(childId)
+                    }
+                })
+                setCurrentSelectedIds(newIds)
+            } else {
+                // Remove group ID and all child IDs
+                setCurrentSelectedIds(currentSelectedIds.filter(rowId => rowId !== selectionId && !childIds.includes(rowId)))
+            }
         } else {
-            setCurrentSelectedIds(currentSelectedIds.filter(rowId => rowId !== id))
+            // Handle individual row selection
+            if (checked) {
+                setCurrentSelectedIds([...currentSelectedIds, selectionId])
+            } else {
+                setCurrentSelectedIds(currentSelectedIds.filter(rowId => rowId !== selectionId))
+            }
         }
     }
 
@@ -620,16 +685,30 @@ export function ListView({
         }
     }
 
+    // Reorder columns to move grouped column to first position
+    const orderedColumns = useMemo(() => {
+        if (!currentGroupByField) return visibleColumns
+        
+        const groupedColumn = visibleColumns.find(col => col.key === currentGroupByField)
+        const otherColumns = visibleColumns.filter(col => col.key !== currentGroupByField)
+        
+        return groupedColumn ? [groupedColumn, ...otherColumns] : visibleColumns
+    }, [visibleColumns, currentGroupByField])
+
     // Render list view
     const renderListView = () => (
         <div className="w-full overflow-x-auto pt-4">
             <Table
                 height={500}
                 headerHeight={80}
-                data={viewType === 'tree' ? treeData : paginatedData}
-                bordered
-                cellBordered
+                data={currentGroupByField ? groupedTreeData : paginatedData}
+                isTree={!!currentGroupByField}
+                defaultExpandAllRows={!!currentGroupByField}
+                rowKey="id"
+                bordered={false}
+                cellBordered={false}
                 autoHeight
+                hover={true}
                 affixHeader
                 affixHorizontalScrollbar
                 onRowClick={(rowData) => onRowClick && !rowData._isGroup && onRowClick(rowData)}
@@ -651,17 +730,40 @@ export function ListView({
                         </Center>
                     </HeaderCell>
                     <Cell>
-                        {(rowData: any) => (
-                            <div onClick={(e) => e.stopPropagation()}>
-                                <Checkbox
-                                    checked={currentSelectedIds.includes(rowData.id || rowData._id)}
-                                    onChange={(value, checked, event) => {
-                                        event?.stopPropagation()
-                                        handleSelectRow(rowData.id || rowData._id, checked)
-                                    }}
-                                />
-                            </div>
-                        )}
+                        {(rowData: any) => {
+                            // Handle group row checkbox state
+                            if (rowData._isGroup && rowData.children) {
+                                const childIds = rowData.children.map((child: any) => child._originalId || child.id || child._id)
+                                const allChildrenSelected = childIds.every((id: string) => currentSelectedIds.includes(id))
+                                const someChildrenSelected = childIds.some((id: string) => currentSelectedIds.includes(id))
+                                
+                                return (
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        <Checkbox
+                                            checked={allChildrenSelected}
+                                            indeterminate={someChildrenSelected && !allChildrenSelected}
+                                            onChange={(value, checked, event) => {
+                                                event?.stopPropagation()
+                                                handleSelectRow(rowData.id || rowData._id, checked, rowData)
+                                            }}
+                                        />
+                                    </div>
+                                )
+                            }
+                            
+                            // Handle individual row checkbox
+                            return (
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <Checkbox
+                                        checked={currentSelectedIds.includes(rowData._originalId || rowData.id || rowData._id)}
+                                        onChange={(value, checked, event) => {
+                                            event?.stopPropagation()
+                                            handleSelectRow(rowData.id || rowData._id, checked, rowData)
+                                        }}
+                                    />
+                                </div>
+                            )
+                        }}
                     </Cell>
                 </Column>
 
@@ -712,16 +814,17 @@ export function ListView({
                     </Cell>
                 </Column>
 
-                {visibleColumns.map(column => {
+                {orderedColumns.map(column => {
                     const summary = calculateSummary(column.key, column.summaryType)
+                    const isTreeColumn = currentGroupByField === column.key
                     return (
                         <Column
                             key={column.key}
                             width={column.width}
-                            resizable={column.resizable}
+                            resizable={column.resizable !== false}
                             sortable={column.sortable}
-                            fixed={column.key === 'id'}
                             align={column.align}
+                            treeCol={isTreeColumn}
                         >
                             <HeaderCell>
                                 {column.summary && summary !== null ? (
@@ -730,18 +833,12 @@ export function ListView({
                                         <div style={{fontSize: 14, color: '#7f03a1', fontWeight: 'bold'}}>
                                             {(() => {
                                                 switch (column.summaryType) {
-                                                    case 'sum':
-                                                        return `${summary.toLocaleString()}`
-                                                    case 'count':
-                                                        return `${summary}`
-                                                    case 'avg':
-                                                        return `${summary.toFixed(2)}`
-                                                    case 'min':
-                                                        return `${summary.toLocaleString()}`
-                                                    case 'max':
-                                                        return `${summary.toLocaleString()}`
-                                                    default:
-                                                        return summary.toLocaleString()
+                                                    case 'sum': return `${summary.toLocaleString()}`
+                                                    case 'count': return `${summary}`
+                                                    case 'avg': return `${summary.toFixed(2)}`
+                                                    case 'min': return `${summary.toLocaleString()}`
+                                                    case 'max': return `${summary.toLocaleString()}`
+                                                    default: return summary.toLocaleString()
                                                 }
                                             })()}
                                         </div>
@@ -750,10 +847,34 @@ export function ListView({
                                     column.title
                                 )}
                             </HeaderCell>
-                            <Cell dataKey={column.key}>
+                            <Cell dataKey={column.key} wordWrap={"keep-all"}>
                                 {(rowData: any) => {
+                                    // Show group value with count for group rows in tree column
+                                    if (rowData._isGroup && isTreeColumn) {
+                                        return (
+                                            <div>
+                                                <Badge content={rowData.children?.length || 0}
+                                                       placement="topEnd">
+                                                    <span>{rowData[currentGroupByField]}</span>
+                                                </Badge>
+                                            </div>
+                                        )
+                                    }
+                                    // Don't show values for group rows in other columns
+                                    if (rowData._isGroup) {
+                                        return null
+                                    }
                                     const value = rowData[column.key]
-                                    return column.render ? column.render(value, rowData) : value
+                                    return (
+                                        <div className="truncate" style={{
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            maxWidth: '100%'
+                                        }}>
+                                            {column.render ? column.render(value, rowData) : value}
+                                        </div>
+                                    )
                                 }}
                             </Cell>
                         </Column>

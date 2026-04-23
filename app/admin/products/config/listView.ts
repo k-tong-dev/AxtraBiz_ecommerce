@@ -28,7 +28,8 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       title: 'ID',
       width: 80,
       sortable: true,
-      filterable: false,
+      resizable: true,
+      filterable: true,
       align: 'center'
     },
     {

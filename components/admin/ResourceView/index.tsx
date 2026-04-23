@@ -15,12 +15,14 @@ import {InputGroup} from "@/components/ui/input";
 import {MdAdd} from "react-icons/md";
 import {Search as SearchComponent, SearchValue} from './Search'
 import {Filter, FilterValue} from './Filter'
+import {GroupBy} from './GroupBy'
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
     const [editingId, setEditingId] = useState<string | undefined>(undefined)
     const [searchValues, setSearchValues] = useState<SearchValue[]>([])
     const [filterValues, setFilterValues] = useState<FilterValue[]>([])
+    const [groupByField, setGroupByField] = useState<string | null>(null)
     const [showFilterPanel, setShowFilterPanel] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
@@ -89,6 +91,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         loading={loading}
                         searchValues={searchValues}
                         filterValues={filterValues}
+                        groupByField={groupByField}
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
                         serverActions={mergedServerActions}
@@ -200,6 +203,16 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             })) || []}
                         value={filterValues}
                         onChange={setFilterValues}
+                    />
+                    <GroupBy
+                        fields={config.listViewConfig?.columns
+                            .filter(col => col.groupable !== false)
+                            .map(col => ({
+                                key: col.key,
+                                label: col.title
+                            })) || []}
+                        value={groupByField}
+                        onChange={setGroupByField}
                     />
                     {selectedIds.length > 0 && (
                         <Whisper
