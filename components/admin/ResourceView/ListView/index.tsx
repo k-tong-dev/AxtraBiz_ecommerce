@@ -146,8 +146,7 @@ export interface ListViewProps {
     onDelete?: (rowData: any) => void
     loading?: boolean
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
-    searchKeyword?: string
-    setSearchKeyword?: (keyword: string) => void
+    searchTags?: string[]
     selectedIds?: string[]
     setSelectedIds?: (ids: string[]) => void
 }
@@ -159,8 +158,7 @@ export function ListView({
                              onDelete,
                              loading,
                              serverActions,
-                             searchKeyword: externalSearchKeyword,
-                             setSearchKeyword: externalSetSearchKeyword,
+                             searchTags: externalSearchTags,
                              selectedIds: externalSelectedIds,
                              setSelectedIds: externalSetSelectedIds
                          }: ListViewProps) {
@@ -206,8 +204,7 @@ export function ListView({
     })
 
     // Use external state if provided (from ResourceView), otherwise use local state
-    const currentSearchKeyword = externalSearchKeyword !== undefined ? externalSearchKeyword : searchKeyword
-    const setCurrentSearchKeyword = externalSetSearchKeyword || setSearchKeyword
+    const currentSearchTags = externalSearchTags !== undefined ? externalSearchTags : []
     const currentSelectedIds = externalSelectedIds !== undefined ? externalSelectedIds : selectedIds
     const setCurrentSelectedIds = externalSetSelectedIds || setSelectedIds
 
@@ -288,11 +285,13 @@ export function ListView({
     const filteredData = useMemo(() => {
         let result = [...data]
 
-        // Apply global search
-        if (currentSearchKeyword) {
+        // Apply global search with tags (OR logic - match any tag)
+        if (currentSearchTags.length > 0) {
             result = result.filter(item =>
-                Object.keys(item).some(key =>
-                    String(item[key]).toLowerCase().includes(currentSearchKeyword.toLowerCase())
+                currentSearchTags.some(tag =>
+                    Object.keys(item).some(key =>
+                        String(item[key]).toLowerCase().includes(tag.toLowerCase())
+                    )
                 )
             )
         }
@@ -358,7 +357,7 @@ export function ListView({
         }
 
         return result
-    }, [data, currentSearchKeyword, sortColumn, sortType, columnFilters, allColumns])
+    }, [data, currentSearchTags, sortColumn, sortType, columnFilters, allColumns])
 
     // Pagination
     const totalPages = Math.ceil(filteredData.length / pageSize)

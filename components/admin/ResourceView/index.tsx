@@ -7,7 +7,7 @@ import {GanttView} from './GanttView'
 import {FormView} from './FormView'
 import {Button} from '@/components/ui/button'
 import {Card} from '@/components/ui/card'
-import {Input, Drawer, Whisper, Popover, Divider, Loader} from 'rsuite'
+import {Input, Drawer, Whisper, Popover, Divider, Loader, Tag} from 'rsuite'
 import {IconButton} from 'rsuite'
 import {Search, Filter, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2} from 'lucide-react'
 import {ResourceViewProps, ResourceType} from './types'
@@ -17,7 +17,8 @@ import {MdAdd} from "react-icons/md";
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
     const [editingId, setEditingId] = useState<string | undefined>(undefined)
-    const [searchKeyword, setSearchKeyword] = useState('')
+    const [searchTags, setSearchTags] = useState<string[]>([])
+    const [searchInput, setSearchInput] = useState('')
     const [showFilterPanel, setShowFilterPanel] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
@@ -84,8 +85,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         onEdit={handleEdit}
                         onDelete={onDelete}
                         loading={loading}
-                        searchKeyword={searchKeyword}
-                        setSearchKeyword={setSearchKeyword}
+                        searchTags={searchTags}
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
                         serverActions={mergedServerActions}
@@ -102,8 +102,8 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         loading={loading}
                         showFilterPanel={showFilterPanel}
                         setShowFilterPanel={setShowFilterPanel}
-                        searchKeyword={searchKeyword}
-                        setSearchKeyword={setSearchKeyword}
+                        searchKeyword={searchTags.join(' ')}
+                        setSearchKeyword={() => {}}
                     />
                 )
 
@@ -174,17 +174,36 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     )}
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="relative">
+                    <div className="relative flex items-center gap-2 flex-wrap">
+                        {searchTags.map((tag, index) => (
+                            <Tag
+                                key={index}
+                                closable
+                                onClose={() => {
+                                    setSearchTags(searchTags.filter((_, i) => i !== index))
+                                }}
+                                color="violet"
+                            >
+                                {tag}
+                            </Tag>
+                        ))}
                         <InputGroup>
                             <InputGroup.Addon>
                                 <Search className="h-4 w-4"/>
                             </InputGroup.Addon>
                             <Input
                                 className="lg:min-w-[400px] md:min-w-[300px] sm:min-w-[200px]"
-                                placeholder="Search..."
-                                value={searchKeyword}
-                                onChange={setSearchKeyword}
-                                style={{width: 200, paddingLeft: 36}}
+                                placeholder="Search... (Press Enter to add tag)"
+                                value={searchInput}
+                                onChange={setSearchInput}
+                                onPressEnter={(e: any) => {
+                                    const value = e.target.value.trim()
+                                    if (value && !searchTags.includes(value)) {
+                                        setSearchTags([...searchTags, value])
+                                        setSearchInput('')
+                                    }
+                                }}
+                                style={{width: 200}}
                             />
                         </InputGroup>
 
