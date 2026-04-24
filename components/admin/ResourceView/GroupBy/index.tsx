@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState, useEffect, useRef} from 'react'
-import {Popover, Whisper} from 'rsuite'
+import {Badge, Popover, Whisper} from 'rsuite'
 import {Group as GroupIcon} from 'lucide-react'
 import {Button} from "@/components/ui/button";
 
@@ -56,62 +56,65 @@ export function GroupBy({
     }
 
     return (
-        <div className={className}>
-            <Whisper
-                trigger="click"
-                placement="bottomEnd"
-                ref={whisperRef}
-                speaker={
-                    <Popover style={{padding: 0}}>
-                        <div className="p-4 min-w-[200px]">
-                            {/* Header */}
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="font-medium">Group By</span>
-                                {selectedField && (
-                                    <Button
-                                        size={"xs"}
-                                        color={"violet"}
-                                        appearance={"primary"}
-                                        onClick={handleClearGroup}
-                                    >
-                                        Clear
-                                    </Button>
-                                )}
-                            </div>
+      <div className={className}>
+        <Whisper
+          trigger="click"
+          placement="bottomEnd"
+          ref={whisperRef}
+          speaker={
+            <Popover style={{ padding: 0 }}>
+              <div className="p-4 min-w-[200px]">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-medium">Group By</span>
+                  {selectedField && (
+                    <Button
+                      size={"xs"}
+                      color={"violet"}
+                      appearance={"primary"}
+                      onClick={handleClearGroup}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
 
-                            {/* Field Selector */}
-                            <div className="flex flex-col gap-1">
-                                {fields.map(field => (
-                                    <button
-                                        type="button"
-                                        key={field.key}
-                                        onClick={() => handleFieldSelect(field.key)}
-                                        className={`text-left px-2 py-1 rounded text-sm ${
-                                            selectedField === field.key 
-                                                ? 'bg-blue-100 text-blue-700' 
-                                                : 'hover:bg-gray-100'
-                                        }`}
-                                    >
-                                        {field.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </Popover>
-                }
+                {/* Field Selector */}
+                <div className="flex flex-col gap-1">
+                  {fields.map((field) => (
+                    <button
+                      type="button"
+                      key={field.key}
+                      onClick={() => handleFieldSelect(field.key)}
+                      className={`text-left px-2 py-1 rounded text-sm ${
+                        selectedField === field.key
+                          ? "bg-blue-100 text-blue-700"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      {field.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </Popover>
+          }
+        >
+          <Badge content={""} invisible={!selectedField}>
+            <button
+              type="button"
+              onClick={() => whisperRef.current?.open()}
+              className="flex items-center gap-1 px-3 py-1.5 border rounded text-sm transition-colors hover:bg-gray-100"
             >
-                <button
-                    onClick={() => whisperRef.current?.open()}
-                    className={`flex items-center gap-1 px-3 py-1.5 border rounded text-sm transition-colors ${
-                        selectedField 
-                            ? 'bg-purple-500 text-white border-purple-500' 
-                            : 'border-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                    <GroupIcon size={14} />
-                    {selectedField ? <span>{getFieldLabel(selectedField)}</span> : <span>Group</span>}
-                </button>
-            </Whisper>
-        </div>
-    )
+              <GroupIcon size={14} />
+              {selectedField ? (
+                <span>{getFieldLabel(selectedField)}</span>
+              ) : (
+                <span>Group</span>
+              )}
+            </button>
+          </Badge>
+        </Whisper>
+      </div>
+    );
 }

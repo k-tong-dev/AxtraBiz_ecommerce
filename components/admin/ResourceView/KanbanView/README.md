@@ -1,17 +1,14 @@
 # KanbanView Component
 
-A reusable Kanban board component with support for custom card rendering and state-based workflow management.
+A reusable Kanban board component with support for dynamic grouping and custom card rendering.
 
 ## Features
 
-- **Two Modes:**
-  - **Normal Mode**: Developer can develop custom design components like cards
-  - **State Control Mode**: Columns displayed by state, draggable, automatically updates state field when user drags/moves
-
-- **Configurable Columns**: Define columns with custom colors, titles, and state mappings
-- **Custom Card Rendering**: Provide custom card components or use the default
+- **Dynamic Grouping**: Auto-generates columns based on unique values from a specified field (`groupByField`)
+- **Grid Mode**: Single column displaying all cards without grouping (when no `groupByField` is set)
+- **Custom Card Rendering**: Every card must be custom via the required `renderCard` function
 - **Drag & Drop**: Full drag and drop support powered by @dnd-kit
-- **State Auto-Update**: Automatically update record state when moving between columns in State Control mode
+- **State Auto-Update**: Automatically update record field when moving between columns
 - **Card Actions**: Support for click, edit, and delete actions on cards
 
 ## Folder Structure
@@ -26,43 +23,65 @@ components/admin/KanbanView/
 
 ## Usage
 
-### Basic Usage (Normal Mode)
+### GroupBy Mode (Dynamic Columns)
 
 ```tsx
 import { KanbanView } from '@/components/admin/ResourceView/KanbanView'
+import { MyCustomCard } from './MyCustomCard'
 
 const config = {
-  mode: 'normal',
-  columns: [
-    { id: 'todo', title: 'To Do', color: 'blue' },
-    { id: 'in-progress', title: 'In Progress', color: 'yellow' },
-    { id: 'done', title: 'Done', color: 'green' },
-  ],
+  mode: 'groupby',
+  groupByField: 'status',  // Auto-generates columns based on unique status values
   data: myData,
-  renderCard: (card) => <MyCustomCard data={card.data} />
+  onStateChange: async (cardId, newState) => {
+    await api.updateCard(cardId, { status: newState })
+  },
+  renderCard: (card) => <MyCustomCard card={card} />
 }
 
 <KanbanView config={config} />
 ```
 
-### State Control Mode
+### Grid Mode (No Grouping)
 
 ```tsx
 const config = {
-  mode: 'state-control',
-  stateField: 'status',
-  columns: [
-    { id: 'todo', title: 'To Do', state: 'todo', color: 'blue' },
-    { id: 'in-progress', title: 'In Progress', state: 'in_progress', color: 'yellow' },
-    { id: 'done', title: 'Done', state: 'done', color: 'green' },
-  ],
+  mode: 'grid',  // Single column with all cards
   data: myData,
-  onStateChange: async (cardId, newState) => {
-    await api.updateCard(cardId, { status: newState })
-  }
+  renderCard: (card) => <MyCustomCard card={card} />
 }
 
 <KanbanView config={config} />
+```
+
+### Custom Card Component
+
+```tsx
+// MyCustomCard.tsx
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+
+interface MyCustomCardProps {
+  card: { id: string; data: any; state?: string }
+  onCardClick?: (card: { id: string; data: any }) => void
+  onCardEdit?: (card: { id: string; data: any }) => void
+  onCardDelete?: (card: { id: string; data: any }) => void
+}
+
+export function MyCustomCard({ card, onCardClick, onCardEdit, onCardDelete }: MyCustomCardProps) {
+  return (
+    <Card className="p-3 hover:shadow-md transition-shadow cursor-pointer" onClick={() => onCardClick?.(card)}>
+      <div className="space-y-2">
+        <div className="font-medium">{card.data.name}</div>
+        <div className="text-sm text-muted-foreground">{card.data.description}</div>
+        <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
+          <Button size="sm" onClick={(e) => { e.stopPropagation(); onCardEdit?.(card) }}>Edit</Button>
+          <Button size="sm" onClick={(e) => { e.stopPropagation(); onCardDelete?.(card) }}>Delete</Button>
+        </div>
+      </div>
+    </Card>
+  )
+}
 ```
 
 ## API Reference
@@ -71,15 +90,14 @@ const config = {
 
 ```typescript
 interface KanbanViewConfig {
-  mode: 'normal' | 'state-control'
-  columns: KanbanColumn[]
+  mode: 'normal' | 'groupby' | 'grid'
   data: any[]
-  stateField?: string
+  groupByField?: string  // Field to group by - if set, columns are auto-generated. If not set, displays as grid
   onCardClick?: (card: KanbanCard) => void
   onCardEdit?: (card: KanbanCard) => void
   onCardDelete?: (card: KanbanCard) => void
   onStateChange?: (cardId: string, newState: string) => Promise<void>
-  renderCard?: (card: KanbanCard) => React.ReactNode
+  renderCard: (card: KanbanCard) => React.ReactNode  // Required - every card must be custom
   cardWidth?: number
   columnWidth?: number
   draggable?: boolean
@@ -87,15 +105,13 @@ interface KanbanViewConfig {
 }
 ```
 
-### KanbanColumn
+### KanbanCard
 
 ```typescript
-interface KanbanColumn {
+interface KanbanCard {
   id: string
-  title: string
-  color?: string
+  data: any
   state?: string
-  limit?: number
 }
 ```
 

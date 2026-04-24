@@ -1,23 +1,20 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
 import { Kanban, KanbanBoard, KanbanColumn, KanbanItem, KanbanOverlay } from './kanban'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from 'rsuite'
 import { Search } from 'lucide-react'
-import { KanbanViewProps, KanbanMode } from './types'
+import { KanbanViewProps, KanbanMode, KanbanColumn as KanbanColumnType } from './types'
 import { cn } from '@/lib/utils'
 
-export function KanbanView({ config, loading, showFilterPanel, setShowFilterPanel, searchKeyword, setSearchKeyword, filterValues }: KanbanViewProps & { showFilterPanel?: boolean; setShowFilterPanel?: (show: boolean) => void; searchKeyword?: string; setSearchKeyword?: (keyword: string) => void; filterValues?: {fieldKey: string; operator: string; value: any}[] }) {
+export function KanbanView({ config, loading, showFilterPanel, setShowFilterPanel, searchKeyword, setSearchKeyword, filterValues, groupByField, onCardClick: externalOnCardClick, onCardEdit: externalOnCardEdit, onCardDelete: externalOnCardDelete }: KanbanViewProps & { showFilterPanel?: boolean; setShowFilterPanel?: (show: boolean) => void; searchKeyword?: string; setSearchKeyword?: (keyword: string) => void; filterValues?: {fieldKey: string; operator: string; value: any}[]; groupByField?: string }) {
   const {
-    mode = 'normal',
-    columns,
     data,
-    stateField,
-    onCardClick,
-    onCardEdit,
-    onCardDelete,
+    onCardClick: configOnCardClick,
+    onCardEdit: configOnCardEdit,
+    onCardDelete: configOnCardDelete,
     onStateChange,
     renderCard,
     cardWidth = 280,
@@ -25,6 +22,71 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
     draggable = true,
     showCardCount = true,
   } = config
+
+  // Merge external handlers with config handlers (external takes precedence)
+  const handleCardClick = (card: any) => {
+    if (externalOnCardClick) {
+      externalOnCardClick(card)
+    } else if (configOnCardClick) {
+      configOnCardClick(card)
+    }
+  }
+
+  const handleCardEdit = (card: any) => {
+    if (externalOnCardEdit) {
+      externalOnCardEdit(card)
+    } else if (configOnCardEdit) {
+      configOnCardEdit(card)
+    }
+  }
+
+  const handleCardDelete = (card: any) => {
+    if (externalOnCardDelete) {
+      externalOnCardDelete(card)
+    } else if (configOnCardDelete) {
+      configOnCardDelete(card)
+    }
+  }
+  const columns = useMemo(() => {
+    if (groupByField && data.length > 0) {
+      // Get unique values from groupByField
+      const uniqueValues = [...new Set(data.map(item => {
+        const val = item[groupByField]
+        // Handle date fields
+        if (val instanceof Date) {
+          return val.toISOString().split('T')[0] // YYYY-MM-DD
+        }
+        if (typeof val === 'string' && !isNaN(Date.parse(val))) {
+          return val.split('T')[0] // Handle date strings
+        }
+        return val
+      }))]
+      
+      // Sort values - numeric values sorted numerically, strings sorted alphabetically
+      uniqueValues.sort((a, b) => {
+        const aNum = Number(a)
+        const bNum = Number(b)
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return aNum - bNum
+        }
+        return String(a).localeCompare(String(b))
+      })
+      
+      return uniqueValues.map((value, index) => ({
+        id: String(value),
+        title: String(value),
+        state: String(value),
+        color: ['blue', 'green', 'yellow', 'red', 'purple', 'orange'][index % 6]
+      }))
+    }
+    // No groupByField - single column for grid display
+    return [{ id: 'all', title: 'All Items', color: 'gray' }]
+  }, [groupByField, data])
+
+  // Type guard to check if state is defined
+  const hasState = (col: KanbanColumnType): col is KanbanColumnType & { state: string } => {
+    return col.state !== undefined && col.state !== null
+  }
 
   // Use external state if provided, otherwise use local state
   const [localShowFilterPanel, setLocalShowFilterPanel] = useState(false)
@@ -52,15 +114,12 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
           
           switch (filterValue.operator) {
             case 'equals':
-              // Use number comparison if filter value is a number
               if (typeof filterVal === 'number') {
                 return Number(value) === filterVal
               }
-              // Handle boolean comparison
               if (typeof filterVal === 'boolean') {
                 return Boolean(value) === filterVal
               }
-              // Handle date comparison - convert both to date and compare
               const itemDate = new Date(value)
               const filterDate = new Date(filterVal)
               if (!isNaN(itemDate.getTime()) && !isNaN(filterDate.getTime())) {
@@ -93,22 +152,33 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
       )
     }
 
-    if (mode === 'state-control' && stateField) {
-      // Group data by state field
+    // Group data based on groupByField
+    if (groupByField) {
+      const field = groupByField
       const grouped: Record<string, any[]> = {}
-      columns.forEach(col => {
-        if (col.state) {
-          grouped[col.state] = filteredData.filter(item => item[stateField] === col.state)
+      columns.forEach((col: any) => {
+        if (hasState(col)) {
+          // Normalize the value for comparison (same logic as column generation)
+          const normalizeValue = (val: any) => {
+            if (val instanceof Date) {
+              return val.toISOString().split('T')[0]
+            }
+            if (typeof val === 'string' && !isNaN(Date.parse(val))) {
+              return val.split('T')[0]
+            }
+            return val
+          }
+          // @ts-ignore - Type guard narrows col.state to string but TypeScript doesn't recognize it in index
+          grouped[col.state] = filteredData.filter((item: any) => {
+            const itemValue = normalizeValue(item[field])
+            return String(itemValue) === col.state
+          })
         }
       })
       return grouped
     } else {
-      // Normal mode: use column IDs as keys
-      const grouped: Record<string, any[]> = {}
-      columns.forEach(col => {
-        grouped[col.id] = filteredData.filter(item => item.columnId === col.id)
-      })
-      return grouped
+      // No groupByField - single column with all items
+      return { 'all': filteredData }
     }
   })
 
@@ -130,15 +200,12 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
           
           switch (filterValue.operator) {
             case 'equals':
-              // Use number comparison if filter value is a number
               if (typeof filterVal === 'number') {
                 return Number(value) === filterVal
               }
-              // Handle boolean comparison
               if (typeof filterVal === 'boolean') {
                 return Boolean(value) === filterVal
               }
-              // Handle date comparison - convert both to date and compare
               const itemDate = new Date(value)
               const filterDate = new Date(filterVal)
               if (!isNaN(itemDate.getTime()) && !isNaN(filterDate.getTime())) {
@@ -171,39 +238,55 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
       )
     }
 
-    if (mode === 'state-control' && stateField) {
+    // Group data based on groupByField
+    if (groupByField) {
+      const field = groupByField
       const grouped: Record<string, any[]> = {}
-      columns.forEach(col => {
-        if (col.state) {
-          grouped[col.state] = filteredData.filter(item => item[stateField] === col.state)
+      columns.forEach((col: any) => {
+        if (hasState(col)) {
+          // Normalize the value for comparison (same logic as column generation)
+          const normalizeValue = (val: any) => {
+            if (val instanceof Date) {
+              return val.toISOString().split('T')[0]
+            }
+            if (typeof val === 'string' && !isNaN(Date.parse(val))) {
+              return val.split('T')[0]
+            }
+            return val
+          }
+          // @ts-ignore - Type guard narrows col.state to string but TypeScript doesn't recognize it in index
+          grouped[col.state] = filteredData.filter((item: any) => {
+            const itemValue = normalizeValue(item[field])
+            return String(itemValue) === col.state
+          })
         }
       })
       setKanbanData(grouped)
     } else {
-      const grouped: Record<string, any[]> = {}
-      columns.forEach(col => {
-        grouped[col.id] = filteredData.filter(item => item.columnId === col.id)
-      })
-      setKanbanData(grouped)
+      // No groupByField - single column with all items
+      setKanbanData({ 'all': filteredData })
     }
-  }, [data, currentSearchKeyword, currentFilterValues, mode, stateField, columns])
+  }, [data, currentSearchKeyword, currentFilterValues, groupByField, columns])
 
   const handleDragEnd = async (event: any) => {
-    if (!draggable || mode !== 'state-control' || !onStateChange) return
+    if (!draggable || !groupByField || !onStateChange) return
 
     const { active, over } = event
     if (!over) return
 
-    const activeColumn = columns.find(col => col.id === active.id)
-    const overColumn = columns.find(col => col.id === over.id)
+    const activeColumn = columns.find((col: any) => col.id === active.id)
+    const overColumn = columns.find((col: any) => col.id === over.id)
 
-    if (activeColumn?.state && overColumn?.state && activeColumn.state !== overColumn.state) {
-      // Find the item that was moved
-      const movedItem = kanbanData[activeColumn.state]?.find(item => item.id === active.id)
-      if (movedItem) {
-        // Update the state
-        await onStateChange(movedItem.id, overColumn.state)
-      }
+    if (!activeColumn || !overColumn || activeColumn.id === overColumn.id) return
+
+    // Find the item being moved
+    const movedItem = kanbanData[activeColumn.id]?.find((item: any) => getItemValue(item) === active.data?.current?.value)
+    if (!movedItem) return
+
+    // Update the item's groupByField value
+    const newValue = (overColumn as any).state
+    if (newValue && groupByField) {
+      await onStateChange(getItemValue(movedItem), newValue)
     }
   }
 
@@ -226,28 +309,24 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
     return <div className="text-center py-8 text-muted-foreground">Loading...</div>
   }
 
-  return (
-    <div className="w-full h-full">
-      {/* Filter panel */}
-      {filterPanelVisible && (
-        <Card className="p-4 mb-4">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search cards..."
-                value={currentSearchKeyword}
-                onChange={(value: string) => setCurrentSearchKeyword(value)}
-                style={{ width: '100%', paddingLeft: 36 }}
-              />
+  // If no groupByField, display as horizontal flex grid
+  if (!groupByField) {
+    return (
+      <div className="w-full h-full p-4">
+        <div className="flex flex-wrap gap-4">
+          {data.map(item => (
+            <div key={getItemValue(item)} style={{ width: cardWidth }}>
+              {renderCard({ id: getItemValue(item), data: item, onCardClick: handleCardClick, onCardEdit: handleCardEdit, onCardDelete: handleCardDelete })}
             </div>
-            <Button size="sm" appearance="subtle" onClick={() => setFilterPanelVisible(false)}>
-              Close
-            </Button>
-          </div>
-        </Card>
-      )}
-      <div className="w-full h-full overflow-x-auto">
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // With groupByField, display as Kanban columns
+  return (
+    <div className="w-full h-full overflow-x-auto">
       <Kanban
         value={kanbanData}
         onValueChange={handleValueChange}
@@ -255,24 +334,49 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
         getItemValue={getItemValue}
         orientation="horizontal"
       >
-        <KanbanBoard className="p-4">
+        <KanbanBoard className="p-4 gap-0">
           {columns.map(column => (
             <KanbanColumn
               key={column.id}
               value={column.id}
+              className={"bg-transparent border-0"}
               style={{ width: columnWidth, minWidth: columnWidth }}
             >
               <div className="flex flex-col h-full">
                 {/* Column Header */}
                 <div
                   className={cn(
-                    "p-3 rounded-t-lg font-medium flex items-center justify-between",
-                    column.color ? `bg-${column.color}-300` : "bg-zinc-300"
+                    "p-4 rounded-t-lg font-semibold flex items-center justify-between",
+                    "bg-gradient-to-r from-gray-50 to-white border-b-2",
+                    column.color === 'blue' && "border-blue-500",
+                    column.color === 'green' && "border-green-500",
+                    column.color === 'yellow' && "border-yellow-500",
+                    column.color === 'red' && "border-red-500",
+                    column.color === 'purple' && "border-purple-500",
+                    column.color === 'orange' && "border-orange-500",
+                    column.color === 'gray' && "border-gray-400"
                   )}
                 >
-                  <span>{column.title}</span>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={cn(
+                        "w-3 h-3 rounded-full",
+                        column.color === 'blue' && "bg-blue-500",
+                        column.color === 'green' && "bg-green-500",
+                        column.color === 'yellow' && "bg-yellow-500",
+                        column.color === 'red' && "bg-red-500",
+                        column.color === 'purple' && "bg-purple-500",
+                        column.color === 'orange' && "bg-orange-500",
+                        column.color === 'gray' && "bg-gray-400"
+                      )}
+                    />
+                    <span className="text-gray-800">{column.title}</span>
+                  </div>
                   {showCardCount && (
-                    <span className="text-sm text-muted-foreground">
+                    <span className={cn(
+                      "text-xs font-medium px-2.5 py-1 rounded-full",
+                      "bg-gray-100 text-gray-600"
+                    )}>
                       {kanbanData[column.id]?.length || 0}
                     </span>
                   )}
@@ -286,15 +390,7 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
                       value={getItemValue(item)}
                       asHandle={draggable}
                     >
-                      {renderCard ? (
-                        renderCard({ id: getItemValue(item), data: item, state: column.state })
-                      ) : (
-                        <DefaultCard
-                          item={item}
-                          onCardEdit={onCardEdit}
-                          onCardDelete={onCardDelete}
-                        />
-                      )}
+                      {renderCard({ id: getItemValue(item), data: item, state: column.title, showDragHandle: true, onCardClick: handleCardClick, onCardEdit: handleCardEdit, onCardDelete: handleCardDelete })}
                     </KanbanItem>
                   ))}
                 </div>
@@ -336,57 +432,7 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
           }}
         </KanbanOverlay>
       </Kanban>
-      </div>
     </div>
-  )
-}
-
-function DefaultCard({
-  item,
-  onCardEdit,
-  onCardDelete,
-}: {
-  item: any
-  onCardEdit?: (card: { id: string; data: any }) => void
-  onCardDelete?: (card: { id: string; data: any }) => void
-}) {
-  return (
-    <Card className="p-3 hover:shadow-md transition-shadow">
-      <div className="space-y-2">
-        <div className="font-medium">{item.name || item.title || 'Untitled'}</div>
-        {item.description && (
-          <div className="text-sm text-muted-foreground line-clamp-2">
-            {item.description}
-          </div>
-        )}
-        <div className="flex gap-2 pt-2">
-          {onCardEdit && (
-            <Button
-              size="sm"
-              appearance="subtle"
-              onClick={(e) => {
-                e.stopPropagation()
-                onCardEdit({ id: item.id || item._id, data: item })
-              }}
-            >
-              Edit
-            </Button>
-          )}
-          {onCardDelete && (
-            <Button
-              size="sm"
-              appearance="subtle"
-              onClick={(e) => {
-                e.stopPropagation()
-                onCardDelete({ id: item.id || item._id, data: item })
-              }}
-            >
-              Delete
-            </Button>
-          )}
-        </div>
-      </div>
-    </Card>
   )
 }
 

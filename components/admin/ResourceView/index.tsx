@@ -7,7 +7,7 @@ import {GanttView} from './GanttView'
 import {FormView} from './FormView'
 import {Button} from '@/components/ui/button'
 import {Card} from '@/components/ui/card'
-import {Input, Drawer, Whisper, Popover, Divider, Loader, Tag} from 'rsuite'
+import {Input, Drawer, Whisper, Popover, Divider, Loader, Tag, Badge} from 'rsuite'
 import {IconButton} from 'rsuite'
 import {Search as SearchIcon, Filter as FilterIcon, List, Grid3x3, Calendar, Download, Settings, FileSpreadsheet, Trash2} from 'lucide-react'
 import {ResourceViewProps, ResourceType} from './types'
@@ -27,6 +27,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
     const [mounted, setMounted] = useState(false)
+    const [lastViewType, setLastViewType] = useState<ResourceType>(config.type)
 
     // Set editingId after mount to avoid hydration mismatch
     useEffect(() => {
@@ -55,12 +56,14 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }, [config.serverActions, config.enableDefaultActions, config.defaultActions])
 
     const handleEdit = (rowData: any) => {
+        setLastViewType(viewType)
         setEditingId(rowData.id || rowData._id)
         setViewType('form')
         onEdit?.(rowData)
     }
 
     const handleCreate = () => {
+        setLastViewType(viewType)
         setEditingId(undefined)
         setViewType('form')
         onCreate?.()
@@ -68,7 +71,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
 
     const handleFormComplete = () => {
         setEditingId(undefined)
-        setViewType(config.type === 'form' ? 'list' : config.type)
+        setViewType(lastViewType)
     }
 
     const handleExport = () => {
@@ -111,6 +114,9 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         searchKeyword={searchValues.map(v => v.value).join(' ')}
                         setSearchKeyword={() => {}}
                         filterValues={filterValues}
+                        groupByField={groupByField || undefined}
+                        onCardClick={handleEdit}
+                        onCardEdit={handleEdit}
                     />
                 )
 
@@ -291,13 +297,14 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                                 </Popover>
                             }
                         >
-                            <Button
-                                size="sm"
-                                appearance="primary"
-                                startIcon={<Settings size={14}/>}
-                            >
-                                Actions ({selectedIds.length})
-                            </Button>
+                            <Badge content={selectedIds.length} invisible={selectedIds.length === 0}>
+                                <Button
+                                    size="sm"
+                                    startIcon={<Settings size={14}/>}
+                                >
+                                    Actions
+                                </Button>
+                            </Badge>
                         </Whisper>
                     )}
                     <Button onClick={handleCreate}
