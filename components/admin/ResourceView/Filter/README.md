@@ -109,7 +109,7 @@ export function ResourceView({config, ...props}: ResourceViewProps) {
     .map(col => ({
       key: col.key,
       label: col.title,
-      type: col.filterType || 'text',
+      type: col.type || 'text',
       options: col.filterOptions
     })) || []
 

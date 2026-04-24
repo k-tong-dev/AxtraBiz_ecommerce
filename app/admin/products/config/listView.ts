@@ -18,6 +18,8 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
     'stock',
     'product_type',
     'status',
+    'allow_backorders',
+    'track_inventory',
     'active'
   ],
   pageSize: 5,
@@ -39,7 +41,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'text',
+      type: 'text',
       align: 'left'
     },
     {
@@ -49,7 +51,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'text',
+      type: 'text',
       align: 'left'
     },
     {
@@ -59,9 +61,8 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       align: 'right',
-      isNumber: true,
       summary: true,
       summaryType: 'sum',
       render: (value: any) => `$${parseFloat(value).toFixed(2)}`
@@ -73,7 +74,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       align: 'right',
       render: (value: any) => value ? `$${parseFloat(value).toFixed(2)}` : '-'
     },
@@ -84,7 +85,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       align: 'right',
       render: (value: any) => value ? `$${parseFloat(value).toFixed(2)}` : '-'
     },
@@ -95,9 +96,8 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       align: 'center',
-      isNumber: true,
       summary: true,
       summaryType: 'sum',
       render: (value: any) => {
@@ -114,7 +114,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'options',
+      type: 'options',
       filterOptions: [
         { label: 'Simple', value: 'simple' },
         { label: 'Variable', value: 'variable' },
@@ -137,7 +137,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'options',
+      type: 'options',
       filterOptions: [
         { label: 'Draft', value: 'draft' },
         { label: 'Published', value: 'published' },
@@ -177,10 +177,9 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'boolean',
+      type: 'boolean',
       filterDefault: true,
       align: 'center',
-      render: (value: any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-red-500' }, value ? 'TRUE' : 'FALSE')
     },
     {
       key: 'category_id',
@@ -189,7 +188,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'text',
+      type: 'text',
       align: 'left'
     },
     {
@@ -199,7 +198,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'text',
+      type: 'text',
       align: 'left'
     },
     {
@@ -209,7 +208,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       align: 'right',
       render: (value: any) => value ? `${parseFloat(value).toFixed(2)} kg` : '-'
     },
@@ -220,9 +219,8 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'boolean',
+      type: 'boolean',
       align: 'center',
-      render: (value: any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-gray-500' }, value ? 'Yes' : 'No')
     },
     {
       key: 'allow_backorders',
@@ -231,9 +229,8 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'boolean',
+      type: 'boolean',
       align: 'center',
-      render: (value: any) => React.createElement('span', { className: value ? 'text-green-500' : 'text-gray-500' }, value ? 'Yes' : 'No')
     },
     {
       key: 'created_at',
@@ -242,7 +239,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'date',
+      type: 'date',
       align: 'left',
       render: (value: any) => new Date(value).toLocaleDateString()
     },
@@ -253,7 +250,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'date',
+      type: 'date',
       align: 'left',
       render: (value: any) => new Date(value).toLocaleDateString()
     }

@@ -129,15 +129,13 @@ export interface ListColumn {
   resizable?: boolean              // Allow column resizing
   sortable?: boolean               // Enable sorting for this column
   filterable: boolean             // Enable filtering for this column
-  filterType?: FilterType          // Type of filter (text, number, date, options, boolean)
-  filterOptions?: Array<{ label: string; value: any }>  // Options for filterType: 'options'
+  type?: 'text' | 'number' | 'date' | 'options' | 'boolean'  // Field type for filtering and display
+  filterOptions?: Array<{ label: string; value: any }>  // Options for type: 'options'
   filterDataFetcher?: () => Promise<Array<{ label: string; value: any }>>  // Async fetch for filter options
   filterDefault?: any             // Default filter value
   render?: (value: any, rowData: any) => React.ReactNode  // Custom cell renderer
   align?: 'left' | 'center' | 'right'  // Text alignment
   groupable?: boolean             // Enable group-by for this column
-  isDate?: boolean                // Mark column as date for date filtering
-  isNumber?: boolean              // Mark column as number for number filtering
   summary?: boolean               // Enable header summary for this column
   summaryType?: 'sum' | 'count' | 'avg' | 'min' | 'max'  // Type of summary calculation
 }
@@ -183,7 +181,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       resizable: true,
       sortable: true,
       filterable: true,
-      filterType: 'text',
+      type: 'text',
       align: 'left'
     },
     {
@@ -192,7 +190,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       width: 100,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       align: 'right',
       render: (value) => `$${parseFloat(value).toFixed(2)}`
     },
@@ -202,7 +200,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       width: 80,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       align: 'center',
       render: (value) => {
         const stock = parseInt(value)
@@ -217,7 +215,7 @@ export const getProductListConfig = (data: any[] = []): ListViewConfig => ({
       width: 100,
       sortable: true,
       filterable: true,
-      filterType: 'options',
+      type: 'options',
       filterOptions: [
         { label: 'Draft', value: 'draft' },
         { label: 'Published', value: 'published' },
@@ -305,7 +303,7 @@ The ListView uses Tailwind CSS classes for styling. You can customize the appear
 ## Best Practices
 
 1. **Keep data manageable**: For large datasets (> 1000 rows), consider server-side pagination
-2. **Use appropriate filter types**: Match filterType to your data type for better UX
+2. **Use appropriate types**: Match `type` to your data type for better UX (text, number, date, options, boolean)
 3. **Custom render functions**: Use render functions for complex formatting (dates, currencies, statuses)
 4. **Set reasonable defaults**: Configure `defaultVisibleColumns` to show the most important fields
 5. **Handle loading state**: Always pass the `loading` prop when fetching data

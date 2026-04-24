@@ -70,15 +70,13 @@ export interface ListColumn {
     resizable?: boolean
     sortable?: boolean
     filterable?: boolean
-    filterType?: FilterType
+    type?: 'text' | 'number' | 'date' | 'options' | 'boolean'
     filterOptions?: Array<{ label: string; value: any }>
     filterDataFetcher?: () => Promise<Array<{ label: string; value: any }>>
     filterDefault?: any
     render?: (value: any, rowData: any) => React.ReactNode
     align?: 'left' | 'center' | 'right'
     groupable?: boolean
-    isDate?: boolean
-    isNumber?: boolean
     summary?: boolean
     summaryType?: 'sum' | 'count' | 'avg' | 'min' | 'max'
 }
@@ -239,7 +237,7 @@ export function ListView({
         allColumns.forEach(column => {
             if (column.filterable && column.filterDefault !== undefined) {
                 let filterValue: FilterValue
-                switch (column.filterType) {
+                switch (column.type) {
                     case 'boolean':
                         filterValue = {type: 'boolean', value: column.filterDefault}
                         break
@@ -711,7 +709,7 @@ export function ListView({
                 hover={true}
                 affixHeader
                 affixHorizontalScrollbar
-                onRowClick={(rowData) => onRowClick && !rowData._isGroup && onRowClick(rowData)}
+                onRowClick={(rowData) => onRowClick && !rowData._isGroup && onRowClick({...rowData, id: rowData._originalId || rowData.id, _id: rowData._originalId || rowData._id})}
                 sortColumn={sortColumn}
                 sortType={sortType}
                 onSortColumn={handleSortColumn}
@@ -865,6 +863,17 @@ export function ListView({
                                         return null
                                     }
                                     const value = rowData[column.key]
+                                    
+                                    // Render boolean fields as readonly switch
+                                    if (column.type === 'boolean') {
+                                        return (
+                                            <Switch 
+                                                checked={value === true || value === 'true' || value === 1 || value === '1'}
+                                                disabled={true}
+                                            />
+                                        )
+                                    }
+                                    
                                     return (
                                         <div className="truncate" style={{
                                             overflow: 'hidden',

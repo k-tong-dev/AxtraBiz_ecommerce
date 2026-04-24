@@ -302,7 +302,21 @@ export function FieldFilterInput({
                     )}
                 </div>
             ) : (
-                currentField?.type === 'boolean' ? (
+                currentField?.type === 'options' ? (
+                    <select
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        className="px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 min-w-[100px]"
+                    >
+                        <option value="">Select...</option>
+                        {currentField?.options?.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                ) : currentField?.type === 'boolean' ? (
                     <select
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}

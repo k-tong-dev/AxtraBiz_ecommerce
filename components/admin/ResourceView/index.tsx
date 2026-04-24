@@ -198,7 +198,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             .map(col => ({
                                 key: col.key,
                                 label: col.title,
-                                type: col.filterType || 'text',
+                                type: col.type || 'text',
                                 options: col.filterOptions
                             })) || []}
                         value={filterValues}

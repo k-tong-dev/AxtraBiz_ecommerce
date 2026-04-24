@@ -506,7 +506,7 @@ export const listViewConfig: ListViewConfig = {
       width: 100,
       sortable: true,
       filterable: true,
-      filterType: 'number',
+      type: 'number',
       summary: true,
       summaryType: 'sum',
       render: (value: any) => `$${parseFloat(value).toFixed(2)}`
