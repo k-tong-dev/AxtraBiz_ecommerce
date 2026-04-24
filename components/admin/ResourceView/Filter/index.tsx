@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState, useEffect, useRef} from 'react'
-import {Popover, Whisper} from 'rsuite'
+import {Badge, Popover, Whisper} from 'rsuite'
 import {Filter as FilterIcon} from 'lucide-react'
 import {FieldFilterInput} from './FieldFilterInput'
 import {Button} from "@/components/ui/button";
@@ -166,17 +166,15 @@ export function Filter({
                     </Popover>
                 }
             >
-                <button
-                    onClick={() => whisperRef.current?.open()}
-                    className={`flex items-center gap-1 px-3 py-1.5 border rounded text-sm transition-colors ${
-                        filterValues.length > 0 
-                            ? 'bg-blue-500 text-white border-blue-500' 
-                            : 'border-gray-300 hover:bg-gray-50'
-                    }`}
-                >
-                    <FilterIcon size={14} />
-                    {filterValues.length > 0 && <span>{filterValues.length}</span>}
+                <Badge content={filterValues.length > 0 && filterValues.length} invisible={filterValues.length <= 0 }>
+                    <button
+                        onClick={() => whisperRef.current?.open()}
+                        className={`flex items-center gap-1 px-3 py-1.5 border rounded text-sm transition-colors border-gray-300 hover:bg-gray-50`}
+                    >
+                        <FilterIcon size={14} />
                 </button>
+                </Badge>
+                
             </Whisper>
         </div>
     )
