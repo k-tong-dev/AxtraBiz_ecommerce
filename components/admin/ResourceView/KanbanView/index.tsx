@@ -311,10 +311,11 @@ export function KanbanView({ config, loading, showFilterPanel, setShowFilterPane
 
   // If no groupByField, display as horizontal flex grid
   if (!groupByField) {
+    const filteredData = kanbanData['all'] || data
     return (
       <div className="w-full h-full p-4">
         <div className="flex flex-wrap gap-4">
-          {data.map(item => (
+          {filteredData.map(item => (
             <div key={getItemValue(item)} style={{ width: cardWidth }}>
               {renderCard({ id: getItemValue(item), data: item, onCardClick: handleCardClick, onCardEdit: handleCardEdit, onCardDelete: handleCardDelete })}
             </div>

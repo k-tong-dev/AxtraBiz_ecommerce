@@ -48,3 +48,6 @@
   opacity: var(--disabled-opacity, 0.5);
   cursor: not-allowed;
 }
+.rs-table-scrollbar {
+  display: none;
+}

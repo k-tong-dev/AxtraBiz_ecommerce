@@ -30,9 +30,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { StatCard } from '@/components/admin/stat-card'
 import { AdminModuleCard } from '@/components/admin/module-card'
-import { fetchProductsFromSupabase } from '@/lib/supabase/products'
-import { fetchOrdersFromSupabase } from '@/lib/supabase/orders'
-import { fetchCustomersFromSupabase } from '@/lib/supabase/customers'
 import type { Order, Product, User } from '@/lib/types'
 
 const CHART_COLORS = ['#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#3b82f6', '#10b981']
