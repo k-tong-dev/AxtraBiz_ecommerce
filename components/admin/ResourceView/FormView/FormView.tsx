@@ -212,9 +212,10 @@ interface FormViewProps<T extends Entity> {
     initialData?: T | null
     entityId?: string
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
+    availableFields?: Array<{ key: string; label: string; type?: string }>
 }
 
-export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions}: FormViewProps<T>) {
+export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = []}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const {toast} = useToast()
@@ -969,7 +970,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             case 'datetime':
                 return (
                     <DatePickerField
-                        label={field.label}
                         value={value}
                         onChange={onChange}
                         placeholder={field.placeholder || 'Select date'}
@@ -1044,48 +1044,13 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
 
                 {/* Top Action Buttons - Only in Edit Mode */}
                 {mode === 'edit' && (
-                    <div className="flex items-center gap-2">
-                        <Dropdown
-                            title="Actions"
-                            placement="bottomEnd"
-                            renderToggle={(props, ref) => (
-                                <Button
-                                    {...props}
-                                    ref={ref}
-                                    className="gap-2"
-                                    startIcon={<IoMdSettings className={"w-5 h-5"}/>}
-                                >
-                                    Actions
-                                </Button>
-                            )}
-                        >
-                            {/* Default actions from serverActions */}
-                            {serverActions?.filter(action =>
-                                    ['print', 'export_excel', 'duplicate', 'copy_json', 'archive', 'unarchive', 'delete'].includes(action.key)
-                                )
-                                .map((action) => {
-                                    const handleClick = () => {
-                                        if (action.key === 'print') handlePrint()
-                                        else if (action.key === 'export_excel') handleExport()
-                                        else if (action.key === 'duplicate') handleDuplicate()
-                                        else if (action.key === 'copy_json') handleCopy()
-                                        else if (action.key === 'archive') handleArchive()
-                                        else if (action.key === 'delete') handleDelete()
-                                    }
-                                    return (
-                                        <Dropdown.Item
-                                            key={action.key}
-                                            icon={action.icon as any}
-                                            onClick={handleClick}
-                                            className={action.color === 'red' ? 'text-red-600' : ''}
-                                        >
-                                            {action.label}
-                                        </Dropdown.Item>
-                                    )
-                                })
-                            }
-                        </Dropdown>
-                    </div>
+                    <ServerActions
+                        actions={serverActions || []}
+                        data={[data]}
+                        context={actionContext}
+                        layout="dropdown"
+                        availableFields={availableFields}
+                    />
                 )}
             </div>
 

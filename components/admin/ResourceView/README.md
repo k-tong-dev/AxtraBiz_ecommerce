@@ -49,7 +49,7 @@ The system provides built-in default actions that can be enabled/disabled via fl
 
 **Available Default Actions:**
 - `print`: Print the current record
-- `exportExcel`: Export selected records to Excel (bulk mode only)
+- `export`: Export records to Excel or CSV (mode: 'both') - Opens Export modal
 - `delete`: Delete record(s) (both bulk and single mode)
 - `duplicate`: Create a copy of the record (both modes)
 - `copyJson`: Copy record data as JSON to clipboard (both modes)
@@ -165,6 +165,7 @@ const deleteAction: ServerActionConfig = {
 
 For detailed documentation, see:
 - [ServerActions README](./ServerActions/README.md)
+- [Export README](./Export/README.md)
 - [ListView README](./ListView/README.md)
 - [FormView README](./FormView/README.md)
 - [Search README](./Search/README.md)
@@ -230,6 +231,10 @@ components/admin/ResourceView/
 │   ├── index.tsx      # Filter component implementation
 │   ├── FieldFilterInput.tsx  # Custom filter input with field/operator selectors
 │   └── README.md      # Filter component documentation
+├── Export/            # Export component
+│   ├── index.tsx      # Export component implementation
+│   ├── types.ts       # Export type definitions
+│   └── README.md      # Export component documentation
 ├── ListView/          # List view component
 ├── KanbanView/        # Kanban view component
 ├── GanttView/         # Gantt view component

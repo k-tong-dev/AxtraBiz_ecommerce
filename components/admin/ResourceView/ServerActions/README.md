@@ -29,14 +29,14 @@ const defaultActions = getDefaultServerActions({
 
 **Available Default Actions:**
 - `print`: Print the current record (mode: 'both')
-- `exportExcel`: Export selected records to Excel (mode: 'bulk')
+- `export`: Export records to Excel or CSV (mode: 'both') - Opens Export modal
 - `delete`: Delete record(s) (mode: 'both')
 - `duplicate`: Create a copy of the record (mode: 'both')
 - `copyJson`: Copy record data as JSON to clipboard (mode: 'both')
 - `archive`: Archive the record (mode: 'both')
 - `unarchive`: Unarchive the record (mode: 'both')
 
-**Note:** All default actions except `exportExcel` use `mode: 'both'` to appear in both FormView and ListView bulk actions.
+**Note:** All default actions use `mode: 'both'` to appear in both FormView and ListView bulk actions.
 
 ### Context-Aware Actions
 
@@ -272,10 +272,41 @@ const customActions: ServerActionConfig[] = [
 
 The `layout` prop controls how actions are rendered:
 
-- **`inline`**: Vertical stack of buttons (default for drawer)
+- **`inline`**: Vertical stack of buttons (default)
 - **`toolbar`**: Horizontal row of buttons (for action bars)
 - **`drawer`**: Vertical stack with larger spacing (for side drawers)
-- **`dropdown`**: Actions in a dropdown menu (future)
+- **`dropdown`**: Actions in a dropdown menu with a settings icon button
+
+### Example Usage
+
+```tsx
+// Inline layout (vertical stack)
+<ServerActions
+    actions={actions}
+    data={data}
+    context={context}
+    layout="inline"
+/>
+
+// Toolbar layout (horizontal row)
+<ServerActions
+    actions={actions}
+    data={data}
+    context={context}
+    layout="toolbar"
+/>
+
+// Dropdown layout (dropdown menu)
+<ServerActions
+    actions={actions}
+    data={data}
+    context={context}
+    layout="dropdown"
+    availableFields={availableFields}
+/>
+```
+
+**Note:** The `dropdown` layout is particularly useful when space is limited, such as in the ResourceView toolbar. It renders a settings icon button that opens a dropdown with all available actions.
 
 ## Migration from BulkActionConfig
 

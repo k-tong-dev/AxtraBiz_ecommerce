@@ -27,7 +27,7 @@ export const productConfig = {
     duplicate: true,
     copyJson: true,
     archive: true,
-    unarchive: true
+    unarchive: true,
   },
   
   // Custom ServerActions - additional actions beyond defaults
@@ -37,7 +37,7 @@ export const productConfig = {
       label: 'Update Stock',
       icon: createElement(Package, { size: 16 }),
       color: 'blue' as const,
-      mode: 'both' as const,
+      mode: 'edit' as const,
       helper: 'Update stock levels for this product',
       onClick: async (data: any[], context?: any) => {
         const record = context?.record || data[0]

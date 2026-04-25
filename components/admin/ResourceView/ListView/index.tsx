@@ -147,9 +147,11 @@ export interface ListViewProps {
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
     searchValues?: {fieldKey: string; value: string}[]
     filterValues?: {fieldKey: string; operator: string; value: any}[]
+    availableFields?: Array<{ key: string; label: string; type?: string }>
     groupByField?: string | null
     selectedIds?: string[]
     setSelectedIds?: (ids: string[]) => void
+    onDataChange?: (data: any[]) => void  // Callback to notify parent of current filtered data
 }
 
 export function ListView({
@@ -163,7 +165,9 @@ export function ListView({
                              filterValues: externalFilterValues,
                              groupByField: externalGroupByField,
                              selectedIds: externalSelectedIds,
-                             setSelectedIds: externalSetSelectedIds
+                             setSelectedIds: externalSetSelectedIds,
+                             availableFields = [],
+                             onDataChange
                          }: ListViewProps) {
     const {
         columns: allColumns,
@@ -423,6 +427,13 @@ export function ListView({
 
         return result
     }, [data, currentSearchValues, currentFilterValues, sortColumn, sortType, columnFilters, allColumns])
+
+    // Notify parent of current filtered data for export
+    useEffect(() => {
+        if (onDataChange) {
+            onDataChange(filteredData)
+        }
+    }, [filteredData, onDataChange])
 
     // Pagination
     const totalPages = Math.ceil(filteredData.length / pageSize)

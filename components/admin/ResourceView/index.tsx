@@ -16,6 +16,7 @@ import {MdAdd} from "react-icons/md";
 import {Search as SearchComponent, SearchValue} from './Search'
 import {Filter, FilterValue} from './Filter'
 import {GroupBy} from './GroupBy'
+import {ServerActions} from './ServerActions'
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
@@ -28,6 +29,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
     const [mounted, setMounted] = useState(false)
     const [lastViewType, setLastViewType] = useState<ResourceType>(config.type)
+    const [currentFilteredData, setCurrentFilteredData] = useState<any[]>([])
 
     // Set editingId after mount to avoid hydration mismatch
     useEffect(() => {
@@ -98,6 +100,12 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
                         serverActions={mergedServerActions}
+                        availableFields={config.listViewConfig?.columns?.map(col => ({
+                            key: col.key,
+                            label: col.title,
+                            type: col.type
+                        })) || []}
+                        onDataChange={setCurrentFilteredData}
                     />
                 )
 
@@ -132,6 +140,11 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             entityId={editingId}
                             initialData={formInitialData}
                             serverActions={mergedServerActions}
+                            availableFields={config.formViewConfig?.fields?.map(f => ({
+                                key: f.key,
+                                label: f.label,
+                                type: f.type
+                            })) || []}
                         />
                     </div>
                 )
@@ -221,91 +234,23 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         onChange={setGroupByField}
                     />
                     {selectedIds.length > 0 && (
-                        <Whisper
-                            trigger="click"
-                            placement="bottomEnd"
-                            speaker={
-                                <Popover>
-                                    <div className="flex flex-col gap-2 p-2 min-w-[200px]">
-                                        {mergedServerActions?.filter(action =>
-                                            ['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key) &&
-                                            (action.mode === 'bulk' || action.mode === 'both')
-                                        )
-                                            .map((action) => {
-                                                const handleClick = () => {
-                                                    if (action.key === 'delete') {
-                                                        console.log('Bulk delete:', selectedIds)
-                                                        // TODO: Implement bulk delete
-                                                    } else if (action.key === 'export_excel') {
-                                                        console.log('Export to Excel:', selectedIds)
-                                                        // TODO: Implement Excel export
-                                                    } else if (action.key === 'print') {
-                                                        console.log('Print:', selectedIds)
-                                                        window.print()
-                                                    } else if (action.key === 'duplicate') {
-                                                        console.log('Duplicate:', selectedIds)
-                                                        // TODO: Implement duplication
-                                                    } else if (action.key === 'copy_json') {
-                                                        const selectedData = selectedIds.map(id => {
-                                                            // Find the data from the current view
-                                                            // This would need to be passed from the view
-                                                            return {id}
-                                                        })
-                                                        navigator.clipboard.writeText(JSON.stringify(selectedData, null, 2))
-                                                    } else {
-                                                        action.onClick(selectedIds.map(id => ({id})), {
-                                                            mode: 'bulk',
-                                                            view: 'list'
-                                                        })
-                                                    }
-                                                }
-                                                return (
-                                                    <Button
-                                                        key={action.key}
-                                                        appearance="subtle"
-                                                        block
-                                                        startIcon={action.icon as React.ReactElement}
-                                                        onClick={handleClick}
-                                                    >
-                                                        {action.label}
-                                                    </Button>
-                                                )
-                                            })
-                                        }
-                                        {(mergedServerActions?.filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key)).length || 0) > 0 && (
-                                            <>
-                                                <Divider/>
-                                                {mergedServerActions?.filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key))
-                                                    .map((action) => (
-                                                        <Button
-                                                            key={action.key}
-                                                            appearance="subtle"
-                                                            block
-                                                            startIcon={action.icon as React.ReactElement}
-                                                            onClick={() => action.onClick(selectedIds.map(id => ({id})), {
-                                                                mode: 'bulk',
-                                                                view: 'list'
-                                                            })}
-                                                        >
-                                                            {action.label}
-                                                        </Button>
-                                                    ))
-                                                }
-                                            </>
-                                        )}
-                                    </div>
-                                </Popover>
-                            }
-                        >
-                            <Badge content={selectedIds.length} invisible={selectedIds.length === 0}>
-                                <Button
-                                    size="sm"
-                                    startIcon={<Settings size={14}/>}
-                                >
-                                    Actions
-                                </Button>
-                            </Badge>
-                        </Whisper>
+                        <ServerActions
+                            actions={mergedServerActions}
+                            data={currentFilteredData.filter(item => 
+                                selectedIds.includes(item.id || item._id)
+                            ) || []}
+                            context={{
+                                mode: 'bulk',
+                                view: 'list',
+                                selectedIds
+                            }}
+                            layout="dropdown"
+                            availableFields={config.listViewConfig?.columns?.map(col => ({
+                                key: col.key,
+                                label: col.title,
+                                type: col.type
+                            })) || []}
+                        />
                     )}
                     <Button onClick={handleCreate}
                             color="violet"

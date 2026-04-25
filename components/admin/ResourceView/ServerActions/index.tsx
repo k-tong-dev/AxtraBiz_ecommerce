@@ -1,10 +1,12 @@
 'use client'
 
 import React, {useState} from 'react'
-import {Button, Modal, Popover, Whisper} from 'rsuite'
+import {Button, Modal, Popover, Whisper, IconButton} from 'rsuite'
 import {cn} from '@/lib/utils'
-import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestore} from 'lucide-react'
+import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestore, Settings} from 'lucide-react'
 import {createElement} from 'react'
+import {Export} from '../Export'
+import {ExportConfig} from '../Export/types'
 
 // Built-in default ServerActions - generic utility that can be used by any resource
 export const getDefaultServerActions = (flags: {
@@ -35,17 +37,14 @@ export const getDefaultServerActions = (flags: {
     if (flags.exportExcel !== false) {
         actions.push({
             key: 'export_excel',
-            label: 'Export Excel',
+            label: 'Export',
             icon: createElement(FileSpreadsheet, {size: 16}),
             color: 'green',
-            mode: 'bulk',
-            helper: 'Export selected records to Excel',
+            mode: 'both',
+            helper: 'Export records to Excel or CSV',
             onClick: async (data, context) => {
-                if (context?.mode === 'bulk') {
-                    const ids = context.selectedIds || data.map(d => d.id)
-                    console.log('Export to Excel:', ids)
-                    // TODO: Implement Excel export
-                }
+                // This will be handled by the parent component that shows the Export modal
+                // The action key will trigger the modal in ServerActions component
             }
         })
     }
@@ -215,6 +214,7 @@ export interface ServerActionsProps {
     layout?: 'dropdown' | 'drawer' | 'toolbar' | 'inline'
     block?: boolean
     size?: 'xs' | 'sm' | 'md' | 'lg'
+    availableFields?: Array<{ key: string; label: string; type?: string }>
 }
 
 export function ServerActions({
@@ -224,7 +224,8 @@ export function ServerActions({
     onActionComplete,
     layout = 'inline',
     block = false,
-    size = 'sm'
+    size = 'sm',
+    availableFields = []
 }: ServerActionsProps) {
     const [confirmModalOpen, setConfirmModalOpen] = useState(false)
     const [confirmModalConfig, setConfirmModalConfig] = useState<{
@@ -232,10 +233,17 @@ export function ServerActions({
         onConfirm: () => void | Promise<void>
     } | null>(null)
     const [loading, setLoading] = useState<string | null>(null)
+    const [showExportModal, setShowExportModal] = useState(false)
 
     const handleActionClick = async (action: ServerActionConfig) => {
         // Check if action should be shown
         if (action.show && !action.show(data, context)) {
+            return
+        }
+
+        // Handle export action specially
+        if (action.key === 'export_excel') {
+            setShowExportModal(true)
             return
         }
 
@@ -297,8 +305,7 @@ export function ServerActions({
         const button = (
             <Button
                 key={action.key}
-                appearance={action.variant === 'default' ? 'subtle' : action.variant === 'primary' ? 'primary' : 'ghost'}
-                color={action.color || 'blue'}
+                appearance="subtle"
                 block={block}
                 size={size}
                 startIcon={action.icon}
@@ -339,17 +346,85 @@ export function ServerActions({
 
     if (layout === 'inline') {
         return (
-            <div className="flex flex-col gap-2">
-                {renderActions()}
-            </div>
+            <>
+                <div className="flex flex-col gap-2">
+                    {renderActions()}
+                </div>
+                {showExportModal && (
+                    <Export
+                        data={data}
+                        availableFields={availableFields}
+                        onExport={(config: ExportConfig) => {
+                            console.log('Export config:', config)
+                            if (onActionComplete) {
+                                onActionComplete('export_excel')
+                            }
+                        }}
+                        onClose={() => setShowExportModal(false)}
+                    />
+                )}
+            </>
+        )
+    }
+
+    if (layout === 'dropdown') {
+        return (
+            <>
+                <Whisper
+                    trigger="hover"
+                    enterable
+                    placement="bottomEnd"
+                    speaker={
+                        <Popover>
+                            <div className="flex flex-col gap-2 p-2 min-w-[200px]">
+                                {renderActions()}
+                            </div>
+                        </Popover>
+                    }
+                >
+                    <IconButton
+                        icon={<Settings className="w-4 h-4" />}
+                        appearance="subtle"
+                        className="bg-accent"
+                    />
+                </Whisper>
+                {showExportModal && (
+                    <Export
+                        data={data}
+                        availableFields={availableFields}
+                        onExport={(config: ExportConfig) => {
+                            console.log('Export config:', config)
+                            if (onActionComplete) {
+                                onActionComplete('export_excel')
+                            }
+                        }}
+                        onClose={() => setShowExportModal(false)}
+                    />
+                )}
+            </>
         )
     }
 
     if (layout === 'toolbar') {
         return (
-            <div className="flex gap-2">
-                {renderActions()}
-            </div>
+            <>
+                <div className="flex gap-2">
+                    {renderActions()}
+                </div>
+                {showExportModal && (
+                    <Export
+                        data={data}
+                        availableFields={availableFields}
+                        onExport={(config: ExportConfig) => {
+                            console.log('Export config:', config)
+                            if (onActionComplete) {
+                                onActionComplete('export_excel')
+                            }
+                        }}
+                        onClose={() => setShowExportModal(false)}
+                    />
+                )}
+            </>
         )
     }
 
@@ -363,9 +438,24 @@ export function ServerActions({
 
     // Default inline layout
     return (
-        <div className="flex flex-col gap-2">
-            {renderActions()}
-        </div>
+        <>
+            <div className="flex flex-col gap-2">
+                {renderActions()}
+            </div>
+            {showExportModal && (
+                <Export
+                    data={data}
+                    availableFields={availableFields}
+                    onExport={(config: ExportConfig) => {
+                        console.log('Export config:', config)
+                        if (onActionComplete) {
+                            onActionComplete('export_excel')
+                        }
+                    }}
+                    onClose={() => setShowExportModal(false)}
+                />
+            )}
+        </>
     )
 }
 
