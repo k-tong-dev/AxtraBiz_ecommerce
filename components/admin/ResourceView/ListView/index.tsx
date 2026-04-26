@@ -440,7 +440,10 @@ export function ListView({
     const paginatedData = filteredData.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize
-    )
+    ).map((item, index) => ({
+        ...item,
+        _index: (currentPage - 1) * pageSize + index + 1
+    }))
 
     // Transform data to tree structure when grouped
     const groupedTreeData = useMemo(() => {
@@ -772,6 +775,19 @@ export function ListView({
                                     />
                                 </div>
                             )
+                        }}
+                    </Cell>
+                </Column>
+                <Column width={50} align="center" fixed resizable={false}>
+                    <HeaderCell style={{padding: 0}}>
+                        <Center>
+                            <span className="text-xs text-gray-500">#</span>
+                        </Center>
+                    </HeaderCell>
+                    <Cell>
+                        {(rowData: any) => {
+                            if (rowData._isGroup) return null
+                            return <span className="text-sm text-gray-600">{rowData._index || '-'}</span>
                         }}
                     </Cell>
                 </Column>

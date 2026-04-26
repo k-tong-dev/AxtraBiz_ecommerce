@@ -3,12 +3,13 @@
 import React from 'react'
 import { useBarcode } from 'next-barcode'
 
-interface ProductBarcodePrintTemplateProps {
+interface ProductBarcodeContinuousTemplateProps {
     data: any
 }
 
-export function ProductBarcodePrintTemplate({data}: ProductBarcodePrintTemplateProps) {
+export function ProductBarcodeContinuousTemplate({data}: ProductBarcodeContinuousTemplateProps) {
     const records = Array.isArray(data) ? data : [data]
+
     const BarcodeLabel = ({product}: {product: any}) => {
         const barcodeValue = product.barcode || ""
         const { inputRef } = useBarcode({
@@ -26,7 +27,7 @@ export function ProductBarcodePrintTemplate({data}: ProductBarcodePrintTemplateP
         })
 
         return (
-            <div className="shadow-sm rounded-sm p-4 bg-white" style={{width: '100mm', height: '50mm'}}>
+            <div className="border rounded-sm p-4 bg-white inline-block" style={{width: '100mm', height: '50mm'}}>
                 <div className="text-center h-full flex flex-col justify-center">
                     <h3 className="font-bold text-lg mb-2" style={{fontSize: '14pt'}}>{product.name || ''}</h3>
                     <div className="flex justify-center mb-2">
@@ -39,16 +40,12 @@ export function ProductBarcodePrintTemplate({data}: ProductBarcodePrintTemplateP
     }
 
     return (
-        <div className="bg-white">
-            {records.map((record, index) => (
-                <div key={index} className="flex justify-center items-center" style={{
-                    pageBreakAfter: index < records.length - 1 ? 'always' : 'auto',
-                    pageBreakInside: 'avoid',
-                    padding: '20px 0'
-                }}>
-                    <BarcodeLabel product={record} />
-                </div>
-            ))}
+        <div className="bg-white" style={{padding: '20px'}}>
+            <div className="flex flex-wrap gap-4 justify-center">
+                {records.map((record, index) => (
+                    <BarcodeLabel key={index} product={record} />
+                ))}
+            </div>
         </div>
     )
 }

@@ -1,159 +1,128 @@
 # Print Component
 
-The Print component allows users to print data from any view (FormView, ListView) with custom template support. It provides a print template page with preview, Google print dialog integration, and PDF export capability. Similar to Odoo 18's print template system, you can create custom print templates by passing your own React component.
+The Print component allows users to print data from any view (FormView, ListView) with custom template support. It uses an iframe-based printing approach (similar to Odoo) for isolated printing, with a template registry system for scalable template management.
 
 ## Features
 
+- **Iframe-based Printing**: Isolated printing using hidden iframe (Odoo-like approach)
 - **Print Modes**: Single record and bulk record printing
 - **Custom Templates**: Pass custom React components as print templates
-- **Print Preview**: Opens a dedicated print page with preview
-- **Google Print Dialog**: Auto-opens browser print dialog for printing
-- **PDF Export**: Download as PDF using browser's print-to-PDF
-- **Template Registry**: Support for dynamic template loading (extensible)
+- **Print Preview**: Full-screen modal with rsuite Modal component
+- **Template Registry**: Centralized registry for dynamic template loading
+- **Action-driven**: Print actions defined in config with `template` property
+- **next-barcode Integration**: Real barcode generation for product labels
+
+## Architecture
+
+The print system follows a 3-layer architecture:
+
+1. **Action Config** - Defines print actions with `template` property
+2. **Template Registry** - Central registry for all print templates
+3. **PrintView** - Modal with iframe for isolated printing
+
+### Flow
+
+```
+User clicks print action in ServerActions
+    ↓
+ServerActions detects action.template property
+    ↓
+Load template from printTemplateRegistry
+    ↓
+Call onPrint callback with template
+    ↓
+ResourceView shows PrintView modal
+    ↓
+PrintView renders preview in modal + hidden iframe
+    ↓
+User clicks Print button
+    ↓
+iframe.contentWindow.print() called
+    ↓
+Browser print dialog shows only iframe content
+```
 
 ## Usage
 
-### Basic Integration
+### Adding a Print Action to Config
 
-The Print component is integrated with ServerActions. When the `print` action is triggered, it opens the print template page in a new tab.
-
-```tsx
-import {Print} from './Print'
-import {PrintConfig} from './types'
-
-<Print
-    config={{
-        data: data,
-        mode: 'single',
-        title: 'Product Print'
-    }}
-    onClose={() => setShowPrintModal(false)}
-/>
-```
-
-### Props
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `config` | `PrintConfig` | Print configuration object |
-| `onClose` | `() => void` | Callback to close the print modal |
-
-### PrintConfig
+Add a print action to your entity config with the `template` property:
 
 ```typescript
-interface PrintConfig {
-    data: any[]           // Data to print
-    mode: 'single' | 'bulk'  // Print mode
-    template?: React.ComponentType<PrintTemplateProps>  // Custom template component
-    title?: string        // Print title
-}
+// app/admin/products/config/index.ts
+import { createElement } from 'react'
+import { Printer } from 'lucide-react'
+
+const customServerActions = [
+    {
+        key: 'print_barcode',
+        label: 'Print Barcode',
+        icon: createElement(Printer, { size: 16 }),
+        color: 'violet' as const,
+        mode: 'both' as const,
+        helper: 'Print product barcode labels',
+        template: 'ProductBarcodePrintTemplate'  // ← Registry key
+    }
+]
 ```
 
-### PrintTemplateProps
+### Creating a Custom Print Template
+
+1. **Create the template component**:
 
 ```typescript
-interface PrintTemplateProps {
-    data: any
-    mode: 'single' | 'bulk'
-}
-```
+// components/admin/reports/invoices/InvoicePrintTemplate.tsx
+'use client'
 
-## Custom Print Templates
-
-You can create custom print templates by creating React components that accept `PrintTemplateProps`.
-
-### Example: Custom Product Template
-
-```tsx
-// components/admin/products/ProductPrintTemplate.tsx
 import React from 'react'
 
-export function ProductPrintTemplate({data, mode}: {data: any; mode: 'single' | 'bulk'}) {
-    const record = Array.isArray(data) ? data[0] : data
-    const records = Array.isArray(data) ? data : [data]
+interface InvoicePrintTemplateProps {
+    data: any
+}
 
+export function InvoicePrintTemplate({data}: InvoicePrintTemplateProps) {
+    const records = Array.isArray(data) ? data : [data]
+    
     return (
-        <div className="bg-transparent min-h-screen">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold mb-6 text-center">Product Details</h1>
-                
-                {mode === 'single' ? (
-                    <div className="border p-6 rounded-lg shadow-sm">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="font-semibold text-gray-600">Name:</label>
-                                <p className="text-lg">{record.name}</p>
-                            </div>
-                            <div>
-                                <label className="font-semibold text-gray-600">Price:</label>
-                                <p className="text-lg">${record.price}</p>
-                            </div>
-                            <div>
-                                <label className="font-semibold text-gray-600">Category:</label>
-                                <p className="text-lg">{record.category}</p>
-                            </div>
-                            <div>
-                                <label className="font-semibold text-gray-600">Stock:</label>
-                                <p className="text-lg">{record.stock}</p>
-                            </div>
-                        </div>
-                        <div className="mt-4">
-                            <label className="font-semibold text-gray-600">Description:</label>
-                            <p className="text-gray-700">{record.description}</p>
-                        </div>
-                    </div>
-                ) : (
-                    <div>
-                        {records.map((record, index) => (
-                            <div key={index} className="border p-6 rounded-lg shadow-sm mb-4">
-                                <h2 className="text-xl font-semibold mb-4">Product #{index + 1}</h2>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="font-semibold text-gray-600">Name:</label>
-                                        <p className="text-lg">{record.name}</p>
-                                    </div>
-                                    <div>
-                                        <label className="font-semibold text-gray-600">Price:</label>
-                                        <p className="text-lg">${record.price}</p>
-                                    </div>
-                                    <div>
-                                        <label className="font-semibold text-gray-600">Category:</label>
-                                        <p className="text-lg">{record.category}</p>
-                                    </div>
-                                    <div>
-                                        <label className="font-semibold text-gray-600">Stock:</label>
-                                        <p className="text-lg">{record.stock}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+        <div className="bg-white">
+            {records.map((record, index) => (
+                <div key={index} style={{
+                    pageBreakAfter: index < records.length - 1 ? 'always' : 'auto',
+                    padding: '20px'
+                }}>
+                    <h1>Invoice #{record.number}</h1>
+                    {/* Your invoice layout here */}
+                </div>
+            ))}
         </div>
     )
 }
 ```
 
-### Using Custom Template in ServerActions
+2. **Add to template registry**:
 
-```tsx
-import {ProductPrintTemplate} from './ProductPrintTemplate'
-
-const customServerActions = [
-    {
-        key: 'print_product',
-        label: 'Print Product',
-        icon: <Printer size={16} />,
-        mode: 'both',
-        onClick: async (data, context) => {
-            // In ServerActions, the print action is handled automatically
-            // To use custom template, you would extend the Print component
-            // or use a template registry system
-        }
-    }
-]
+```typescript
+// lib/printTemplateRegistry.ts
+export const printTemplateRegistry: PrintTemplateRegistry = {
+    ProductBarcodePrintTemplate: () => 
+        import('@/components/admin/reports/products/ProductBarcodePrintTemplate').then(m => ({ default: m.ProductBarcodePrintTemplate })),
+    
+    InvoicePrintTemplate: () => 
+        import('@/components/admin/reports/invoices/InvoicePrintTemplate').then(m => ({ default: m.InvoicePrintTemplate })),
+}
 ```
+
+3. **Add action to config**:
+
+```typescript
+{
+    key: 'print_invoice',
+    label: 'Print Invoice',
+    template: 'InvoicePrintTemplate'
+}
+```
+
+**That's it!** No changes needed to ServerActions or PrintView.
 
 ## Integration with Views
 
@@ -214,38 +183,59 @@ The Print action is triggered from the bulk actions toolbar when records are sel
 
 ## How It Works
 
-1. User clicks the "Print" action in ServerActions
-2. Print component stores data in sessionStorage
-3. Print component opens `/print` route in new tab
-4. Print page retrieves data from sessionStorage
-5. Print page renders the template (default or custom)
-6. Browser print dialog auto-opens after 500ms
-7. User can print or save as PDF
+1. User clicks a print action in ServerActions
+2. ServerActions checks if action has `template` property
+3. If yes, loads template from `printTemplateRegistry`
+4. Calls `onPrint` callback with template
+5. ResourceView shows PrintView modal (rsuite Modal)
+6. PrintView renders template in modal body (preview)
+7. PrintView also renders template in hidden iframe
+8. User clicks Print button
+9. `iframe.contentWindow.print()` is called
+10. Browser print dialog shows only iframe content (isolated printing)
 
-## Print Page Features
+## PrintView Component
 
-The `/print` page (`app/print/page.tsx`) provides:
+The PrintView component (`components/admin/ResourceView/PrintView/index.tsx`) provides:
 
-- **Toolbar**: Print, Download PDF, and Close buttons (hidden when printing)
-- **Auto Print**: Automatically opens print dialog on page load
-- **Print Styles**: Toolbar is hidden during printing
-- **Template Rendering**: Renders the appropriate template based on mode
+- **rsuite Modal**: Full-screen modal with backdrop="static"
+- **Preview**: Shows template in modal body for user to review
+- **Hidden iframe**: Contains same content for isolated printing
+- **Print/Download buttons**: Triggers iframe print
+- **Style preservation**: Copies all stylesheets to iframe
 
-## Default Template
+## Template Registry
 
-The `DefaultPrintTemplate` component provides a simple table-based layout:
+The template registry (`lib/printTemplateRegistry.ts`) provides:
 
-- **Single Mode**: Shows one record with key-value pairs in a table
-- **Bulk Mode**: Shows multiple records, each in its own section
+- **Centralized management**: All templates in one place
+- **Dynamic imports**: Code splitting for performance
+- **Type safety**: TypeScript interface for consistency
+- **Error handling**: Graceful fallback if template not found
 
-## Extending with Custom Templates
+## Barcode Integration
 
-To add custom templates:
+For barcode printing, use the `next-barcode` library:
 
-1. Create a React component that accepts `PrintTemplateProps`
-2. Style it for print (use print-specific CSS if needed)
-3. Register it in a template registry (future enhancement)
-4. Pass it to the Print config via the `template` prop
+```typescript
+import { useBarcode } from 'next-barcode'
+
+const { inputRef } = useBarcode({
+    value: barcodeValue,
+    options: {
+        format: 'CODE128',
+        displayValue: true,
+        fontSize: 14,
+        background: '#ffffff',
+        lineColor: '#000000',
+        width: 2,
+        height: 80,
+        margin: 0,
+    }
+})
+
+return <svg ref={inputRef} />
+```
 
 ## Print CSS Tips
 
@@ -272,14 +262,15 @@ When creating custom print templates, consider:
 ## Dependencies
 
 - React (for component rendering)
+- rsuite (Modal component)
+- next-barcode (for barcode generation)
 - Browser's native print dialog (for printing)
 - Browser's print-to-PDF (for PDF export)
 
-## Future Enhancements
+## Benefits of This Architecture
 
-- Template registry system for easy template management
-- More sophisticated PDF generation (html2pdf, jsPDF)
-- Print preview modal before opening print dialog
-- Template selection UI
-- Header/footer customization
-- Watermark support
+- **Scalable**: Add 100+ templates without touching ServerActions
+- **Isolated**: Iframe printing prevents page layout conflicts
+- **Type-safe**: TypeScript ensures template consistency
+- **Code-split**: Templates loaded only when needed
+- **Config-driven**: Behavior controlled by action config, not component logic

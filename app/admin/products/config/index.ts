@@ -38,11 +38,17 @@ export const productConfig = {
       icon: createElement(Barcode, { size: 16 }),
       color: 'violet' as const,
       mode: 'both' as const,
-      helper: 'Print product barcode labels',
-      onClick: async (data: any[], context?: any) => {
-        // This will be handled by ServerActions to show Print modal
-        // The action key will trigger the modal in ServerActions component
-      }
+      helper: 'Print product barcode labels (one per page)',
+      template: 'ProductBarcodePrintTemplate'
+    },
+    {
+      key: 'print_barcode_continuous',
+      label: 'Print Bulk Barcodes',
+      icon: createElement(Barcode, { size: 16 }),
+      color: 'blue' as const,
+      mode: 'bulk' as const,
+      helper: 'Print multiple barcodes continuously (no page breaks)',
+      template: 'ProductBarcodeContinuousTemplate',
     },
     {
       key: 'update_stock',

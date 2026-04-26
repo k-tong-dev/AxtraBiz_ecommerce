@@ -157,6 +157,7 @@ export interface ServerActionConfig {
     confirm?: string | ((data: any[], context?: ActionContext) => string)
     helper?: string
     mode?: 'create' | 'edit' | 'both' | 'bulk'
+    template?: string // Print template name for print actions
     readonly?: boolean
     badge?: string | number
     className?: string
@@ -250,17 +251,27 @@ export function ServerActions({
             return
         }
 
-        // Handle print actions specially
-        if (action.key === 'print' || action.key === 'print_barcode') {
-            if (onPrint) {
-                const mode = context.mode === 'bulk' ? 'bulk' : 'single'
-                const title = action.key === 'print_barcode' ? 'Product Barcodes' : 'Print'
-                let template: React.ComponentType<any> | undefined
-                if (action.key === 'print_barcode') {
-                    template = require('@/components/admin/reports/products/ProductBarcodePrintTemplate').ProductBarcodePrintTemplate
-                }
-                onPrint(data, mode, title, template)
-            }
+        // Handle print actions with template property
+        if (action.template && onPrint) {
+            const mode = context.mode === 'bulk' ? 'bulk' : 'single'
+            const title = action.label || 'Print'
+            
+            // Load template from registry
+            import('@/lib/printTemplateRegistry').then(({ loadTemplate }) => {
+                loadTemplate(action.template!).then(template => {
+                    if (template) {
+                        onPrint(data, mode, title, template)
+                    }
+                })
+            })
+            return
+        }
+
+        // Handle default print action (no template)
+        if (action.key === 'print' && onPrint) {
+            const mode = context.mode === 'bulk' ? 'bulk' : 'single'
+            const title = action.label || 'Print'
+            onPrint(data, mode, title)
             return
         }
 

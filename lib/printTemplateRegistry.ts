@@ -8,6 +8,8 @@ export interface PrintTemplateRegistry {
 export const printTemplateRegistry: PrintTemplateRegistry = {
     ProductBarcodePrintTemplate: () => 
         import('@/components/admin/reports/products/ProductBarcodePrintTemplate').then(m => ({ default: m.ProductBarcodePrintTemplate })),
+    ProductBarcodeContinuousTemplate: () => 
+        import('@/components/admin/reports/products/ProductBarcodeContinuousTemplate').then(m => ({ default: m.ProductBarcodeContinuousTemplate })),
     // Add more templates here as needed
     // Example:
     // InvoiceTemplate: () => import('@/components/admin/invoices/InvoiceTemplate').then(m => ({ default: m.InvoiceTemplate })),

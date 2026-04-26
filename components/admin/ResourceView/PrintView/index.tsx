@@ -5,6 +5,7 @@ import {Modal} from 'rsuite'
 import {Button} from '@/components/ui/button'
 import {Printer, Download} from 'lucide-react'
 import {DefaultPrintTemplate} from '../Print/DefaultPrintTemplate'
+import html2pdf from 'html2pdf.js'
 
 interface PrintViewProps {
     open: boolean
@@ -17,6 +18,7 @@ interface PrintViewProps {
 
 export function PrintView({open, data, mode, title = 'Print', template: Template, onClose}: PrintViewProps) {
     const [customTemplate, setCustomTemplate] = useState<React.ComponentType<any> | null>(null)
+    const [isDownloading, setIsDownloading] = useState(false)
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
     useEffect(() => {
@@ -64,8 +66,25 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
     }
 
     const handleDownloadPDF = () => {
-        if (iframeRef.current && iframeRef.current.contentWindow) {
-            iframeRef.current.contentWindow.print()
+        // Use the visible modal content for PDF generation to match preview exactly
+        const element = document.querySelector('.rs-modal-body > div') as HTMLElement
+        if (element) {
+            setIsDownloading(true)
+            const opt = {
+                margin: 10,
+                filename: `${title.replace(/\s+/g, '_').toLowerCase()}.pdf`,
+                image: { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true
+                },
+                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+            }
+            html2pdf().set(opt).from(element).save().finally(() => {
+                setIsDownloading(false)
+            })
         }
     }
 
@@ -95,14 +114,14 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
                 size="full"
             >
                 <Modal.Header>
-                    <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center justify-between w-full pr-5">
                         <h1 className="text-xl font-bold">{title}</h1>
                         <div className="flex gap-2">
                             <Button onClick={handlePrint} color='violet' appearance='primary' size="sm">
                                 <Printer className="w-4 h-4 mr-2"/>
                                 Print
                             </Button>
-                            <Button onClick={handleDownloadPDF} size="sm" appearance="subtle">
+                            <Button onClick={handleDownloadPDF} size="sm" appearance="subtle" loading={isDownloading}>
                                 <Download className="w-4 h-4 mr-2"/>
                                 Download PDF
                             </Button>
