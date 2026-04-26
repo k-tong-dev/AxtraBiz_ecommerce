@@ -10,7 +10,7 @@ import { getProductGanttConfig } from './ganttView'
 import { getProductKanbanConfig } from './kanbanView'
 import { ServerActionConfig } from '@/components/admin/ResourceView/ServerActions'
 import { getDefaultServerActions } from '@/components/admin/ResourceView/ServerActions'
-import { Package, Layers } from 'lucide-react'
+import { Package, Layers, Barcode } from 'lucide-react'
 import { createElement } from 'react'
 
 // Centralized product config - Odoo-like architecture
@@ -32,6 +32,18 @@ export const productConfig = {
   
   // Custom ServerActions - additional actions beyond defaults
   customServerActions: [
+    {
+      key: 'print_barcode',
+      label: 'Print Barcode',
+      icon: createElement(Barcode, { size: 16 }),
+      color: 'violet' as const,
+      mode: 'both' as const,
+      helper: 'Print product barcode labels',
+      onClick: async (data: any[], context?: any) => {
+        // This will be handled by ServerActions to show Print modal
+        // The action key will trigger the modal in ServerActions component
+      }
+    },
     {
       key: 'update_stock',
       label: 'Update Stock',

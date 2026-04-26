@@ -5,6 +5,7 @@ import {ListView} from './ListView'
 import {KanbanView} from './KanbanView'
 import {GanttView} from './GanttView'
 import {FormView} from './FormView'
+import {PrintView} from './PrintView'
 import {Button} from '@/components/ui/button'
 import {Card} from '@/components/ui/card'
 import {Input, Drawer, Whisper, Popover, Divider, Loader, Tag, Badge} from 'rsuite'
@@ -30,6 +31,8 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     const [mounted, setMounted] = useState(false)
     const [lastViewType, setLastViewType] = useState<ResourceType>(config.type)
     const [currentFilteredData, setCurrentFilteredData] = useState<any[]>([])
+    const [showPrintModal, setShowPrintModal] = useState(false)
+    const [printConfig, setPrintConfig] = useState<{data: any[]; mode: 'single' | 'bulk'; title: string; template?: React.ComponentType<any>} | null>(null)
 
     // Set editingId after mount to avoid hydration mismatch
     useEffect(() => {
@@ -74,6 +77,16 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     const handleFormComplete = () => {
         setEditingId(undefined)
         setViewType(lastViewType)
+    }
+
+    const handlePrint = (data: any[], mode: 'single' | 'bulk', title: string, template?: React.ComponentType<any>) => {
+        setPrintConfig({data, mode, title, template})
+        setShowPrintModal(true)
+    }
+
+    const handlePrintClose = () => {
+        setShowPrintModal(false)
+        setPrintConfig(null)
     }
 
     const handleExport = () => {
@@ -140,6 +153,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             entityId={editingId}
                             initialData={formInitialData}
                             serverActions={mergedServerActions}
+                            onPrint={handlePrint}
                             availableFields={config.formViewConfig?.fields?.map(f => ({
                                 key: f.key,
                                 label: f.label,
@@ -245,6 +259,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                                 selectedIds
                             }}
                             layout="dropdown"
+                            onPrint={handlePrint}
                             availableFields={config.listViewConfig?.columns?.map(col => ({
                                 key: col.key,
                                 label: col.title,
@@ -287,6 +302,16 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                 {renderHeader()}
                 {renderView()}
             </div>
+            {showPrintModal && printConfig && (
+                <PrintView
+                    open={showPrintModal}
+                    data={printConfig.data}
+                    mode={printConfig.mode}
+                    title={printConfig.title}
+                    template={printConfig.template}
+                    onClose={handlePrintClose}
+                />
+            )}
         </Card>
     )
 }

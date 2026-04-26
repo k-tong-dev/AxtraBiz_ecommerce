@@ -28,7 +28,7 @@ const defaultActions = getDefaultServerActions({
 ```
 
 **Available Default Actions:**
-- `print`: Print the current record (mode: 'both')
+- `print`: Print the current record (mode: 'both') - Opens print template page with preview
 - `export`: Export records to Excel or CSV (mode: 'both') - Opens Export modal
 - `delete`: Delete record(s) (mode: 'both')
 - `duplicate`: Create a copy of the record (mode: 'both')

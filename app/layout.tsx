@@ -9,9 +9,9 @@ const _geist = Geist({ subsets: ["latin"], display: "swap" });
 const _geistMono = Geist_Mono({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Tinh Iey',
+  description: 'Enjoy with Tinh Iey',
+  generator: 'Tinh Iey',
   icons: {
     icon: [
       {

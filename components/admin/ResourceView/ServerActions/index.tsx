@@ -3,7 +3,7 @@
 import React, {useState} from 'react'
 import {Button, Modal, Popover, Whisper, IconButton} from 'rsuite'
 import {cn} from '@/lib/utils'
-import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestore, Settings} from 'lucide-react'
+import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestore, Settings, Barcode} from 'lucide-react'
 import {createElement} from 'react'
 import {Export} from '../Export'
 import {ExportConfig} from '../Export/types'
@@ -204,6 +204,7 @@ export interface ActionContext {
     view: 'list' | 'form'
     record?: any
     selectedIds?: string[]
+    actionKey?: string
 }
 
 export interface ServerActionsProps {
@@ -211,6 +212,7 @@ export interface ServerActionsProps {
     data: any[]
     context: ActionContext
     onActionComplete?: (actionKey: string) => void
+    onPrint?: (data: any[], mode: 'single' | 'bulk', title: string, template?: React.ComponentType<any>) => void
     layout?: 'dropdown' | 'drawer' | 'toolbar' | 'inline'
     block?: boolean
     size?: 'xs' | 'sm' | 'md' | 'lg'
@@ -222,6 +224,7 @@ export function ServerActions({
     data,
     context,
     onActionComplete,
+    onPrint,
     layout = 'inline',
     block = false,
     size = 'sm',
@@ -244,6 +247,20 @@ export function ServerActions({
         // Handle export action specially
         if (action.key === 'export_excel') {
             setShowExportModal(true)
+            return
+        }
+
+        // Handle print actions specially
+        if (action.key === 'print' || action.key === 'print_barcode') {
+            if (onPrint) {
+                const mode = context.mode === 'bulk' ? 'bulk' : 'single'
+                const title = action.key === 'print_barcode' ? 'Product Barcodes' : 'Print'
+                let template: React.ComponentType<any> | undefined
+                if (action.key === 'print_barcode') {
+                    template = require('@/components/admin/reports/products/ProductBarcodePrintTemplate').ProductBarcodePrintTemplate
+                }
+                onPrint(data, mode, title, template)
+            }
             return
         }
 

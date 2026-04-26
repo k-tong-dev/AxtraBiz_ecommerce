@@ -166,6 +166,7 @@ const deleteAction: ServerActionConfig = {
 For detailed documentation, see:
 - [ServerActions README](./ServerActions/README.md)
 - [Export README](./Export/README.md)
+- [Print README](./Print/README.md)
 - [ListView README](./ListView/README.md)
 - [FormView README](./FormView/README.md)
 - [Search README](./Search/README.md)
@@ -235,6 +236,10 @@ components/admin/ResourceView/
 │   ├── index.tsx      # Export component implementation
 │   ├── types.ts       # Export type definitions
 │   └── README.md      # Export component documentation
+├── Print/             # Print component
+│   ├── index.tsx      # Print component implementation
+│   ├── types.ts       # Print type definitions
+│   └── README.md      # Print component documentation
 ├── ListView/          # List view component
 ├── KanbanView/        # Kanban view component
 ├── GanttView/         # Gantt view component

@@ -213,9 +213,10 @@ interface FormViewProps<T extends Entity> {
     entityId?: string
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
     availableFields?: Array<{ key: string; label: string; type?: string }>
+    onPrint?: (data: any[], mode: 'single' | 'bulk', title: string, template?: React.ComponentType<any>) => void
 }
 
-export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = []}: FormViewProps<T>) {
+export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const {toast} = useToast()
@@ -1049,6 +1050,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         data={[data]}
                         context={actionContext}
                         layout="dropdown"
+                        onPrint={onPrint}
                         availableFields={availableFields}
                     />
                 )}
@@ -1157,6 +1159,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                 data={[data]}
                                 context={actionContext}
                                 layout="inline"
+                                onPrint={onPrint}
                                 block
                             />
                         )}
@@ -1191,6 +1194,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                         data={[data]}
                                         context={actionContext}
                                         onActionComplete={() => setShowQuickActions(false)}
+                                        onPrint={onPrint}
                                         layout="inline"
                                         block
                                     />
