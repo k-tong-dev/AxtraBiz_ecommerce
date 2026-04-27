@@ -64,15 +64,8 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
         trackingData.write_uid = this.userId
       }
 
-      console.log('[BaseCrudService.create] trackingData:', trackingData)
-      console.log('[BaseCrudService.create] userId:', this.userId)
-      console.log('[BaseCrudService.create] data keys:', Object.keys(data))
-
       const insertData = { ...data, ...trackingData } as any
-      console.log('[BaseCrudService.create] insertData keys:', Object.keys(insertData))
-      console.log('[BaseCrudService.create] insertData.create_uid:', insertData.create_uid)
-      console.log('[BaseCrudService.create] insertData.write_uid:', insertData.write_uid)
-
+      
       // Filter out undefined values to prevent Drizzle from inserting them as default
       // Also convert empty strings to null for foreign key fields
       const filteredData = Object.fromEntries(
@@ -84,7 +77,6 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
           return [key, value]
         }).filter(([_, value]) => value !== undefined)
       )
-      console.log('[BaseCrudService.create] filteredData keys:', Object.keys(filteredData))
 
       const [result] = await db
         .insert(this.table)
