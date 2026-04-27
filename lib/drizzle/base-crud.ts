@@ -53,11 +53,15 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   async create(data: TInsert & Partial<TrackingFields>): Promise<CreateResult<T>> {
     try {
       const now = new Date()
-      const trackingData: TrackingFields = {
+      const trackingData: Partial<TrackingFields> = {
         created_on: now,
         write_on: now,
-        create_uid: this.userId,
-        write_uid: this.userId
+      }
+      
+      // Only set user tracking fields if userId is provided
+      if (this.userId) {
+        trackingData.create_uid = this.userId
+        trackingData.write_uid = this.userId
       }
 
       const [result] = await db
@@ -80,11 +84,15 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   async createMany(dataArray: (TInsert & Partial<TrackingFields>)[]): Promise<CreateResult<T[]>> {
     try {
       const now = new Date()
-      const trackingData: TrackingFields = {
+      const trackingData: Partial<TrackingFields> = {
         created_on: now,
         write_on: now,
-        create_uid: this.userId,
-        write_uid: this.userId
+      }
+      
+      // Only set user tracking fields if userId is provided
+      if (this.userId) {
+        trackingData.create_uid = this.userId
+        trackingData.write_uid = this.userId
       }
 
       const results = await db
@@ -159,7 +167,11 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
     try {
       const trackingData: Partial<TrackingFields> = {
         write_on: new Date(),
-        write_uid: this.userId
+      }
+      
+      // Only set user tracking field if userId is provided
+      if (this.userId) {
+        trackingData.write_uid = this.userId
       }
 
       await db
@@ -183,7 +195,11 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
     try {
       const trackingData: Partial<TrackingFields> = {
         write_on: new Date(),
-        write_uid: this.userId
+      }
+      
+      // Only set user tracking field if userId is provided
+      if (this.userId) {
+        trackingData.write_uid = this.userId
       }
 
       await db
