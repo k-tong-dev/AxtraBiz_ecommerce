@@ -6,6 +6,14 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
     const record = Array.isArray(data) ? data[0] : data
     const records = Array.isArray(data) ? data : [data]
 
+    // Filter out empty string values to prevent validation errors
+    const safeRecord = Object.fromEntries(
+        Object.entries(record).filter(([_, value]) => value !== '')
+    )
+    const safeRecords = records.map(r => 
+        Object.fromEntries(Object.entries(r).filter(([_, value]) => value !== ''))
+    )
+
     return (
         <div className="bg-transparent min-h-screen p-8">
             <h1 className="text-2xl font-bold mb-6">Print Preview</h1>
@@ -15,7 +23,7 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
                     <h2 className="text-lg font-semibold mb-4">Record Details</h2>
                     <table className="w-full">
                         <tbody>
-                            {Object.entries(record).map(([key, value]) => (
+                            {Object.entries(safeRecord).map(([key, value]) => (
                                 <tr key={key} className="border-b">
                                     <td className="py-2 font-medium">{key}</td>
                                     <td className="py-2">
@@ -29,7 +37,7 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
             ) : (
                 <div>
                     <h2 className="text-lg font-semibold mb-4">Records ({records.length})</h2>
-                    {records.map((record, index) => (
+                    {safeRecords.map((record, index) => (
                         <div key={index} className="border p-4 rounded mb-4">
                             <h3 className="font-medium mb-2">Record #{index + 1}</h3>
                             <table className="w-full">
