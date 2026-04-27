@@ -5,7 +5,6 @@ import {Modal} from 'rsuite'
 import {Button} from '@/components/ui/button'
 import {Printer, Download} from 'lucide-react'
 import {DefaultPrintTemplate} from '../Print/DefaultPrintTemplate'
-import html2pdf from 'html2pdf.js'
 
 interface PrintViewProps {
     open: boolean
@@ -65,7 +64,11 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
         }
     }
 
-    const handleDownloadPDF = () => {
+    const handleDownloadPDF = async () => {
+        // Dynamically import html2pdf only on client side
+        const html2pdfModule = await import('html2pdf.js')
+        const html2pdf = html2pdfModule.default
+        
         // Use the visible modal content for PDF generation to match preview exactly
         const element = document.querySelector('.rs-modal-body > div') as HTMLElement
         if (element) {
