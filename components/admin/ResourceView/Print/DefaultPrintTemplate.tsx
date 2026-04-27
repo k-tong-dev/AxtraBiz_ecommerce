@@ -8,10 +8,10 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
 
     // Convert empty string values to null to prevent validation errors
     const safeRecord = Object.fromEntries(
-        Object.entries(record).map(([key, value]) => [key, value === '' ? null : value])
+        Object.entries(record || {}).map(([key, value]) => [key, value === '' ? null : value])
     )
     const safeRecords = records.map(r => 
-        Object.fromEntries(Object.entries(r).map(([key, value]) => [key, value === '' ? null : value]))
+        Object.fromEntries(Object.entries(r || {}).map(([key, value]) => [key, value === '' ? null : value]))
     )
 
     return (
@@ -23,14 +23,19 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
                     <h2 className="text-lg font-semibold mb-4">Record Details</h2>
                     <table className="w-full">
                         <tbody>
-                            {Object.entries(safeRecord).map(([key, value]) => (
-                                <tr key={key} className="border-b">
-                                    <td className="py-2 font-medium">{key}</td>
-                                    <td className="py-2">
-                                        {typeof value === 'object' ? JSON.stringify(value) : String(value ?? '')}
-                                    </td>
-                                </tr>
-                            ))}
+                            {Object.entries(safeRecord).map(([key, value]) => {
+                                // Skip rendering if key or value is invalid
+                                if (!key) return null
+                                const displayValue = typeof value === 'object' && value !== null 
+                                    ? JSON.stringify(value) 
+                                    : (value !== null && value !== undefined ? String(value) : '')
+                                return (
+                                    <tr key={key} className="border-b">
+                                        <td className="py-2 font-medium">{key}</td>
+                                        <td className="py-2">{displayValue}</td>
+                                    </tr>
+                                )
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -42,14 +47,18 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
                             <h3 className="font-medium mb-2">Record #{index + 1}</h3>
                             <table className="w-full">
                                 <tbody>
-                                    {Object.entries(record).map(([key, value]) => (
-                                        <tr key={key} className="border-b">
-                                            <td className="py-2 font-medium">{key}</td>
-                                            <td className="py-2">
-                                                {typeof value === 'object' ? JSON.stringify(value) : String(value ?? '')}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {Object.entries(record).map(([key, value]) => {
+                                        if (!key) return null
+                                        const displayValue = typeof value === 'object' && value !== null 
+                                            ? JSON.stringify(value) 
+                                            : (value !== null && value !== undefined ? String(value) : '')
+                                        return (
+                                            <tr key={key} className="border-b">
+                                                <td className="py-2 font-medium">{key}</td>
+                                                <td className="py-2">{displayValue}</td>
+                                            </tr>
+                                        )
+                                    })}
                                 </tbody>
                             </table>
                         </div>
