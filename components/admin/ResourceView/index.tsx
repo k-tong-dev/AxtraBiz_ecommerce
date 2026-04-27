@@ -80,16 +80,20 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }
 
     const handlePrint = (data: any[], mode: 'single' | 'bulk', title: string, template?: React.ComponentType<any>) => {
-        // Ensure title is never empty
-        const safeTitle = title || 'Print'
-        // Convert empty string values to null instead of filtering them out
-        const safeData = data.map(item => 
-            Object.fromEntries(
-                Object.entries(item).map(([key, value]) => [key, value === '' ? null : value])
+        try {
+            // Ensure title is never empty
+            const safeTitle = title && typeof title === 'string' && title.trim() ? title : 'Print'
+            // Convert empty string values to null instead of filtering them out
+            const safeData = data.map(item => 
+                Object.fromEntries(
+                    Object.entries(item || {}).map(([key, value]) => [key, value === '' ? null : value])
+                )
             )
-        )
-        setPrintConfig({data: safeData, mode, title: safeTitle, template})
-        setShowPrintModal(true)
+            setPrintConfig({data: safeData, mode, title: safeTitle, template})
+            setShowPrintModal(true)
+        } catch (e) {
+            console.error('Error in handlePrint:', e)
+        }
     }
 
     const handlePrintClose = () => {
