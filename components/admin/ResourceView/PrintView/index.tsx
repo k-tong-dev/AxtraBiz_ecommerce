@@ -16,6 +16,9 @@ interface PrintViewProps {
 }
 
 export function PrintView({open, data, mode, title = 'Print', template: Template, onClose}: PrintViewProps) {
+    // Ensure title is never empty
+    const safeTitle = title || 'Print'
+    
     const [customTemplate, setCustomTemplate] = useState<React.ComponentType<any> | null>(null)
     const [isDownloading, setIsDownloading] = useState(false)
     const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -75,7 +78,7 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
             setIsDownloading(true)
             const opt = {
                 margin: 10,
-                filename: `${title.replace(/\s+/g, '_').toLowerCase()}.pdf`,
+                filename: `${safeTitle.replace(/\s+/g, '_').toLowerCase()}.pdf`,
                 image: { type: 'jpeg' as const, quality: 0.98 },
                 html2canvas: { 
                     scale: 2, 
@@ -118,7 +121,7 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
             >
                 <Modal.Header>
                     <div className="flex items-center justify-between w-full pr-5">
-                        <h1 className="text-xl font-bold">{title}</h1>
+                        <h1 className="text-xl font-bold">{safeTitle}</h1>
                         <div className="flex gap-2">
                             <Button onClick={handlePrint} color='violet' appearance='primary' size="sm">
                                 <Printer className="w-4 h-4 mr-2"/>
