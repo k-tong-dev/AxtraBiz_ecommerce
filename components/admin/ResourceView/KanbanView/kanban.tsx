@@ -743,7 +743,7 @@ function KanbanColumn(props: KanbanColumnProps) {
   }
 
   if (value === "") {
-    throw new Error(`\`${COLUMN_NAME}\` value cannot be an empty string`);
+    throw new Error(`${COLUMN_NAME} value cannot be an empty string`);
   }
 
   const {
@@ -932,7 +932,7 @@ function KanbanItem(props: KanbanItemProps) {
   } = useSortable({ id: value, disabled });
 
   if (value === "") {
-    throw new Error(`\`${ITEM_NAME}\` value cannot be an empty string`);
+    throw new Error(`${ITEM_NAME} value cannot be an empty string`);
   }
 
   const composedRef = useComposedRefs(ref, (node) => {
