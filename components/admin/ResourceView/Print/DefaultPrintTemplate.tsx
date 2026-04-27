@@ -6,12 +6,12 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
     const record = Array.isArray(data) ? data[0] : data
     const records = Array.isArray(data) ? data : [data]
 
-    // Filter out empty string values to prevent validation errors
+    // Convert empty string values to null to prevent validation errors
     const safeRecord = Object.fromEntries(
-        Object.entries(record).filter(([_, value]) => value !== '')
+        Object.entries(record).map(([key, value]) => [key, value === '' ? null : value])
     )
     const safeRecords = records.map(r => 
-        Object.fromEntries(Object.entries(r).filter(([_, value]) => value !== ''))
+        Object.fromEntries(Object.entries(r).map(([key, value]) => [key, value === '' ? null : value]))
     )
 
     return (
@@ -27,7 +27,7 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
                                 <tr key={key} className="border-b">
                                     <td className="py-2 font-medium">{key}</td>
                                     <td className="py-2">
-                                        {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                                        {typeof value === 'object' ? JSON.stringify(value) : String(value ?? '')}
                                     </td>
                                 </tr>
                             ))}
@@ -46,7 +46,7 @@ export function DefaultPrintTemplate({data, mode}: {data: any; mode: 'single' | 
                                         <tr key={key} className="border-b">
                                             <td className="py-2 font-medium">{key}</td>
                                             <td className="py-2">
-                                                {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                                                {typeof value === 'object' ? JSON.stringify(value) : String(value ?? '')}
                                             </td>
                                         </tr>
                                     ))}
