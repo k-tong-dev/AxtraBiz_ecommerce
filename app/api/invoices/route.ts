@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
-import { db, invoices } from '../../../lib/drizzle/server'
-import { eq } from 'drizzle-orm'
+import { invoiceService } from '../../../lib/drizzle/invoices'
 import type { Invoice } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allInvoices = await db.select().from(invoices)
+    const allInvoices = await invoiceService.search()
     return NextResponse.json(allInvoices)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 })
@@ -15,20 +14,17 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { id, ...invoiceData } = body
     
-    if (id) {
-      // Update existing invoice
-      await db
-        .update(invoices)
-        .set(invoiceData as any)
-        .where(eq(invoices.id, id))
+    const result = await invoiceService.upsert(body)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true, data: result.data })
     } else {
-      // Insert new invoice
-      await db.insert(invoices).values(invoiceData as any)
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
     }
-    
-    return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ 
       success: false, 
@@ -46,8 +42,16 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 })
     }
     
-    await db.delete(invoices).where(eq(invoices.id, id))
-    return NextResponse.json({ success: true })
+    const result = await invoiceService.unlink(id)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true })
+    } else {
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
+    }
   } catch (error) {
     return NextResponse.json({ 
       success: false, 

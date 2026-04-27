@@ -1,53 +1,25 @@
 import { db, products } from './server'
-import { eq } from 'drizzle-orm'
+import { createCrudService } from './base-crud'
 import type { Product } from './server'
 import { deleteAttachmentsByResModelAndResId } from './ir_attachment'
 
+// Create CRUD service for products
+export const productService = createCrudService<Product, any, any>(
+  products
+)
+
+// Convenience functions that match the old API
 export async function fetchProductsFromDrizzle(): Promise<Product[]> {
-  try {
-    const allProducts = await db.select().from(products)
-    return allProducts
-  } catch {
-    return []
-  }
+  return productService.search()
 }
 
 export async function fetchProductFromDrizzle(productId: string): Promise<Product | null> {
-  try {
-    const [product] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1)
-    
-    return product || null
-  } catch {
-    return null
-  }
+  return productService.read(productId)
 }
 
 export async function upsertProductInDrizzle(product: Product): Promise<{ success: boolean; error?: string }> {
-  try {
-    const existingProduct = await fetchProductFromDrizzle(product.id)
-    
-    if (existingProduct) {
-      // Update existing product
-      await db
-        .update(products)
-        .set(product as any)
-        .where(eq(products.id, product.id))
-    } else {
-      // Insert new product
-      await db.insert(products).values(product as any)
-    }
-    
-    return { success: true }
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : 'Unknown error occurred'
-    }
-  }
+  const result = await productService.upsert(product)
+  return { success: result.success, error: result.error }
 }
 
 export async function deleteProductFromDrizzle(productId: string): Promise<boolean> {
@@ -55,9 +27,9 @@ export async function deleteProductFromDrizzle(productId: string): Promise<boole
     // First, delete all attachments for this product
     await deleteAttachmentsByResModelAndResId('products', productId)
     
-    // Then delete the product
-    await db.delete(products).where(eq(products.id, productId))
-    return true
+    // Then delete the product using the service
+    const result = await productService.unlink(productId)
+    return result.success
   } catch {
     return false
   }
@@ -70,9 +42,9 @@ export async function deleteProductsFromDrizzle(productIds: string[]): Promise<b
       productIds.map((id) => deleteAttachmentsByResModelAndResId('products', id))
     )
     
-    // Then delete the products
-    await Promise.all(productIds.map((id) => db.delete(products).where(eq(products.id, id))))
-    return true
+    // Then delete the products using the service
+    const results = await Promise.all(productIds.map((id) => productService.unlink(id)))
+    return results.every(r => r.success)
   } catch {
     return false
   }

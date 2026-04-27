@@ -1,59 +1,27 @@
 import { db, announcements } from '../drizzle/server'
-import { eq } from 'drizzle-orm'
+import { createCrudService } from './base-crud'
 import type { Announcement } from '../drizzle/server'
 
+// Create CRUD service for announcements
+export const announcementService = createCrudService<Announcement, any, any>(
+  announcements
+)
+
+// Convenience functions that match the old API
 export async function fetchAnnouncementsFromDrizzle(): Promise<Announcement[]> {
-  try {
-    const allAnnouncements = await db.select().from(announcements)
-    return allAnnouncements
-  } catch {
-    return []
-  }
+  return announcementService.search()
 }
 
 export async function fetchAnnouncementFromDrizzle(announcementId: string): Promise<Announcement | null> {
-  try {
-    const [announcement] = await db
-      .select()
-      .from(announcements)
-      .where(eq(announcements.id, announcementId))
-      .limit(1)
-    
-    return announcement || null
-  } catch {
-    return null
-  }
+  return announcementService.read(announcementId)
 }
 
 export async function upsertAnnouncementInDrizzle(announcement: Announcement): Promise<{ success: boolean; error?: string }> {
-  try {
-    const existingAnnouncement = await fetchAnnouncementFromDrizzle(announcement.id)
-    
-    if (existingAnnouncement) {
-      // Update existing announcement
-      await db
-        .update(announcements)
-        .set(announcement as any)
-        .where(eq(announcements.id, announcement.id))
-    } else {
-      // Insert new announcement
-      await db.insert(announcements).values(announcement as any)
-    }
-    
-    return { success: true }
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : 'Unknown error occurred'
-    }
-  }
+  const result = await announcementService.upsert(announcement)
+  return { success: result.success, error: result.error }
 }
 
 export async function deleteAnnouncementFromDrizzle(announcementId: string): Promise<boolean> {
-  try {
-    await db.delete(announcements).where(eq(announcements.id, announcementId))
-    return true
-  } catch {
-    return false
-  }
+  const result = await announcementService.unlink(announcementId)
+  return result.success
 }

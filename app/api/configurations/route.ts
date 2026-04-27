@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
-import { db, configurations } from '../../../lib/drizzle/server'
-import { eq } from 'drizzle-orm'
+import { configurationService } from '../../../lib/drizzle/configurations'
 import type { Configuration } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allConfigurations = await db.select().from(configurations)
+    const allConfigurations = await configurationService.search()
     return NextResponse.json(allConfigurations)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch configurations' }, { status: 500 })
@@ -15,20 +14,17 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { id, ...configurationData } = body
     
-    if (id) {
-      // Update existing configuration
-      await db
-        .update(configurations)
-        .set(configurationData as any)
-        .where(eq(configurations.id, id))
+    const result = await configurationService.upsert(body)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true, data: result.data })
     } else {
-      // Insert new configuration
-      await db.insert(configurations).values(configurationData as any)
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
     }
-    
-    return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ 
       success: false, 
@@ -46,8 +42,16 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Configuration ID is required' }, { status: 400 })
     }
     
-    await db.delete(configurations).where(eq(configurations.id, id))
-    return NextResponse.json({ success: true })
+    const result = await configurationService.unlink(id)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true })
+    } else {
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
+    }
   } catch (error) {
     return NextResponse.json({ 
       success: false, 

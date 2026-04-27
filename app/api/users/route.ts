@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
-import { db, users } from '../../../lib/drizzle/server'
-import { eq } from 'drizzle-orm'
+import { userService } from '../../../lib/drizzle/users'
 import type { User } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allUsers = await db.select().from(users)
+    const allUsers = await userService.search()
     return NextResponse.json(allUsers)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
@@ -15,20 +14,17 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { id, ...userData } = body
     
-    if (id) {
-      // Update existing user
-      await db
-        .update(users)
-        .set(userData as any)
-        .where(eq(users.id, id))
+    const result = await userService.upsert(body)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true, data: result.data })
     } else {
-      // Insert new user
-      await db.insert(users).values(userData as any)
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
     }
-    
-    return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ 
       success: false, 
@@ -46,8 +42,16 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
     }
     
-    await db.delete(users).where(eq(users.id, id))
-    return NextResponse.json({ success: true })
+    const result = await userService.unlink(id)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true })
+    } else {
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
+    }
   } catch (error) {
     return NextResponse.json({ 
       success: false, 

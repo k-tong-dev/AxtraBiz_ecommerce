@@ -8,6 +8,20 @@
       "when": 1776760912103,
       "tag": "0002_great_hairball",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777311777492,
+      "tag": "0003_dark_pretty_boy",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777314092939,
+      "tag": "0004_dazzling_sandman",
+      "breakpoints": true
     }
   ]
 }

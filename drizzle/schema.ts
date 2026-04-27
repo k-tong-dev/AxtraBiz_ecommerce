@@ -19,6 +19,8 @@ export const users = pgTable('users', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Products table
@@ -58,6 +60,8 @@ export const products = pgTable('products', {
   features: jsonb('features').notNull().default('[]'),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Brands table
@@ -71,6 +75,8 @@ export const brands = pgTable('brands', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Tax rates table
@@ -84,6 +90,8 @@ export const tax_rates = pgTable('tax_rates', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Product categories table
@@ -98,6 +106,8 @@ export const product_categories = pgTable('product_categories', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 }) as any;
 
 // Shipping zones table
@@ -112,6 +122,8 @@ export const shipping_zones = pgTable('shipping_zones', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Shipping zone product relation table
@@ -133,6 +145,8 @@ export const product_attributes = pgTable('product_attributes', {
   position: integer('position').default(0),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Product attributes relation table
@@ -162,6 +176,8 @@ export const product_variants = pgTable('product_variants', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Attachments table (ir_attachment)
@@ -178,6 +194,8 @@ export const ir_attachment = pgTable('ir_attachment', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Orders table
@@ -192,6 +210,8 @@ export const orders = pgTable('orders', {
   active: boolean('active').default(true).notNull(),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Invoices table
@@ -208,6 +228,8 @@ export const invoices = pgTable('invoices', {
   due_date: timestamp('due_date', { mode: 'string' }),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Announcements table
@@ -221,6 +243,8 @@ export const announcements = pgTable('announcements', {
   end_date: timestamp('end_date', { mode: 'string' }),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Settings table
@@ -231,6 +255,8 @@ export const settings = pgTable('settings', {
   category: text('category').notNull().default('general'),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Configuration table
@@ -242,6 +268,8 @@ export const configurations = pgTable('configurations', {
   category: text('category').notNull().default('general'),
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
 });
 
 // Type exports

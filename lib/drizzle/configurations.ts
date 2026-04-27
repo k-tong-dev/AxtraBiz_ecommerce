@@ -1,59 +1,27 @@
 import { db, configurations } from '../drizzle/server'
-import { eq } from 'drizzle-orm'
+import { createCrudService } from './base-crud'
 import type { Configuration } from '../drizzle/server'
 
+// Create CRUD service for configurations
+export const configurationService = createCrudService<Configuration, any, any>(
+  configurations
+)
+
+// Convenience functions that match the old API
 export async function fetchConfigurationsFromDrizzle(): Promise<Configuration[]> {
-  try {
-    const allConfigurations = await db.select().from(configurations)
-    return allConfigurations
-  } catch {
-    return []
-  }
+  return configurationService.search()
 }
 
 export async function fetchConfigurationFromDrizzle(configurationId: string): Promise<Configuration | null> {
-  try {
-    const [configuration] = await db
-      .select()
-      .from(configurations)
-      .where(eq(configurations.id, configurationId))
-      .limit(1)
-    
-    return configuration || null
-  } catch {
-    return null
-  }
+  return configurationService.read(configurationId)
 }
 
 export async function upsertConfigurationInDrizzle(configuration: Configuration): Promise<{ success: boolean; error?: string }> {
-  try {
-    const existingConfiguration = await fetchConfigurationFromDrizzle(configuration.id)
-    
-    if (existingConfiguration) {
-      // Update existing configuration
-      await db
-        .update(configurations)
-        .set(configuration as any)
-        .where(eq(configurations.id, configuration.id))
-    } else {
-      // Insert new configuration
-      await db.insert(configurations).values(configuration as any)
-    }
-    
-    return { success: true }
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : 'Unknown error occurred'
-    }
-  }
+  const result = await configurationService.upsert(configuration)
+  return { success: result.success, error: result.error }
 }
 
 export async function deleteConfigurationFromDrizzle(configurationId: string): Promise<boolean> {
-  try {
-    await db.delete(configurations).where(eq(configurations.id, configurationId))
-    return true
-  } catch {
-    return false
-  }
+  const result = await configurationService.unlink(configurationId)
+  return result.success
 }

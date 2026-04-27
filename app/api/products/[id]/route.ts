@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/drizzle/server'
-import { products } from '@/drizzle/schema'
+import { productService } from '@/lib/drizzle/products'
 import { eq } from 'drizzle-orm'
+import { products } from '@/drizzle/schema'
 
 export async function GET(
   request: NextRequest,
@@ -17,20 +17,16 @@ export async function GET(
       )
     }
 
-    const product = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1)
+    const product = await productService.read(productId)
 
-    if (!product || product.length === 0) {
+    if (!product) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
       )
     }
 
-    return NextResponse.json(product[0])
+    return NextResponse.json(product)
   } catch (error) {
     console.error('Error fetching product:', error)
     return NextResponse.json(
@@ -74,26 +70,8 @@ export async function PUT(
       return null
     }
 
-    // Fetch current product to compare changes
-    const currentProduct = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1)
-
-    if (!currentProduct || currentProduct.length === 0) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      )
-    }
-
-    const current = currentProduct[0]
-    
     // Dynamic field processing - automatically handle all fields
-    const updateData: any = {
-      updated_at: new Date().toISOString()
-    }
+    const updateData: any = {}
     
     // Process each field in the body dynamically
     for (const [key, value] of Object.entries(body)) {
@@ -130,36 +108,22 @@ export async function PUT(
         processedValue = value !== undefined && value !== null ? value : null
       }
       
-      // Only include if value changed
-      if (value !== undefined && value !== null && processedValue !== (current as any)[key]) {
-        updateData[key] = processedValue
-      }
+      updateData[key] = processedValue
     }
     
-    // If no fields changed (except updated_at), skip the update
-    if (Object.keys(updateData).length > 1) {
-      const updatedProduct = await db
-        .update(products)
-        .set(updateData)
-        .where(eq(products.id, productId))
-        .returning()
+    const result = await productService.write(productId, updateData)
 
-      if (!updatedProduct || updatedProduct.length === 0) {
-        return NextResponse.json(
-          { error: 'Product not found or update failed' },
-          { status: 404 }
-        )
-      }
-
+    if (result.success) {
+      const updatedProduct = await productService.read(productId)
       return NextResponse.json({
         success: true,
-        data: updatedProduct[0]
+        data: updatedProduct
       })
     } else {
-      return NextResponse.json({
-        success: true,
-        message: 'No fields changed'
-      })
+      return NextResponse.json(
+        { error: result.error },
+        { status: 400 }
+      )
     }
   } catch (error) {
     console.error('Error updating product:', error)
@@ -184,23 +148,19 @@ export async function DELETE(
       )
     }
 
-    // Delete the product
-    const deletedProduct = await db
-      .delete(products)
-      .where(eq(products.id, productId))
-      .returning()
+    const result = await productService.unlink(productId)
 
-    if (!deletedProduct || deletedProduct.length === 0) {
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        message: 'Product deleted successfully'
+      })
+    } else {
       return NextResponse.json(
-        { error: 'Product not found or delete failed' },
-        { status: 404 }
+        { error: result.error },
+        { status: 400 }
       )
     }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Product deleted successfully'
-    })
   } catch (error) {
     console.error('Error deleting product:', error)
     return NextResponse.json(

@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
-import { db, announcements } from '../../../lib/drizzle/server'
-import { eq } from 'drizzle-orm'
+import { announcementService } from '../../../lib/drizzle/announcements'
 import type { Announcement } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allAnnouncements = await db.select().from(announcements)
+    const allAnnouncements = await announcementService.search()
     return NextResponse.json(allAnnouncements)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch announcements' }, { status: 500 })
@@ -15,20 +14,17 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { id, ...announcementData } = body
     
-    if (id) {
-      // Update existing announcement
-      await db
-        .update(announcements)
-        .set(announcementData as any)
-        .where(eq(announcements.id, id))
+    const result = await announcementService.upsert(body)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true, data: result.data })
     } else {
-      // Insert new announcement
-      await db.insert(announcements).values(announcementData as any)
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
     }
-    
-    return NextResponse.json({ success: true })
   } catch (error) {
     return NextResponse.json({ 
       success: false, 
@@ -46,8 +42,16 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Announcement ID is required' }, { status: 400 })
     }
     
-    await db.delete(announcements).where(eq(announcements.id, id))
-    return NextResponse.json({ success: true })
+    const result = await announcementService.unlink(id)
+    
+    if (result.success) {
+      return NextResponse.json({ success: true })
+    } else {
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error 
+      }, { status: 400 })
+    }
   } catch (error) {
     return NextResponse.json({ 
       success: false, 

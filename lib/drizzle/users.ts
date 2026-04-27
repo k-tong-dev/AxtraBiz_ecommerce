@@ -1,59 +1,27 @@
 import { db, users } from '../drizzle/server'
-import { eq } from 'drizzle-orm'
+import { createCrudService } from './base-crud'
 import type { User } from '../drizzle/server'
 
+// Create CRUD service for users
+export const userService = createCrudService<User, any, any>(
+  users
+)
+
+// Convenience functions that match the old API
 export async function fetchUsersFromDrizzle(): Promise<User[]> {
-  try {
-    const allUsers = await db.select().from(users)
-    return allUsers
-  } catch {
-    return []
-  }
+  return userService.search()
 }
 
 export async function fetchUserFromDrizzle(userId: string): Promise<User | null> {
-  try {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1)
-    
-    return user || null
-  } catch {
-    return null
-  }
+  return userService.read(userId)
 }
 
 export async function upsertUserInDrizzle(user: User): Promise<{ success: boolean; error?: string }> {
-  try {
-    const existingUser = await fetchUserFromDrizzle(user.id)
-    
-    if (existingUser) {
-      // Update existing user
-      await db
-        .update(users)
-        .set(user as any)
-        .where(eq(users.id, user.id))
-    } else {
-      // Insert new user
-      await db.insert(users).values(user as any)
-    }
-    
-    return { success: true }
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : 'Unknown error occurred'
-    }
-  }
+  const result = await userService.upsert(user)
+  return { success: result.success, error: result.error }
 }
 
 export async function deleteUserFromDrizzle(userId: string): Promise<boolean> {
-  try {
-    await db.delete(users).where(eq(users.id, userId))
-    return true
-  } catch {
-    return false
-  }
+  const result = await userService.unlink(userId)
+  return result.success
 }
