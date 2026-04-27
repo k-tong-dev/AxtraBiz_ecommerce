@@ -64,13 +64,36 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
         trackingData.write_uid = this.userId
       }
 
+      console.log('[BaseCrudService.create] trackingData:', trackingData)
+      console.log('[BaseCrudService.create] userId:', this.userId)
+      console.log('[BaseCrudService.create] data keys:', Object.keys(data))
+
+      const insertData = { ...data, ...trackingData } as any
+      console.log('[BaseCrudService.create] insertData keys:', Object.keys(insertData))
+      console.log('[BaseCrudService.create] insertData.create_uid:', insertData.create_uid)
+      console.log('[BaseCrudService.create] insertData.write_uid:', insertData.write_uid)
+
+      // Filter out undefined values to prevent Drizzle from inserting them as default
+      // Also convert empty strings to null for foreign key fields
+      const filteredData = Object.fromEntries(
+        Object.entries(insertData).map(([key, value]) => {
+          // Convert empty strings to null for foreign key fields
+          if (['category_id', 'brand_id', 'tax_rate_id', 'logo_id', 'image_id', 'parent_id', 'user_id', 'order_id', 'shipping_zone_id', 'product_id', 'attribute_id', 'res_id', 'res_model'].includes(key)) {
+            return [key, value === '' ? null : value]
+          }
+          return [key, value]
+        }).filter(([_, value]) => value !== undefined)
+      )
+      console.log('[BaseCrudService.create] filteredData keys:', Object.keys(filteredData))
+
       const [result] = await db
         .insert(this.table)
-        .values({ ...data, ...trackingData } as any)
+        .values(filteredData as any)
         .returning()
 
       return { success: true, data: result as T }
     } catch (err) {
+      console.error('[BaseCrudService.create] Error:', err)
       return {
         success: false,
         error: err instanceof Error ? err.message : 'Unknown error occurred'
@@ -97,11 +120,18 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
 
       const results = await db
         .insert(this.table)
-        .values(dataArray.map(data => ({ ...data, ...trackingData })) as any)
+        .values(dataArray.map(data => {
+          const insertData = { ...data, ...trackingData } as any
+          // Filter out undefined values
+          return Object.fromEntries(
+            Object.entries(insertData).filter(([_, value]) => value !== undefined)
+          )
+        }) as any)
         .returning()
 
       return { success: true, data: results as T[] }
     } catch (err) {
+      console.error('[BaseCrudService.createMany] Error:', err)
       return {
         success: false,
         error: err instanceof Error ? err.message : 'Unknown error occurred'
@@ -174,13 +204,25 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
         trackingData.write_uid = this.userId
       }
 
+      const updateData = { ...data, ...trackingData } as any
+      // Convert empty strings to null for foreign key fields
+      const filteredData = Object.fromEntries(
+        Object.entries(updateData).map(([key, value]) => {
+          if (['category_id', 'brand_id', 'tax_rate_id', 'logo_id', 'image_id', 'parent_id', 'user_id', 'order_id', 'shipping_zone_id', 'product_id', 'attribute_id', 'res_id', 'res_model'].includes(key)) {
+            return [key, value === '' ? null : value]
+          }
+          return [key, value]
+        }).filter(([_, value]) => value !== undefined)
+      )
+
       await db
         .update(this.table)
-        .set({ ...data, ...trackingData } as any)
+        .set(filteredData as any)
         .where(eq((this.table as any).id, id))
 
       return { success: true }
     } catch (err) {
+      console.error('[BaseCrudService.write] Error:', err)
       return {
         success: false,
         error: err instanceof Error ? err.message : 'Unknown error occurred'
