@@ -81,7 +81,7 @@ const ActionBarContext = React.createContext<ActionBarContextValue | null>(
 function useActionBarContext(consumerName: string) {
   const context = React.useContext(ActionBarContext);
   if (!context) {
-    throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``);
+    throw new Error(`${consumerName} must be used within ${ROOT_NAME}`);
   }
   return context;
 }
