@@ -177,7 +177,7 @@ const KanbanContext = React.createContext<KanbanContextValue<unknown> | null>(
 function useKanbanContext(consumerName: string) {
   const context = React.useContext(KanbanContext);
   if (!context) {
-    throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``);
+    throw new Error(`${consumerName} must be used within ${ROOT_NAME}`);
   }
   return context;
 }
@@ -702,7 +702,7 @@ function useKanbanColumnContext(consumerName: string) {
   const context = React.useContext(KanbanColumnContext);
   if (!context) {
     throw new Error(
-      `\`${consumerName}\` must be used within \`${COLUMN_NAME}\``,
+      `${consumerName} must be used within ${COLUMN_NAME}`,
     );
   }
   return context;
@@ -738,7 +738,7 @@ function KanbanColumn(props: KanbanColumnProps) {
 
   if (!inBoard && !inOverlay) {
     throw new Error(
-      `\`${COLUMN_NAME}\` must be used within \`${BOARD_NAME}\` or \`${OVERLAY_NAME}\``,
+      `${COLUMN_NAME} must be used within ${BOARD_NAME} or ${OVERLAY_NAME}`,
     );
   }
 
@@ -888,7 +888,7 @@ const KanbanItemContext = React.createContext<KanbanItemContextValue | null>(
 function useKanbanItemContext(consumerName: string) {
   const context = React.useContext(KanbanItemContext);
   if (!context) {
-    throw new Error(`\`${consumerName}\` must be used within \`${ITEM_NAME}\``);
+    throw new Error(`${consumerName} must be used within ${ITEM_NAME}`);
   }
   return context;
 }
@@ -918,7 +918,7 @@ function KanbanItem(props: KanbanItemProps) {
   const inOverlay = React.useContext(KanbanOverlayContext);
 
   if (!inBoard && !inOverlay) {
-    throw new Error(`\`${ITEM_NAME}\` must be used within \`${BOARD_NAME}\``);
+    throw new Error(`${ITEM_NAME} must be used within ${BOARD_NAME}`);
   }
 
   const {
