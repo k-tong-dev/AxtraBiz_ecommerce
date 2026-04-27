@@ -10,7 +10,7 @@ interface ProductBarcodePrintTemplateProps {
 export function ProductBarcodePrintTemplate({data}: ProductBarcodePrintTemplateProps) {
     const records = Array.isArray(data) ? data : [data]
     const BarcodeLabel = ({product}: {product: any}) => {
-        const barcodeValue = product.barcode || ""
+        const barcodeValue = product.barcode || " "
         const { inputRef } = useBarcode({
             value: barcodeValue,
             options: {
