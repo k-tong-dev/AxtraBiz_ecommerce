@@ -80,7 +80,15 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }
 
     const handlePrint = (data: any[], mode: 'single' | 'bulk', title: string, template?: React.ComponentType<any>) => {
-        setPrintConfig({data, mode, title, template})
+        // Ensure title is never empty
+        const safeTitle = title || 'Print'
+        // Filter data to remove empty string values
+        const safeData = data.map(item => 
+            Object.fromEntries(
+                Object.entries(item).filter(([_, value]) => value !== '')
+            )
+        )
+        setPrintConfig({data: safeData, mode, title: safeTitle, template})
         setShowPrintModal(true)
     }
 
