@@ -1,5 +1,6 @@
 import { db, products } from './server'
 import { createCrudService } from './base-crud'
+import { eq } from 'drizzle-orm'
 import type { Product } from './server'
 import { deleteAttachmentsByResModelAndResId } from './ir_attachment'
 
@@ -10,7 +11,8 @@ export const productService = createCrudService<Product, any, any>(
 
 // Convenience functions that match the old API
 export async function fetchProductsFromDrizzle(): Promise<Product[]> {
-  return productService.search()
+  // Only return active products by default
+  return productService.search(eq(products.active, true))
 }
 
 export async function fetchProductFromDrizzle(productId: string): Promise<Product | null> {
