@@ -21,6 +21,7 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
     
     const [customTemplate, setCustomTemplate] = useState<React.ComponentType<any> | null>(null)
     const [isDownloading, setIsDownloading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
     useEffect(() => {
@@ -33,31 +34,36 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
     useEffect(() => {
         // Update iframe content when data or template changes
         if (open && data && iframeRef.current && iframeRef.current.contentDocument) {
-            const content = iframeRef.current.contentDocument
-            const printContentDiv = document.querySelector('#print-preview-content')
-            
-            // Get all stylesheets from the main document
-            const stylesheets = Array.from(document.styleSheets)
-                .map(sheet => {
-                    try {
-                        return Array.from(sheet.cssRules)
-                            .map(rule => rule.cssText)
-                            .join('\n')
-                    } catch (e) {
-                        return ''
-                    }
-                })
-                .join('\n')
-            
-            content.open()
-            content.write('<!DOCTYPE html><html><head>')
-            content.write('<meta charset="utf-8">')
-            content.write('<style>@page { margin: 0; size: auto; } body { margin: 0; padding: 0; }</style>')
-            content.write('<style>' + stylesheets + '</style>')
-            content.write('</head><body>')
-            content.write(printContentDiv?.innerHTML || '')
-            content.write('</body></html>')
-            content.close()
+            try {
+                const content = iframeRef.current.contentDocument
+                const printContentDiv = document.querySelector('#print-preview-content')
+                
+                // Get all stylesheets from the main document
+                const stylesheets = Array.from(document.styleSheets)
+                    .map(sheet => {
+                        try {
+                            return Array.from(sheet.cssRules)
+                                .map(rule => rule.cssText)
+                                .join('\n')
+                        } catch (e) {
+                            return ''
+                        }
+                    })
+                    .join('\n')
+                
+                content.open()
+                content.write('<!DOCTYPE html><html><head>')
+                content.write('<meta charset="utf-8">')
+                content.write('<style>@page { margin: 0; size: auto; } body { margin: 0; padding: 0; }</style>')
+                content.write('<style>' + stylesheets + '</style>')
+                content.write('</head><body>')
+                content.write(printContentDiv?.innerHTML || '')
+                content.write('</body></html>')
+                content.close()
+            } catch (e) {
+                console.error('Error updating iframe content:', e)
+                setError('Failed to prepare print preview')
+            }
         }
     }, [open, data, customTemplate])
 
@@ -68,33 +74,38 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
     }
 
     const handleDownloadPDF = async () => {
-        // Dynamically import html2pdf only on client side
-        const html2pdfModule = await import('html2pdf.js')
-        const html2pdf = html2pdfModule.default
-        
-        // Use the visible modal content for PDF generation to match preview exactly
-        const element = document.querySelector('.rs-modal-body > div') as HTMLElement
-        if (element) {
-            setIsDownloading(true)
-            const opt = {
-                margin: 10,
-                filename: `${safeTitle.replace(/\s+/g, '_').toLowerCase()}.pdf`,
-                image: { type: 'jpeg' as const, quality: 0.98 },
-                html2canvas: { 
-                    scale: 2, 
-                    useCORS: true,
-                    logging: false,
-                    letterRendering: true
-                },
-                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+        try {
+            // Dynamically import html2pdf only on client side
+            const html2pdfModule = await import('html2pdf.js')
+            const html2pdf = html2pdfModule.default
+            
+            // Use the visible modal content for PDF generation to match preview exactly
+            const element = document.querySelector('.rs-modal-body > div') as HTMLElement
+            if (element) {
+                setIsDownloading(true)
+                const opt = {
+                    margin: 10,
+                    filename: `${safeTitle.replace(/\s+/g, '_').toLowerCase()}.pdf`,
+                    image: { type: 'jpeg' as const, quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true,
+                        logging: false,
+                        letterRendering: true
+                    },
+                    jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+                }
+                await html2pdf().set(opt).from(element).save()
             }
-            html2pdf().set(opt).from(element).save().finally(() => {
-                setIsDownloading(false)
-            })
+        } catch (e) {
+            console.error('Error generating PDF:', e)
+            setError('Failed to generate PDF')
+        } finally {
+            setIsDownloading(false)
         }
     }
 
-    if (!data) {
+    if (!data || !Array.isArray(data) || data.length === 0) {
         return null
     }
 
@@ -102,7 +113,9 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
 
     const printContent = (
         <div style={{padding: '20px'}}>
-            {customTemplate ? (
+            {error ? (
+                <div className="text-red-500">{error}</div>
+            ) : customTemplate ? (
                 React.createElement(customTemplate, {data})
             ) : (
                 <TemplateComponent data={data} mode={mode}/>
