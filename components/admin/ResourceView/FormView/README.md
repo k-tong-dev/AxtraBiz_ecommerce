@@ -188,8 +188,9 @@ export interface FormConfig {
   entityNamePlural: string
   apiEndpoint: string
   fields: FormField[]
+  pages?: FormPage[]      // NEW: Custom pages with components or fields (like Odoo)
   tabs?: TabConfig[]        // Optional tabs configuration
-  customActions?: Array<{   // NEW: Custom button actions
+  customActions?: Array<{   // Custom button actions
     key: string
     label: string
     icon?: React.ReactNode
@@ -205,6 +206,197 @@ export interface FormConfig {
   breadcrumbs: { /* ... */ }
 }
 ```
+
+### FormPage Interface (NEW)
+
+```typescript
+export interface FormPage {
+  key: string
+  label: string
+  component?: React.ComponentType<{data: any; onDataChange: (data: any) => void}>  // Optional custom component
+  fields?: FormField[]  // Optional fields to render on this page
+  show?: (data: any) => boolean  // Conditional visibility
+  order?: number  // Ordering priority
+}
+```
+
+## 📄 Custom Pages System (Like Odoo)
+
+FormView now supports a **custom pages system** inspired by Odoo, allowing you to add custom components or field groups to your forms. This is particularly useful for model-specific functionality like product variants, order details, or custom workflows.
+
+### Basic Usage with Custom Component
+
+```typescript
+import { FormConfig } from '@/components/admin/ResourceView/FormView'
+import { ProductVariantsPage } from './ProductVariantsPage'
+
+export const productFormConfig: FormConfig = {
+  entityName: 'Product',
+  entityNamePlural: 'Products',
+  apiEndpoint: '/api/products',
+  fields: [/* ... */],
+  pages: [
+    {
+      key: 'variants',
+      label: 'Product Variants',
+      component: ProductVariantsPage,
+      show: (data) => data.product_type === 'variable',  // Only show for variable products
+      order: 100
+    }
+  ]
+}
+```
+
+### Custom Page Component
+
+Your custom component receives `data` and `onDataChange` props:
+
+```typescript
+// ProductVariantsPage.tsx
+'use client'
+
+import React from 'react'
+import { VariantManager } from '@/components/admin/VariantManager'
+
+export function ProductVariantsPage({data, onDataChange}: {data: any; onDataChange: (data: any) => void}) {
+    const [variants, setVariants] = React.useState<any[]>(data.variants || [])
+    const [attributes, setAttributes] = React.useState<Array<{name: string, values: string[]}>>(data.attributes || [])
+
+    const handleVariantsChange = (newVariants: any[]) => {
+        setVariants(newVariants)
+        onDataChange({...data, variants: newVariants})
+    }
+
+    const handleAttributesChange = (newAttributes: Array<{name: string, values: string[]}>) => {
+        setAttributes(newAttributes)
+        onDataChange({...data, attributes: newAttributes})
+    }
+
+    return (
+        <VariantManager
+            productType={data.product_type}
+            variants={variants}
+            attributes={attributes}
+            onVariantsChange={handleVariantsChange}
+            onAttributesChange={handleAttributesChange}
+        />
+    )
+}
+```
+
+### Using Fields in Pages
+
+You can also define fields directly in pages instead of using a custom component:
+
+```typescript
+export const productFormConfig: FormConfig = {
+  entityName: 'Product',
+  entityNamePlural: 'Products',
+  apiEndpoint: '/api/products',
+  fields: [/* ... */],
+  pages: [
+    {
+      key: 'additional-info',
+      label: 'Additional Information',
+      fields: [
+        {
+          key: 'warranty',
+          label: 'Warranty Period',
+          type: 'select',
+          options: [
+            { label: '1 Year', value: '1_year' },
+            { label: '2 Years', value: '2_years' },
+            { label: '3 Years', value: '3_years' }
+          ],
+          gridCols: 1
+        },
+        {
+          key: 'return_policy',
+          label: 'Return Policy',
+          type: 'textarea',
+          rows: 3,
+          gridCols: 2
+        }
+      ],
+      order: 50
+    }
+  ]
+}
+```
+
+### Multiple Pages with Tabs
+
+When you have multiple pages, FormView automatically renders them as tabs:
+
+```typescript
+export const productFormConfig: FormConfig = {
+  entityName: 'Product',
+  entityNamePlural: 'Products',
+  apiEndpoint: '/api/products',
+  fields: [/* ... */],
+  pages: [
+    {
+      key: 'variants',
+      label: 'Product Variants',
+      component: ProductVariantsPage,
+      show: (data) => data.product_type === 'variable',
+      order: 100
+    },
+    {
+      key: 'inventory',
+      label: 'Inventory Management',
+      component: InventoryPage,
+      show: (data) => data.track_inventory,
+      order: 90
+    },
+    {
+      key: 'seo',
+      label: 'SEO Settings',
+      fields: [
+        {
+          key: 'meta_title',
+          label: 'Meta Title',
+          type: 'text',
+          gridCols: 1
+        },
+        {
+          key: 'meta_description',
+          label: 'Meta Description',
+          type: 'textarea',
+          gridCols: 2
+        }
+      ],
+      order: 80
+    }
+  ]
+}
+```
+
+### Page Features
+
+- **Tab Rendering**: Multiple pages automatically render as tabs
+- **Single Page**: Single pages render without tabs (just a section)
+- **Conditional Visibility**: Use `show` function to conditionally display pages
+- **Ordering**: Use `order` property to control page sequence
+- **Custom Components**: Use `component` for complex UI with custom logic
+- **Field Groups**: Use `fields` for simple field groupings
+- **Data Sync**: Components receive `onDataChange` to update form data
+
+### Benefits
+
+- **Model-Specific**: Define pages in model config, not in generic FormView
+- **Reusable**: Components can be reused across different models
+- **Flexible**: Choose between custom components or field definitions
+- **Odoo-Like**: Familiar pattern for ERP users
+- **Type-Safe**: Full TypeScript support
+
+### Best Practices
+
+1. **Separate Components**: Create separate files for page components
+2. **Use Conditional Visibility**: Only show pages when relevant
+3. **Order Pages**: Use `order` to control tab sequence
+4. **Sync Data**: Always call `onDataChange` when modifying data
+5. **Keep Components Focused**: Each page should handle one concern
 
 ### Text Input
 ```typescript

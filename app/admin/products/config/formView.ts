@@ -397,6 +397,13 @@ export const productFormConfig: FormConfig = {
       component: ProductVariantsPage,
       show: (data: any) => data.product_type === 'variable',
       order: 100
+    },
+    {
+      key: 'sdsf',
+      label: 'Product Variants',
+      component: ProductVariantsPage,
+      show: (data: any) => data.product_type === 'variable',
+      order: 100
     }
   ],
   // actions and customActions removed - now using centralized serverActions from ResourceView
