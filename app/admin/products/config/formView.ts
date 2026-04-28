@@ -390,12 +390,12 @@ export const productFormConfig: FormConfig = {
       order: 28
     }
   ],
-  customPages: [
+  pages: [
     {
       key: 'variants',
       label: 'Product Variants',
       component: ProductVariantsPage,
-      show: (data) => data.product_type === 'variable',
+      show: (data: any) => data.product_type === 'variable',
       order: 100
     }
   ],
