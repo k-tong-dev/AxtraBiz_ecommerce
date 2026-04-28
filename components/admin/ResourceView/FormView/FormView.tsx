@@ -239,6 +239,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, url: string, file?: File}>>([])
     const [showQuickActions, setShowQuickActions] = useState(false)
     const [mounted, setMounted] = useState(false)
+    const [activePageTab, setActivePageTab] = useState('')
     const [actionContext, setActionContext] = useState<ActionContext>({
         mode: 'single',
         view: 'form',
@@ -1112,106 +1113,104 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     })}
 
                     {/* Custom Pages - like Odoo */}
-                    {config.pages && config.pages
-                        .filter(page => !page.show || page.show(data))
-                        .sort((a: FormPage, b: FormPage) => (a.order || 0) - (b.order || 0))
-                        .length > 0 && (
-                        <div className="bg-card rounded-lg border p-6">
-                            {(() => {
-                                const visiblePages = config.pages!
-                                    .filter(page => !page.show || page.show(data))
-                                    .sort((a: FormPage, b: FormPage) => (a.order || 0) - (b.order || 0))
+                    {config.pages && (() => {
+                        const visiblePages = config.pages!
+                            .filter(page => !page.show || page.show(data))
+                            .sort((a: FormPage, b: FormPage) => (a.order || 0) - (b.order || 0))
+                        
+                        // Set initial active tab if not set
+                        if (!activePageTab && visiblePages.length > 0) {
+                            setActivePageTab(visiblePages[0].key)
+                        }
+                        
+                        if (visiblePages.length === 0) return null
+                        
+                        return (
+                            <div className="bg-card rounded-lg border p-6">
+                                {/* Tabs */}
+                                {visiblePages.length > 1 && (
+                                    <div className="border-b mb-4">
+                                        <div className="flex gap-4">
+                                            {visiblePages.map((page) => (
+                                                <button
+                                                    key={page.key}
+                                                    type="button"
+                                                    className={`px-4 py-2 border-b-2 transition-colors ${
+                                                        activePageTab === page.key
+                                                            ? 'border-blue-500 text-blue-600'
+                                                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                                                    }`}
+                                                    onClick={() => setActivePageTab(page.key)}
+                                                >
+                                                    {page.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 
-                                const [activeTab, setActiveTab] = useState(visiblePages[0]?.key || '')
-                                
-                                return (
-                                    <>
-                                        {/* Tabs */}
-                                        {visiblePages.length > 1 && (
-                                            <div className="border-b mb-4">
-                                                <div className="flex gap-4">
-                                                    {visiblePages.map((page) => (
-                                                        <button
-                                                            key={page.key}
-                                                            type="button"
-                                                            className={`px-4 py-2 border-b-2 transition-colors ${
-                                                                activeTab === page.key
-                                                                    ? 'border-blue-500 text-blue-600'
-                                                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                {/* Tab Content */}
+                                {visiblePages.map((page) => {
+                                    if (activePageTab !== page.key) return null
+                                    
+                                    if (page.component) {
+                                        const PageComponent = page.component
+                                        return (
+                                            <div key={page.key}>
+                                                {visiblePages.length <= 1 && (
+                                                    <h2 className="text-md font-semibold mb-4">{page.label}</h2>
+                                                )}
+                                                <PageComponent data={data} onDataChange={setData} />
+                                            </div>
+                                        )
+                                    }
+                                    
+                                    if (page.fields) {
+                                        return (
+                                            <div key={page.key}>
+                                                {visiblePages.length <= 1 && (
+                                                    <h2 className="text-md font-semibold mb-4">{page.label}</h2>
+                                                )}
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                    {page.fields.map((field) => (
+                                                        <div 
+                                                            key={field.key} 
+                                                            className={`space-y-2 ${
+                                                                field.gridCols === 2 ? 'md:col-span-2' : 
+                                                                field.gridCols === 3 ? 'md:col-span-3' : 
+                                                                'md:col-span-1'
                                                             }`}
-                                                            onClick={() => setActiveTab(page.key)}
                                                         >
-                                                            {page.label}
-                                                        </button>
+                                                            <label className="text-sm font-medium flex items-center gap-1">
+                                                                {field.label}
+                                                                {field.required && <span className="text-red-500 ml-1">*</span>}
+                                                                {field.helper && (
+                                                                    <Whisper
+                                                                        placement="bottom"
+                                                                        trigger="click"
+                                                                        speaker={<Popover>{field.helper}</Popover>}
+                                                                    >
+                                                                        <button type="button" className="text-gray-400 hover:text-gray-600 focus:outline-none">
+                                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                                                            </svg>
+                                                                        </button>
+                                                                    </Whisper>
+                                                                )}
+                                                            </label>
+                                                            {renderField(field)}
+                                                        </div>
                                                     ))}
                                                 </div>
                                             </div>
-                                        )}
-                                        
-                                        {/* Tab Content */}
-                                        {visiblePages.map((page) => {
-                                            if (activeTab !== page.key) return null
-                                            
-                                            if (page.component) {
-                                                const PageComponent = page.component
-                                                return (
-                                                    <div key={page.key}>
-                                                        {!visiblePages.length || visiblePages.length <= 1 && (
-                                                            <h2 className="text-md font-semibold mb-4">{page.label}</h2>
-                                                        )}
-                                                        <PageComponent data={data} onDataChange={setData} />
-                                                    </div>
-                                                )
-                                            }
-                                            
-                                            if (page.fields) {
-                                                return (
-                                                    <div key={page.key}>
-                                                        {!visiblePages.length || visiblePages.length <= 1 && (
-                                                            <h2 className="text-md font-semibold mb-4">{page.label}</h2>
-                                                        )}
-                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                            {page.fields.map((field) => (
-                                                                <div 
-                                                                    key={field.key} 
-                                                                    className={`space-y-2 ${
-                                                                        field.gridCols === 2 ? 'md:col-span-2' : 
-                                                                        field.gridCols === 3 ? 'md:col-span-3' : 
-                                                                        'md:col-span-1'
-                                                                    }`}
-                                                                >
-                                                                    <label className="text-sm font-medium flex items-center gap-1">
-                                                                        {field.label}
-                                                                        {field.required && <span className="text-red-500 ml-1">*</span>}
-                                                                        {field.helper && (
-                                                                            <Whisper
-                                                                                placement="bottom"
-                                                                                trigger="click"
-                                                                                speaker={<Popover>{field.helper}</Popover>}
-                                                                            >
-                                                                                <button type="button" className="text-gray-400 hover:text-gray-600 focus:outline-none">
-                                                                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                                                                    </svg>
-                                                                                </button>
-                                                                            </Whisper>
-                                                                        )}
-                                                                    </label>
-                                                                    {renderField(field)}
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            }
-                                            
-                                            return null
-                                        })}
-                                    </>
-                                )
-                            })()}
-                        </div>
-                    )}
+                                        )
+                                    }
+                                    
+                                    return null
+                                })}
+                            </div>
+                        )
+                    })()}
                 </div>
 
                 {/* Right Sidebar */}
