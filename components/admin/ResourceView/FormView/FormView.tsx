@@ -21,7 +21,6 @@ import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
 import {DatePickerField} from '@/components/admin/DatePickerField'
-import {VariantManager} from '@/components/admin/VariantManager'
 import {ServerActions, ServerActionConfig, ActionContext} from '../ServerActions'
 
 // Convert FormView customActions to ServerActionConfig
@@ -160,12 +159,22 @@ export interface FormField {
     gridColumn?: number
 }
 
+// Custom page configuration for form pages (like Odoo)
+export interface FormPage {
+    key: string
+    label: string
+    component: React.ComponentType<{data: any; onDataChange: (data: any) => void}>
+    show?: (data: any) => boolean
+    order?: number
+}
+
 // Form configuration for different entities
 export interface FormConfig {
     entityName: string
     entityNamePlural: string
     apiEndpoint: string
     fields: FormField[]
+    customPages?: FormPage[]  // Custom pages with components (like Odoo)
     actions?: {  // Made optional - now using centralized serverActions from ResourceView
         print?: boolean
         export?: boolean
@@ -227,8 +236,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [uploadedFiles, setUploadedFiles] = useState<Array<{id: string, url: string, file?: File}>>([])
-    const [variants, setVariants] = useState<any[]>([])
-    const [attributes, setAttributes] = useState<Array<{name: string, values: string[]}>>([])
     const [showQuickActions, setShowQuickActions] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [actionContext, setActionContext] = useState<ActionContext>({
@@ -1103,16 +1110,19 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         )
                     })}
 
-                    {/* Variant Manager - only show for variable products */}
-                    {data.product_type === 'variable' && (
-                        <VariantManager
-                            productType={data.product_type}
-                            variants={variants}
-                            attributes={attributes}
-                            onVariantsChange={setVariants}
-                            onAttributesChange={setAttributes}
-                        />
-                    )}
+                    {/* Custom Pages - like Odoo */}
+                    {config.customPages && config.customPages
+                        .filter(page => !page.show || page.show(data))
+                        .sort((a, b) => (a.order || 0) - (b.order || 0))
+                        .map((page) => {
+                            const PageComponent = page.component
+                            return (
+                                <div key={page.key} className="bg-card rounded-lg border p-6">
+                                    <h2 className="text-md font-semibold mb-4">{page.label}</h2>
+                                    <PageComponent data={data} onDataChange={setData} />
+                                </div>
+                            )
+                        })}
                 </div>
 
                 {/* Right Sidebar */}

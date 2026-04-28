@@ -1,5 +1,6 @@
 import { FormConfig } from '@/components/admin/ResourceView/FormView'
 import type { Product } from '@/lib/drizzle/server'
+import { ProductVariantsPage } from './ProductVariantsPage'
 
 export const productFormConfig: FormConfig = {
   entityName: 'Product',
@@ -387,6 +388,15 @@ export const productFormConfig: FormConfig = {
       gridRow: 10,
       gridColumn: 3,
       order: 28
+    }
+  ],
+  customPages: [
+    {
+      key: 'variants',
+      label: 'Product Variants',
+      component: ProductVariantsPage,
+      show: (data) => data.product_type === 'variable',
+      order: 100
     }
   ],
   // actions and customActions removed - now using centralized serverActions from ResourceView
