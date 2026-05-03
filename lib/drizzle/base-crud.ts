@@ -98,7 +98,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   /**
    * Create multiple records at once
    */
-  async createMany(dataArray: (TInsert & Partial<TrackingFields>)[]): Promise<CreateResult<T[]>> {
+  async createMany(dataArray: (TInsert & Partial<TrackingFields>)[], userId?: string): Promise<CreateResult<T[]>> {
     try {
       const now = new Date()
       const trackingData: Partial<TrackingFields> = {
@@ -106,10 +106,12 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
         write_on: now,
       }
       
+      // Use passed userId or fallback to this.userId
+      const effectiveUserId = userId || this.userId
       // Only set user tracking fields if userId is provided
-      if (this.userId) {
-        trackingData.create_uid = this.userId
-        trackingData.write_uid = this.userId
+      if (effectiveUserId) {
+        trackingData.create_uid = effectiveUserId
+        trackingData.write_uid = effectiveUserId
       }
 
       const results = await db
@@ -188,8 +190,6 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Automatically updates write_on and write_uid fields
    */
   async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
-    console.log('------------------- This ',this)
-    console.log('------------------- userId ',userId)
     try {
       const trackingData: Partial<TrackingFields> = {
         write_on: new Date(),
@@ -231,15 +231,17 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   /**
    * Write multiple records at once
    */
-  async writeMany(ids: string[], data: TUpdate & Partial<TrackingFields>): Promise<UpdateResult> {
+  async writeMany(ids: string[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const trackingData: Partial<TrackingFields> = {
         write_on: new Date(),
       }
       
+      // Use passed userId or fallback to this.userId
+      const effectiveUserId = userId || this.userId
       // Only set user tracking field if userId is provided
-      if (this.userId) {
-        trackingData.write_uid = this.userId
+      if (effectiveUserId) {
+        trackingData.write_uid = effectiveUserId
       }
 
       await db
@@ -277,8 +279,13 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   /**
    * Unlink multiple records
    */
-  async unlinkMany(ids: string[]): Promise<DeleteResult> {
+  async unlinkMany(ids: string[], userId?: string): Promise<DeleteResult> {
     try {
+      // Note: userId available for audit logging if needed
+      // (delete operations don't update write_uid, but can be logged)
+      const effectiveUserId = userId || this.userId
+      console.log(`[unlinkMany] Deleting ${ids.length} records by user: ${effectiveUserId || 'unknown'}`)
+
       await db
         .delete(this.table)
         .where(eq((this.table as any).id, ids[0])) // Simplified - would need IN clause
