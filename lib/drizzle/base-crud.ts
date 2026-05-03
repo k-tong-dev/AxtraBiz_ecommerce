@@ -188,6 +188,8 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Automatically updates write_on and write_uid fields
    */
   async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
+    console.log('------------------- This ',this)
+    console.log('------------------- userId ',userId)
     try {
       const trackingData: Partial<TrackingFields> = {
         write_on: new Date(),

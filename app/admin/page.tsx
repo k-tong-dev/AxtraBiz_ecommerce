@@ -192,7 +192,7 @@ export default function AdminDashboard() {
               {['7d', '30d', '90d'].map((range) => (
                 <Button
                   key={range}
-                  variant={dateRange === range ? 'default' : 'ghost'}
+                  appearance={dateRange === range ? 'default' : 'primary'}
                   size="sm"
                   onClick={() => setDateRange(range)}
                   className="text-xs"
