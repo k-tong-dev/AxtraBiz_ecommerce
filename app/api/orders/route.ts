@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
-import { orderService } from '../../../lib/drizzle/orders'
+import {
+  fetchOrdersFromDrizzle,
+  upsertOrderInDrizzle,
+  deleteOrderFromDrizzle
+} from '../../../lib/drizzle/orders'
 import type { Order } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allOrders = await orderService.search()
+    const allOrders = await fetchOrdersFromDrizzle()
     return NextResponse.json(allOrders)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
@@ -15,10 +19,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await orderService.upsert(body)
+    const result = await upsertOrderInDrizzle(body)
     
     if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
+      return NextResponse.json({ success: true, data: body })
     } else {
       return NextResponse.json({ 
         success: false, 
@@ -42,14 +46,14 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
     }
     
-    const result = await orderService.unlink(id)
+    const result = await deleteOrderFromDrizzle(id)
     
-    if (result.success) {
+    if (result) {
       return NextResponse.json({ success: true })
     } else {
       return NextResponse.json({ 
         success: false, 
-        error: result.error 
+        error: 'Failed to delete order'
       }, { status: 400 })
     }
   } catch (error) {

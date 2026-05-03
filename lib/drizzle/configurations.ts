@@ -16,8 +16,8 @@ export async function fetchConfigurationFromDrizzle(configurationId: string): Pr
   return configurationService.read(configurationId)
 }
 
-export async function upsertConfigurationInDrizzle(configuration: Configuration): Promise<{ success: boolean; error?: string }> {
-  const result = await configurationService.upsert(configuration)
+export async function upsertConfigurationInDrizzle(configuration: Configuration, userId?: string): Promise<{ success: boolean; error?: string }> {
+  const result = await configurationService.upsert(configuration, userId)
   return { success: result.success, error: result.error }
 }
 

@@ -50,18 +50,20 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Create - Similar to Odoo's create()
    * Automatically sets created_on, create_uid, write_uid
    */
-  async create(data: TInsert & Partial<TrackingFields>): Promise<CreateResult<T>> {
+  async create(data: TInsert & Partial<TrackingFields>, userId?: string): Promise<CreateResult<T>> {
     try {
       const now = new Date()
       const trackingData: Partial<TrackingFields> = {
         created_on: now,
         write_on: now,
       }
-      
+
+      // Use passed userId or fallback to this.userId
+      const effectiveUserId = userId || this.userId
       // Only set user tracking fields if userId is provided
-      if (this.userId) {
-        trackingData.create_uid = this.userId
-        trackingData.write_uid = this.userId
+      if (effectiveUserId) {
+        trackingData.create_uid = effectiveUserId
+        trackingData.write_uid = effectiveUserId
       }
 
       const insertData = { ...data, ...trackingData } as any
@@ -185,15 +187,17 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Write - Similar to Odoo's write()
    * Automatically updates write_on and write_uid fields
    */
-  async write(id: string, data: TUpdate & Partial<TrackingFields>): Promise<UpdateResult> {
+  async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const trackingData: Partial<TrackingFields> = {
         write_on: new Date(),
       }
-      
+
+      // Use passed userId or fallback to this.userId
+      const effectiveUserId = userId || this.userId
       // Only set user tracking field if userId is provided
-      if (this.userId) {
-        trackingData.write_uid = this.userId
+      if (effectiveUserId) {
+        trackingData.write_uid = effectiveUserId
       }
 
       const updateData = { ...data, ...trackingData } as any
@@ -289,14 +293,16 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   /**
    * Upsert - Create or update based on ID existence
    */
-  async upsert(data: TInsert & Partial<TrackingFields> & { id: string }): Promise<CreateResult<T>> {
+  async upsert(data: TInsert & Partial<TrackingFields> & { id: string }, userId?: string): Promise<CreateResult<T>> {
     const existing = await this.read(data.id)
-    
+
     if (existing) {
-      const result = await this.write(data.id, data as any)
-      return result.success ? { success: true, data: existing } : { success: false, error: result.error }
+      const result = await this.write(data.id, data as any, userId)
+      // Re-read to get updated data with new timestamps
+      const updated = await this.read(data.id)
+      return result.success ? { success: true, data: updated || existing } : { success: false, error: result.error }
     } else {
-      return this.create(data)
+      return this.create(data, userId)
     }
   }
 }

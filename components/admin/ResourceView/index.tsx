@@ -67,6 +67,13 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
         onEdit?.(rowData)
     }
 
+    const handleRowClick = (rowData: any) => {
+        // Just call the external callback without switching to inline form
+        // This allows navigation to separate edit page
+        console.log('ResourceView handleRowClick rowData:', rowData)
+        onEdit?.(rowData)
+    }
+
     const handleCreate = () => {
         setLastViewType(viewType)
         setEditingId(undefined)
@@ -115,7 +122,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                 return (
                     <ListView
                         config={config.listViewConfig}
-                        onRowClick={handleEdit}
+                        onRowClick={handleRowClick}
                         onEdit={handleEdit}
                         onDelete={onDelete}
                         loading={loading}
@@ -148,7 +155,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         setSearchKeyword={() => {}}
                         filterValues={filterValues}
                         groupByField={groupByField || undefined}
-                        onCardClick={handleEdit}
+                        onCardClick={handleRowClick}
                         onCardEdit={handleEdit}
                     />
                 )
@@ -292,7 +299,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }
 
     // Show loading state for form view when editing and data is not yet loaded
-    if (viewType === 'form' && entityId && !formInitialData && !mounted) {
+    if (viewType === 'form' && entityId && !formInitialData && mounted) {
         return (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                 <Loader backdrop content="Loading..." vertical/>

@@ -16,8 +16,8 @@ export async function fetchSettingFromDrizzle(settingId: string): Promise<Settin
   return settingService.read(settingId)
 }
 
-export async function upsertSettingInDrizzle(setting: Setting): Promise<{ success: boolean; error?: string }> {
-  const result = await settingService.upsert(setting)
+export async function upsertSettingInDrizzle(setting: Setting, userId?: string): Promise<{ success: boolean; error?: string }> {
+  const result = await settingService.upsert(setting, userId)
   return { success: result.success, error: result.error }
 }
 

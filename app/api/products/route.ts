@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server'
-import { productService } from '../../../lib/drizzle/products'
+import {
+  fetchProductsFromDrizzle,
+  upsertProductInDrizzle
+} from '../../../lib/drizzle/products'
 import type { Product } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allProducts = await productService.search()
+    const allProducts = await fetchProductsFromDrizzle()
     return NextResponse.json(allProducts)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
@@ -67,16 +70,16 @@ export async function POST(request: Request) {
     if (!body.id) {
       // Insert new product
       processedBody.id = crypto.randomUUID()
-      const result = await productService.create(processedBody)
+      const result = await upsertProductInDrizzle(processedBody)
       
       if (result.success) {
-        return NextResponse.json({ success: true, data: result.data }, { status: 201 })
+        return NextResponse.json({ success: true, data: processedBody }, { status: 201 })
       } else {
         return NextResponse.json({ error: result.error }, { status: 400 })
       }
     } else {
       // Update existing product
-      const result = await productService.write(body.id, processedBody)
+      const result = await upsertProductInDrizzle(processedBody)
       
       if (result.success) {
         return NextResponse.json({ success: true, data: processedBody })

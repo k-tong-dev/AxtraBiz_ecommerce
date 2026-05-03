@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
-import { userService } from '../../../lib/drizzle/users'
+import {
+  fetchUsersFromDrizzle,
+  upsertUserInDrizzle,
+  deleteUserFromDrizzle
+} from '../../../lib/drizzle/users'
 import type { User } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allUsers = await userService.search()
+    const allUsers = await fetchUsersFromDrizzle()
     return NextResponse.json(allUsers)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
@@ -15,10 +19,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await userService.upsert(body)
+    const result = await upsertUserInDrizzle(body)
     
     if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
+      return NextResponse.json({ success: true, data: body })
     } else {
       return NextResponse.json({ 
         success: false, 
@@ -42,14 +46,14 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
     }
     
-    const result = await userService.unlink(id)
+    const result = await deleteUserFromDrizzle(id)
     
-    if (result.success) {
+    if (result) {
       return NextResponse.json({ success: true })
     } else {
       return NextResponse.json({ 
         success: false, 
-        error: result.error 
+        error: 'Failed to delete user'
       }, { status: 400 })
     }
   } catch (error) {

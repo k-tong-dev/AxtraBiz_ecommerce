@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useEffect} from 'react'
+import { useState, useEffect} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {Breadcrumb, Dropdown, Loader, Popover, Whisper, Drawer} from 'rsuite'
 import {uploadFile, deleteFile, fetchAttachmentUrls} from '@/lib/utils/file-upload'
@@ -22,6 +22,13 @@ import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
 import {DatePickerField} from '@/components/admin/DatePickerField'
 import {ServerActions, ServerActionConfig, ActionContext} from '../ServerActions'
+import { getWidget, registerWidget } from '../FieldWidgets'
+import { Many2ManyListWidget } from '../FieldWidgets/Many2ManyListWidget'
+import { TagSelectWidget } from '../FieldWidgets/TagSelectWidget'
+
+// Register widgets on module load
+registerWidget(Many2ManyListWidget as any)
+registerWidget(TagSelectWidget as any)
 
 // Convert FormView customActions to ServerActionConfig
 function convertFormActionToServerAction(action: any, mode: 'create' | 'edit'): ServerActionConfig {
@@ -151,12 +158,16 @@ export interface FormField {
     accept?: string
     width?: string
     icon?: React.ReactNode
+    component?: React.ComponentType<any>  // Custom component
     uploadText?: string
     order?: number
     after?: string
     before?: string
     gridRow?: number
     gridColumn?: number
+    widget?: string  // Field widget name (e.g., 'many2many_list', 'many2one', 'one2many')
+    widgetConfig?: any  // Widget-specific configuration
+    show?: (data: any) => boolean  // Conditional visibility
 }
 
 // Custom page configuration for form pages (like Odoo)
@@ -763,6 +774,11 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     }
 
     const renderField = (field: FormField) => {
+        // Check conditional visibility
+        if (field.show && !field.show(data)) {
+            return null
+        }
+
         const value = data[field.key]
         const onChange = (newValue: any) => {
             setData({...data, [field.key]: newValue})
@@ -778,6 +794,49 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
 
         // Determine if field should have error styling
         const hasError = errorMessage !== null
+
+        // Check if field has a widget
+        if (field.widget) {
+            const WidgetComponent = getWidget(field.widget)
+            if (WidgetComponent) {
+                return (
+                    <div>
+                        <WidgetComponent
+                            value={value}
+                            onChange={onChange}
+                            field={field}
+                            data={data}
+                            disabled={field.readonly}
+                            readonly={field.readonly}
+                        />
+                        {errorMessage && (
+                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+                        )}
+                    </div>
+                )
+            }
+        }
+
+        // Check if field has a custom component (passed directly from config)
+        if (field.component) {
+            const Component = field.component
+            if (Component) {
+                return (
+                    <div>
+                        <Component
+                            value={value}
+                            onChange={onChange}
+                            data={data}
+                            disabled={field.readonly}
+                            readonly={field.readonly}
+                        />
+                        {errorMessage && (
+                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+                        )}
+                    </div>
+                )
+            }
+        }
 
         switch (field.type) {
             case 'text':

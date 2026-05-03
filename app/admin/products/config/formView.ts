@@ -1,6 +1,6 @@
 import { FormConfig } from '@/components/admin/ResourceView/FormView'
+import { ProductAttributes } from '@/components/admin/reports/products/ProductAttributes'
 import type { Product } from '@/lib/drizzle/server'
-import { ProductVariantsPage } from './ProductVariantsPage'
 
 export const productFormConfig: FormConfig = {
   entityName: 'Product',
@@ -168,7 +168,7 @@ export const productFormConfig: FormConfig = {
       gridCols: 2,
       gridRow: 3,
       gridColumn: 2,
-      order: 12
+      order: 18
     },
     {
       key: 'meta_keywords',
@@ -284,9 +284,9 @@ export const productFormConfig: FormConfig = {
       type: 'toggle',
       required: false,
       gridCols: 1,
-      gridRow: 7,
+      gridRow: 8,
       gridColumn: 1,
-      order: 20
+      order: 1
     },
     {
       key: 'low_stock_threshold',
@@ -350,7 +350,7 @@ export const productFormConfig: FormConfig = {
       type: 'toggle',
       required: false,
       gridCols: 1,
-      gridRow: 9,
+      gridRow: 8,
       gridColumn: 1,
       order: 25
     },
@@ -392,16 +392,21 @@ export const productFormConfig: FormConfig = {
   ],
   pages: [
     {
-      key: 'variants',
-      label: 'Product Variants',
-      component: ProductVariantsPage,
-      show: (data: any) => data.product_type === 'variable',
-      order: 100
-    },
-    {
-      key: 'sdsf',
-      label: 'Product Variants',
-      component: ProductVariantsPage,
+      key: 'attributes',
+      label: 'Product Attributes',
+      fields: [
+        {
+          key: 'attribute_ids',
+          label: 'Product Attributes',
+          type: 'json',
+          required: false,
+          component: ProductAttributes,
+          gridCols: 3,
+          gridRow: 1,
+          gridColumn: 1,
+          order: 1
+        }
+      ],
       show: (data: any) => data.product_type === 'variable',
       order: 100
     }

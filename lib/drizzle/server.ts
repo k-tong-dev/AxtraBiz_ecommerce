@@ -21,6 +21,10 @@ export {
   announcements,
   settings,
   configurations,
+  product_attributes,
+  product_attribute_values,
+  product_attribute_values_rel,
+  product_attributes_rel,
 } from '../../drizzle/schema'
 
 // Export types
@@ -32,4 +36,7 @@ export type {
   Announcement,
   Setting,
   Configuration,
+  ProductAttribute,
+  ProductAttributeValue,
+  ProductVariant,
 } from '../../drizzle/schema'

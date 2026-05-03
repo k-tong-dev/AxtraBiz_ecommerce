@@ -10,6 +10,26 @@ import {
   boolean
 } from "drizzle-orm/pg-core";
 
+/**
+ * Reusable audit/tracking columns used across all models
+ * These fields track creation, updates, and user actions
+ */
+export const auditColumns = {
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  create_uid: text('create_uid'),
+  write_uid: text('write_uid'),
+};
+
+/**
+ * Reusable timestamp columns (without audit UIDs)
+ * Useful for simpler tables that don't need user tracking
+ */
+export const timestamps = {
+  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+};
+
 // Users table
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -17,10 +37,7 @@ export const users = pgTable('users', {
   name: text('name').notNull(),
   role: text('role').notNull().default('customer'),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Products table
@@ -58,10 +75,7 @@ export const products = pgTable('products', {
   published_at: timestamp('published_at', { mode: 'string' }),
   active: boolean('active').default(true).notNull(),
   features: jsonb('features').notNull().default('[]'),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Brands table
@@ -73,10 +87,7 @@ export const brands = pgTable('brands', {
   logo_id: text('logo_id'),
   website: text('website'),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Tax rates table
@@ -88,10 +99,7 @@ export const tax_rates = pgTable('tax_rates', {
   region: text('region'),
   postal_code: text('postal_code'),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Product categories table
@@ -104,10 +112,7 @@ export const product_categories = pgTable('product_categories', {
   image_id: text('image_id'),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 }) as any;
 
 // Shipping zones table
@@ -120,10 +125,7 @@ export const shipping_zones = pgTable('shipping_zones', {
   base_rate: numeric('base_rate', { precision: 12, scale: 2 }).default('0'),
   free_shipping_threshold: numeric('free_shipping_threshold', { precision: 12, scale: 2 }),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Shipping zone product relation table
@@ -133,7 +135,7 @@ export const shipping_zone_product = pgTable('shipping_zone_product', {
   product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
   custom_rate: numeric('custom_rate', { precision: 12, scale: 2 }),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  ...timestamps,
 });
 
 // Product attributes table
@@ -141,12 +143,28 @@ export const product_attributes = pgTable('product_attributes', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   type: text('type').notNull(), // select, radio, color, text
-  values: jsonb('values').notNull().default('[]'),
   position: integer('position').default(0),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
+});
+
+// Product attribute values table
+export const product_attribute_values = pgTable('product_attribute_values', {
+  id: text('id').primaryKey(),
+  attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  value: text('value').notNull(), // The actual value (e.g., 'red', 'M', 'XL')
+  position: integer('position').default(0),
+  active: boolean('active').default(true).notNull(),
+  ...auditColumns,
+});
+
+// Product attribute values relation table (junction table for many2many)
+export const product_attribute_values_rel = pgTable('product_attribute_values_rel', {
+  id: text('id').primaryKey(),
+  attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
+  value_id: text('value_id').notNull().references(() => product_attribute_values.id, { onDelete: 'cascade' }),
+  position: integer('position').default(0),
+  ...timestamps,
 });
 
 // Product attributes relation table
@@ -155,7 +173,7 @@ export const product_attributes_rel = pgTable('product_attributes_rel', {
   product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
   attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
   position: integer('position').default(0),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  ...timestamps,
 });
 
 // Product variants table
@@ -174,10 +192,7 @@ export const product_variants = pgTable('product_variants', {
   attributes: jsonb('attributes').notNull().default('{}'),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Attachments table (ir_attachment)
@@ -192,10 +207,7 @@ export const ir_attachment = pgTable('ir_attachment', {
   res_id: text('res_id').notNull(), // Record ID
   type: text('type').notNull().default('binary'), // 'binary', 'url'
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Orders table
@@ -208,10 +220,7 @@ export const orders = pgTable('orders', {
   status: text('status').notNull().default('pending'),
   tracking_number: text('tracking_number'),
   active: boolean('active').default(true).notNull(),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Invoices table
@@ -226,10 +235,7 @@ export const invoices = pgTable('invoices', {
   total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
   status: text('status').notNull().default('pending'),
   due_date: timestamp('due_date', { mode: 'string' }),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Announcements table
@@ -241,10 +247,7 @@ export const announcements = pgTable('announcements', {
   active: boolean('active').notNull().default(true),
   start_date: timestamp('start_date', { mode: 'string' }),
   end_date: timestamp('end_date', { mode: 'string' }),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Settings table
@@ -253,10 +256,7 @@ export const settings = pgTable('settings', {
   key: text('key').notNull().unique(),
   value: text('value').notNull(),
   category: text('category').notNull().default('general'),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Configuration table
@@ -266,10 +266,7 @@ export const configurations = pgTable('configurations', {
   value: text('value').notNull(),
   type: text('type').notNull().default('string'),
   category: text('category').notNull().default('general'),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
+  ...auditColumns,
 });
 
 // Type exports
@@ -287,5 +284,6 @@ export type ProductCategory = typeof product_categories.$inferSelect;
 export type ShippingZone = typeof shipping_zones.$inferSelect;
 export type ShippingZoneProduct = typeof shipping_zone_product.$inferSelect;
 export type ProductAttribute = typeof product_attributes.$inferSelect;
+export type ProductAttributeValue = typeof product_attribute_values.$inferSelect;
 export type ProductAttributesRel = typeof product_attributes_rel.$inferSelect;
 export type ProductVariant = typeof product_variants.$inferSelect;

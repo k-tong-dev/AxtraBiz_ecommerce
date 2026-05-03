@@ -16,8 +16,8 @@ export async function fetchAnnouncementFromDrizzle(announcementId: string): Prom
   return announcementService.read(announcementId)
 }
 
-export async function upsertAnnouncementInDrizzle(announcement: Announcement): Promise<{ success: boolean; error?: string }> {
-  const result = await announcementService.upsert(announcement)
+export async function upsertAnnouncementInDrizzle(announcement: Announcement, userId?: string): Promise<{ success: boolean; error?: string }> {
+  const result = await announcementService.upsert(announcement, userId)
   return { success: result.success, error: result.error }
 }
 

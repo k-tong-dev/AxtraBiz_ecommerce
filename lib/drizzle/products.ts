@@ -19,8 +19,8 @@ export async function fetchProductFromDrizzle(productId: string): Promise<Produc
   return productService.read(productId)
 }
 
-export async function upsertProductInDrizzle(product: Product): Promise<{ success: boolean; error?: string }> {
-  const result = await productService.upsert(product)
+export async function upsertProductInDrizzle(product: Product, userId?: string): Promise<{ success: boolean; error?: string }> {
+  const result = await productService.upsert(product, userId)
   return { success: result.success, error: result.error }
 }
 

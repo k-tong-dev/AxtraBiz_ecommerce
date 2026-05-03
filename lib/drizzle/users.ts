@@ -16,8 +16,8 @@ export async function fetchUserFromDrizzle(userId: string): Promise<User | null>
   return userService.read(userId)
 }
 
-export async function upsertUserInDrizzle(user: User): Promise<{ success: boolean; error?: string }> {
-  const result = await userService.upsert(user)
+export async function upsertUserInDrizzle(user: User, userId?: string): Promise<{ success: boolean; error?: string }> {
+  const result = await userService.upsert(user, userId)
   return { success: result.success, error: result.error }
 }
 

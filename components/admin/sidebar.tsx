@@ -141,6 +141,12 @@ export function AdminSidebar() {
                   <Nav.Item eventKey="/admin/shipping-zones" icon={<Truck className="h-4 w-4" />}>
                     Shipping Zones
                   </Nav.Item>
+                  <Nav.Item eventKey="/admin/product-attributes" icon={<SlidersHorizontal className="h-4 w-4" />}>
+                    Product Attributes
+                  </Nav.Item>
+                  <Nav.Item eventKey="/admin/product-attribute-values" icon={<SlidersHorizontal className="h-4 w-4" />}>
+                    Attribute Values
+                  </Nav.Item>
                 </Nav.Menu>
                 <Nav.Menu eventKey="sales" title="Sales" icon={<ShoppingCart className="h-4 w-4" />}>
                   <Nav.Item eventKey="/admin/orders">Orders</Nav.Item>

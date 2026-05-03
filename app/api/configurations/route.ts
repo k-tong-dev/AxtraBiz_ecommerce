@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
-import { configurationService } from '../../../lib/drizzle/configurations'
+import {
+  fetchConfigurationsFromDrizzle,
+  upsertConfigurationInDrizzle,
+  deleteConfigurationFromDrizzle
+} from '../../../lib/drizzle/configurations'
 import type { Configuration } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allConfigurations = await configurationService.search()
+    const allConfigurations = await fetchConfigurationsFromDrizzle()
     return NextResponse.json(allConfigurations)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch configurations' }, { status: 500 })
@@ -15,10 +19,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await configurationService.upsert(body)
+    const result = await upsertConfigurationInDrizzle(body)
     
     if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
+      return NextResponse.json({ success: true, data: body })
     } else {
       return NextResponse.json({ 
         success: false, 
@@ -42,14 +46,14 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Configuration ID is required' }, { status: 400 })
     }
     
-    const result = await configurationService.unlink(id)
+    const result = await deleteConfigurationFromDrizzle(id)
     
-    if (result.success) {
+    if (result) {
       return NextResponse.json({ success: true })
     } else {
       return NextResponse.json({ 
         success: false, 
-        error: result.error 
+        error: 'Failed to delete configuration'
       }, { status: 400 })
     }
   } catch (error) {

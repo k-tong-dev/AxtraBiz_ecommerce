@@ -1,7 +1,122 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { productService } from '@/lib/drizzle/products'
+import {
+  fetchProductFromDrizzle,
+  upsertProductInDrizzle,
+  deleteProductFromDrizzle
+} from '@/lib/drizzle/products'
 import { eq } from 'drizzle-orm'
-import { products } from '@/drizzle/schema'
+import { products, product_variants, product_attributes, product_attribute_values } from '@/drizzle/schema'
+import { db } from '@/lib/drizzle/server'
+import { calculateVariants, compareVariants, Attribute, AttributeValue } from '@/lib/utils/variant-calculator'
+
+/**
+ * Generate variants for a product based on its attributes
+ */
+async function generateVariantsForProduct(productId: string, attributeIds: string[]) {
+  try {
+    // Fetch attributes and their values
+    const attributes: Attribute[] = []
+    
+    for (const attrId of attributeIds) {
+      const [attrData] = await db
+        .select()
+        .from(product_attributes)
+        .where(eq(product_attributes.id, attrId))
+      
+      if (!attrData) continue
+      
+      const values = await db
+        .select()
+        .from(product_attribute_values)
+        .where(eq(product_attribute_values.attribute_id, attrId))
+      
+      attributes.push({
+        id: attrData.id,
+        name: attrData.name,
+        type: attrData.type,
+        values: values.map(v => ({
+          id: v.id,
+          attribute_id: v.attribute_id,
+          name: v.name,
+          value: v.value,
+          position: v.position
+        }))
+      })
+    }
+    
+    // Calculate new variants
+    const calculatedVariants = calculateVariants(attributes)
+    
+    // Fetch existing variants
+    const existingVariants = await db
+      .select()
+      .from(product_variants)
+      .where(eq(product_variants.product_id, productId))
+    
+    // Compare and determine changes
+    const { toAdd, toUpdate, toRemove } = compareVariants(
+      existingVariants.map(v => ({
+        id: v.id,
+        name: v.name,
+        attributes: v.attributes as Record<string, string>,
+        sku: v.sku,
+        barcode: v.barcode,
+        price: v.price,
+        compare_price: v.compare_price,
+        cost_price: v.cost_price,
+        stock: v.stock,
+        weight: v.weight,
+        active: v.active
+      })),
+      calculatedVariants
+    )
+    
+    // Remove obsolete variants
+    for (const variant of toRemove) {
+      if (variant.id) {
+        await db
+          .delete(product_variants)
+          .where(eq(product_variants.id, variant.id))
+      }
+    }
+    
+    // Add new variants
+    for (const variant of toAdd) {
+      await db.insert(product_variants).values({
+        id: crypto.randomUUID(),
+        product_id: productId,
+        name: variant.name,
+        attributes: variant.attributes,
+        sku: variant.sku || '',
+        barcode: variant.barcode || '',
+        price: variant.price || '0',
+        compare_price: variant.compare_price || '0',
+        cost_price: variant.cost_price || '0',
+        stock: variant.stock || 0,
+        weight: variant.weight || '0',
+        image_ids: '[]',
+        position: 0,
+        active: variant.active !== false
+      })
+    }
+    
+    // Update existing variants
+    for (const variant of toUpdate) {
+      if (variant.id) {
+        await db
+          .update(product_variants)
+          .set({
+            name: variant.name,
+            attributes: variant.attributes
+          })
+          .where(eq(product_variants.id, variant.id))
+      }
+    }
+  } catch (error) {
+    console.error('Error generating variants:', error)
+    throw error
+  }
+}
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +132,7 @@ export async function GET(
       )
     }
 
-    const product = await productService.read(productId)
+    const product = await fetchProductFromDrizzle(productId)
 
     if (!product) {
       return NextResponse.json(
@@ -71,11 +186,13 @@ export async function PUT(
     }
 
     // Dynamic field processing - automatically handle all fields
-    const updateData: any = {}
+    const updateData: any = {
+      id: productId  // Always include the ID from URL params
+    }
     
     // Process each field in the body dynamically
     for (const [key, value] of Object.entries(body)) {
-      // Skip internal fields
+      // Skip internal fields and id (already set from URL params)
       if (key === 'id') continue
       
       // Process field value
@@ -111,10 +228,15 @@ export async function PUT(
       updateData[key] = processedValue
     }
     
-    const result = await productService.write(productId, updateData)
+    const result = await upsertProductInDrizzle(updateData)
 
     if (result.success) {
-      const updatedProduct = await productService.read(productId)
+      // Handle variant generation for variable products
+      if (body.product_type === 'variable' && body.attribute_ids) {
+        await generateVariantsForProduct(productId, body.attribute_ids)
+      }
+
+      const updatedProduct = await fetchProductFromDrizzle(productId)
       return NextResponse.json({
         success: true,
         data: updatedProduct
@@ -148,16 +270,16 @@ export async function DELETE(
       )
     }
 
-    const result = await productService.unlink(productId)
+    const result = await deleteProductFromDrizzle(productId)
 
-    if (result.success) {
+    if (result) {
       return NextResponse.json({
         success: true,
         message: 'Product deleted successfully'
       })
     } else {
       return NextResponse.json(
-        { error: result.error },
+        { error: 'Failed to delete product' },
         { status: 400 }
       )
     }
