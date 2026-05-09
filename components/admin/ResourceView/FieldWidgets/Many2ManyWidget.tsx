@@ -319,6 +319,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
               placeholder="Add..."
               block
               size="sm"
+              style={{ outlineColor: 'transparent'}}
             />
           </div>
         )}
@@ -345,16 +346,17 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
           <span className="text-sm text-gray-600">
             {items.filter(i => !i._toDelete).length} linked records
           </span>
-          <div className="flex gap-2">
+          <div className="fle">
             {config.allowSelect && (
               <Button
                 onClick={() => setShowSelector(!showSelector)}
                 appearance="primary"
                 size="sm"
+                color={"violet"}
                 disabled={disabled}
                 startIcon={<VscAdd />}
               >
-                Link
+                Add
               </Button>
             )}
           </div>
@@ -369,6 +371,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
               placeholder="Search and select records to link..."
               block
               size="sm"
+              style={{ outlineColor: 'transparent'}}
             />
           </div>
         )}
@@ -415,7 +418,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
                   <span>{related?.label || item[config.remoteField]}</span>
                   {config.allowRemove !== false && (
                     <IconButton
-                      appearance="subtle"
+                      appearance="primary"
                       icon={<VscRemove />}
                       onClick={() => handleUnlink(item.id)}
                       size="sm"

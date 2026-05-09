@@ -203,7 +203,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
 
         return (
             <div className="flex items-center justify-between gap-4 px-6 pt-2">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 p-1 rounded-sm">
                     {config.listViewConfig && (
                         <IconButton
                             color={"violet"}

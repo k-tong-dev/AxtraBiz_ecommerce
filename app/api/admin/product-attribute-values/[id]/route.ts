@@ -7,10 +7,12 @@ import {
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const value = await fetchProductAttributeValueFromDrizzle(params.id)
+    const { id } = await params
+    console.log("ID: ", id)
+    const value = await fetchProductAttributeValueFromDrizzle(id)
     if (!value) {
       return NextResponse.json({ error: 'Attribute value not found' }, { status: 404 })
     }
@@ -22,9 +24,10 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     
     const processedBody: any = {}
@@ -60,10 +63,11 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const result = await deleteProductAttributeValueFromDrizzle(params.id)
+    const { id } = await params
+    const result = await deleteProductAttributeValueFromDrizzle(id)
     
     if (result) {
       return NextResponse.json({ success: true })

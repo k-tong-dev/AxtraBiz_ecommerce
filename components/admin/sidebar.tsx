@@ -62,12 +62,12 @@ export function AdminSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 from-sidebar via-sidebar border-r border-sidebar-border/50 backdrop-blur-sm transition-transform duration-300 z-50 ${
+        className={`fixed left-0 top-0 h-screen w-64 from-sidebar via-sidebar backdrop-blur-sm transition-transform duration-300 z-50 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0 flex flex-col shadow-xl`}
       >
         {/* Header with gradient and user info */}
-        <div className="p-3 border-b border-sidebar-border/30 flex flex-col gap-4">
+        <div className="p-3 flex flex-col gap-4">
           {/* User Info */}
           {user && (
             <div className="bg-sidebar-accent/20 rounded-lg p-3 border border-sidebar-border/30">

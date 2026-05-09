@@ -735,6 +735,7 @@ export function ListView({
                         <Center>
                             <Checkbox
                                 inline
+                                color={"violet"}
                                 checked={paginatedData.length > 0 && paginatedData.every(row => currentSelectedIds.includes(row.id || row._id))}
                                 indeterminate={paginatedData.length > 0 && currentSelectedIds.length > 0 && !paginatedData.every(row => currentSelectedIds.includes(row.id || row._id))}
                                 onChange={(value, checked) => handleSelectAll(checked)}
@@ -753,6 +754,7 @@ export function ListView({
                                     <div onClick={(e) => e.stopPropagation()}>
                                         <Checkbox
                                             checked={allChildrenSelected}
+                                            color={"violet"}
                                             indeterminate={someChildrenSelected && !allChildrenSelected}
                                             onChange={(value, checked, event) => {
                                                 event?.stopPropagation()
@@ -767,6 +769,7 @@ export function ListView({
                             return (
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <Checkbox
+                                        color="violet"
                                         checked={currentSelectedIds.includes(rowData._originalId || rowData.id || rowData._id)}
                                         onChange={(value, checked, event) => {
                                             event?.stopPropagation()
@@ -779,9 +782,9 @@ export function ListView({
                     </Cell>
                 </Column>
                 <Column width={50} align="center" fixed resizable={false}>
-                    <HeaderCell style={{padding: 0}}>
+                    <HeaderCell style={{padding: 0}} className={"uppercase"}>
                         <Center>
-                            <span className="text-xs text-gray-500">#</span>
+                            <span className="text-xs text-gray-500">N<sup>o</sup></span>
                         </Center>
                     </HeaderCell>
                     <Cell>
@@ -851,7 +854,7 @@ export function ListView({
                             align={column.align}
                             treeCol={isTreeColumn}
                         >
-                            <HeaderCell>
+                            <HeaderCell className={"uppercase"}>
                                 {column.summary && summary !== null ? (
                                     <div>
                                         <label>{column.title}</label>
@@ -896,7 +899,7 @@ export function ListView({
                                         return (
                                             <Switch 
                                                 checked={value === true || value === 'true' || value === 1 || value === '1'}
-                                                disabled={false} readOnly={true} color='green'
+                                                disabled={false} readOnly={true} color='violet'
                                             />
                                         )
                                     }
