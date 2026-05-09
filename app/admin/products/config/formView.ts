@@ -1,5 +1,5 @@
 import { FormConfig } from '@/components/admin/ResourceView/FormView'
-import { ProductAttributes } from '@/components/admin/reports/products/ProductAttributes'
+import type { Many2ManyWidgetConfig } from '@/components/admin/ResourceView/FieldWidgets'
 import type { Product } from '@/lib/drizzle/server'
 
 export const productFormConfig: FormConfig = {
@@ -398,17 +398,63 @@ export const productFormConfig: FormConfig = {
         {
           key: 'attribute_ids',
           label: 'Product Attributes',
-          type: 'json',
+          type: 'many2many',
           required: false,
-          component: ProductAttributes,
           gridCols: 3,
           gridRow: 1,
           gridColumn: 1,
-          order: 1
+          order: 1,
+          widgetConfig: {
+            // Junction table configuration
+            junctionTable: '/api/admin/product-attributes-rel',
+            localField: 'product_id',
+            remoteField: 'attribute_id',
+            // Related records
+            relation: '/api/admin/product-attributes',
+            displayField: 'name',
+            valueField: 'id',
+            // Extra columns on junction table
+            columns: [
+              { key: 'value_ids', title: 'Values', width: 200, type: 'tags', editable: true }
+            ],
+            mode: 'list',
+            allowSelect: true,
+            allowRemove: true,
+            allowEdit: true
+          } as Many2ManyWidgetConfig
         }
       ],
       show: (data: any) => data.product_type === 'variable',
       order: 100
+    },
+    {
+      key: 'variants',
+      label: 'Product Variants',
+      fields: [
+        {
+          key: 'variants',
+          label: 'Variants',
+          type: 'one2many',
+          gridCols: 3,
+          gridRow: 1,
+          gridColumn: 1,
+          order: 1,
+          widgetConfig: {
+            relation: '/api/admin/product-variants',
+            inverseField: 'product_id',
+            columns: [
+              { key: 'sku', title: 'SKU', width: 150, type: 'string', editable: true },
+              { key: 'price', title: 'Price', width: 100, type: 'number', editable: true },
+              { key: 'stock', title: 'Stock', width: 80, type: 'number', editable: true }
+            ],
+            allowCreate: true,
+            allowEdit: true,
+            allowDelete: true
+          }
+        }
+      ],
+      show: (data: any) => data.product_type === 'variable',
+      order: 101
     }
   ],
   // actions and customActions removed - now using centralized serverActions from ResourceView

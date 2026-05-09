@@ -145,7 +145,7 @@ function convertBuiltInActionsToServerActions(config: FormConfig, mode: 'create'
 export interface FormField {
     key: string
     label: string
-    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime'
+    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'one2many' | 'many2many' | 'many2one'
     required?: boolean
     readonly?: boolean
     helper?: string
@@ -1048,6 +1048,37 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         className={field.className}
                     />
                 )
+
+            case 'one2many':
+            case 'many2many':
+            case 'many2one':
+                {
+                    // Auto-use corresponding widget for relation field types
+                    const widgetName = field.type
+                    const WidgetComponent = getWidget(widgetName)
+                    if (WidgetComponent) {
+                        return (
+                            <div>
+                                <WidgetComponent
+                                    value={value}
+                                    onChange={onChange}
+                                    field={field}
+                                    data={data}
+                                    disabled={field.readonly}
+                                    readonly={field.readonly}
+                                />
+                                {errorMessage && (
+                                    <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+                                )}
+                            </div>
+                        )
+                    }
+                    return (
+                        <div className="p-3 border rounded bg-gray-50 text-gray-500">
+                            Widget not found: {widgetName}
+                        </div>
+                    )
+                }
 
             default:
                 return null

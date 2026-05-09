@@ -32,9 +32,14 @@ export interface FieldWidgetComponent extends React.FC<FieldWidgetProps> {
 
 ### Available Widgets
 
-1. **many2many_list** - Editable table for many-to-many relationships
-2. **many2one** - Searchable select for many-to-one relationships
-3. **one2many** - Editable list for one-to-many relationships
+| Widget | Type | Description |
+|--------|------|-------------|
+| `one2many` | One-to-Many | Inline editable list of child records |
+| `many2many` | Many-to-Many | Junction table management with tags or list view |
+| `many2one` | Many-to-One | Searchable select for single relation |
+| `many2many_list` | Many-to-Many | Editable table for many-to-many (legacy) |
+
+**Note:** `one2many`, `many2many`, and `many2one` types are automatically handled by FormView. You can also use them via `widget` property or `type` property.
 
 ## Usage in FormView
 
@@ -109,21 +114,108 @@ export const fieldWidgets = {
 
 ## Widget Configuration
 
-### many2many_list
+### one2many
+
+**Odoo-style One-to-Many field** - Parent record has many child records. Child has FK to parent.
 
 ```typescript
 {
-  widget: 'many2many_list',
+  key: 'variants',           // Field key in form data
+  label: 'Product Variants',
+  type: 'one2many',          // Auto-uses One2ManyWidget
+  // OR: widget: 'one2many',
   widgetConfig: {
-    relation: 'product.attributes',  // API endpoint for related records
-    displayField: 'name',           // Field to display in table
-    columns: [                      // Table columns
-      { key: 'name', title: 'Name', width: 200 },
-      { key: 'type', title: 'Type', width: 150 }
+    relation: '/api/admin/product-variants',  // API endpoint for child records
+    inverseField: 'product_id',                  // FK field in child referencing parent
+    
+    columns: [
+      { key: 'sku', title: 'SKU', width: 150, type: 'string', editable: true },
+      { key: 'price', title: 'Price', width: 100, type: 'number', editable: true },
+      { key: 'stock', title: 'Stock', width: 80, type: 'number', editable: true },
+      { 
+        key: 'color_id', 
+        title: 'Color', 
+        width: 120, 
+        type: 'many2one',
+        relation: '/api/admin/colors',
+        displayField: 'name',
+        editable: true 
+      }
     ],
-    editable: true,                 // Allow inline editing
-    sortable: true,                 // Allow column sorting
-    searchable: true                // Allow searching
+    
+    allowCreate: true,    // Allow creating new records inline
+    allowEdit: true,      // Allow editing existing records
+    allowDelete: true,    // Allow deleting records
+    allowImport: false    // Allow importing records
+  }
+}
+```
+
+### many2many
+
+**Odoo-style Many-to-Many field** - Records linked via junction table.
+
+```typescript
+{
+  key: 'attribute_ids',
+  label: 'Product Attributes',
+  type: 'many2many',       // Auto-uses Many2ManyWidget
+  // OR: widget: 'many2many',
+  widgetConfig: {
+    // Junction table configuration
+    junctionTable: '/api/admin/product-attributes-rel',  // Junction API endpoint
+    localField: 'product_id',    // FK to parent in junction
+    remoteField: 'attribute_id', // FK to related in junction
+    
+    // Related record configuration
+    relation: '/api/admin/product-attributes',  // Related records API
+    displayField: 'name',    // Field to display from related record
+    valueField: 'id',        // Field to use as value
+    
+    // Junction data columns (optional)
+    columns: [
+      { key: 'position', title: 'Position', width: 80, type: 'number', editable: true },
+      { key: 'is_required', title: 'Required', width: 80, type: 'boolean', editable: true }
+    ],
+    
+    // Display mode
+    mode: 'list',  // 'list' | 'tags'
+    
+    // Actions
+    allowSelect: true,    // Allow linking existing records
+    allowCreate: false,   // Allow creating new related records
+    allowRemove: true,    // Allow unlinking records
+    allowEdit: true       // Allow editing junction data
+  }
+}
+```
+
+### many2one
+
+**Odoo-style Many-to-One field** - Single relation with searchable select.
+
+```typescript
+{
+  key: 'category_id',
+  label: 'Category',
+  type: 'many2one',        // Auto-uses Many2OneWidget
+  // OR: widget: 'many2one',
+  widgetConfig: {
+    relation: '/api/admin/product-categories',  // API endpoint
+    displayField: 'name',    // Field to display
+    valueField: 'id',        // Field to use as value
+    searchField: 'name',     // Field to search
+    
+    // UI options
+    allowCreate: true,       // Show "Create New" button
+    allowEdit: true,         // Show edit button for selected
+    allowClear: true,        // Allow clearing selection
+    placeholder: 'Select a category...',
+    
+    // Search options
+    searchable: true,        // Enable search
+    minSearchLength: 0,      // 0 = preload all, >0 = search on type
+    limit: 100               // Max results to show
   }
 }
 ```
@@ -197,9 +289,45 @@ const renderField = (field: FormField) => {
 6. **Performance**: Use React.memo for expensive widgets
 7. **Testing**: Write unit tests for widget components
 
+## Server-Side Handling
+
+### One2Many Save Pattern
+
+When saving records with one2many fields, the server should handle:
+
+```typescript
+// Form submits array of child records
+const variants = [
+  { id: 'temp_123', sku: 'SKU001', price: 10, _isNew: true },
+  { id: 'existing_456', sku: 'SKU002', price: 20, _isModified: true },
+  { id: 'existing_789', sku: 'SKU003', price: 30, _toDelete: true }
+]
+
+// Server logic:
+// 1. Create new records (_isNew)
+// 2. Update modified records (_isModified)
+// 3. Delete records marked for deletion (_toDelete)
+```
+
+### Many2Many Save Pattern
+
+```typescript
+// Junction records are managed inline
+const attributeRels = [
+  { id: 'temp_1', attribute_id: 'attr_1', position: 1, _isNew: true },
+  { id: 'rel_2', attribute_id: 'attr_2', position: 2 },
+  { id: 'rel_3', attribute_id: 'attr_3', _toDelete: true }
+]
+```
+
 ## Future Enhancements
 
-- [ ] Add more built-in widgets (date_range, color_picker, file_upload, etc.)
+- [x] One2Many widget with inline editing
+- [x] Many2Many widget with junction table support
+- [x] Many2One widget with search
+- [ ] Domain/context propagation to related records
+- [ ] OnChange handlers for relation fields
+- [ ] Modal dialogs for create/edit operations
 - [ ] Widget validation integration
 - [ ] Widget-specific configuration UI
 - [ ] Widget marketplace for community contributions
