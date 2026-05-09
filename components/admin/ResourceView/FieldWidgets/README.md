@@ -32,12 +32,12 @@ export interface FieldWidgetComponent extends React.FC<FieldWidgetProps> {
 
 ### Available Widgets
 
-| Widget | Type | Description |
-|--------|------|-------------|
-| `one2many` | One-to-Many | Inline editable list of child records |
-| `many2many` | Many-to-Many | Junction table management with tags or list view |
-| `many2one` | Many-to-One | Searchable select for single relation |
-| `many2many_list` | Many-to-Many | Editable table for many-to-many (legacy) |
+| Widget           | Type         | Description                                      |
+|------------------|--------------|--------------------------------------------------|
+| `one2many`       | One-to-Many  | Inline editable list of child records            |
+| `many2many`      | Many-to-Many | Junction table management with tags or list view |
+| `many2one`       | Many-to-One  | Searchable select for single relation            |
+| `many2many_list` | Many-to-Many | Editable table for many-to-many (legacy)         |
 
 **Note:** `one2many`, `many2many`, and `many2one` types are automatically handled by FormView. You can also use them via `widget` property or `type` property.
 

@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/drizzle/server'
-import { product_attribute_values_rel } from '@/drizzle/schema'
-import { eq, and } from 'drizzle-orm'
+import { 
+  fetchProductAttributeValuesRelFromDrizzle,
+  upsertProductAttributeValuesRelInDrizzle,
+  deleteProductAttributeValuesRelFromDrizzle,
+  deleteProductAttributeValuesRelByAttributeAndValue,
+  checkProductAttributeValuesRelExists
+} from '@/lib/drizzle/product-attribute-values-rel'
 
 /**
  * GET - Fetch product attribute value relations
@@ -15,20 +19,10 @@ export async function GET(request: Request) {
     const attributeId = searchParams.get('attribute_id')
     const valueId = searchParams.get('value_id')
 
-    // Build query conditions
-    let conditions = []
-    if (attributeId) {
-      conditions.push(eq(product_attribute_values_rel.attribute_id, attributeId))
-    }
-    if (valueId) {
-      conditions.push(eq(product_attribute_values_rel.value_id, valueId))
-    }
-
-    // Fetch relations
-    const relations = await db
-      .select()
-      .from(product_attribute_values_rel)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
+    const relations = await fetchProductAttributeValuesRelFromDrizzle(
+      attributeId || undefined,
+      valueId || undefined
+    )
 
     return NextResponse.json(relations)
   } catch (error) {
@@ -56,45 +50,55 @@ export async function POST(request: Request) {
     }
 
     // Check if relation already exists
-    const existing = await db
-      .select()
-      .from(product_attribute_values_rel)
-      .where(
-        and(
-          eq(product_attribute_values_rel.attribute_id, body.attribute_id),
-          eq(product_attribute_values_rel.value_id, body.value_id)
-        )
-      )
-      .limit(1)
+    const exists = await checkProductAttributeValuesRelExists(
+      body.attribute_id,
+      body.value_id
+    )
 
-    if (existing.length > 0) {
-      // Update existing
-      const [updated] = await db
-        .update(product_attribute_values_rel)
-        .set({
-          position: body.position ?? existing[0].position,
+    if (exists) {
+      // Find existing relation to update
+      const relations = await fetchProductAttributeValuesRelFromDrizzle(
+        body.attribute_id,
+        body.value_id
+      )
+      const existing = relations[0]
+      
+      if (existing) {
+        const result = await upsertProductAttributeValuesRelInDrizzle({
+          ...existing,
+          position: body.position ?? existing.position,
           updated_at: new Date().toISOString()
         })
-        .where(eq(product_attribute_values_rel.id, existing[0].id))
-        .returning()
-
-      return NextResponse.json({ success: true, data: updated })
+        
+        if (result.success) {
+          return NextResponse.json({ success: true, data: result.data })
+        } else {
+          return NextResponse.json(
+            { error: result.error || 'Failed to update relation' },
+            { status: 500 }
+          )
+        }
+      }
     }
 
-    // Create new
-    const [created] = await db
-      .insert(product_attribute_values_rel)
-      .values({
-        id: body.id || crypto.randomUUID(),
-        attribute_id: body.attribute_id,
-        value_id: body.value_id,
-        position: body.position ?? 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .returning()
+    // Create new relation
+    const result = await upsertProductAttributeValuesRelInDrizzle({
+      id: body.id || crypto.randomUUID(),
+      attribute_id: body.attribute_id,
+      value_id: body.value_id,
+      position: body.position ?? 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
 
-    return NextResponse.json({ success: true, data: created }, { status: 201 })
+    if (result.success) {
+      return NextResponse.json({ success: true, data: result.data }, { status: 201 })
+    } else {
+      return NextResponse.json(
+        { error: result.error || 'Failed to create relation' },
+        { status: 500 }
+      )
+    }
   } catch (error) {
     console.error('[POST /api/admin/product-attribute-values-rel] Error:', error)
     return NextResponse.json(
@@ -116,25 +120,33 @@ export async function DELETE(request: Request) {
 
     if (id) {
       // Delete by ID
-      await db
-        .delete(product_attribute_values_rel)
-        .where(eq(product_attribute_values_rel.id, id))
-
-      return NextResponse.json({ success: true, message: 'Relation deleted' })
+      const success = await deleteProductAttributeValuesRelFromDrizzle(id)
+      
+      if (success) {
+        return NextResponse.json({ success: true, message: 'Relation deleted' })
+      } else {
+        return NextResponse.json(
+          { error: 'Failed to delete relation' },
+          { status: 500 }
+        )
+      }
     }
 
     if (attributeId && valueId) {
       // Delete by attribute_id + value_id
-      await db
-        .delete(product_attribute_values_rel)
-        .where(
-          and(
-            eq(product_attribute_values_rel.attribute_id, attributeId),
-            eq(product_attribute_values_rel.value_id, valueId)
-          )
+      const success = await deleteProductAttributeValuesRelByAttributeAndValue(
+        attributeId,
+        valueId
+      )
+      
+      if (success) {
+        return NextResponse.json({ success: true, message: 'Relation deleted' })
+      } else {
+        return NextResponse.json(
+          { error: 'Failed to delete relation' },
+          { status: 500 }
         )
-
-      return NextResponse.json({ success: true, message: 'Relation deleted' })
+      }
     }
 
     return NextResponse.json(

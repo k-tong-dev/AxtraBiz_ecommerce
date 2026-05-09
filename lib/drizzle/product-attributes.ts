@@ -35,7 +35,7 @@ export async function deleteProductAttributeFromDrizzle(attributeId: string): Pr
 // Convenience functions for product attribute values
 export async function fetchProductAttributeValuesFromDrizzle(attributeId?: string): Promise<ProductAttributeValue[]> {
   if (attributeId) {
-    return productAttributeValueService.search(eq(product_attribute_values.attribute_id, attributeId))
+    return productAttributeValueService.search(eq(product_attribute_values, attributeId))
   }
   return productAttributeValueService.search()
 }

@@ -285,5 +285,6 @@ export type ShippingZone = typeof shipping_zones.$inferSelect;
 export type ShippingZoneProduct = typeof shipping_zone_product.$inferSelect;
 export type ProductAttribute = typeof product_attributes.$inferSelect;
 export type ProductAttributeValue = typeof product_attribute_values.$inferSelect;
+export type ProductAttributeValuesRel = typeof product_attribute_values_rel.$inferSelect;
 export type ProductAttributesRel = typeof product_attributes_rel.$inferSelect;
 export type ProductVariant = typeof product_variants.$inferSelect;
