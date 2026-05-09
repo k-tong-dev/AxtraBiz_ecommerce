@@ -1,4 +1,5 @@
 import { FormConfig } from '@/components/admin/ResourceView/FormView'
+import type { Many2ManyWidgetConfig } from '@/components/admin/ResourceView/FieldWidgets'
 import type { ProductAttribute } from '@/lib/drizzle/server'
 
 export const productAttributeFormConfig: FormConfig = {
@@ -44,6 +45,43 @@ export const productAttributeFormConfig: FormConfig = {
       gridRow: 2,
       gridColumn: 1,
       order: 3
+    }
+  ],
+  pages: [
+    {
+      key: 'values',
+      label: 'Attribute Values',
+      fields: [
+        {
+          key: 'value_ids',
+          label: 'Values',
+          type: 'many2many',
+          gridCols: 3,
+          gridRow: 1,
+          gridColumn: 1,
+          order: 1,
+          widgetConfig: {
+            // Junction table: links attributes to values
+            junctionTable: '/api/admin/product-attribute-values-rel',
+            localField: 'attribute_id',
+            remoteField: 'value_id',
+            // Related records: product attribute values
+            relation: '/api/admin/product-attribute-values',
+            displayField: 'name',
+            valueField: 'id',
+            // Extra data on junction
+            columns: [
+              { key: 'position', title: 'Position', width: 80, type: 'number', editable: true }
+            ],
+            mode: 'list',
+            allowSelect: true,
+            allowCreate: true,  // Allow creating new values inline
+            allowRemove: true,
+            allowEdit: true
+          } as Many2ManyWidgetConfig
+        }
+      ],
+      order: 100
     }
   ],
   breadcrumbs: {

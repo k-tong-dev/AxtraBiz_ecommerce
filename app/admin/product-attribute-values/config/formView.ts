@@ -1,4 +1,5 @@
 import { FormConfig } from '@/components/admin/ResourceView/FormView'
+import type { Many2ManyWidgetConfig } from '@/components/admin/ResourceView/FieldWidgets'
 import type { ProductAttributeValue } from '@/lib/drizzle/server'
 
 export const productAttributeValueFormConfig: FormConfig = {
@@ -7,17 +8,6 @@ export const productAttributeValueFormConfig: FormConfig = {
   apiEndpoint: '/api/admin/product-attribute-values',
   fields: [
     {
-      key: 'attribute_id',
-      label: 'Attribute',
-      type: 'select',
-      required: true,
-      placeholder: 'Select an attribute',
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 1,
-      order: 1
-    },
-    {
       key: 'name',
       label: 'Value Name',
       type: 'text',
@@ -25,20 +15,20 @@ export const productAttributeValueFormConfig: FormConfig = {
       placeholder: 'e.g., Red, Large, Cotton',
       gridCols: 2,
       gridRow: 1,
-      gridColumn: 2,
-      order: 2
+      gridColumn: 1,
+      order: 1
     },
     {
       key: 'value',
-      label: 'Value',
+      label: 'Value Code',
       type: 'text',
       required: true,
       placeholder: 'e.g., red, L, cotton',
       helper: 'Internal value code (lowercase, no spaces)',
       gridCols: 2,
-      gridRow: 2,
-      gridColumn: 1,
-      order: 3
+      gridRow: 1,
+      gridColumn: 2,
+      order: 2
     },
     {
       key: 'position',
@@ -49,8 +39,8 @@ export const productAttributeValueFormConfig: FormConfig = {
       helper: 'Display order (lower numbers appear first)',
       gridCols: 1,
       gridRow: 2,
-      gridColumn: 2,
-      order: 4
+      gridColumn: 1,
+      order: 3
     },
     {
       key: 'active',
@@ -58,9 +48,45 @@ export const productAttributeValueFormConfig: FormConfig = {
       type: 'boolean',
       required: false,
       gridCols: 1,
-      gridRow: 3,
-      gridColumn: 1,
-      order: 5
+      gridRow: 2,
+      gridColumn: 2,
+      order: 4
+    }
+  ],
+  pages: [
+    {
+      key: 'linked_attributes',
+      label: 'Linked Attributes',
+      fields: [
+        {
+          key: 'attribute_ids',
+          label: 'Used By Attributes',
+          type: 'many2many',
+          gridCols: 3,
+          gridRow: 1,
+          gridColumn: 1,
+          order: 1,
+          widgetConfig: {
+            // Junction table: links values to attributes
+            junctionTable: '/api/admin/product-attribute-values-rel',
+            localField: 'value_id',
+            remoteField: 'attribute_id',
+            // Related records: product attributes
+            relation: '/api/admin/product-attributes',
+            displayField: 'name',
+            valueField: 'id',
+            // Extra data on junction
+            columns: [
+              { key: 'position', title: 'Position', width: 80, type: 'number', editable: true }
+            ],
+            mode: 'list',
+            allowSelect: true,
+            allowRemove: true,
+            allowEdit: true
+          } as Many2ManyWidgetConfig
+        }
+      ],
+      order: 100
     }
   ],
   breadcrumbs: {
