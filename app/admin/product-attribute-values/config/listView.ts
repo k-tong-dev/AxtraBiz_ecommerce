@@ -31,6 +31,7 @@ export const getProductAttributeValueListConfig = (data: any[] = []): ListViewCo
     {
       key: 'active',
       title: 'Active',
+      type: 'boolean',
       width: 100,
       sortable: true
     },

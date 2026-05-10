@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Table, Button, IconButton, Input, NumberInput, Checkbox, SelectPicker } from 'rsuite'
 import { VscEdit, VscSave, VscRemove, VscAdd } from 'react-icons/vsc'
 import { FieldWidgetProps } from './index'
+import {IoIosCreate} from "react-icons/io";
 
 const { Column, HeaderCell, Cell } = Table
 
@@ -63,8 +64,13 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
   const config = field.widgetConfig as One2ManyWidgetConfig
   const parentId = formData?.id
   
+  console.log('[One2ManyWidget] Config:', config)
+  console.log('[One2ManyWidget] allowCreate:', config.allowCreate)
+  console.log('[One2ManyWidget] Field:', field)
+  
   // Sync with external value
   useEffect(() => {
+    console.log('[One2ManyWidget] Initial value set:', value)
     setItems(value || [])
   }, [value])
   
@@ -100,64 +106,70 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
     onChange(newItems)
   }, [onChange])
   
-  // Add new record
+  // Handle add
   const handleAdd = () => {
-    if (!config.allowCreate) return
+    console.log('[One2ManyWidget] Adding new item')
     
-    const newId = `temp_${Date.now()}`
     const newItem: any = {
-      id: newId,
-      [config.inverseField]: parentId || null,
-      _isNew: true,
-      _editing: true
+      id: `temp_${Date.now()}`,
+      ...config.columns.reduce((acc, col) => {
+        acc[col.key] = col.type === 'boolean' ? false : ''
+        return acc
+      }, {} as any),
+      _isNew: true
     }
     
-    // Initialize empty values for all columns
-    config.columns.forEach(col => {
-      if (col.type === 'boolean') {
-        newItem[col.key] = false
-      } else if (col.type === 'number') {
-        newItem[col.key] = 0
-      } else {
-        newItem[col.key] = ''
-      }
-    })
-    
-    notifyChange([...items, newItem])
-    setEditingId(newId)
+    console.log('[One2ManyWidget] New item created:', newItem)
+    setItems([...items, newItem])
   }
   
-  // Delete record
+  // Handle delete
   const handleDelete = (id: string) => {
-    if (!config.allowDelete) return
+    console.log('[One2ManyWidget] Deleting item:', id)
     
-    const newItems = items.filter(item => item.id !== id)
-    notifyChange(newItems)
+    const item = items.find(i => i.id === id)
+    if (!item) {
+      console.log('[One2ManyWidget] Item not found:', id)
+      return
+    }
+    
+    console.log('[One2ManyWidget] Item to delete:', item)
+    
+    if (item._isNew) {
+      // If it's a new item, just remove it
+      const newItems = items.filter(i => i.id !== id)
+      console.log('[One2ManyWidget] Removed new item, remaining:', newItems)
+      setItems(newItems)
+    } else {
+      // If it's existing, mark for deletion
+      const newItems = items.map(i => i.id === id ? { ...i, _toDelete: true } : i)
+      console.log('[One2ManyWidget] Marked existing item for deletion:', newItems)
+      setItems(newItems)
+    }
   }
   
-  // Toggle edit mode
-  const handleEdit = (id: string) => {
-    if (!config.allowEdit) return
-    
-    setEditingId(editingId === id ? null : id)
-  }
-  
-  // Save record
+  // Handle save
   const handleSave = (id: string) => {
-    setEditingId(null)
+    console.log('[One2ManyWidget] Saving item:', id)
     
-    // Mark as modified (for server sync)
-    const newItems = items.map(item => 
-      item.id === id ? { ...item, _isModified: !item._isNew } : item
-    )
-    notifyChange(newItems)
+    setEditingId(null)
+    const item = items.find(i => i.id === id)
+    if (item && item._isNew) {
+      const newItems = items.map(i => i.id === id ? { ...i, _isNew: false, _isModified: true } : i)
+      console.log('[One2ManyWidget] Saved new item:', newItems)
+      setItems(newItems)
+    }
   }
   
-  // Update field value
-  const handleFieldChange = (id: string, key: string, newValue: any) => {
+  // Handle cell value change
+  const handleCellChange = (id: string, dataKey: string, value: any) => {
+    console.log('[One2ManyWidget] Cell change:', { id, dataKey, value })
+    
     const newItems = items.map(item =>
-      item.id === id ? { ...item, [key]: newValue } : item
+      item.id === id ? { ...item, [dataKey]: value } : item
     )
+    
+    console.log('[One2ManyWidget] Items after cell change:', newItems)
     setItems(newItems)
   }
   
@@ -186,7 +198,7 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
     // Edit mode
     const commonProps = {
       value,
-      onChange: (newValue: any) => handleFieldChange(rowData.id, dataKey, newValue),
+      onChange: (newValue: any) => handleCellChange(rowData.id, dataKey, newValue),
       disabled,
       size: 'sm' as const
     }
@@ -229,7 +241,7 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
           <IconButton
             appearance="subtle"
             icon={isEditing ? <VscSave /> : <VscEdit />}
-            onClick={() => isEditing ? handleSave(rowData.id) : handleEdit(rowData.id)}
+            onClick={() => isEditing ? handleSave(rowData.id) : setEditingId(editingId === rowData.id ? null : rowData.id)}
             size="sm"
           />
         )}
@@ -270,10 +282,18 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
               appearance="primary"
               size="sm"
               disabled={disabled}
-              startIcon={<VscAdd />}
+              startIcon={<IoIosCreate />}
             >
-              Add
+              Add lines
             </Button>
+          </div>
+        )}
+        
+        {!config.allowCreate && items.length > 0 && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">
+              {items.length} {items.length === 1 ? 'record' : 'records'}
+            </span>
           </div>
         )}
         

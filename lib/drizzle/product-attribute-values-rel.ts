@@ -1,5 +1,6 @@
 import { db, product_attribute_values_rel } from '../drizzle/server'
 import { createCrudService } from './base-crud'
+import { eq, and } from 'drizzle-orm'
 import type { ProductAttributeValuesRel } from '../../drizzle/schema'
 
 // Create CRUD service for attribute value relations
@@ -15,17 +16,15 @@ export async function fetchProductAttributeValuesRelFromDrizzle(
   // Build query conditions
   let conditions = []
   if (attributeId) {
-    conditions.push((product_attribute_values_rel as any).attribute_id.equals(attributeId))
+    conditions.push(eq(product_attribute_values_rel.attribute_id, attributeId))
   }
   if (valueId) {
-    conditions.push((product_attribute_values_rel as any).value_id.equals(valueId))
+    conditions.push(eq(product_attribute_values_rel.value_id, valueId))
   }
 
   // Search with conditions
   if (conditions.length > 0) {
-    return productAttributeValuesRelService.search(
-      (product_attribute_values_rel as any).and(...conditions)
-    )
+    return productAttributeValuesRelService.search(and(...conditions))
   }
   return productAttributeValuesRelService.search()
 }

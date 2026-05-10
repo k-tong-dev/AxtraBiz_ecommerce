@@ -1055,13 +1055,22 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 {
                     // Auto-use corresponding widget for relation field types
                     const widgetName = field.type
+                    console.log(`[FormView] Rendering ${widgetName} widget for field:`, field.key)
+                    console.log(`[FormView] Widget initial value:`, value)
+                    console.log(`[FormView] Widget field config:`, field.widgetConfig)
+                    console.log(`[FormView] Form data:`, data)
+                    
                     const WidgetComponent = getWidget(widgetName)
                     if (WidgetComponent) {
                         return (
                             <div>
                                 <WidgetComponent
                                     value={value}
-                                    onChange={onChange}
+                                    onChange={(newValue) => {
+                                        console.log(`[FormView] ${widgetName} widget onChange:`, newValue)
+                                        console.log(`[FormView] Field:`, field.key)
+                                        onChange(newValue)
+                                    }}
                                     field={field}
                                     data={data}
                                     disabled={field.readonly}
