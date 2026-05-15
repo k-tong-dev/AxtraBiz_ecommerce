@@ -1,0 +1,8 @@
+:root {
+  --rs-state-hover-bg: #f6f6f6;
+}
+/*.rs-check-item:not(.rs-checkbox-disabled):hover,*/
+/*.rs-check-item:focus,*/
+/*.rs-check-item.rs-check-item-focus {*/
+/*  color: inherit !important;*/
+/*}*/

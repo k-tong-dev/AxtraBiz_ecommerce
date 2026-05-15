@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Table, Button, IconButton, Input, NumberInput, TagPicker, SelectPicker } from 'rsuite'
 import { VscEdit, VscSave, VscRemove, VscAdd } from 'react-icons/vsc'
 import { FieldWidgetProps, FieldWidgetComponent } from './index'
+import {IoIosCreate} from "react-icons/io";
 
 const { Column, HeaderCell, Cell } = Table
 
@@ -323,14 +324,15 @@ export const Many2ManyListWidget: React.FC<FieldWidgetProps> = ({
         appearance="primary"
         size="sm"
         disabled={disabled}
+        startIcon={<IoIosCreate />}
       >
-        <VscAdd className="mr-2" />
         Add Record
       </Button>
       <hr className="my-4" />
       <Table
         height={300}
         data={items}
+        bordered={false}
         autoHeight={items.length === 0}
       >
         {widgetConfig.columns.map((col) => (

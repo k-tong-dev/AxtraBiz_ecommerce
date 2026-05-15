@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import 'rsuite/dist/rsuite-no-reset.min.css';
 import './globals.css'
 import './src/css/rsuite_to_heroui_style.css'
+import './src/css/rsuite_table_style.css'
 
 const _geist = Geist({ subsets: ["latin"], display: "swap" });
 const _geistMono = Geist_Mono({ subsets: ["latin"], display: "swap" });

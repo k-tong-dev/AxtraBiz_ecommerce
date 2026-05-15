@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Table, Button, IconButton, Input, NumberInput, Checkbox, SelectPicker, TagPicker } from 'rsuite'
 import { VscEdit, VscSave, VscRemove, VscAdd } from 'react-icons/vsc'
 import { FieldWidgetProps } from './index'
+import {IoIosCreate} from "react-icons/io";
 
 const { Column, HeaderCell, Cell } = Table
 
@@ -164,8 +165,15 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
   
   // Unlink (remove from list, mark for deletion)
   const handleUnlink = (id: string) => {
+    console.log('[Many2ManyWidget] handleUnlink called:', { id, currentItems: items })
+    
     const item = items.find(i => i.id === id)
-    if (!item) return
+    if (!item) {
+      console.log('[Many2ManyWidget] Item not found for unlink:', id)
+      return
+    }
+    
+    console.log('[Many2ManyWidget] Item to unlink:', item)
     
     // If it's a new item, just remove it
     // If it's existing, mark for deletion
@@ -173,22 +181,76 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
       i.id === id ? { ...i, _toDelete: true } : i
     ).filter(i => i._isNew ? !i._toDelete : true)
     
+    console.log('[Many2ManyWidget] Items after unlink processing:', newItems)
+    console.log('[Many2ManyWidget] Active items count:', newItems.filter(i => !i._toDelete).length)
+    
     notifyChange(newItems)
   }
   
   // Toggle edit mode for junction data
   const handleEdit = (id: string) => {
     if (!config.allowEdit) return
+    
+    // Store original values when starting edit
+    if (editingId !== id) {
+      const item = items.find(i => i.id === id)
+      if (item && config.columns) {
+        const original: any = {}
+        for (const col of config.columns) {
+          original[col.key] = item[col.key]
+        }
+        setOriginalValues(prev => ({ ...prev, [id]: original }))
+      }
+    }
+    
     setEditingId(editingId === id ? null : id)
   }
+  
+  // Track original values for change detection
+  const [originalValues, setOriginalValues] = useState<Record<string, any>>({})
   
   // Save junction data changes
   const handleSave = (id: string) => {
     setEditingId(null)
     
-    const newItems = items.map(item => 
-      item.id === id ? { ...item, _isModified: !item._isNew } : item
-    )
+    const item = items.find(i => i.id === id)
+    if (!item) return
+    
+    // Check if any values actually changed compared to original
+    const original = originalValues[id]
+    let hasChanges = false
+    
+    if (original && config.columns) {
+      for (const col of config.columns) {
+        if (item[col.key] !== original[col.key]) {
+          hasChanges = true
+          break
+        }
+      }
+    }
+    
+    // Only mark as modified if there are actual changes (not for new items)
+    const newItems = items.map(item => {
+      if (item.id !== id) return item
+      
+      if (item._isNew) {
+        // New items don't need _isModified
+        return { ...item }
+      } else if (hasChanges) {
+        // Existing items with changes
+        return { ...item, _isModified: true }
+      } else {
+        // Existing items without changes - remove any previous _isModified
+        const { _isModified, ...rest } = item
+        return rest
+      }
+    })
+    
+    // Clear stored original values
+    const newOriginalValues = { ...originalValues }
+    delete newOriginalValues[id]
+    setOriginalValues(newOriginalValues)
+    
     notifyChange(newItems)
   }
   
@@ -204,7 +266,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
   const getAvailableOptions = () => {
     const linkedIds = items
       .filter(i => !i._toDelete)
-      .map(i => i[config.remoteField])
+      .map(i => i[config.remoteField] || i.id)  // Handle new data structure
     return relatedOptions.filter(o => !linkedIds.includes(o.value))
   }
   
@@ -261,21 +323,40 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
     const showEdit = config.allowEdit && !readonly && !disabled && config.columns
     const showUnlink = config.allowRemove !== false && !readonly && !disabled
     
+    console.log('[Many2ManyWidget] ActionCell render:', {
+      rowData,
+      isEditing,
+      showEdit,
+      showUnlink,
+      config: {
+        allowEdit: config.allowEdit,
+        allowRemove: config.allowRemove,
+        columns: !!config.columns
+      }
+    })
+    
     return (
       <Cell {...props} style={{ padding: '6px', display: 'flex', gap: '4px' }}>
         {showEdit && (
           <IconButton
-            appearance="subtle"
+            appearance="link"
+            color="violet"
             icon={isEditing ? <VscSave /> : <VscEdit />}
-            onClick={() => isEditing ? handleSave(rowData.id) : handleEdit(rowData.id)}
+            onClick={() => {
+              console.log('[Many2ManyWidget] Edit button clicked:', { id: rowData.id, isEditing })
+              isEditing ? handleSave(rowData.id) : handleEdit(rowData.id)
+            }}
             size="sm"
           />
         )}
         {showUnlink && (
           <IconButton
-            appearance="subtle"
+            appearance="link"
             icon={<VscRemove />}
-            onClick={() => handleUnlink(rowData.id)}
+            onClick={() => {
+              console.log('[Many2ManyWidget] Unlink button clicked:', rowData.id)
+              handleUnlink(rowData.id)
+            }}
             size="sm"
             color="red"
           />
@@ -338,35 +419,42 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
     )
   }
   
+  const activeItems = items.filter(i => !i._toDelete)
+  const shouldShowActionBar = activeItems.length > 0 || (config.allowSelect && activeItems.length === 0)
+
   return (
     <>
       <style>{styles}</style>
       <div className="space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">
-            {items.filter(i => !i._toDelete).length} linked records
-          </span>
-          <div className="fle">
+        {shouldShowActionBar && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600">
+              {items.filter(i => !i._toDelete).length} linked records
+            </span>
             {config.allowSelect && (
-              <Button
-                onClick={() => setShowSelector(!showSelector)}
-                appearance="primary"
-                size="sm"
-                color={"violet"}
-                disabled={disabled}
-                startIcon={<VscAdd />}
-              >
-                Add
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setShowSelector(!showSelector)}
+                  appearance="default"
+                  size="sm"
+                  style={{color: '#531ba8', backgroundColor: 'transparent'}}
+                  disabled={disabled}
+                  startIcon={<IoIosCreate />}
+                >
+                  Add lines
+                </Button>
+              </div>
             )}
           </div>
-        </div>
+        )}
         
         {showSelector && (
           <div className="p-3 border rounded bg-gray-50">
             <TagPicker
               data={getAvailableOptions()}
               value={[]}
+              creatable
+              className={"text-foreground"}
               onChange={(values) => handleSelect(values as string[])}
               placeholder="Search and select records to link..."
               block
@@ -381,16 +469,23 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
             height={300}
             data={items.filter(i => !i._toDelete)}
             autoHeight={items.filter(i => !i._toDelete).length === 0}
-            bordered
-            cellBordered
+            bordered={false}
+            cellBordered={false}
           >
             {/* Related record display column */}
             <Column flexGrow={1}>
-              <HeaderCell>{config.displayField || 'Name'}</HeaderCell>
+              <HeaderCell className={"uppercase"}>{config.displayField || 'Name'}</HeaderCell>
               <Cell>
                 {(rowData: any) => {
-                  const related = rowData._related || relatedOptions.find(r => r.value === rowData[config.remoteField])
-                  return <span>{related?.label || rowData[config.remoteField]}</span>
+                  // API returns full data directly: name, type, position, etc.
+                  // Fallback to _related for backwards compatibility or relatedOptions for new items
+                  const displayValue = rowData[config.displayField || 'name'] 
+                    || rowData.name 
+                    || rowData._related?.label 
+                    || relatedOptions.find(r => r.value === rowData[config.remoteField])?.label 
+                    || rowData[config.remoteField] 
+                    || '-'
+                  return <span>{displayValue}</span>
                 }}
               </Cell>
             </Column>
@@ -398,13 +493,13 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
             {/* Junction data columns */}
             {config.columns.map((col) => (
               <Column key={col.key} width={col.width || 100}>
-                <HeaderCell>{col.title}</HeaderCell>
+                <HeaderCell  className={"uppercase"}>{col.title}</HeaderCell>
                 <EditableCell dataKey={col.key} column={col} />
               </Column>
             ))}
             
             <Column width={80} align="center">
-              <HeaderCell>Action</HeaderCell>
+              <HeaderCell className={"uppercase"}>Action</HeaderCell>
               <ActionCell dataKey="id" />
             </Column>
           </Table>

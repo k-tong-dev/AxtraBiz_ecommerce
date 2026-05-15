@@ -275,8 +275,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         
         
         if (mode === 'edit' && initialData) {
-            setData(initialData as MutableEntity)
-            setOriginalData(initialData as MutableEntity)
+            // Ensure all fields from config exist in initial data, even if undefined
+            const completeData: Record<string, any> = { ...initialData }
+            config.fields.forEach(field => {
+                if (!(field.key in completeData)) {
+                    completeData[field.key] = undefined
+                }
+            })
+            setData(completeData as MutableEntity)
+            setOriginalData(completeData as MutableEntity)
             // Initialize uploadedFiles from existing file fields
             const existingFileIds = config.fields
                 .filter(f => f.type === 'file' && initialData[f.key])
@@ -409,10 +416,32 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         }
         const dataChanged = JSON.stringify(dataWithoutFiles) !== JSON.stringify(originalWithoutFiles)
 
+        console.log('[FormView] Data changed:', dataChanged)
+
         const isChanged = dataChanged || filesChanged
 
+        console.log('[FormView] Final change detection result:', {
+            dataChanged,
+            filesChanged,
+            isChanged,
+            hasChanges
+        })
 
-        setHasChanges(isChanged)
+        // Simple logging for many2many field
+        const many2manyField = config.fields.find(f => f.type === 'many2many' || f.type === 'one2many')
+        if (many2manyField) {
+            console.log('[FormView] Many2many field:', {
+                fieldKey: many2manyField?.key,
+                currentValue: data[many2manyField?.key],
+                originalValue: originalData[many2manyField?.key],
+                hasChanges
+            })
+        }
+
+        // Small delay to ensure state updates properly
+        setTimeout(() => {
+            setHasChanges(isChanged)
+        }, 0)
     }, [data, originalData, uploadedFiles, config.fields])
 
     const handleSubmit = async () => {
@@ -1056,9 +1085,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     // Auto-use corresponding widget for relation field types
                     const widgetName = field.type
                     console.log(`[FormView] Rendering ${widgetName} widget for field:`, field.key)
-                    console.log(`[FormView] Widget initial value:`, value)
-                    console.log(`[FormView] Widget field config:`, field.widgetConfig)
-                    console.log(`[FormView] Form data:`, data)
+                    console.log(`[FormView] Widget initial value:`, JSON.stringify(value))
+                    console.log(`[FormView] Widget field config:`, JSON.stringify(field.widgetConfig))
+                    console.log(`[FormView] Form data:`, JSON.stringify(data))
                     
                     const WidgetComponent = getWidget(widgetName)
                     if (WidgetComponent) {
@@ -1145,7 +1174,11 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 <Button
                     size="sm"
                     onClick={() => router.push(config.breadcrumbs.list)}
-                    className="gap-2"
+                    className="gap-2 hover:gap-4"
+                    style={{
+                        backgroundColor: 'transparent',
+                        boxShadow: 'none',
+                }}
                 >
                     <IoMdArrowBack className="w-4 h-4" />
                     Back
@@ -1403,8 +1436,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             </div>
 
             <ActionBar
+                key={hasChanges ? 'has-changes' : 'no-changes'}
                 open={hasChanges}
                 onOpenChange={(open) => {
+                    console.log('[FormView] ActionBar onOpenChange:', { open, hasChanges })
                     if (!open) {
                         // Only set hasChanges to false if manually closed (not via state)
                         // This prevents interference with programmatic state changes
