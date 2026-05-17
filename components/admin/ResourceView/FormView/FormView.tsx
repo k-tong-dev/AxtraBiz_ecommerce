@@ -1313,7 +1313,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                                             key={field.key} 
                                                             className={`space-y-2 ${
                                                                 field.columnWidth === 2 ? 'md:col-span-2' : 
-                                                                field.gridCols === 3 ? 'md:col-span-3' : 
+                                                                field.columnWidth === 3 ? 'md:col-span-3' : 
                                                                 'md:col-span-1'
                                                             }`}
                                                         >

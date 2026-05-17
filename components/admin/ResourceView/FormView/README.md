@@ -1053,12 +1053,12 @@ FormView uses a **3-column grid layout** with intelligent field placement:
 // Fields automatically arrange in responsive grids
 {
   key: 'name',
-  gridCols: 2  // 2 columns on desktop, 1 on mobile
+  columnWidth: 2  // 2 columns on desktop, 1 on mobile
 }
 
 {
   key: 'description', 
-  gridCols: 1  // Full width
+  columnWidth: 1  // Full width
 }
 ```
 
@@ -1098,21 +1098,21 @@ export const productFormConfig: FormConfig = {
       label: 'Product Name',
       type: 'text',
       tab: 'basic',        // Assign to "Basic Info" tab
-      gridCols: 2
+      columnWidth: 2
     },
     {
       key: 'price',
       label: 'Sale Price',
       type: 'number',
       tab: 'pricing',      // Assign to "Pricing" tab
-      gridCols: 2
+      columnWidth: 2
     },
     {
       key: 'stock',
       label: 'Stock Quantity',
       type: 'number',
       tab: 'inventory',   // Assign to "Inventory" tab
-      gridCols: 2
+      columnWidth: 2
     }
   ]
 }
@@ -1124,7 +1124,7 @@ export const productFormConfig: FormConfig = {
 - **Icon Support**: Add icons to tab headers
 - **Disabled Tabs**: Mark tabs as disabled
 - **Default Tab**: Set the initially active tab
-- **Flexible Layout**: Each tab supports gridCols layout
+- **Flexible Layout**: Each tab supports columnWidth layout
 - **Automatic Fallback**: Fields without `tab` go to defaultTab
 
 ### Tab Field Assignment
