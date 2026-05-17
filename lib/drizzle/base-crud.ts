@@ -8,8 +8,8 @@ import { PgTable } from 'drizzle-orm/pg-core'
  */
 
 export interface TrackingFields {
-  created_on?: Date
-  write_on?: Date
+  created_at?: Date
+  updated_at?: Date
   create_uid?: string
   write_uid?: string
 }
@@ -38,7 +38,7 @@ export interface SearchOptions {
 
 /**
  * Generic CRUD service for any Drizzle model
- * Automatically handles tracking fields (created_on, write_on, create_uid, write_uid)
+ * Automatically handles tracking fields (created_at, updated_at, create_uid, write_uid)
  */
 export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends any> {
   constructor(
@@ -46,16 +46,16 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
     private userId?: string
   ) {}
 
-  /**
-   * Create - Similar to Odoo's create()
-   * Automatically sets created_on, create_uid, write_uid
-   */
+   /**
+    * Create - Similar to Odoo's create()
+    * Automatically sets created_at, create_uid, write_uid
+    */
   async create(data: TInsert & Partial<TrackingFields>, userId?: string): Promise<CreateResult<T>> {
     try {
       const now = new Date()
       const trackingData: Partial<TrackingFields> = {
-        created_on: now,
-        write_on: now,
+        created_at: now,
+        updated_at: now,
       }
 
       // Use passed userId or fallback to this.userId
@@ -102,8 +102,8 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
     try {
       const now = new Date()
       const trackingData: Partial<TrackingFields> = {
-        created_on: now,
-        write_on: now,
+        created_at: now,
+        updated_at: now,
       }
       
       // Use passed userId or fallback to this.userId
@@ -187,12 +187,12 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
 
   /**
    * Write - Similar to Odoo's write()
-   * Automatically updates write_on and write_uid fields
+   * Automatically updates updated_at and write_uid fields
    */
   async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const trackingData: Partial<TrackingFields> = {
-        write_on: new Date(),
+        updated_at: new Date(),
       }
 
       // Use passed userId or fallback to this.userId
@@ -234,7 +234,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   async writeMany(ids: string[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const trackingData: Partial<TrackingFields> = {
-        write_on: new Date(),
+        updated_at: new Date(),
       }
       
       // Use passed userId or fallback to this.userId
