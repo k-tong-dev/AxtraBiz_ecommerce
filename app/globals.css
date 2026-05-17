@@ -37,6 +37,7 @@
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #374151;
   --sidebar-ring: #4F46E5;
+  --dot-color: rgba(0,0,0,0.08);
 }
 
 .dark {
@@ -72,6 +73,7 @@
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #334155;
   --sidebar-ring: #6366F1;
+  --dot-color: rgba(255,255,255,0.06);
 }
 
 @theme inline {
@@ -120,7 +122,10 @@
     @apply border-border outline-none;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
+    background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
   
   /* Responsive improvements for large screens */
