@@ -8,8 +8,8 @@ import { PgTable } from 'drizzle-orm/pg-core'
  */
 
 export interface TrackingFields {
-  created_at?: Date
-  updated_at?: Date
+  created_at?: string
+  updated_at?: string
   create_uid?: string
   write_uid?: string
 }
@@ -52,7 +52,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
     */
   async create(data: TInsert & Partial<TrackingFields>, userId?: string): Promise<CreateResult<T>> {
     try {
-      const now = new Date()
+      const now = new Date().toISOString()
       const trackingData: Partial<TrackingFields> = {
         created_at: now,
         updated_at: now,
@@ -100,7 +100,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    */
   async createMany(dataArray: (TInsert & Partial<TrackingFields>)[], userId?: string): Promise<CreateResult<T[]>> {
     try {
-      const now = new Date()
+      const now = new Date().toISOString()
       const trackingData: Partial<TrackingFields> = {
         created_at: now,
         updated_at: now,
@@ -192,7 +192,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const trackingData: Partial<TrackingFields> = {
-        updated_at: new Date(),
+        updated_at: new Date().toISOString(),
       }
 
       // Use passed userId or fallback to this.userId
@@ -234,7 +234,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   async writeMany(ids: string[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const trackingData: Partial<TrackingFields> = {
-        updated_at: new Date(),
+        updated_at: new Date().toISOString(),
       }
       
       // Use passed userId or fallback to this.userId
