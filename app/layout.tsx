@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { DM_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import 'rsuite/dist/rsuite-no-reset.min.css';
 import './globals.css'
 import './src/css/rsuite_to_heroui_style.css'
 import './src/css/rsuite_table_style.css'
 
-const _geist = Geist({ subsets: ["latin"], display: "swap" });
-const _geistMono = Geist_Mono({ subsets: ["latin"], display: "swap" });
+const _dmSans = DM_Sans({ subsets: ["latin"], display: "swap", variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: 'Tinh Iey',
@@ -38,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="bg-background">
+    <html lang="en" className={`${_dmSans.variable} bg-background`}>
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
