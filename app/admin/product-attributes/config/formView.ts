@@ -13,9 +13,9 @@ export const productAttributeFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'e.g., Size, Color, Material',
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -29,9 +29,9 @@ export const productAttributeFormConfig: FormConfig = {
         { label: 'Color Swatches', value: 'color' },
         { label: 'Text Input', value: 'text' }
       ],
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -41,9 +41,9 @@ export const productAttributeFormConfig: FormConfig = {
       required: false,
       placeholder: '0',
       helper: 'Display order (lower numbers appear first)',
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     }
   ],
@@ -56,9 +56,9 @@ export const productAttributeFormConfig: FormConfig = {
           key: 'value_ids',
           label: 'Values',
           type: 'many2many',
-          gridCols: 3,
-          gridRow: 1,
-          gridColumn: 1,
+          columnWidth: 3,
+          groupNumber: 1,
+          groupColumn: 1,
           order: 1,
           widgetConfig: {
             // Junction table: links attributes to values

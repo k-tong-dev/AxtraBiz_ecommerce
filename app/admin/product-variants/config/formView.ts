@@ -12,9 +12,9 @@ export const productVariantFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'e.g., Size M - Red',
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -23,9 +23,9 @@ export const productVariantFormConfig: FormConfig = {
       type: 'text',
       required: false,
       placeholder: 'e.g., PROD-M-RED',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -34,9 +34,9 @@ export const productVariantFormConfig: FormConfig = {
       type: 'text',
       required: false,
       placeholder: 'e.g., 1234567890123',
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -45,9 +45,9 @@ export const productVariantFormConfig: FormConfig = {
       type: 'number',
       required: true,
       placeholder: '0.00',
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 2,
       order: 4
     },
     {
@@ -57,9 +57,9 @@ export const productVariantFormConfig: FormConfig = {
       required: false,
       placeholder: '0.00',
       helper: 'Original price for comparison display',
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 5
     },
     {
@@ -69,9 +69,9 @@ export const productVariantFormConfig: FormConfig = {
       required: false,
       placeholder: '0.00',
       helper: 'Internal cost for profit calculation',
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 2,
       order: 6
     },
     {
@@ -80,9 +80,9 @@ export const productVariantFormConfig: FormConfig = {
       type: 'number',
       required: true,
       placeholder: '0',
-      gridCols: 1,
-      gridRow: 4,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 1,
       order: 7
     },
     {
@@ -91,9 +91,9 @@ export const productVariantFormConfig: FormConfig = {
       type: 'number',
       required: false,
       placeholder: '0.00',
-      gridCols: 1,
-      gridRow: 4,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 2,
       order: 8
     },
     {
@@ -101,9 +101,9 @@ export const productVariantFormConfig: FormConfig = {
       label: 'Active',
       type: 'toggle',
       required: false,
-      gridCols: 1,
-      gridRow: 5,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 5,
+      groupColumn: 1,
       order: 9
     },
     {
@@ -113,9 +113,9 @@ export const productVariantFormConfig: FormConfig = {
       required: false,
       placeholder: '0',
       helper: 'Display order (lower numbers appear first)',
-      gridCols: 1,
-      gridRow: 5,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 5,
+      groupColumn: 2,
       order: 10
     }
   ],

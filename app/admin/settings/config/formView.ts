@@ -11,9 +11,9 @@ export const settingFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'setting-001',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -22,9 +22,9 @@ export const settingFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'site_name',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -33,9 +33,9 @@ export const settingFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'general',
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -44,9 +44,9 @@ export const settingFormConfig: FormConfig = {
       type: 'textarea',
       required: true,
       placeholder: 'Setting value',
-      gridCols: 2,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 4
     }
   ],

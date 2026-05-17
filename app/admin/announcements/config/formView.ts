@@ -11,9 +11,9 @@ export const announcementFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'announcement-001',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -22,9 +22,9 @@ export const announcementFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'Enter announcement title',
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -38,9 +38,9 @@ export const announcementFormConfig: FormConfig = {
         { value: 'warning', label: 'Warning' },
         { value: 'error', label: 'Error' }
       ],
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -48,9 +48,9 @@ export const announcementFormConfig: FormConfig = {
       label: 'Active',
       type: 'toggle',
       required: false,
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 2,
       order: 4
     },
     {
@@ -59,9 +59,9 @@ export const announcementFormConfig: FormConfig = {
       type: 'textarea',
       required: true,
       placeholder: 'Enter announcement content',
-      gridCols: 2,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 5
     },
     {
@@ -71,9 +71,9 @@ export const announcementFormConfig: FormConfig = {
       required: false,
       placeholder: 'YYYY-MM-DD',
       helper: 'When the announcement becomes active',
-      gridCols: 1,
-      gridRow: 4,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 1,
       order: 6
     },
     {
@@ -83,9 +83,9 @@ export const announcementFormConfig: FormConfig = {
       required: false,
       placeholder: 'YYYY-MM-DD',
       helper: 'When the announcement expires',
-      gridCols: 1,
-      gridRow: 4,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 2,
       order: 7
     }
   ],

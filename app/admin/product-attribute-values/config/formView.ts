@@ -13,9 +13,9 @@ export const productAttributeValueFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'e.g., Red, Large, Cotton',
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 3,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -25,9 +25,9 @@ export const productAttributeValueFormConfig: FormConfig = {
       required: true,
       placeholder: 'e.g., red, L, cotton',
       helper: 'Internal value code (lowercase, no spaces)',
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -37,9 +37,9 @@ export const productAttributeValueFormConfig: FormConfig = {
       required: false,
       placeholder: '0',
       helper: 'Display order (lower numbers appear first)',
-      gridCols: 2,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -47,9 +47,9 @@ export const productAttributeValueFormConfig: FormConfig = {
       label: 'Active',
       type: 'boolean',
       required: false,
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 2,
       order: 4
     }
   ],
@@ -62,9 +62,9 @@ export const productAttributeValueFormConfig: FormConfig = {
           key: 'attribute_ids',
           label: 'Used By Attributes',
           type: 'many2many',
-          gridCols: 3,
-          gridRow: 1,
-          gridColumn: 1,
+          columnWidth: 3,
+          groupNumber: 1,
+          groupColumn: 1,
           order: 1,
           widget: 'many2many',
           widgetConfig: {

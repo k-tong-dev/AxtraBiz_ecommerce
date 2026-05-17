@@ -14,7 +14,7 @@ export const productFormConfig: FormConfig = {
       type: 'file',
       required: false,
       placeholder: 'Upload product images',
-      gridCols: 1,
+      columnWidth: 1,
       order: 1
     },
 
@@ -30,9 +30,9 @@ export const productFormConfig: FormConfig = {
         return null
       },
       rows: 1,
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 2
     },
     {
@@ -46,9 +46,9 @@ export const productFormConfig: FormConfig = {
         return null
       },
       rows: 1,
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -58,9 +58,9 @@ export const productFormConfig: FormConfig = {
       required: false,
       placeholder: 'Enter Barcode',
       rows: 1,
-      gridCols: 2,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 4
     },
     {
@@ -70,9 +70,9 @@ export const productFormConfig: FormConfig = {
       required: false,
       placeholder: 'Select category',
       options: [],
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 5
     },
     {
@@ -82,9 +82,9 @@ export const productFormConfig: FormConfig = {
       required: false,
       placeholder: 'Select brand',
       options: [],
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 6
     },
     {
@@ -94,9 +94,9 @@ export const productFormConfig: FormConfig = {
       required: false,
       placeholder: 'Select tax rate',
       options: [],
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 7
     },
     {
@@ -112,9 +112,9 @@ export const productFormConfig: FormConfig = {
         { label: 'Bundle', value: 'bundle' },
         { label: 'Digital', value: 'digital' }
       ],
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 8
     },
     {
@@ -128,9 +128,9 @@ export const productFormConfig: FormConfig = {
         { label: 'Published', value: 'published' },
         { label: 'Archived', value: 'archived' }
       ],
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 9
     },
     {
@@ -140,9 +140,9 @@ export const productFormConfig: FormConfig = {
       required: false,
       placeholder: 'Enter detailed product description',
       rows: 3,
-      gridCols: 3,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 3,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 10
     },
 
@@ -153,9 +153,9 @@ export const productFormConfig: FormConfig = {
       type: 'text',
       required: false,
       placeholder: 'SEO title (max 60 chars)',
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 11
     },
     {
@@ -165,9 +165,9 @@ export const productFormConfig: FormConfig = {
       required: false,
       placeholder: 'SEO description (max 160 chars)',
       rows: 2,
-      gridCols: 2,
-      gridRow: 3,
-      gridColumn: 2,
+      columnWidth: 2,
+      groupNumber: 3,
+      groupColumn: 2,
       order: 18
     },
     {
@@ -176,9 +176,9 @@ export const productFormConfig: FormConfig = {
       type: 'text',
       required: false,
       placeholder: 'Comma-separated keywords',
-      gridCols: 3,
-      gridRow: 4,
-      gridColumn: 1,
+      columnWidth: 3,
+      groupNumber: 4,
+      groupColumn: 1,
       order: 13
     },
 
@@ -189,9 +189,9 @@ export const productFormConfig: FormConfig = {
       type: 'text',
       required: false,
       placeholder: 'Comma-separated tags',
-      gridCols: 3,
-      gridRow: 5,
-      gridColumn: 1,
+      columnWidth: 3,
+      groupNumber: 5,
+      groupColumn: 1,
       order: 14
     },
 
@@ -207,9 +207,9 @@ export const productFormConfig: FormConfig = {
         if (value > 999999.99) return 'Price cannot exceed 999,999.99'
         return null
       },
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 15
     },
     {
@@ -223,9 +223,9 @@ export const productFormConfig: FormConfig = {
         if (value > 999999.99) return 'Compare price cannot exceed 999,999.99'
         return null
       },
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 2,
       order: 16
     },
     {
@@ -239,9 +239,9 @@ export const productFormConfig: FormConfig = {
         if (value > 999999.99) return 'Cost price cannot exceed 999,999.99'
         return null
       },
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 3,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 3,
       order: 17
     },
 
@@ -256,9 +256,9 @@ export const productFormConfig: FormConfig = {
         if (value && !/^[A-Z0-9-]+$/.test(value)) return 'SKU can only contain uppercase letters and numbers'
         return null
       },
-      gridCols: 2,
-      gridRow: 4,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 4,
+      groupColumn: 1,
       order: 18
     },
     {
@@ -273,9 +273,9 @@ export const productFormConfig: FormConfig = {
         if (value > 999999) return 'Stock cannot exceed 999,999'
         return null
       },
-      gridCols: 1,
-      gridRow: 7,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 7,
+      groupColumn: 2,
       order: 19
     },
     {
@@ -283,9 +283,9 @@ export const productFormConfig: FormConfig = {
       label: 'Track Inventory',
       type: 'toggle',
       required: false,
-      gridCols: 1,
-      gridRow: 8,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 8,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -298,9 +298,9 @@ export const productFormConfig: FormConfig = {
         if (value < 0) return 'Threshold must be greater than or equal to 0'
         return null
       },
-      gridCols: 1,
-      gridRow: 7,
-      gridColumn: 3,
+      columnWidth: 1,
+      groupNumber: 7,
+      groupColumn: 3,
       order: 21
     },
     {
@@ -308,9 +308,9 @@ export const productFormConfig: FormConfig = {
       label: 'Allow Backorders',
       type: 'toggle',
       required: false,
-      gridCols: 1,
-      gridRow: 8,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 8,
+      groupColumn: 1,
       order: 22
     },
     {
@@ -324,9 +324,9 @@ export const productFormConfig: FormConfig = {
         if (value > 1000) return 'Weight cannot exceed 1000 kg'
         return null
       },
-      gridCols: 1,
-      gridRow: 5,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 5,
+      groupColumn: 1,
       order: 23
     },
     {
@@ -339,9 +339,9 @@ export const productFormConfig: FormConfig = {
         if (value && !/^\d+\s*×\s*\d+\s*×\s*\d+$/.test(value)) return 'Please enter valid dimensions (e.g., 10 × 20 × 5)'
         return null
       },
-      gridCols: 2,
-      gridRow: 5,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 5,
+      groupColumn: 1,
       order: 24
     },
     {
@@ -349,9 +349,9 @@ export const productFormConfig: FormConfig = {
       label: 'Active Status',
       type: 'toggle',
       required: false,
-      gridCols: 1,
-      gridRow: 8,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 8,
+      groupColumn: 1,
       order: 25
     },
 
@@ -362,9 +362,9 @@ export const productFormConfig: FormConfig = {
       type: 'date',
       required: false,
       placeholder: 'Select start date',
-      gridCols: 1,
-      gridRow: 10,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 10,
+      groupColumn: 1,
       order: 26
     },
     {
@@ -373,9 +373,9 @@ export const productFormConfig: FormConfig = {
       type: 'date',
       required: false,
       placeholder: 'Select end date',
-      gridCols: 1,
-      gridRow: 10,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 10,
+      groupColumn: 2,
       order: 27
     },
     {
@@ -384,9 +384,9 @@ export const productFormConfig: FormConfig = {
       type: 'date',
       required: false,
       placeholder: 'Select publish date',
-      gridCols: 1,
-      gridRow: 10,
-      gridColumn: 3,
+      columnWidth: 1,
+      groupNumber: 10,
+      groupColumn: 3,
       order: 28
     }
   ],
@@ -400,9 +400,9 @@ export const productFormConfig: FormConfig = {
           label: 'Product Attributes',
           type: 'many2many',
           required: false,
-          gridCols: 3,
-          gridRow: 1,
-          gridColumn: 1,
+          columnWidth: 3,
+          groupNumber: 1,
+          groupColumn: 1,
           order: 1,
           widgetConfig: {
             // Junction table configuration
@@ -435,9 +435,9 @@ export const productFormConfig: FormConfig = {
           key: 'variants',
           label: 'Variants',
           type: 'one2many',
-          gridCols: 3,
-          gridRow: 1,
-          gridColumn: 1,
+          columnWidth: 3,
+          groupNumber: 1,
+          groupColumn: 1,
           order: 1,
           widgetConfig: {
             relation: '/api/admin/product-variants',

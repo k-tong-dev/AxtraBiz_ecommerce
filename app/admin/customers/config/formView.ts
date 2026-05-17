@@ -11,9 +11,9 @@ export const customerFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'user-001',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -22,9 +22,9 @@ export const customerFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'customer@example.com',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -33,9 +33,9 @@ export const customerFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'John Doe',
-      gridCols: 2,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -47,9 +47,9 @@ export const customerFormConfig: FormConfig = {
         { value: 'customer', label: 'Customer' },
         { value: 'admin', label: 'Admin' }
       ],
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 4
     },
     {
@@ -57,9 +57,9 @@ export const customerFormConfig: FormConfig = {
       label: 'Active',
       type: 'toggle',
       required: false,
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 2,
       order: 5
     }
   ],

@@ -28,10 +28,10 @@ function Textarea({
                     data-slot="textarea"
                     placeholder={placeholder || ' '}
                     className={cn(
-                        'peer w-full resize-none border-0 border-b-2 bg-transparent px-0 pb-1 pt-5 text-foreground transition-colors duration-200 focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
-                        error
-                            ? 'border-destructive'
-                            : 'border-border focus:border-primary',
+                        'peer w-full resize-none border-0 border-b-2 ' +
+                        'bg-transparent px-0 pb-1 pt-5 text-foreground transition-colors duration-200 ' +
+                        'focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50',
+                        error ? 'border-destructive' : 'border-border focus:border-primary',
                     )}
                     {...props}
                 />

@@ -155,7 +155,7 @@ export interface FormField {
   options?: Array<{ label: string; value: string }>
   validation?: (value: any) => string | null
   className?: string
-  gridCols?: number        // Grid grouping for layout (replaces gridCols)
+  columnWidth?: number        // Grid grouping for layout (replaces columnWidth)
   rows?: number
   accept?: string
   width?: string
@@ -164,8 +164,8 @@ export interface FormField {
   order?: number           // Field ordering priority
   after?: string           // Position after specific field
   before?: string           // Position before specific field
-  gridRow?: number          // Specific grid row position
-  gridColumn?: number        // Specific grid column position
+  groupNumber?: number          // Specific grid row position
+  groupColumn?: number        // Specific grid column position
 }
 ```
 
@@ -308,14 +308,14 @@ export const productFormConfig: FormConfig = {
             { label: '2 Years', value: '2_years' },
             { label: '3 Years', value: '3_years' }
           ],
-          gridCols: 1
+          columnWidth: 1
         },
         {
           key: 'return_policy',
           label: 'Return Policy',
           type: 'textarea',
           rows: 3,
-          gridCols: 2
+          columnWidth: 2
         }
       ],
       order: 50
@@ -357,13 +357,13 @@ export const productFormConfig: FormConfig = {
           key: 'meta_title',
           label: 'Meta Title',
           type: 'text',
-          gridCols: 1
+          columnWidth: 1
         },
         {
           key: 'meta_description',
           label: 'Meta Description',
           type: 'textarea',
-          gridCols: 2
+          columnWidth: 2
         }
       ],
       order: 80
@@ -407,7 +407,7 @@ export const productFormConfig: FormConfig = {
   required: true,
   placeholder: 'Enter name',
   validation: (value) => value ? null : 'Name is required',
-  gridCols: 2
+  columnWidth: 2
 }
 ```
 
@@ -493,7 +493,7 @@ export const productFormConfig: FormConfig = {
   width: '100%',               // Custom width
   icon: '🖼️',               // Custom icon
   uploadText: 'Upload product images',  // Custom upload text
-  gridCols: 1
+  columnWidth: 1
 }
 ```
 
@@ -1041,7 +1041,7 @@ FormView uses a **3-column grid layout** with intelligent field placement:
 **Main Form Area (Left Side - 2 columns):**
 - All field types: `text`, `textarea`, `number`, `select`, `array`, `json`
 - **EXCLUDES**: `file` type fields
-- Responsive grid layouts based on `gridCols` property
+- Responsive grid layouts based on `columnWidth` property
 
 **Right Sidebar (Right Side - 1 column):**
 - **ONLY**: `file` type fields

@@ -151,7 +151,7 @@ export interface FormField {
     options?: Array<{ label: string; value: string }>
     validation?: (value: any) => string | null
     className?: string
-    gridCols?: number
+    columnWidth?: number
     rows?: number
     accept?: string
     width?: string
@@ -161,8 +161,8 @@ export interface FormField {
     order?: number
     after?: string
     before?: string
-    gridRow?: number
-    gridColumn?: number
+    groupNumber?: number
+    groupColumn?: number
     widget?: string  // Field widget name (e.g., 'many2many_list', 'many2one', 'one2many')
     widgetConfig?: any  // Widget-specific configuration
     show?: (data: any) => boolean  // Conditional visibility
@@ -1127,22 +1127,22 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         }
     }
 
-    // Group fields by gridRow for proper grid layout
+    // Group fields by groupNumber for proper grid layout
     const groupedFields = config.fields.reduce((acc, field) => {
-        // Use gridRow for grouping, default to 0 if not specified
-        const gridRow = field.gridRow || 0
-        if (!acc[gridRow]) {
-            acc[gridRow] = []
+        // Use groupNumber for grouping, default to 0 if not specified
+        const groupNumber = field.groupNumber || 0
+        if (!acc[groupNumber]) {
+            acc[groupNumber] = []
         }
         
         // Add field to the appropriate row
-        acc[gridRow].push(field)
+        acc[groupNumber].push(field)
         
-        // Sort fields within each row by gridColumn then by order
-        acc[gridRow].sort((a, b) => {
-            // First sort by gridColumn if specified
-            const aCol = a.gridColumn !== undefined ? a.gridColumn : 999
-            const bCol = b.gridColumn !== undefined ? b.gridColumn : 999
+        // Sort fields within each row by groupColumn then by order
+        acc[groupNumber].sort((a, b) => {
+            // First sort by groupColumn if specified
+            const aCol = a.groupColumn !== undefined ? a.groupColumn : 999
+            const bCol = b.groupColumn !== undefined ? b.groupColumn : 999
             if (aCol !== bCol) return aCol - bCol
             
             // Then sort by order if specified
@@ -1206,20 +1206,20 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 {/* Main Form */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Render grouped fields - EXCLUDE file fields */}
-                    {Object.entries(groupedFields).map(([gridRow, fields]) => {
+                    {Object.entries(groupedFields).map(([groupNumber, fields]) => {
                         // Filter out file fields from main form area
                         const nonFileFields = fields.filter(field => field.type !== 'file')
                         if (nonFileFields.length === 0) return null
                         
                         return (
-                            <div key={gridRow} className="bg-card rounded-lg border p-6">
+                            <div key={groupNumber} className="bg-card rounded-lg border p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {nonFileFields.map((field) => (
                                         <div 
                                             key={field.key} 
                                             className={`space-y-2 ${
-                                                field.gridCols === 2 ? 'md:col-span-2' : 
-                                                field.gridCols === 3 ? 'md:col-span-3' : 
+                                                field.columnWidth === 2 ? 'md:col-span-2' : 
+                                                field.columnWidth === 3 ? 'md:col-span-3' : 
                                                 'md:col-span-1'
                                             }`}
                                         >
@@ -1312,7 +1312,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                                         <div 
                                                             key={field.key} 
                                                             className={`space-y-2 ${
-                                                                field.gridCols === 2 ? 'md:col-span-2' : 
+                                                                field.columnWidth === 2 ? 'md:col-span-2' : 
                                                                 field.gridCols === 3 ? 'md:col-span-3' : 
                                                                 'md:col-span-1'
                                                             }`}

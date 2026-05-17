@@ -11,9 +11,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'inv-001',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -22,9 +22,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'INV-2024-001',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -33,9 +33,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'order-001',
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -44,9 +44,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'user-001',
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 2,
       order: 4
     },
     {
@@ -60,9 +60,9 @@ export const invoiceFormConfig: FormConfig = {
         { value: 'paid', label: 'Paid' },
         { value: 'void', label: 'Void' }
       ],
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 5
     },
     {
@@ -71,9 +71,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'date',
       required: false,
       placeholder: 'YYYY-MM-DD',
-      gridCols: 1,
-      gridRow: 3,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 2,
       order: 6
     },
     {
@@ -82,9 +82,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'number',
       required: true,
       placeholder: '0.00',
-      gridCols: 1,
-      gridRow: 4,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 1,
       order: 7
     },
     {
@@ -93,9 +93,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'number',
       required: true,
       placeholder: '0.00',
-      gridCols: 1,
-      gridRow: 4,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 2,
       order: 8
     },
     {
@@ -104,9 +104,9 @@ export const invoiceFormConfig: FormConfig = {
       type: 'number',
       required: true,
       placeholder: '0.00',
-      gridCols: 1,
-      gridRow: 5,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 5,
+      groupColumn: 1,
       order: 9
     },
     {
@@ -116,9 +116,9 @@ export const invoiceFormConfig: FormConfig = {
       required: true,
       placeholder: '[{"productId": "...", "quantity": 1, "price": 100}]',
       helper: 'Invoice items in JSON format',
-      gridCols: 2,
-      gridRow: 6,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 6,
+      groupColumn: 1,
       order: 10
     }
   ],

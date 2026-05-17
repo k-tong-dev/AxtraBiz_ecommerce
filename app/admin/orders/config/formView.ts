@@ -11,9 +11,9 @@ export const orderFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'order-001',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
       order: 1
     },
     {
@@ -22,9 +22,9 @@ export const orderFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'user-123',
-      gridCols: 1,
-      gridRow: 1,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -39,9 +39,9 @@ export const orderFormConfig: FormConfig = {
         { value: 'delivered', label: 'Delivered' },
         { value: 'cancelled', label: 'Cancelled' }
       ],
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 3
     },
     {
@@ -50,9 +50,9 @@ export const orderFormConfig: FormConfig = {
       type: 'number',
       required: true,
       placeholder: '0.00',
-      gridCols: 1,
-      gridRow: 2,
-      gridColumn: 2,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 2,
       order: 4
     },
     {
@@ -61,9 +61,9 @@ export const orderFormConfig: FormConfig = {
       type: 'text',
       required: false,
       placeholder: 'e.g., TRK123456789',
-      gridCols: 2,
-      gridRow: 3,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 3,
+      groupColumn: 1,
       order: 5
     },
     {
@@ -71,9 +71,9 @@ export const orderFormConfig: FormConfig = {
       label: 'Active',
       type: 'toggle',
       required: false,
-      gridCols: 1,
-      gridRow: 4,
-      gridColumn: 1,
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 1,
       order: 6
     },
     {
@@ -83,9 +83,9 @@ export const orderFormConfig: FormConfig = {
       required: true,
       placeholder: '[{"productId": "...", "quantity": 1, "price": 100}]',
       helper: 'Order items in JSON format',
-      gridCols: 2,
-      gridRow: 5,
-      gridColumn: 1,
+      columnWidth: 2,
+      groupNumber: 5,
+      groupColumn: 1,
       order: 7
     }
   ],
