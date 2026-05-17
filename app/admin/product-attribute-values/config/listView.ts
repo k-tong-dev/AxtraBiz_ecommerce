@@ -53,7 +53,7 @@ export const getProductAttributeValueListConfig = (data: any[] = []): ListViewCo
   showColumnToggle: false,
   showFilters: false,
   showExport: false,
-  pageSize: 20
+  pageSize: 5
 })
 
 export type ProductAttributeValueListConfig = ReturnType<typeof getProductAttributeValueListConfig>

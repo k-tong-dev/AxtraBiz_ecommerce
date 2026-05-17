@@ -99,7 +99,7 @@ export const productAttributeValueFormConfig: FormConfig = {
               { key: 'position', title: 'Position', width: 80, type: 'number', editable: true },
               { key: 'create_uid', title: 'create_uid', width: 80, type: 'string', editable: true },
             ],
-            mode: 'list',
+            mode: 'tags',
             allowSelect: true,
             allowRemove: true,
             allowEdit: true

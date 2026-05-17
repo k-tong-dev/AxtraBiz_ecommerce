@@ -342,8 +342,7 @@ export function ServerActions({
                 loading={loading === action.key}
                 className={cn(action.className)}
                 style={{
-                    height: '50px',
-                    padding: '0 10px',
+                    padding: '20px 10px',
                     marginTop: '0',
                 }}
             >
