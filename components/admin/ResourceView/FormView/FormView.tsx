@@ -13,7 +13,7 @@ import {
     ActionBarClose
 } from '@/components/ui/action-bar'
 import {Button} from '@/components/ui/button'
-import {Input} from '@/components/ui/input'
+import {Input, NumberInput} from '@/components/ui/input'
 import {Textarea} from '@/components/ui/textarea'
 import {SelectPicker} from 'rsuite'
 import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'lucide-react'
@@ -874,8 +874,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             onChange={(e) => onChange(e.target.value)}
                             placeholder={field.placeholder}
                             disabled={field.readonly}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                            style={field.width ? { width: field.width } : {}}
+                            error={hasError}
+                            fullWidth
+                            className={field.readonly ? 'opacity-60 cursor-not-allowed' : ''}
                         />
                         {errorMessage && (
                             <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
@@ -892,8 +893,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             placeholder={field.placeholder}
                             disabled={field.readonly}
                             rows={4}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                            style={field.width ? { width: field.width } : {}}
+                            error={hasError}
+                            fullWidth
+                            className={field.readonly ? 'opacity-60 cursor-not-allowed' : ''}
                         />
                         {errorMessage && (
                             <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
@@ -904,14 +906,16 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             case 'number':
                 return (
                     <div>
-                        <Input
-                            type="number"
-                            value={value || ''}
-                            onChange={(e) => onChange(Number(e.target.value) || 0)}
+                        <NumberInput
+                            value={value ?? null}
+                            onChange={(val) => onChange(val ?? 0)}
                             placeholder={field.placeholder}
                             disabled={field.readonly}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500 focus:border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                            style={field.width ? { width: field.width } : {}}
+                            error={hasError}
+                            fullWidth
+                            className={field.readonly ? 'opacity-60 cursor-not-allowed' : ''}
+                            min={0}
+                            controls={false}
                         />
                         {errorMessage && (
                             <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
@@ -1009,7 +1013,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                     value={item}
                                     onChange={(e) => updateArrayItem(field.key, index, e.target.value)}
                                     placeholder={field.placeholder}
-                                    className="flex-1"
+                                    variant="outlined"
+                                    inputSize="sm"
+                                    fullWidth
                                 />
                                 <Button
                                     onClick={() => removeArrayItem(field.key, index)}

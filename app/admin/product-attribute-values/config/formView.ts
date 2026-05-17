@@ -37,7 +37,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       required: false,
       placeholder: '0',
       helper: 'Display order (lower numbers appear first)',
-      gridCols: 1,
+      gridCols: 2,
       gridRow: 2,
       gridColumn: 1,
       order: 3
