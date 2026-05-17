@@ -896,6 +896,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             rows={4}
                             error={hasError}
                             fullWidth
+                            autosize
+                            resize={"horizontal"}
                             className={field.readonly ? 'opacity-60 cursor-not-allowed' : ''}
                         />
                         {errorMessage && (
