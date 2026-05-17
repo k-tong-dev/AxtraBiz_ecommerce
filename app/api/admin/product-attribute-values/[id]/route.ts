@@ -1,9 +1,42 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/utils/supabase/server'
 import {
   fetchProductAttributeValueFromDrizzle,
   upsertProductAttributeValueInDrizzle,
-  deleteProductAttributeValueFromDrizzle
+  deleteProductAttributeValueFromDrizzle,
+  updateProductAttributeValueRelations,
 } from '../../../../../lib/drizzle/product-attributes'
+import type { ProductAttribute } from '../../../../../lib/drizzle/server'
+
+type AttributeRelationPayload = ProductAttribute & {
+  rel_id?: string
+  attribute_id?: string
+  value_id?: string
+  isNew?: boolean
+  isChanged?: boolean
+  _toDelete?: boolean
+}
+
+function processScalarFields(body: Record<string, unknown>, id: string) {
+  const processedBody: Record<string, unknown> = { id }
+
+  for (const [key, value] of Object.entries(body)) {
+    if (key === 'id' || key === 'attribute_ids') continue
+
+    if (['position'].includes(key)) {
+      processedBody[key] =
+        typeof value === 'string' || typeof value === 'number' ? parseInt(String(value), 10) : 0
+    } else if (['active'].includes(key)) {
+      processedBody[key] = value !== undefined ? value === 'true' || value === true : true
+    } else if (['name', 'value'].includes(key)) {
+      processedBody[key] = value || ''
+    } else {
+      processedBody[key] = value !== undefined && value !== null ? value : null
+    }
+  }
+
+  return processedBody
+}
 
 export async function GET(
   request: Request,
@@ -11,7 +44,6 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    console.log("ID: ", id)
     const value = await fetchProductAttributeValueFromDrizzle(id)
     if (!value) {
       return NextResponse.json({ error: 'Attribute value not found' }, { status: 404 })
@@ -29,34 +61,33 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    
-    const processedBody: any = {}
-    
-    for (const [key, value] of Object.entries(body)) {
-      if (key === 'id') continue
-      
-      if (['position'].includes(key)) {
-        processedBody[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
-      }
-      else if (['active'].includes(key)) {
-        processedBody[key] = value !== undefined ? (value === 'true' || value === true) : true
-      }
-      else if (['name', 'value', 'attribute_id'].includes(key)) {
-        processedBody[key] = value || ''
-      }
-      else {
-        processedBody[key] = value !== undefined && value !== null ? value : null
-      }
-    }
-    
-    const result = await upsertProductAttributeValueInDrizzle(processedBody)
-    
-    if (result.success) {
-      return NextResponse.json({ success: true, data: processedBody })
-    } else {
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const attributeIds = Array.isArray(body.attribute_ids)
+      ? (body.attribute_ids as AttributeRelationPayload[])
+      : undefined
+
+    const processedBody = processScalarFields(body, id)
+
+    const result = await upsertProductAttributeValueInDrizzle(processedBody as any, user?.id)
+
+    if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })
     }
+
+    if (attributeIds) {
+      const relResult = await updateProductAttributeValueRelations(id, attributeIds, user?.id)
+      if (!relResult.success) {
+        return NextResponse.json({ error: relResult.error }, { status: 400 })
+      }
+    }
+
+    const saved = await fetchProductAttributeValueFromDrizzle(id)
+    return NextResponse.json({ success: true, data: saved ?? processedBody })
   } catch (error) {
+    console.error('[PUT product-attribute-values] Error:', error)
     return NextResponse.json({ error: 'Failed to update attribute value' }, { status: 500 })
   }
 }
@@ -68,7 +99,7 @@ export async function DELETE(
   try {
     const { id } = await params
     const result = await deleteProductAttributeValueFromDrizzle(id)
-    
+
     if (result) {
       return NextResponse.json({ success: true })
     } else {

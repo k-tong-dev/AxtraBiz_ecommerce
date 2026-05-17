@@ -1,9 +1,12 @@
 import { db, product_attributes, product_attribute_values, product_attribute_values_rel } from './server'
 import { createCrudService } from './base-crud'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import type { ProductAttribute, ProductAttributeValue } from './server'
 import type { ProductAttributeValuesRel } from '../../drizzle/schema'
-import { productAttributeValuesRelService } from './product-attribute-values-rel'
+import {
+  productAttributeValuesRelService,
+  checkProductAttributeValuesRelExists,
+} from './product-attribute-values-rel'
 
 // Create CRUD service for product attributes
 export const productAttributeService = createCrudService<ProductAttribute, any, any>(
@@ -117,8 +120,14 @@ export async function fetchProductAttributeValueFromDrizzle(valueId: string): Pr
   return result
 }
 
-export async function upsertProductAttributeValueInDrizzle(value: ProductAttributeValue, userId?: string): Promise<{ success: boolean; error?: string; data?: any }> {
-  const result = await productAttributeValueService.upsert(value, userId)
+export async function upsertProductAttributeValueInDrizzle(
+  value: ProductAttributeValue & { attribute_ids?: unknown },
+  userId?: string
+): Promise<{ success: boolean; error?: string; data?: any }> {
+  const { attribute_ids: _attributeIds, ...valueFields } = value as ProductAttributeValue & {
+    attribute_ids?: unknown
+  }
+  const result = await productAttributeValueService.upsert(valueFields as ProductAttributeValue & { id: string }, userId)
   return { success: result.success, error: result.error, data: result.data }
 }
 
@@ -138,14 +147,20 @@ export async function deleteProductAttributeValuesByAttributeId(attributeId: str
   }
 }
 
-// Update many2many relations with full attribute data
+// Update many2many relations with proper tracking (isNew and isChanged)
 export async function updateProductAttributeValueRelations(
   valueId: string,
-  attributes: Array<ProductAttribute & { rel_id?: string; _isNew?: boolean; _toDelete?: boolean }>,
+  attributes: Array<ProductAttribute & {
+    rel_id?: string
+    attribute_id?: string
+    isNew?: boolean
+    isChanged?: boolean
+    _toDelete?: boolean
+  }>,
   userId?: string
 ): Promise<{ success: boolean; error?: string }> {
   console.log('[API] Updating attribute value relations:', { valueId, attributeCount: attributes.length })
-  
+
   try {
     // 1. Handle deletions (mark _toDelete)
     const toDelete = attributes.filter(a => a._toDelete && a.rel_id)
@@ -153,33 +168,51 @@ export async function updateProductAttributeValueRelations(
       console.log('[API] Deleting relation:', { relId: attr.rel_id })
       await productAttributeValuesRelService.unlink(attr.rel_id!)
     }
-    
-    // 2. Handle new additions (mark _isNew)
-    const toAdd = attributes.filter(a => a._isNew && !a._toDelete)
+
+    // 2. Handle new additions (isNew) - create in product_attribute_values_rel table
+    const toAdd = attributes.filter(a => a.isNew && !a._toDelete)
     for (const attr of toAdd) {
-      console.log('[API] Creating new relation:', { valueId, attributeId: attr.id })
-      await productAttributeValuesRelService.create({
+      const attributeId = attr.attribute_id || attr.id
+      if (!attributeId) continue
+
+      const exists = await checkProductAttributeValuesRelExists(attributeId, valueId)
+
+      if (exists) {
+        console.log('[API] Relation already exists, skipping:', { valueId, attributeId })
+        continue
+      }
+
+      console.log('[API] Creating new relation in product_attribute_values_rel:', { valueId, attributeId })
+      await db.insert(product_attribute_values_rel).values({
+        id: crypto.randomUUID(),
         value_id: valueId,
-        attribute_id: attr.id
-      } as any, userId)
-    }
-    
-    // 3. Handle updates to existing attributes (type, position, etc.)
-    const toUpdate = attributes.filter(a => !a._isNew && !a._toDelete && a.rel_id)
-    for (const attr of toUpdate) {
-      console.log('[API] Updating related attribute:', { 
-        attributeId: attr.id, 
-        type: attr.type, 
-        position: attr.position 
+        attribute_id: attributeId,
+        position: attr.position ?? 0,
       })
-      
-      // Update the actual attribute record
-      await productAttributeService.write(attr.id, {
+    }
+
+    // 3. Handle changes to linked attributes (isChanged) - update product_attributes table
+    const toUpdate = attributes.filter(a => a.isChanged && !a._toDelete && !a.isNew)
+    for (const attr of toUpdate) {
+      console.log('[API] Updating product_attribute:', {
+        attributeId: attr.id,
+        name: attr.name,
         type: attr.type,
         position: attr.position
-      } as any, userId)
+      })
+
+      await db
+        .update(product_attributes)
+        .set({
+          name: attr.name,
+          type: attr.type,
+          position: attr.position ?? 0,
+          updated_at: sql`now()`,
+          ...(userId ? { write_uid: userId } : {}),
+        })
+        .where(eq(product_attributes.id, attr.id))
     }
-    
+
     console.log('[API] Relations updated successfully:', { valueId })
     return { success: true }
   } catch (error) {

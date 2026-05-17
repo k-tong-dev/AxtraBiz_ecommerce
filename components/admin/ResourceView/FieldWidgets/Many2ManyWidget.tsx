@@ -1,12 +1,23 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Table, Button, IconButton, Input, NumberInput, Checkbox, SelectPicker, TagPicker } from 'rsuite'
-import { VscEdit, VscSave, VscRemove, VscAdd } from 'react-icons/vsc'
-import { FieldWidgetProps } from './index'
-import {IoIosCreate} from "react-icons/io";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Table,
+  Button,
+  IconButton,
+  Input,
+  NumberInput,
+  Checkbox,
+  SelectPicker,
+  TagPicker,
+  TagGroup,
+  Tag,
+} from "rsuite";
+import { VscEdit, VscSave, VscRemove, VscAdd } from "react-icons/vsc";
+import { FieldWidgetProps } from "./index";
+import { IoIosCreate } from "react-icons/io";
 
-const { Column, HeaderCell, Cell } = Table
+const { Column, HeaderCell, Cell } = Table;
 
 const styles = `
 .table-cell-editing .rs-table-cell-content {
@@ -15,7 +26,7 @@ const styles = `
 .table-cell-editing .rs-input {
   width: 100%;
 }
-`
+`;
 
 /**
  * Many2Many Widget Configuration
@@ -23,41 +34,59 @@ const styles = `
  */
 export interface Many2ManyWidgetConfig {
   // Junction table configuration (required for many2many)
-  junctionTable?: string     // API endpoint for junction records (e.g., '/api/admin/product-attributes-rel')
-  localField: string         // FK to parent in junction (e.g., 'product_id')
-  remoteField: string        // FK to related in junction (e.g., 'attribute_id')
-  
+  junctionTable?: string; // API endpoint for junction records (e.g., '/api/admin/product-attributes-rel')
+  localField: string; // FK to parent in junction (e.g., 'product_id')
+  remoteField: string; // FK to related in junction (e.g., 'attribute_id')
+
   // Related record configuration
-  relation: string           // API endpoint for related records (e.g., '/api/admin/product-attributes')
-  displayField?: string      // Field to display from related record (default: 'name')
-  valueField?: string        // Field to use as value (default: 'id')
-  
+  relation: string; // API endpoint for related records (e.g., '/api/admin/product-attributes')
+  displayField?: string; // Field to display from related record (default: 'name')
+  valueField?: string; // Field to use as value (default: 'id')
+  searchField?: string; // Field to search on server (default: displayField)
+
   // Domain and context
-  domain?: any               // Optional filter for related records
-  context?: Record<string, any>
-  
+  domain?: any; // Optional filter for related records
+  context?: Record<string, any>;
+
+  // Dynamic fetching options (Odoo-style)
+  limit?: number; // Max results per request (default: 50)
+  minSearchLength?: number; // Min chars to trigger server search (default: 0)
+  searchDelay?: number; // Debounce delay for search (default: 300ms)
+
   // Inline editing of junction data
   columns?: Array<{
-    key: string              // Can be a field from junction table or prefixed related record
-    title: string
-    width?: number
-    type?: 'string' | 'number' | 'boolean' | 'select' | 'many2one' | 'tags'
-    editable?: boolean
-    required?: boolean
-    options?: Array<{ label: string; value: string }>
-    relation?: string
-    displayField?: string
-    valueField?: string
-  }>
-  
+    key: string; // Can be a field from junction table or prefixed related record
+    title: string;
+    width?: number;
+    type?: "string" | "number" | "boolean" | "select" | "many2one" | "tags";
+    editable?: boolean;
+    required?: boolean;
+    options?: Array<{ label: string; value: string }>;
+    relation?: string;
+    displayField?: string;
+    valueField?: string;
+  }>;
+
   // Display options
-  mode?: 'list' | 'tags' | 'kanban'  // Display mode (default: 'list')
-  
+  mode?: "list" | "tags" | "kanban"; // Display mode (default: 'list')
+
+  // Kanban-specific options
+  kanbanGroupField?: string; // Field to group by in kanban mode (default: 'state' or 'status')
+  kanbanGroupOptions?: Array<{
+    // Options for grouping field
+    value: string;
+    label: string;
+    color?: string;
+  }>;
+  kanbanTitleField?: string; // Field to display as card title (default: displayField)
+  kanbanSubtitleField?: string; // Field to display as card subtitle
+  kanbanColorField?: string; // Field that contains color value
+
   // Actions
-  allowSelect?: boolean      // Allow selecting existing records
-  allowCreate?: boolean     // Allow creating new related records
-  allowRemove?: boolean     // Allow removing (unlinking) records
-  allowEdit?: boolean       // Allow editing junction data
+  allowSelect?: boolean; // Allow selecting existing records
+  allowCreate?: boolean; // Allow creating new related records
+  allowRemove?: boolean; // Allow removing (unlinking) records
+  allowEdit?: boolean; // Allow editing junction data
 }
 
 /**
@@ -70,260 +99,302 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
   field,
   data: formData,
   disabled,
-  readonly
+  readonly,
 }) => {
-  const [items, setItems] = useState<any[]>(value || [])
-  const [relatedOptions, setRelatedOptions] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [showSelector, setShowSelector] = useState(false)
-  const [columnOptions, setColumnOptions] = useState<Record<string, any[]>>({})
-  
-  const config = field.widgetConfig as Many2ManyWidgetConfig
-  const parentId = formData?.id
-  const mode = config.mode || 'list'
-  
+  const [items, setItems] = useState<any[]>(value || []);
+  const [relatedOptions, setRelatedOptions] = useState<any[]>([]);
+  const [originalItemIds, setOriginalItemIds] = useState<Set<string>>(new Set()); // Track items from initial API load
+  const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showSelector, setShowSelector] = useState(false);
+  const [columnOptions, setColumnOptions] = useState<Record<string, any[]>>({});
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [hasFetched, setHasFetched] = useState(false);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const config = field.widgetConfig as Many2ManyWidgetConfig;
+  const parentId = formData?.id;
+
+  // Track original items from initial API load
+  useEffect(() => {
+    if (value && value.length > 0) {
+      const ids: Set<string> = new Set(value.map((item: any) => String(item.id || item.attribute_id)))
+      setOriginalItemIds(ids)
+    }
+  }, [value])
+  const mode = config.mode || "list";
+
   // Sync with external value
   useEffect(() => {
-    setItems(value || [])
-  }, [value])
-  
-  // Fetch related records for selection
-  useEffect(() => {
-    const fetchRelated = async () => {
-      if (!config.relation) return
-      
+    setItems(value || []);
+  }, [value]);
+
+  // Dynamic fetch for related records (fetch on demand)
+  const fetchRelatedOptions = useCallback(
+    async (search?: string) => {
+      if (!config.relation) return;
+
+      setLoading(true);
       try {
-        const response = await fetch(config.relation)
-        const data = await response.json()
-        
-        const options = data.map((item: any) => ({
-          label: item[config.displayField || 'name'],
-          value: item[config.valueField || 'id'],
-          ...item
-        }))
-        
-        setRelatedOptions(options)
+        const params = new URLSearchParams();
+        if (search && search.length > 0) {
+          params.append(
+            `${config.searchField || config.displayField || "name"}_like`,
+            search,
+          );
+        }
+        if (config.limit) {
+          params.append("limit", config.limit.toString());
+        }
+        if (config.domain) {
+          params.append("domain", JSON.stringify(config.domain));
+        }
+
+        const queryString = params.toString();
+        const url = `${config.relation}${queryString ? `?${queryString}` : ""}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        const options = (
+          Array.isArray(data) ? data : data.rows || data.items || []
+        ).map((item: any) => ({
+          label: item[config.displayField || "name"],
+          value: item[config.valueField || "id"],
+          ...item,
+        }));
+
+        setRelatedOptions(options);
+        setHasFetched(true);
       } catch (error) {
-        console.error('[Many2ManyWidget] Failed to fetch related records:', error)
+        console.error(
+          "[Many2ManyWidget] Failed to fetch related records:",
+          error,
+        );
+      } finally {
+        setLoading(false);
       }
+    },
+    [
+      config.relation,
+      config.displayField,
+      config.valueField,
+      config.searchField,
+      config.limit,
+      config.domain,
+    ],
+  );
+
+  // Fetch when selector opens
+  const handleOpenSelector = useCallback(() => {
+    if (!hasFetched) {
+      fetchRelatedOptions();
     }
-    
-    fetchRelated()
-  }, [config.relation, config.displayField, config.valueField])
-  
+    setShowSelector(true);
+  }, [hasFetched, fetchRelatedOptions]);
+
+  // Handle search in selector with debounce
+  const handleSelectorSearch = useCallback(
+    (query: string) => {
+      setSearchKeyword(query);
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        if (query.length >= (config.minSearchLength || 0)) {
+          fetchRelatedOptions(query);
+        } else if (query.length === 0) {
+          fetchRelatedOptions();
+        }
+      }, config.searchDelay || 300);
+    },
+    [fetchRelatedOptions, config.minSearchLength, config.searchDelay],
+  );
+
   // Fetch options for many2one columns
   useEffect(() => {
     const fetchOptions = async () => {
-      if (!config.columns) return
-      
-      const newOptions: Record<string, any[]> = {}
-      
+      if (!config.columns) return;
+
+      const newOptions: Record<string, any[]> = {};
+
       for (const col of config.columns) {
-        if (col.type === 'many2one' && col.relation) {
+        if (col.type === "many2one" && col.relation) {
           try {
-            const response = await fetch(col.relation)
-            const data = await response.json()
+            const response = await fetch(col.relation);
+            const data = await response.json();
             newOptions[col.key] = data.map((item: any) => ({
-              label: item[col.displayField || 'name'],
-              value: item[col.valueField || 'id']
-            }))
+              label: item[col.displayField || "name"],
+              value: item[col.valueField || "id"],
+            }));
           } catch (error) {
-            console.error(`[Many2ManyWidget] Failed to fetch options for ${col.key}:`, error)
+            console.error(
+              `[Many2ManyWidget] Failed to fetch options for ${col.key}:`,
+              error,
+            );
           }
         }
       }
-      
-      setColumnOptions(newOptions)
-    }
-    
-    fetchOptions()
-  }, [config.columns])
-  
+
+      setColumnOptions(newOptions);
+    };
+
+    fetchOptions();
+  }, [config.columns]);
+
   // Notify parent of changes
-  const notifyChange = useCallback((newItems: any[]) => {
-    setItems(newItems)
-    onChange(newItems)
-  }, [onChange])
-  
+  const notifyChange = useCallback(
+    (newItems: any[]) => {
+      setItems(newItems);
+      onChange(newItems);
+    },
+    [onChange],
+  );
+
   // Add/link existing records
   const handleSelect = (selectedValues: string[]) => {
-    const newItems = selectedValues.map(value => {
-      const related = relatedOptions.find(r => r.value === value)
-      return {
-        id: `temp_${Date.now()}_${value}`,
-        [config.localField]: parentId || null,
-        [config.remoteField]: value,
-        _related: related,  // Store related record data
-        _isNew: true
+    const newItems: any[] = [];
+
+    selectedValues.forEach((value) => {
+      // Check if this record is already in the list
+      const existingItem = items.find(
+        (i) =>
+          !i._toDelete &&
+          (i[config.remoteField] === value || i.id === value || i._related?.id === value),
+      );
+
+      if (!existingItem) {
+        // Check if this was an original item from API load
+        const isOriginal = originalItemIds.has(value);
+
+        // Create new item with flattened data structure (consistent with API items)
+        const related = relatedOptions.find((r) => r.value === value);
+        newItems.push({
+          id: related?.id || value,
+          name: related?.name || related?.label,
+          type: related?.type,
+          position: related?.position,
+          created_at: related?.created_at,
+          updated_at: related?.updated_at,
+          create_uid: related?.create_uid,
+          write_uid: related?.write_uid,
+          [config.localField]: parentId || null,
+          [config.remoteField]: value,
+          isNew: !isOriginal, // Only set isNew if it's not an original item
+        });
       }
-    })
-    
-    notifyChange([...items, ...newItems])
-    setShowSelector(false)
-  }
-  
-  // Unlink (remove from list, mark for deletion)
+    });
+
+    notifyChange([...items.filter((i) => !i._toDelete), ...newItems]);
+    setShowSelector(false);
+  };
+
+  // Unlink (mark for deletion)
   const handleUnlink = (id: string) => {
-    console.log('[Many2ManyWidget] handleUnlink called:', { id, currentItems: items })
-    
-    const item = items.find(i => i.id === id)
-    if (!item) {
-      console.log('[Many2ManyWidget] Item not found for unlink:', id)
-      return
-    }
-    
-    console.log('[Many2ManyWidget] Item to unlink:', item)
-    
-    // If it's a new item, just remove it
-    // If it's existing, mark for deletion
-    const newItems = items.map(i => 
+    const newItems = items.map(i =>
       i.id === id ? { ...i, _toDelete: true } : i
-    ).filter(i => i._isNew ? !i._toDelete : true)
-    
-    console.log('[Many2ManyWidget] Items after unlink processing:', newItems)
-    console.log('[Many2ManyWidget] Active items count:', newItems.filter(i => !i._toDelete).length)
-    
+    )
     notifyChange(newItems)
-  }
-  
+  };
+
   // Toggle edit mode for junction data
   const handleEdit = (id: string) => {
-    if (!config.allowEdit) return
-    
-    // Store original values when starting edit
-    if (editingId !== id) {
-      const item = items.find(i => i.id === id)
-      if (item && config.columns) {
-        const original: any = {}
-        for (const col of config.columns) {
-          original[col.key] = item[col.key]
-        }
-        setOriginalValues(prev => ({ ...prev, [id]: original }))
-      }
-    }
-    
-    setEditingId(editingId === id ? null : id)
-  }
-  
-  // Track original values for change detection
-  const [originalValues, setOriginalValues] = useState<Record<string, any>>({})
-  
+    if (!config.allowEdit) return;
+    setEditingId(editingId === id ? null : id);
+  };
+
   // Save junction data changes
   const handleSave = (id: string) => {
-    setEditingId(null)
-    
-    const item = items.find(i => i.id === id)
-    if (!item) return
-    
-    // Check if any values actually changed compared to original
-    const original = originalValues[id]
-    let hasChanges = false
-    
-    if (original && config.columns) {
-      for (const col of config.columns) {
-        if (item[col.key] !== original[col.key]) {
-          hasChanges = true
-          break
-        }
-      }
-    }
-    
-    // Only mark as modified if there are actual changes (not for new items)
+    setEditingId(null);
+    // Mark item as changed if it's not new
     const newItems = items.map(item => {
-      if (item.id !== id) return item
-      
-      if (item._isNew) {
-        // New items don't need _isModified
-        return { ...item }
-      } else if (hasChanges) {
-        // Existing items with changes
-        return { ...item, _isModified: true }
-      } else {
-        // Existing items without changes - remove any previous _isModified
-        const { _isModified, ...rest } = item
-        return rest
+      if (item.id === id && !item.isNew) {
+        return { ...item, isChanged: true };
       }
-    })
-    
-    // Clear stored original values
-    const newOriginalValues = { ...originalValues }
-    delete newOriginalValues[id]
-    setOriginalValues(newOriginalValues)
-    
-    notifyChange(newItems)
-  }
-  
+      return item;
+    });
+    notifyChange(newItems);
+  };
+
   // Update junction field value
   const handleFieldChange = (id: string, key: string, newValue: any) => {
-    const newItems = items.map(item =>
-      item.id === id ? { ...item, [key]: newValue } : item
-    )
-    setItems(newItems)
-  }
-  
+    const newItems = items.map(item => {
+      if (item.id === id) {
+        return { ...item, [key]: newValue, isChanged: true };
+      }
+      return item;
+    });
+    setItems(newItems);
+  };
+
   // Get available options (exclude already linked)
-  const getAvailableOptions = () => {
-    const linkedIds = items
-      .filter(i => !i._toDelete)
-      .map(i => i[config.remoteField] || i.id)  // Handle new data structure
-    return relatedOptions.filter(o => !linkedIds.includes(o.value))
-  }
-  
+  const getAvailableOptions = useCallback(() => {
+    const linkedIds = items.filter(i => !i._toDelete).map((i) => i[config.remoteField] || i.id);
+    return relatedOptions.filter((o) => !linkedIds.includes(o.value));
+  }, [items, relatedOptions, config.remoteField]);
+
   // Render editable cell for junction data
   const EditableCell = ({ rowData, dataKey, column, ...props }: any) => {
-    const isEditing = editingId === rowData.id && column.editable !== false
-    const value = rowData[dataKey]
-    
+    const isEditing = editingId === rowData.id && column.editable !== false;
+    const value = rowData[dataKey];
+
     if (!isEditing) {
       // Display mode
-      if (column.type === 'boolean') {
-        return <Cell {...props}>{value ? 'Yes' : 'No'}</Cell>
+      if (column.type === "boolean") {
+        return <Cell {...props}>{value ? "Yes" : "No"}</Cell>;
       }
-      if (column.type === 'many2one') {
-        const options = columnOptions[dataKey] || []
-        const selected = options.find((o: any) => o.value === value)
-        return <Cell {...props}>{selected?.label || value || '-'}</Cell>
+      if (column.type === "many2one") {
+        const options = columnOptions[dataKey] || [];
+        const selected = options.find((o: any) => o.value === value);
+        return <Cell {...props}>{selected?.label ?? value ?? "-"}</Cell>;
       }
-      if (column.type === 'select') {
-        const selected = column.options?.find((o: any) => o.value === value)
-        return <Cell {...props}>{selected?.label || value || '-'}</Cell>
+      if (column.type === "select") {
+        const selected = column.options?.find((o: any) => o.value === value);
+        return <Cell {...props}>{selected?.label ?? value ?? "-"}</Cell>;
       }
-      return <Cell {...props}>{value || '-'}</Cell>
+      return <Cell {...props}>{value ?? "-"}</Cell>;
     }
-    
+
     // Edit mode
     const commonProps = {
       value,
-      onChange: (newValue: any) => handleFieldChange(rowData.id, dataKey, newValue),
+      onChange: (newValue: any) =>
+        handleFieldChange(rowData.id, dataKey, newValue),
       disabled,
-      size: 'sm' as const
-    }
-    
+      size: "sm" as const,
+    };
+
     return (
       <Cell {...props} className="table-cell-editing">
-        {column.type === 'boolean' ? (
+        {column.type === "boolean" ? (
           <Checkbox {...commonProps} checked={value} />
-        ) : column.type === 'number' ? (
+        ) : column.type === "number" ? (
           <NumberInput {...commonProps} />
-        ) : column.type === 'many2one' ? (
-          <SelectPicker {...commonProps} data={columnOptions[dataKey] || []} block />
-        ) : column.type === 'select' ? (
+        ) : column.type === "many2one" ? (
+          <SelectPicker
+            {...commonProps}
+            data={columnOptions[dataKey] || []}
+            block
+          />
+        ) : column.type === "select" ? (
           <SelectPicker {...commonProps} data={column.options || []} block />
         ) : (
           <Input {...commonProps} />
         )}
       </Cell>
-    )
-  }
-  
+    );
+  };
+
   // Action cell
   const ActionCell = ({ rowData, ...props }: any) => {
-    const isEditing = editingId === rowData.id
-    const showEdit = config.allowEdit && !readonly && !disabled && config.columns
-    const showUnlink = config.allowRemove !== false && !readonly && !disabled
-    
-    console.log('[Many2ManyWidget] ActionCell render:', {
+    const isEditing = editingId === rowData.id;
+    const showEdit =
+      config.allowEdit && !readonly && !disabled && config.columns;
+    const showUnlink = config.allowRemove !== false && !readonly && !disabled;
+
+    console.log("[Many2ManyWidget] ActionCell render:", {
       rowData,
       isEditing,
       showEdit,
@@ -331,20 +402,23 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
       config: {
         allowEdit: config.allowEdit,
         allowRemove: config.allowRemove,
-        columns: !!config.columns
-      }
-    })
-    
+        columns: !!config.columns,
+      },
+    });
+
     return (
-      <Cell {...props} style={{ padding: '6px', display: 'flex', gap: '4px' }}>
+      <Cell {...props} style={{ padding: "6px", display: "flex", gap: "4px" }}>
         {showEdit && (
           <IconButton
             appearance="link"
             color="violet"
             icon={isEditing ? <VscSave /> : <VscEdit />}
             onClick={() => {
-              console.log('[Many2ManyWidget] Edit button clicked:', { id: rowData.id, isEditing })
-              isEditing ? handleSave(rowData.id) : handleEdit(rowData.id)
+              console.log("[Many2ManyWidget] Edit button clicked:", {
+                id: rowData.id,
+                isEditing,
+              });
+              isEditing ? handleSave(rowData.id) : handleEdit(rowData.id);
             }}
             size="sm"
           />
@@ -354,90 +428,291 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
             appearance="link"
             icon={<VscRemove />}
             onClick={() => {
-              console.log('[Many2ManyWidget] Unlink button clicked:', rowData.id)
-              handleUnlink(rowData.id)
+              console.log(
+                "[Many2ManyWidget] Unlink button clicked:",
+                rowData.id,
+              );
+              handleUnlink(rowData.id);
             }}
             size="sm"
             color="red"
           />
         )}
       </Cell>
-    )
-  }
-  
-  // Tags mode display
-  if (mode === 'tags') {
+    );
+  };
+
+  // Kanban mode display
+  if (mode === "kanban") {
+    const groupField = config.kanbanGroupField || "state";
+    const titleField = config.kanbanTitleField || config.displayField || "name";
+    const subtitleField = config.kanbanSubtitleField;
+    const groupOptions = config.kanbanGroupOptions || [];
+
+    // Group items by the group field
+    const groupedItems: Record<string, any[]> = {};
+
+    // Initialize groups from groupOptions
+    groupOptions.forEach((opt) => {
+      groupedItems[opt.value] = [];
+    });
+
+    // Group active items
+    items
+      .filter((i) => !i._toDelete)
+      .forEach((item) => {
+        // Get the group value from the item
+        const groupValue = item[groupField] || "ungrouped";
+        if (!groupedItems[groupValue]) {
+          groupedItems[groupValue] = [];
+        }
+        groupedItems[groupValue].push(item);
+      });
+
+    // Get color for a group
+    const getGroupColor = (groupValue: string) => {
+      const option = groupOptions.find((o) => o.value === groupValue);
+      return option?.color || "gray";
+    };
+
+    // Get label for a group
+    const getGroupLabel = (groupValue: string) => {
+      const option = groupOptions.find((o) => o.value === groupValue);
+      return option?.label || groupValue;
+    };
+
+    // Color variants for Tailwind
+    const colorVariants: Record<string, string> = {
+      blue: "border-blue-500 bg-blue-50",
+      green: "border-green-500 bg-green-50",
+      yellow: "border-yellow-500 bg-yellow-50",
+      red: "border-red-500 bg-red-50",
+      purple: "border-purple-500 bg-purple-50",
+      orange: "border-orange-500 bg-orange-50",
+      gray: "border-gray-400 bg-gray-50",
+    };
+
+    const dotColorVariants: Record<string, string> = {
+      blue: "bg-blue-500",
+      green: "bg-green-500",
+      yellow: "bg-yellow-500",
+      red: "bg-red-500",
+      purple: "bg-purple-500",
+      orange: "bg-orange-500",
+      gray: "bg-gray-400",
+    };
+
     return (
-      <div className="space-y-2">
-        <div className="flex flex-wrap gap-2">
-          {items.filter(i => !i._toDelete).map(item => {
-            const related = item._related || relatedOptions.find(r => r.value === item[config.remoteField])
-            return (
-              <span
-                key={item.id}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm"
-              >
-                {related?.label || item[config.remoteField]}
-                {config.allowRemove !== false && !readonly && !disabled && (
-                  <button
-                    onClick={() => handleUnlink(item.id)}
-                    className="ml-1 text-blue-600 hover:text-blue-800"
-                  >
-                    ×
-                  </button>
-                )}
-              </span>
-            )
-          })}
+      <div className="space-y-3">
+        {/* Header with add button */}
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-600">
+            {items.filter((i) => !i._toDelete).length} linked records
+          </span>
+          {config.allowSelect && !readonly && !disabled && (
+            <Button
+              onClick={() => setShowSelector(!showSelector)}
+              appearance="default"
+              size="sm"
+              style={{ color: "#531ba8", backgroundColor: "transparent" }}
+              disabled={disabled}
+              startIcon={<IoIosCreate />}
+            >
+              Add lines
+            </Button>
+          )}
         </div>
-        
-        {config.allowSelect && !readonly && !disabled && (
-          <div className="mt-2">
-            <TagPicker
+
+        {/* Selector */}
+        {showSelector && (
+          <div className="p-3 border rounded bg-gray-50">
+            <SelectPicker
               data={getAvailableOptions()}
-              value={[]}
-              onChange={(values) => handleSelect(values as string[])}
-              placeholder="Add..."
+              value={null}
+              searchable={true}
+              loading={loading}
+              onSearch={handleSelectorSearch}
+              onSelect={(value) => {
+                if (value) {
+                  handleSelect([value as string]);
+                }
+              }}
+              onClose={() => setSearchKeyword("")}
+              placeholder="Search and select a record to link..."
               block
               size="sm"
-              style={{ outlineColor: 'transparent'}}
+              style={{ outlineColor: "transparent" }}
+              cleanable={false}
             />
           </div>
         )}
+
+        {/* Kanban columns */}
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {Object.entries(groupedItems).map(([groupValue, groupItems]) => {
+            const color = getGroupColor(groupValue);
+            const label = getGroupLabel(groupValue);
+            const colorVariant = colorVariants[color] || colorVariants.gray;
+            const dotColor = dotColorVariants[color] || dotColorVariants.gray;
+
+            return (
+              <div
+                key={groupValue}
+                className="flex-shrink-0 w-64 border rounded-lg overflow-hidden"
+              >
+                {/* Column header */}
+                <div
+                  className={`px-3 py-2 border-b flex items-center justify-between ${colorVariant}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2.5 h-2.5 rounded-full ${dotColor}`} />
+                    <span className="font-medium text-sm text-gray-700">
+                      {label}
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-500 bg-white px-2 py-0.5 rounded-full">
+                    {groupItems.length}
+                  </span>
+                </div>
+
+                {/* Column items */}
+                <div className="p-2 space-y-2 max-h-64 overflow-y-auto">
+                  {groupItems.map((item) => {
+                    const related =
+                      item._related ||
+                      relatedOptions.find(
+                        (r) => r.value === item[config.remoteField],
+                      );
+                    const title =
+                      related?.[titleField] ||
+                      item[titleField] ||
+                      item.name ||
+                      item.id ||
+                      "Untitled";
+                    const subtitle = subtitleField
+                      ? related?.[subtitleField] || item[subtitleField]
+                      : null;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="p-2 border rounded bg-white hover:shadow-sm transition-shadow cursor-pointer"
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-gray-800 truncate">
+                              {title}
+                            </div>
+                            {subtitle && (
+                              <div className="text-xs text-gray-500 truncate mt-0.5">
+                                {subtitle}
+                              </div>
+                            )}
+                          </div>
+                          {config.allowRemove !== false &&
+                            !readonly &&
+                            !disabled && (
+                              <button
+                                onClick={() => handleUnlink(item.id)}
+                                className="text-gray-400 hover:text-red-500 flex-shrink-0"
+                              >
+                                <VscRemove size={14} />
+                              </button>
+                            )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {groupItems.length === 0 && (
+                    <div className="text-center text-xs text-gray-400 py-4">
+                      No items
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-    )
+    );
   }
-  
+
+  // Tags mode display
+  if (mode === 'tags') {
+    return (
+      <div className="space-y-2 flex">
+        <div className="flex flex-wrap gap-2">
+          {items.filter(i => !i._toDelete).map(item => {
+            const displayValue = item[config.displayField || 'name'] || item.name || item.id || 'Undefined'
+            return (
+              <TagGroup>
+                {config.allowRemove !== false && !readonly && !disabled && (
+                  <Tag key={item.id} size={"lg"} color={"violet"} closable onClose={() => handleUnlink(item.id)}>
+                    {displayValue}
+                  </Tag>
+                ) || (
+                    <Tag key={item.id} size={"lg"} color={"violet"}>
+                      {displayValue}
+                    </Tag>
+                )}
+              </TagGroup>
+            )
+          })}
+          {config.allowSelect && !readonly && !disabled && (
+            <div className="ml-2">
+              <TagPicker
+                data={getAvailableOptions()}
+                value={[]}
+                creatable={false}
+                searchable={true}
+                loading={loading}
+                onSearch={handleSelectorSearch}
+                onOpen={handleOpenSelector}
+                onChange={(values) => handleSelect(values as string[])}
+                onClose={() => setSearchKeyword("")}
+                placeholder="Add"
+                block
+                size="sm"
+                style={{ outlineColor: "transparent" }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // List mode (default)
   if (readonly || disabled) {
     return (
       <div className="border rounded p-4 bg-gray-50">
-        <p className="text-sm text-gray-500">
-          {items.filter(i => !i._toDelete).length} linked records (read-only)
+        <p className="text-xs text-gray-500">
+          {items.filter((i) => !i._toDelete).length} linked records (read-only)
         </p>
       </div>
-    )
+    );
   }
-  
-  const activeItems = items.filter(i => !i._toDelete)
-  const shouldShowActionBar = activeItems.length > 0 || (config.allowSelect && activeItems.length === 0)
 
+  const activeItems = items.filter((i) => !i._toDelete);
+  const shouldShowActionBar =
+    activeItems.length > 0 || (config.allowSelect && activeItems.length === 0);
+  console.log("------------------------ Items: ", JSON.stringify(items, null, 2));
   return (
     <>
       <style>{styles}</style>
       <div className="space-y-2">
         {shouldShowActionBar && (
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600">
-              {items.filter(i => !i._toDelete).length} linked records
+            <span className="text-xs text-gray-600">
+              {activeItems.length} linked records
             </span>
             {config.allowSelect && (
               <div className="flex gap-2">
                 <Button
-                  onClick={() => setShowSelector(!showSelector)}
+                  onClick={handleOpenSelector}
                   appearance="default"
                   size="sm"
-                  style={{color: '#531ba8', backgroundColor: 'transparent'}}
+                  style={{ color: "#531ba8", backgroundColor: "transparent" }}
                   disabled={disabled}
                   startIcon={<IoIosCreate />}
                 >
@@ -447,58 +722,65 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
             )}
           </div>
         )}
-        
+
         {showSelector && (
           <div className="p-3 border rounded bg-gray-50">
-            <TagPicker
+            <SelectPicker
               data={getAvailableOptions()}
-              value={[]}
-              creatable
-              className={"text-foreground"}
-              onChange={(values) => handleSelect(values as string[])}
-              placeholder="Search and select records to link..."
+              value={null}
+              searchable={true}
+              loading={loading}
+              onSearch={handleSelectorSearch}
+              onSelect={(value) => {
+                if (value) {
+                  handleSelect([value as string]);
+                }
+              }}
+              onClose={() => setSearchKeyword("")}
+              placeholder="Search and select a record to link..."
               block
               size="sm"
-              style={{ outlineColor: 'transparent'}}
+              style={{ outlineColor: "transparent" }}
+              cleanable={false}
             />
           </div>
         )}
-        
-        {config.columns ? (
+
+        {config.columns && config.columns.length > 0 ? (
           <Table
             height={300}
-            data={items.filter(i => !i._toDelete)}
-            autoHeight={items.filter(i => !i._toDelete).length === 0}
+            data={activeItems}
+            autoHeight={activeItems.length === 0}
             bordered={false}
             cellBordered={false}
           >
             {/* Related record display column */}
-            <Column flexGrow={1}>
-              <HeaderCell className={"uppercase"}>{config.displayField || 'Name'}</HeaderCell>
-              <Cell>
-                {(rowData: any) => {
-                  // API returns full data directly: name, type, position, etc.
-                  // Fallback to _related for backwards compatibility or relatedOptions for new items
-                  const displayValue = rowData[config.displayField || 'name'] 
-                    || rowData.name 
-                    || rowData._related?.label 
-                    || relatedOptions.find(r => r.value === rowData[config.remoteField])?.label 
-                    || rowData[config.remoteField] 
-                    || '-'
-                  return <span>{displayValue}</span>
-                }}
-              </Cell>
-            </Column>
-            
+            {/*<Column flexGrow={1} resizable={true}>*/}
+            {/*  <HeaderCell className={"uppercase"}>{config.displayField || 'Name'}</HeaderCell>*/}
+            {/*  <Cell>*/}
+            {/*    {(rowData: any) => {*/}
+            {/*      // API returns full data directly: name, type, position, etc.*/}
+            {/*      // Fallback to _related for backwards compatibility or relatedOptions for new items*/}
+            {/*      const displayValue = rowData[config.displayField || 'name']*/}
+            {/*        || rowData.name*/}
+            {/*        || rowData._related?.label*/}
+            {/*        || relatedOptions.find(r => r.value === rowData[config.remoteField])?.label*/}
+            {/*        || rowData[config.remoteField]*/}
+            {/*        || '-'*/}
+            {/*      return <span>{displayValue}</span>*/}
+            {/*    }}*/}
+            {/*  </Cell>*/}
+            {/*</Column>*/}
+
             {/* Junction data columns */}
             {config.columns.map((col) => (
-              <Column key={col.key} width={col.width || 100}>
-                <HeaderCell  className={"uppercase"}>{col.title}</HeaderCell>
+              <Column key={col.key} width={col.width || 100} resizable={true}>
+                <HeaderCell className={"uppercase"}>{col.title}</HeaderCell>
                 <EditableCell dataKey={col.key} column={col} />
               </Column>
             ))}
-            
-            <Column width={80} align="center">
+
+            <Column width={80} align="center" fixed="right">
               <HeaderCell className={"uppercase"}>Action</HeaderCell>
               <ActionCell dataKey="id" />
             </Column>
@@ -506,14 +788,21 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
         ) : (
           // Simple list without junction data columns
           <div className="border rounded divide-y">
-            {items.filter(i => !i._toDelete).map(item => {
-              const related = item._related || relatedOptions.find(r => r.value === item[config.remoteField])
+            {activeItems.map((item) => {
+              const displayValue =
+                item[config.displayField || "name"] ||
+                item.name ||
+                item.id ||
+                "Undefined";
               return (
-                <div key={item.id} className="flex justify-between items-center p-2 hover:bg-gray-50">
-                  <span>{related?.label || item[config.remoteField]}</span>
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center p-2 hover:bg-gray-50"
+                >
+                  <span>{displayValue}</span>
                   {config.allowRemove !== false && (
                     <IconButton
-                      appearance="primary"
+                      appearance="link"
                       icon={<VscRemove />}
                       onClick={() => handleUnlink(item.id)}
                       size="sm"
@@ -521,9 +810,9 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
                     />
                   )}
                 </div>
-              )
+              );
             })}
-            {items.filter(i => !i._toDelete).length === 0 && (
+            {items.filter((i) => !i._toDelete).length === 0 && (
               <div className="p-4 text-center text-gray-500">
                 No linked records
               </div>
@@ -532,9 +821,8 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
         )}
       </div>
     </>
-  )
-}
+  );
+};
+(Many2ManyWidget as any).widgetName = "many2many";
 
-;(Many2ManyWidget as any).widgetName = 'many2many'
-
-export default Many2ManyWidget
+export default Many2ManyWidget;

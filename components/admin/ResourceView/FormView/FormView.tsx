@@ -23,11 +23,9 @@ import {BsTools} from "react-icons/bs";
 import {DatePickerField} from '@/components/admin/DatePickerField'
 import {ServerActions, ServerActionConfig, ActionContext} from '../ServerActions'
 import { getWidget, registerWidget } from '../FieldWidgets'
-import { Many2ManyListWidget } from '../FieldWidgets/Many2ManyListWidget'
 import { TagSelectWidget } from '../FieldWidgets/TagSelectWidget'
 
 // Register widgets on module load
-registerWidget(Many2ManyListWidget as any)
 registerWidget(TagSelectWidget as any)
 
 // Convert FormView customActions to ServerActionConfig

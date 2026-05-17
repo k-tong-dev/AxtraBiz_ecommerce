@@ -66,6 +66,7 @@ export const productAttributeValueFormConfig: FormConfig = {
           gridRow: 1,
           gridColumn: 1,
           order: 1,
+          widget: 'many2many',
           widgetConfig: {
             // Relation config (for dropdown & display)
             relation: '/api/admin/product-attributes',
@@ -76,20 +77,27 @@ export const productAttributeValueFormConfig: FormConfig = {
             remoteField: 'attribute_id',
             // Client only configures additional display columns
             columns: [
-              { 
-                key: 'type', 
-                title: 'Type', 
-                width: 150, 
-                type: 'select', 
+              { key: 'name', 
+                title: 'Name', 
+                width: 80, 
+                type: 'string', 
+                editable: true 
+              },
+              {
+                key: 'type',
+                title: 'Type',
+                width: 150,
+                type: 'select',
                 options: [
                   { label: 'Select Dropdown', value: 'select' },
                   { label: 'Radio Buttons', value: 'radio' },
                   { label: 'Color Swatches', value: 'color' },
                   { label: 'Text Input', value: 'text' }
                 ],
-                editable: true 
+                editable: true
               },
               { key: 'position', title: 'Position', width: 80, type: 'number', editable: true },
+              { key: 'create_uid', title: 'create_uid', width: 80, type: 'string', editable: true },
             ],
             mode: 'list',
             allowSelect: true,
