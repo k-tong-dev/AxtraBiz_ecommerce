@@ -28,7 +28,7 @@ export const productAttributeValueConfig = {
   customServerActions: [
     {
       key: 'duplicate_value',
-      label: 'Duplicate Value',
+      label: 'Duplicate',
       icon: createElement(Copy, { size: 16 }),
       color: 'blue' as const,
       mode: 'edit' as const,

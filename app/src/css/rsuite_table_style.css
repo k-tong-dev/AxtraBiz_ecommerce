@@ -2,6 +2,16 @@
   --rs-state-hover-bg: #f6f6f6;
   --rs-table-resize: #01a0d3;
 }
+
+/*.rs-table-cell-group-fixed-left,*/
+/*.rs-table-cell {*/
+/*  background: transparent;*/
+/*}*/
+/*.rs-table-row-header .rs-table-cell,*/
+/*.rs-table-row-header {*/
+/*  background: #efefef;*/
+/*}*/
+
 /*.rs-check-item:not(.rs-checkbox-disabled):hover,*/
 /*.rs-check-item:focus,*/
 /*.rs-check-item.rs-check-item-focus {*/

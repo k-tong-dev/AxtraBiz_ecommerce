@@ -1209,7 +1209,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         if (nonFileFields.length === 0) return null
                         
                         return (
-                            <div key={groupNumber} className="bg-card rounded-lg border p-6">
+                            <div key={groupNumber} className="bg-card rounded-lg border border-dashed p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {nonFileFields.map((field) => (
                                         <div 
@@ -1226,7 +1226,11 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                             //     gap: "30px"
                                             // }}
                                         >
-                                            <label className="text-xs font-medium flex items-center gap-1 mb-2">
+                                            <label className={
+                                                "text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground " +
+                                                "font-medium " +
+                                                "flex items-center gap-1 mb-2"
+                                            }>
                                                 {field.label}
                                                 {field.required && <span className="text-red-500 ml-1">*</span>}
                                                 {field.helper && (
@@ -1265,7 +1269,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         if (visiblePages.length === 0) return null
                         
                         return (
-                            <div className="bg-card rounded-lg border p-6">
+                            <div className="bg-card rounded-lg border p-6 border-dashed">
                                 {/* Tabs */}
                                 {visiblePages.length > 1 && (
                                     <div className="border-b mb-4">
@@ -1361,7 +1365,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             <div className="space-y-4">
                                 {config.fields.filter(f => f.type === 'file').map((field) => (
                                     <div key={field.key}>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                                        <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                                             {field.label}
                                             {field.required && <span className="text-red-500 ml-1">*</span>}
                                             {field.helper && (
@@ -1386,8 +1390,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     )}
 
                     {/* Quick Actions - Desktop */}
-                    <div className="hidden lg:block bg-card rounded-lg border p-6">
-                        <h2 className="text-md font-semibold mb-4">Quick Actions</h2>
+                    <div className="hidden lg:block bg-card rounded-lg border p-6 border-dashed">
+                        <h2 className="text-sm uppercase text-foreground/50 hover:text-foreground font-semibold mb-4">Quick Actions</h2>
                         {serverActions && serverActions.length > 0 && (
                             <ServerActions
                                 actions={serverActions
@@ -1418,9 +1422,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             </button>
                         </Whisper>
 
-                        <Drawer open={showQuickActions} onClose={() => setShowQuickActions(false)} size="xs" backdrop="static" placement="right">
+                        <Drawer open={showQuickActions}
+                                onClose={() => setShowQuickActions(false)}
+                                size="300px"
+                                backdrop="static"
+                                placement="right">
                             <Drawer.Header>
-                                <Drawer.Title>Quick Actions</Drawer.Title>
+                                <Drawer.Title className={"uppercase !text-md !text-foreground/50 hover:!text-foreground"}>
+                                    Quick Actions
+                                </Drawer.Title>
                             </Drawer.Header>
                             <Drawer.Body>
                                 {serverActions && serverActions.length > 0 && (

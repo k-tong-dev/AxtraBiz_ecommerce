@@ -16,6 +16,7 @@ import {
 import { VscEdit, VscSave, VscRemove, VscAdd } from "react-icons/vsc";
 import { FieldWidgetProps } from "./index";
 import { IoIosCreate } from "react-icons/io";
+import {Switch} from "@/components/ui/switch";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -369,7 +370,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
     return (
       <Cell {...props} className="table-cell-editing">
         {column.type === "boolean" ? (
-          <Checkbox {...commonProps} checked={value} />
+          <Switch {...commonProps} checked={value || false} />
         ) : column.type === "number" ? (
           <NumberInput {...commonProps} />
         ) : column.type === "many2one" ? (
@@ -724,7 +725,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
         )}
 
         {showSelector && (
-          <div className="p-3 border rounded bg-gray-50">
+          <div className="p-3 rounded">
             <SelectPicker
               data={getAvailableOptions()}
               value={null}
@@ -739,7 +740,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
               onClose={() => setSearchKeyword("")}
               placeholder="Search and select a record to link..."
               block
-              size="sm"
+              size="md"
               style={{ outlineColor: "transparent" }}
               cleanable={false}
             />

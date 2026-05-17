@@ -341,12 +341,17 @@ export function ServerActions({
                 disabled={loading === action.key || action.readonly}
                 loading={loading === action.key}
                 className={cn(action.className)}
+                style={{
+                    height: '50px',
+                    padding: '0 10px',
+                    marginTop: '0',
+                }}
             >
                 {action.label}
                 {action.badge && (
                     <span className="ml-2 px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
-            {action.badge}
-          </span>
+                        {action.badge}
+                      </span>
                 )}
             </Button>
         )
@@ -375,7 +380,7 @@ export function ServerActions({
     if (layout === 'inline') {
         return (
             <>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-2">
                     {renderActions()}
                 </div>
                 {showExportModal && (

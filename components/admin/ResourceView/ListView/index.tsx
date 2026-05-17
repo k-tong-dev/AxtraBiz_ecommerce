@@ -729,12 +729,14 @@ export function ListView({
                 onSortColumn={handleSortColumn}
                 loading={loading}
                 renderLoading={renderLoading}
+                className={"rounded-lg"}
             >
                 <Column width={35} align="center" fixed resizable={false}>
                     <HeaderCell style={{padding: 0}}>
                         <Center>
                             <Checkbox
                                 inline
+                                className={"w-[16px]"}
                                 color={"violet"}
                                 checked={paginatedData.length > 0 && paginatedData.every(row => currentSelectedIds.includes(row.id || row._id))}
                                 indeterminate={paginatedData.length > 0 && currentSelectedIds.length > 0 && !paginatedData.every(row => currentSelectedIds.includes(row.id || row._id))}
@@ -755,6 +757,7 @@ export function ListView({
                                         <Checkbox
                                             checked={allChildrenSelected}
                                             color={"violet"}
+                                            className={"w-[16px]"}
                                             indeterminate={someChildrenSelected && !allChildrenSelected}
                                             onChange={(value, checked, event) => {
                                                 event?.stopPropagation()
@@ -770,6 +773,7 @@ export function ListView({
                                 <div onClick={(e) => e.stopPropagation()}>
                                     <Checkbox
                                         color="violet"
+                                        className={"w-[16px]"}
                                         checked={currentSelectedIds.includes(rowData._originalId || rowData.id || rowData._id)}
                                         onChange={(value, checked, event) => {
                                             event?.stopPropagation()
