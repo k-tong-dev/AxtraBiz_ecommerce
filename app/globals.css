@@ -37,7 +37,7 @@
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #374151;
   --sidebar-ring: #4F46E5;
-  --dot-color: rgba(0,0,0,0.08);
+  --dot-color: rgba(0,0,0,0.12);
 }
 
 .dark {
@@ -124,8 +124,8 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle, var(--dot-color) 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
   }
   
   /* Responsive improvements for large screens */
