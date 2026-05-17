@@ -1,5 +1,6 @@
 :root {
   --rs-state-hover-bg: #f6f6f6;
+  --rs-table-resize: #01a0d3;
 }
 /*.rs-check-item:not(.rs-checkbox-disabled):hover,*/
 /*.rs-check-item:focus,*/

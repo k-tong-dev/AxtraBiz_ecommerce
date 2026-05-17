@@ -24,6 +24,7 @@ import {DatePickerField} from '@/components/admin/DatePickerField'
 import {ServerActions, ServerActionConfig, ActionContext} from '../ServerActions'
 import { getWidget, registerWidget } from '../FieldWidgets'
 import { TagSelectWidget } from '../FieldWidgets/TagSelectWidget'
+import {Switch} from "@/components/ui/switch";
 
 // Register widgets on module load
 registerWidget(TagSelectWidget as any)
@@ -1052,19 +1053,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             case 'toggle':
                 return (
                     <div className="flex items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => onChange(!value)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                value ? 'bg-primary' : 'bg-gray-200'
-                            }`}
-                        >
-                            <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                    value ? 'translate-x-6' : 'translate-x-1'
-                                }`}
-                            />
-                        </button>
+                        <Switch checked={value || false}
+                                color={"violet"}
+                                // checkedChildren={`${value}`}
+                                // unCheckedChildren={`${value}`}
+                                checkedChildren={"ON"}
+                                unCheckedChildren={"OFF"}
+                                onClick={() => onChange(!value)}>
+
+                        </Switch>
                     </div>
                 )
 
@@ -1222,8 +1219,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                                 field.columnWidth === 3 ? 'md:col-span-3' : 
                                                 'md:col-span-1'
                                             }`}
+                                            // style={{
+                                            //     display: "flex",
+                                            //     justifyContent: "flex-start",
+                                            //     alignItems: "center",
+                                            //     gap: "30px"
+                                            // }}
                                         >
-                                            <label className="text-sm font-medium flex items-center gap-1">
+                                            <label className="text-xs font-medium flex items-center gap-1 mb-2">
                                                 {field.label}
                                                 {field.required && <span className="text-red-500 ml-1">*</span>}
                                                 {field.helper && (

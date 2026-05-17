@@ -165,7 +165,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     return <div className="text-center py-8 text-muted-foreground">FormView config not provided</div>
                 }
                 return (
-                    <div className="p-4">
+                    <div className="">
                         <FormView
                             mode={editingId ? 'edit' : 'create'}
                             config={config.formViewConfig}

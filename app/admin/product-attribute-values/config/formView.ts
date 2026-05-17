@@ -13,7 +13,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       type: 'text',
       required: true,
       placeholder: 'e.g., Red, Large, Cotton',
-      columnWidth: 3,
+      columnWidth: 2,
       groupNumber: 1,
       groupColumn: 1,
       order: 1
@@ -25,9 +25,9 @@ export const productAttributeValueFormConfig: FormConfig = {
       required: true,
       placeholder: 'e.g., red, L, cotton',
       helper: 'Internal value code (lowercase, no spaces)',
-      columnWidth: 2,
+      columnWidth: 1,
       groupNumber: 1,
-      groupColumn: 2,
+      groupColumn: 1,
       order: 2
     },
     {
@@ -38,7 +38,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       placeholder: '0',
       helper: 'Display order (lower numbers appear first)',
       columnWidth: 2,
-      groupNumber: 2,
+      groupNumber: 1,
       groupColumn: 1,
       order: 3
     },
@@ -48,7 +48,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       type: 'boolean',
       required: false,
       columnWidth: 1,
-      groupNumber: 2,
+      groupNumber: 1,
       groupColumn: 2,
       order: 4
     }
