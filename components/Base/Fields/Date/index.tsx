@@ -29,6 +29,15 @@ export function DateField({ config, value, onChange, error }: FieldProps) {
             outline: none !important;
             background: transparent !important;
           }
+          #${uid} .rs-input:focus-visible,
+          #${uid} .rs-picker-toggle:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+          }
+          #${uid} .rs-input-group:focus-within {
+            outline: none !important;
+            box-shadow: none !important;
+          }
         `}</style>
         <DatePicker
           format="yyyy-MM-dd"
@@ -40,8 +49,9 @@ export function DateField({ config, value, onChange, error }: FieldProps) {
           editable={false}
           disabled={config.readonly}
           className={cn(
-            'w-full bg-transparent',
-            error ? 'text-destructive' : 'text-foreground',
+            'w-full bg-transparent ' +
+            'border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50 ',
+            error ? 'border-destructive' : 'border-border',
             config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm',
           )}
           style={{

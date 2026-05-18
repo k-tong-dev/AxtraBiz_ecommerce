@@ -29,6 +29,15 @@ export function DatetimeField({ config, value, onChange, error }: FieldProps) {
             outline: none !important;
             background: transparent !important;
           }
+          #${uid} .rs-input:focus-visible,
+          #${uid} .rs-picker-toggle:focus-visible {
+            outline: none !important;
+            box-shadow: none !important;
+          }
+          #${uid} .rs-input-group:focus-within {
+            outline: none !important;
+            box-shadow: none !important;
+          }
         `}</style>
         <DatePicker
           format="yyyy-MM-dd HH:mm:ss"
