@@ -16,11 +16,29 @@ import {Button} from '@/components/ui/button'
 import {Input, NumberInput} from '@/components/ui/input'
 import {Textarea} from '@/components/ui/textarea'
 import {SelectPicker} from 'rsuite'
+import {
+    SelectionField,
+    Many2ManyField,
+    Many2OneField,
+    One2ManyField,
+    BooleanField,
+    StringField,
+    NumberField,
+    TextareaField,
+    HtmlField,
+    JsonField,
+    DateField,
+    DatetimeField,
+    TimeField,
+    YearField,
+    MonthField,
+    DayField,
+} from '@/components/Base/Fields'
 import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'lucide-react'
 import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
-import {DatePickerField} from '@/components/Base/Fields/DatePickerField'
+
 import {ServerActions, ServerActionConfig, ActionContext} from '../../Actions'
 import { getWidget, registerWidget } from '../../Fields/Widgets'
 import { TagSelectWidget } from '@/components/Base/Fields/Widgets/TagSelectWidget'
@@ -144,7 +162,7 @@ function convertBuiltInActionsToServerActions(config: FormConfig, mode: 'create'
 export interface FormField {
     key: string
     label: string
-    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'one2many' | 'many2many' | 'many2one'
+    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
     required?: boolean
     readonly?: boolean
     helper?: string
@@ -167,6 +185,14 @@ export interface FormField {
     widget?: string  // Field widget name (e.g., 'many2many_list', 'many2one', 'one2many')
     widgetConfig?: any  // Widget-specific configuration
     show?: (data: any) => boolean  // Conditional visibility
+    // New Fields system options
+    fetchUrl?: string
+    multiple?: boolean
+    groupBy?: string
+    tree?: boolean
+    searchable?: boolean
+    size?: 'sm' | 'md' | 'lg'
+    selectOptions?: Array<{ id: string | number; name: string; avatar?: string; group?: string; children?: any[] }>
 }
 
 // Custom page configuration for form pages (like Odoo)
@@ -1068,17 +1094,128 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 )
 
             case 'date':
+                return (
+                    <div>
+                        <DateField
+                            config={{
+                                name: field.key,
+                                type: 'date',
+
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
             case 'datetime':
                 return (
-                    <DatePickerField
-                        value={value}
-                        onChange={onChange}
-                        placeholder={field.placeholder || 'Select date'}
-                        includeTime={field.type === 'datetime'}
-                        disabled={field.readonly}
-                        required={field.required}
-                        className={field.className}
-                    />
+                    <div>
+                        <DatetimeField
+                            config={{
+                                name: field.key,
+                                type: 'datetime',
+
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
+            case 'time':
+                return (
+                    <div>
+                        <TimeField
+                            config={{
+                                name: field.key,
+                                type: 'time',
+                                placeholder: field.placeholder || 'HH:mm:ss',
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
+            case 'year':
+                return (
+                    <div>
+                        <YearField
+                            config={{
+                                name: field.key,
+                                type: 'year',
+
+                                placeholder: field.placeholder || 'yyyy',
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
+            case 'month':
+                return (
+                    <div>
+                        <MonthField
+                            config={{
+                                name: field.key,
+                                type: 'month',
+
+                                placeholder: field.placeholder || 'yyyy-MM',
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
+            case 'day':
+                return (
+                    <div>
+                        <DayField
+                            config={{
+                                name: field.key,
+                                type: 'day',
+
+                                placeholder: field.placeholder || 'dd',
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
                 )
 
             case 'one2many':
@@ -1120,6 +1257,75 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         </div>
                     )
                 }
+
+            // New Fields system cases
+            case 'selection':
+                return (
+                    <div>
+                        <SelectionField
+                            config={{
+                                name: field.key,
+                                type: 'selection',
+
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                options: field.selectOptions as any,
+                                fetchUrl: field.fetchUrl,
+                                multiple: field.multiple,
+                                groupBy: field.groupBy,
+                                tree: field.tree,
+                                searchable: field.searchable,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
+            case 'string':
+                return (
+                    <div>
+                        <StringField
+                            config={{
+                                name: field.key,
+                                type: 'string',
+
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
+            case 'html':
+                return (
+                    <div>
+                        <HtmlField
+                            config={{
+                                name: field.key,
+                                type: 'html',
+
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
 
             default:
                 return null
