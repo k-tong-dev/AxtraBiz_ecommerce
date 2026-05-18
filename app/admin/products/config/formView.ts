@@ -78,7 +78,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'brand_id',
       label: 'Brand',
-      type: 'select',
+      type: 'selection',
       required: false,
       placeholder: 'Select brand',
       options: [],

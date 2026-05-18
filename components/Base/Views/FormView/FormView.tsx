@@ -15,7 +15,6 @@ import {
 import {Button} from '@/components/ui/button'
 import {Input, NumberInput} from '@/components/ui/input'
 import {Textarea} from '@/components/ui/textarea'
-import {SelectPicker} from 'rsuite'
 import {
     SelectionField,
     Many2ManyField,
@@ -955,18 +954,24 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             case 'select':
                 return (
                     <div>
-                        <SelectPicker
-                            data={field.options || []}
+                        <SelectionField
+                            config={{
+                                name: field.key,
+                                type: 'selection',
+                                label: field.label,
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                options: (field.options || []).map((o) => ({ id: o.value, name: o.label })),
+                                multiple: field.multiple,
+                                searchable: field.searchable,
+                                size: field.size,
+                            }}
                             value={value}
-                            onChange={(newValue) => onChange(newValue)}
-                            placeholder={field.placeholder}
-                            disabled={field.readonly}
-                            className={`${field.className || ''} ${hasError ? 'border-red-500' : ''} ${field.readonly ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                            style={field.width ? { width: field.width } : {width: '100%'}}
+                            onChange={onChange}
+                            error={errorMessage}
                         />
-                        {errorMessage && (
-                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
-                        )}
                     </div>
                 )
 
