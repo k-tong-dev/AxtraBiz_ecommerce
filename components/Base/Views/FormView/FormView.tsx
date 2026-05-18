@@ -161,7 +161,7 @@ function convertBuiltInActionsToServerActions(config: FormConfig, mode: 'create'
 export interface FormField {
     key: string
     label: string
-    type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
+    type: 'text' | 'textarea' | 'number' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
     required?: boolean
     readonly?: boolean
     helper?: string
@@ -948,30 +948,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         {errorMessage && (
                             <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
                         )}
-                    </div>
-                )
-
-            case 'select':
-                return (
-                    <div>
-                        <SelectionField
-                            config={{
-                                name: field.key,
-                                type: 'selection',
-                                label: field.label,
-                                placeholder: field.placeholder,
-                                required: field.required,
-                                readonly: field.readonly,
-                                helper: field.helper,
-                                options: (field.options || []).map((o) => ({ id: o.value, name: o.label })),
-                                multiple: field.multiple,
-                                searchable: field.searchable,
-                                size: field.size,
-                            }}
-                            value={value}
-                            onChange={onChange}
-                            error={errorMessage}
-                        />
                     </div>
                 )
 

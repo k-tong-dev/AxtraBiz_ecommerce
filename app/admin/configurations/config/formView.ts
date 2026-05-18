@@ -30,7 +30,7 @@ export const configurationFormConfig: FormConfig = {
     {
       key: 'type',
       label: 'Type',
-      type: 'select',
+      type: 'selection',
       required: true,
       options: [
         { value: 'string', label: 'String' },

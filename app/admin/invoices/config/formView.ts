@@ -52,7 +52,7 @@ export const invoiceFormConfig: FormConfig = {
     {
       key: 'status',
       label: 'Status',
-      type: 'select',
+      type: 'selection',
       required: true,
       options: [
         { value: 'draft', label: 'Draft' },

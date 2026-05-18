@@ -302,7 +302,7 @@ export const productFormConfig: FormConfig = {
         {
           key: 'warranty',
           label: 'Warranty Period',
-          type: 'select',
+          type: 'selection',
           options: [
             { label: '1 Year', value: '1_year' },
             { label: '2 Years', value: '2_years' },
@@ -462,7 +462,7 @@ export const productFormConfig: FormConfig = {
 {
   key: 'category',
   label: 'Category',
-  type: 'select',
+  type: 'selection',
   required: true,
   options: [
     { label: 'Electronics', value: 'electronics' },

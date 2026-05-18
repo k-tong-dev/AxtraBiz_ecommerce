@@ -30,7 +30,7 @@ export const orderFormConfig: FormConfig = {
     {
       key: 'status',
       label: 'Status',
-      type: 'select',
+      type: 'selection',
       required: true,
       options: [
         { value: 'pending', label: 'Pending' },

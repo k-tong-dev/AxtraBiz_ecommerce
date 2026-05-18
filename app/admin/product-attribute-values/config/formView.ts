@@ -87,7 +87,7 @@ export const productAttributeValueFormConfig: FormConfig = {
                 key: 'type',
                 title: 'Type',
                 width: 150,
-                type: 'select',
+                type: 'selection',
                 options: [
                   { label: 'Select Dropdown', value: 'select' },
                   { label: 'Radio Buttons', value: 'radio' },

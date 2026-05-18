@@ -41,7 +41,7 @@ export const customerFormConfig: FormConfig = {
     {
       key: 'role',
       label: 'Role',
-      type: 'select',
+      type: 'selection',
       required: true,
       options: [
         { value: 'customer', label: 'Customer' },

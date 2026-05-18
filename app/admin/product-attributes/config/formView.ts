@@ -21,7 +21,7 @@ export const productAttributeFormConfig: FormConfig = {
     {
       key: 'type',
       label: 'Attribute Type',
-      type: 'select',
+      type: 'selection',
       required: true,
       options: [
         { label: 'Select Dropdown', value: 'select' },

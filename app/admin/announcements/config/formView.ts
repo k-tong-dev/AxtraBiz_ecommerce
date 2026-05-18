@@ -30,7 +30,7 @@ export const announcementFormConfig: FormConfig = {
     {
       key: 'type',
       label: 'Type',
-      type: 'select',
+      type: 'selection',
       required: true,
       options: [
         { value: 'info', label: 'Info' },

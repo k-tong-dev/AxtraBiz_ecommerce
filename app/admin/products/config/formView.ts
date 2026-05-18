@@ -66,7 +66,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'category_id',
       label: 'Category',
-      type: 'select',
+      type: 'selection',
       required: false,
       placeholder: 'Select category',
       options: [],
@@ -90,7 +90,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'tax_rate_id',
       label: 'Tax Rate',
-      type: 'select',
+      type: 'selection',
       required: false,
       placeholder: 'Select tax rate',
       options: [],
@@ -102,7 +102,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'product_type',
       label: 'Product Type',
-      type: 'select',
+      type: 'selection',
       required: true,
       placeholder: 'Select product type',
       options: [
@@ -120,7 +120,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'status',
       label: 'Status',
-      type: 'select',
+      type: 'selection',
       required: true,
       placeholder: 'Select status',
       options: [
