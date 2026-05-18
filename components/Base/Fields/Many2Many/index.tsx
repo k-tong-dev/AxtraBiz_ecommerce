@@ -59,7 +59,7 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
   return (
     <div className="w-full space-y-1">
       <div className="relative">
-        <style>{`.rs-input-group { border: 0 !important; border-radius: 0 !important; outline: none !important; }`}</style>
+        <style>{`.rs-input-group, .rs-picker-toggle, .rs-picker-toggle-wrapper { border: 0 !important; border-radius: 0 !important; outline: none !important; }`}</style>
         <div className={cn(config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm', error ? 'text-destructive' : 'text-foreground')}>
           <CheckPicker
             data={data}
