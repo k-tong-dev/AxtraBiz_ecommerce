@@ -4,7 +4,7 @@ import React, {useEffect, useState, useRef} from 'react'
 import {Modal} from 'rsuite'
 import {Button} from '@/components/ui/button'
 import {Printer, Download} from 'lucide-react'
-import {DefaultPrintTemplate} from '../Print/DefaultPrintTemplate'
+import {DefaultPrintTemplate} from '@/components/Base/Print/DefaultPrintTemplate'
 
 interface PrintViewProps {
     open: boolean

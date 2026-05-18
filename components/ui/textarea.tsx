@@ -15,15 +15,15 @@ interface TextareaProps extends Omit<React.ComponentProps<typeof RsTextarea>, 's
 
 const sizeStyles: Record<InputSize, { textarea: string; label: string }> = {
     sm: {
-        textarea: 'text-sm pb-0.5 pt-4',
+        textarea: 'text-sm',
         label: 'top-3 text-xs peer-placeholder-shown:text-sm peer-focus:text-xs peer-focus:-translate-y-2.5 -translate-y-2.5 scale-75',
     },
     md: {
-        textarea: 'text-sm pb-1 pt-5',
+        textarea: 'text-sm',
         label: 'top-4 text-sm peer-placeholder-shown:text-base peer-focus:text-sm',
     },
     lg: {
-        textarea: 'text-base pb-1.5 pt-6',
+        textarea: 'text-base',
         label: 'top-5 text-base peer-placeholder-shown:text-lg peer-focus:text-base',
     },
 }

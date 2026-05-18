@@ -890,7 +890,7 @@ const builtInActions: ServerActionConfig[] = [
 ]
 ```
 
-For detailed ServerActions documentation, see: [ServerActions README](../ServerActions/README.md)
+For detailed ServerActions documentation, see: [ServerActions README](../../Actions/README.md)
 
 ### Best Practices
 

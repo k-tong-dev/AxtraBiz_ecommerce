@@ -20,10 +20,10 @@ import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'l
 import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
-import {DatePickerField} from '@/components/admin/DatePickerField'
-import {ServerActions, ServerActionConfig, ActionContext} from '../ServerActions'
-import { getWidget, registerWidget } from '../FieldWidgets'
-import { TagSelectWidget } from '../FieldWidgets/TagSelectWidget'
+import {DatePickerField} from '@/components/Base/Fields/DatePickerField'
+import {ServerActions, ServerActionConfig, ActionContext} from '../../Actions'
+import { getWidget, registerWidget } from '../../Fields/Widgets'
+import { TagSelectWidget } from '@/components/Base/Fields/Widgets/TagSelectWidget'
 import {Switch} from "@/components/ui/switch";
 
 // Register widgets on module load
@@ -1362,7 +1362,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 <div className="space-y-6">
                     {/* File Upload Section */}
                     {config.fields.filter(f => f.type === 'file').length > 0 && (
-                        <div className="bg-card rounded-lg border p-6">
+                        <div className="bg-card rounded-lg border p-6 border-dashed">
                             <h2 className="text-md font-semibold mb-4">Media & Files</h2>
                             <div className="space-y-4">
                                 {config.fields.filter(f => f.type === 'file').map((field) => (

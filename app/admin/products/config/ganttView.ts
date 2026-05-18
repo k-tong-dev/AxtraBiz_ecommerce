@@ -1,4 +1,4 @@
-import { GanttViewConfig } from '@/components/admin/ResourceView/GanttView'
+import { GanttViewConfig } from '@/components/Base/Views/GanttView'
 
 export const getProductGanttConfig = (data: any[] = []): GanttViewConfig => ({
   data: data,

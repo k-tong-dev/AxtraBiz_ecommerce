@@ -24,7 +24,7 @@ import {
     ButtonToolbar,
     Modal
 } from 'rsuite'
-import {ServerActions, ServerActionConfig, ActionContext, ConfirmationModal} from '../ServerActions'
+import {ServerActions, ServerActionConfig, ActionContext, ConfirmationModal} from '../../Actions'
 import {
     Search,
     Filter,

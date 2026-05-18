@@ -4,7 +4,7 @@ import { ListViewConfig } from './ListView'
 import { KanbanViewConfig } from './KanbanView'
 import { GanttViewConfig } from './GanttView'
 import { FormConfig } from './FormView'
-import { ServerActionConfig } from './ServerActions'
+import { ServerActionConfig } from '../Actions'
 
 export type ResourceType = 'list' | 'kanban' | 'gantt' | 'form'
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import type { Product } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
-import { ResourceView } from '@/components/admin/ResourceView'
+import { ResourceView } from '../../../components/Base/Views'
 import { productConfig } from './config'
 
 export default function AdminProductsPage() {

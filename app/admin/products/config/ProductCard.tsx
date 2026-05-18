@@ -3,7 +3,7 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
-import { KanbanItemHandle } from '@/components/admin/ResourceView/KanbanView/kanban'
+import { KanbanItemHandle } from '@/components/Base/Views/KanbanView/kanban'
 import { GripVertical } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'

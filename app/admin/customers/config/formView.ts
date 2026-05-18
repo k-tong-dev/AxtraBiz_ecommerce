@@ -1,4 +1,4 @@
-import { FormConfig } from '@/components/admin/ResourceView/FormView'
+import { FormConfig } from '@/components/Base/Views/FormView'
 
 export const customerFormConfig: FormConfig = {
   entityName: 'Customer',

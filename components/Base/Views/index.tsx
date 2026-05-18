@@ -5,7 +5,7 @@ import {ListView} from './ListView'
 import {KanbanView} from './KanbanView'
 import {GanttView} from './GanttView'
 import {FormView} from './FormView'
-import {PrintView} from './PrintView'
+import {PrintView} from '../Print/PrintView'
 import {Button} from '@/components/ui/button'
 import {Card} from '@/components/ui/card'
 import {Input, Drawer, Whisper, Popover, Divider, Loader, Tag, Badge} from 'rsuite'
@@ -14,10 +14,10 @@ import {Search as SearchIcon, Filter as FilterIcon, List, Grid3x3, Calendar, Dow
 import {ResourceViewProps, ResourceType} from './types'
 import {InputGroup} from "@/components/ui/input";
 import {MdAdd} from "react-icons/md";
-import {Search as SearchComponent, SearchValue} from './Search'
-import {Filter, FilterValue} from './Filter'
-import {GroupBy} from './GroupBy'
-import {ServerActions} from './ServerActions'
+import {Search as SearchComponent, SearchValue} from '../Search'
+import {Filter, FilterValue} from '../Filter'
+import {GroupBy} from '../GroupBy'
+import {ServerActions} from '../Actions'
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
@@ -52,7 +52,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
         let actions = config.serverActions || []
 
         if (config.enableDefaultActions !== false && config.defaultActions) {
-            const {getDefaultServerActions} = require('@/components/admin/ResourceView/ServerActions')
+            const {getDefaultServerActions} = require('../Actions')
             const defaultActions = getDefaultServerActions(config.defaultActions)
             actions = [...defaultActions, ...actions]
         }

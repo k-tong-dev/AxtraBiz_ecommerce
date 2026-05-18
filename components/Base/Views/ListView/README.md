@@ -504,7 +504,7 @@ const deleteAction: ServerActionConfig = {
 
 Existing configurations using `BulkActionConfig` are automatically converted using the `convertToServerAction` function in ListView. No immediate changes are required, but migrating to `ServerActionConfig` is recommended for consistency.
 
-For detailed ServerActions documentation, see: [ServerActions README](../ServerActions/README.md)
+For detailed ServerActions documentation, see: [ServerActions README](../../Actions/README.md)
 
 ## Future Enhancements
 

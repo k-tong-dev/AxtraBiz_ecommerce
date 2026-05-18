@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Invoice } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
-import { ResourceView } from '@/components/admin/ResourceView'
+import { ResourceView } from '../../../components/Base/Views'
 import { invoiceConfig } from './config'
 
 export default function AdminInvoicesPage() {

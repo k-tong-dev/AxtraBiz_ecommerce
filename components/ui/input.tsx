@@ -38,15 +38,15 @@ interface NumberInputProps extends Omit<React.ComponentProps<typeof RsNumberInpu
 
 const sizeStyles: Record<InputSize, { input: string; label: string }> = {
     sm: {
-        input: 'text-sm pb-0.5',
+        input: 'text-sm pb',
         label: 'top-3 text-xs peer-placeholder-shown:text-sm peer-focus:text-xs peer-focus:-translate-y-2.5 -translate-y-2.5 scale-75',
     },
     md: {
-        input: 'text-sm pb-1',
+        input: 'text-sm',
         label: 'top-4 text-sm peer-placeholder-shown:text-base peer-focus:text-sm',
     },
     lg: {
-        input: 'text-base pb-1.5',
+        input: 'text-base',
         label: 'top-5 text-base peer-placeholder-shown:text-lg peer-focus:text-base',
     },
 }
@@ -170,7 +170,7 @@ function NumberInput({
                         ...style,
                     }}
                     className={cn(
-                        'w-full border-b-1 bg-transparent px-0 pb-1 text-foreground transition-colors duration-200 ' +
+                        'w-full border-b-1 bg-transparent px-0 pb-0 text-foreground transition-colors duration-200 ' +
                         'rounded-none ' +
                         'disabled:cursor-not-allowed disabled:opacity-50',
                         error ? 'border-destructive' : 'border-border',

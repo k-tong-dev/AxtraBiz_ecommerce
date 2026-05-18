@@ -1,4 +1,4 @@
-import { KanbanViewConfig } from '@/components/admin/ResourceView/KanbanView'
+import { KanbanViewConfig } from '@/components/Base/Views/KanbanView'
 import { useRouter } from 'next/navigation'
 import { ProductCard } from './ProductCard'
 

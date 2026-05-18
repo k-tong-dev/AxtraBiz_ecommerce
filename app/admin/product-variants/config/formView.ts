@@ -1,4 +1,4 @@
-import { FormConfig } from '@/components/admin/ResourceView/FormView'
+import { FormConfig } from '@/components/Base/Views/FormView'
 import type { ProductVariant } from '@/lib/drizzle/server'
 
 export const productVariantFormConfig: FormConfig = {

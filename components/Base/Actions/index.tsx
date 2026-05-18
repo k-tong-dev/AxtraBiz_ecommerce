@@ -6,7 +6,7 @@ import {cn} from '@/lib/utils'
 import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestore, Settings, Barcode} from 'lucide-react'
 import {createElement} from 'react'
 import {Export} from '../Export'
-import {ExportConfig} from '../Export/types'
+import {ExportConfig} from '@/components/Base/Export/types'
 
 // Built-in default ServerActions - generic utility that can be used by any resource
 export const getDefaultServerActions = (flags: {

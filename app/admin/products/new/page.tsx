@@ -1,6 +1,6 @@
 'use client'
 
-import { ResourceView } from '@/components/admin/ResourceView'
+import { ResourceView } from '../../../../components/Base/Views'
 import { productConfig } from '../config'
 
 export default function NewProductPage() {

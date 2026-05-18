@@ -4,8 +4,8 @@ export { getProductAttributeValueListConfig, type ProductAttributeValueListConfi
 
 import { productAttributeValueFormConfig } from './formView'
 import { getProductAttributeValueListConfig } from './listView'
-import { ServerActionConfig } from '@/components/admin/ResourceView/ServerActions'
-import { getDefaultServerActions } from '@/components/admin/ResourceView/ServerActions'
+import { ServerActionConfig } from '../../../../components/Base/Actions'
+import { getDefaultServerActions } from '../../../../components/Base/Actions'
 import { Copy } from 'lucide-react'
 import { createElement } from 'react'
 

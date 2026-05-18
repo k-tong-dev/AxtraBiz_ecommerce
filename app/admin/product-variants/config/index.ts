@@ -4,7 +4,7 @@ export { productVariantListConfig, type ProductVariantListConfig } from './listV
 
 import { productVariantFormConfig } from './formView'
 import { productVariantListConfig } from './listView'
-import { ServerActionConfig } from '@/components/admin/ResourceView/ServerActions'
+import { ServerActionConfig } from '../../../../components/Base/Actions'
 import { Layers, Copy } from 'lucide-react'
 import { createElement } from 'react'
 

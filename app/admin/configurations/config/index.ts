@@ -4,7 +4,7 @@ export { configurationListConfig, type ConfigurationListConfig } from './listVie
 
 import { configurationFormConfig } from './formView'
 import { configurationListConfig } from './listView'
-import { ServerActionConfig } from '@/components/admin/ResourceView/ServerActions'
+import { ServerActionConfig } from '../../../../components/Base/Actions'
 import { Settings, Copy } from 'lucide-react'
 import { createElement } from 'react'
 

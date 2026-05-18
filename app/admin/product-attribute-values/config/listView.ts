@@ -1,4 +1,4 @@
-import { ListViewConfig } from '@/components/admin/ResourceView/ListView'
+import { ListViewConfig } from '@/components/Base/Views/ListView'
 import type { ProductAttributeValue } from '@/lib/drizzle/server'
 
 export const getProductAttributeValueListConfig = (data: any[] = []): ListViewConfig => ({

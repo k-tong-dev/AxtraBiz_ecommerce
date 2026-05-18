@@ -164,13 +164,13 @@ const deleteAction: ServerActionConfig = {
 - Actions receive array with single record
 
 For detailed documentation, see:
-- [ServerActions README](./ServerActions/README.md)
-- [Export README](./Export/README.md)
-- [Print README](./Print/README.md)
-- [ListView README](./ListView/README.md)
-- [FormView README](./FormView/README.md)
-- [Search README](./Search/README.md)
-- [Filter README](./Filter/README.md)
+- [ServerActions README](../Actions/README.md)
+- [Export README](../Export/README.md)
+- [Print README](../Print/README.md)
+- [ListView README](ListView/README.md)
+- [FormView README](FormView/README.md)
+- [Search README](../Search/README.md)
+- [Filter README](../Filter/README.md)
 
 ---
 
@@ -198,7 +198,7 @@ ResourceView includes a flexible Search component that supports field-based sear
 **Usage:**
 The Search component is automatically rendered in the ResourceView header when in list view. It receives field definitions from the ListView config columns and passes search values to the ListView for filtering.
 
-For detailed documentation, see [Search README](./Search/README.md).
+For detailed documentation, see [Search README](../Search/README.md).
 
 ## Filter Component
 
@@ -216,7 +216,7 @@ ResourceView includes a flexible Filter component that supports field-based filt
 **Usage:**
 The Filter component is automatically rendered in the ResourceView header when in list view. It receives field definitions from the ListView config columns and passes filter values to both ListView and KanbanView for filtering.
 
-For detailed documentation, see [Filter README](./Filter/README.md).
+For detailed documentation, see [Filter README](../Filter/README.md).
 
 ## Folder Structure
 

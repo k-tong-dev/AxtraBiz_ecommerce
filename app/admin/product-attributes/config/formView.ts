@@ -1,5 +1,5 @@
-import { FormConfig } from '@/components/admin/ResourceView/FormView'
-import type { Many2ManyWidgetConfig } from '@/components/admin/ResourceView/FieldWidgets'
+import { FormConfig } from '@/components/Base/Views/FormView'
+import type { Many2ManyWidgetConfig } from '../../../../components/Base/Fields/Widgets'
 import type { ProductAttribute } from '@/lib/drizzle/server'
 
 export const productAttributeFormConfig: FormConfig = {

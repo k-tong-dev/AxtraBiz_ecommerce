@@ -1,5 +1,5 @@
 import React from 'react'
-import { ListViewConfig, ListColumn, BulkActionConfig } from '@/components/admin/ResourceView/ListView'
+import { ListViewConfig, ListColumn, BulkActionConfig } from '@/components/Base/Views/ListView'
 import { Trash2, Package, AlertTriangle } from 'lucide-react'
 import { createElement } from 'react'
 

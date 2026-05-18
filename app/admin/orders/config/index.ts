@@ -4,7 +4,7 @@ export { orderListConfig, type OrderListConfig } from './listView'
 
 import { orderFormConfig } from './formView'
 import { orderListConfig } from './listView'
-import { ServerActionConfig } from '@/components/admin/ResourceView/ServerActions'
+import { ServerActionConfig } from '../../../../components/Base/Actions'
 import { Package, Truck } from 'lucide-react'
 import { createElement } from 'react'
 
