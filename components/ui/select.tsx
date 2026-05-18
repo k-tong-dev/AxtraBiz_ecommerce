@@ -43,19 +43,10 @@ interface BaseSelectProps {
   renderAvatar?: boolean
 }
 
-const sizeStyles: Record<InputSize, { picker: string; label: string }> = {
-  sm: {
-    picker: 'text-sm',
-    label: 'top-3 text-xs peer-placeholder-shown:text-sm peer-focus:text-xs peer-focus:-translate-y-2.5 -translate-y-2.5 scale-75',
-  },
-  md: {
-    picker: 'text-sm',
-    label: 'top-4 text-sm peer-placeholder-shown:text-base peer-focus:text-sm',
-  },
-  lg: {
-    picker: 'text-base',
-    label: 'top-5 text-base peer-placeholder-shown:text-lg peer-focus:text-base',
-  },
+const sizeStyles: Record<InputSize, { label: string }> = {
+  sm: { label: 'top-3 text-xs' },
+  md: { label: 'top-4 text-sm' },
+  lg: { label: 'top-5 text-base' },
 }
 
 function toRsuiteData(options: SelectOption[], renderAvatar?: boolean): any[] {
@@ -77,16 +68,6 @@ function toRsuiteData(options: SelectOption[], renderAvatar?: boolean): any[] {
   })
 }
 
-function getSelectedLabels(options: SelectOption[], value: string | string[] | null | undefined): string {
-  if (!value) return ''
-  const selected = Array.isArray(value) ? value : [value]
-  const labels = selected.map((v) => {
-    const found = findOption(options, v)
-    return found?.name || v
-  })
-  return labels.join(', ')
-}
-
 function findOption(options: SelectOption[], value: string): SelectOption | undefined {
   for (const opt of options) {
     if (String(opt.id) === value) return opt
@@ -99,7 +80,7 @@ function findOption(options: SelectOption[], value: string): SelectOption | unde
 }
 
 const PICKER_CLASSES =
-  'peer w-full border-b-1 border-b-foreground bg-transparent text-foreground transition-colors duration-200 rounded-none disabled:cursor-not-allowed disabled:opacity-50'
+  'w-full bg-transparent text-foreground transition-colors duration-200 rounded-none disabled:cursor-not-allowed disabled:opacity-50'
 
 const PICKER_BORDER = { borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, outlineColor: 'transparent', boxShadow: 'none' }
 
@@ -123,9 +104,10 @@ function Select({
   onSearch,
   renderAvatar = false,
 }: BaseSelectProps) {
-  const inputId = React.useId()
+  const [open, setOpen] = React.useState(false)
   const data = React.useMemo(() => toRsuiteData(options, renderAvatar), [options, renderAvatar])
   const hasValue = value !== null && value !== undefined && value !== '' && !(Array.isArray(value) && value.length === 0)
+  const floating = open || hasValue
 
   const sharedPickerProps = {
     data,
@@ -133,9 +115,11 @@ function Select({
     loading,
     placeholder: placeholder || ' ',
     disabled,
-    className: cn(PICKER_CLASSES, error ? 'border-destructive' : 'border-border', sizeStyles[size].picker),
+    className: cn(PICKER_CLASSES, error ? 'text-destructive' : 'text-foreground'),
     style: PICKER_BORDER,
     onSearch,
+    onOpen: () => setOpen(true),
+    onClose: () => setOpen(false),
   }
 
   const renderBadge = (values: string | string[] | null | undefined) => {
@@ -223,13 +207,14 @@ function Select({
         </div>
         {label && (
           <label
-            htmlFor={inputId}
             className={cn(
-              'absolute left-0 z-10 origin-[0] -translate-y-3 scale-75 text-muted-foreground duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-3 peer-focus:scale-75',
-              hasValue && '-translate-y-3 scale-75',
+              'absolute left-0 z-10 origin-[0] text-muted-foreground duration-200',
+              floating ? '-translate-y-3 scale-75' : 'translate-y-0 scale-100',
               error
-                ? 'text-destructive peer-focus:text-destructive'
-                : 'peer-focus:text-primary',
+                ? 'text-destructive'
+                : floating
+                ? 'text-primary'
+                : 'text-muted-foreground',
               sizeStyles[size].label,
             )}
           >
@@ -238,7 +223,8 @@ function Select({
         )}
         <div
           className={cn(
-            'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 scale-x-0 bg-foreground transition-transform duration-200 peer-focus:scale-x-100',
+            'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 scale-x-0 bg-foreground transition-transform duration-200',
+            floating && 'scale-x-100',
             error && 'bg-destructive',
           )}
         />
