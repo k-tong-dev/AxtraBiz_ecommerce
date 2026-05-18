@@ -88,7 +88,7 @@ export function JsonField({ config, value, onChange, error }: FieldProps) {
         )}
         <div
           className={cn(
-            'absolute bottom-0 left-1/2 h-0.5 w-full -translate-x-1/2 bg-foreground transition-transform duration-200',
+            'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 bg-foreground transition-transform duration-200',
             focused ? 'scale-x-100' : 'scale-x-0',
           )}
         />
