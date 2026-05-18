@@ -60,7 +60,11 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
     <div className="w-full space-y-1">
       <div className="relative">
         <style>{`.rs-input-group, .rs-picker-toggle, .rs-picker-toggle-wrapper { border: 0 !important; border-radius: 0 !important; outline: none !important; }`}</style>
-        <div className={cn(config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm', error ? 'text-destructive' : 'text-foreground')}>
+        <div className={cn(
+            'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200',
+            error ? 'border-destructive' : 'border-border',
+            config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm',
+          )}>
           <CheckPicker
             data={data}
             value={vals}
