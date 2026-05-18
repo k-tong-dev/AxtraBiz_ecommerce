@@ -97,7 +97,7 @@ export function MonthField({ config, value, onChange, error }: FieldProps) {
         <div
           className={cn(
             'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 scale-x-0 bg-foreground transition-transform duration-200',
-            floating && 'scale-x-100',
+            open && 'scale-x-100',
             error && 'bg-destructive',
           )}
         />
