@@ -252,10 +252,10 @@ export function ListView({
                         filterValue = {type: 'options', value: column.filterDefault}
                         break
                     case 'text':
-                        filterValue = {type: 'text', value: column.filterDefault, operator: 'contains'}
+                        filterValue = {type: 'string', value: column.filterDefault, operator: 'contains'}
                         break
                     default:
-                        filterValue = {type: 'text', value: column.filterDefault, operator: 'equals'}
+                        filterValue = {type: 'string', value: column.filterDefault, operator: 'equals'}
                 }
                 defaultFilters.push({columnKey: column.key, values: [filterValue]})
             }

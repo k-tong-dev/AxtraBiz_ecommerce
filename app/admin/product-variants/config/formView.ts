@@ -9,7 +9,7 @@ export const productVariantFormConfig: FormConfig = {
     {
       key: 'name',
       label: 'Variant Name',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'e.g., Size M - Red',
       columnWidth: 2,
@@ -20,7 +20,7 @@ export const productVariantFormConfig: FormConfig = {
     {
       key: 'sku',
       label: 'SKU',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'e.g., PROD-M-RED',
       columnWidth: 1,
@@ -31,7 +31,7 @@ export const productVariantFormConfig: FormConfig = {
     {
       key: 'barcode',
       label: 'Barcode',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'e.g., 1234567890123',
       columnWidth: 1,

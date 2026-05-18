@@ -8,7 +8,7 @@ export const invoiceFormConfig: FormConfig = {
     {
       key: 'id',
       label: 'Invoice ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'inv-001',
       columnWidth: 1,
@@ -19,7 +19,7 @@ export const invoiceFormConfig: FormConfig = {
     {
       key: 'invoice_number',
       label: 'Invoice Number',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'INV-2024-001',
       columnWidth: 1,
@@ -30,7 +30,7 @@ export const invoiceFormConfig: FormConfig = {
     {
       key: 'order_id',
       label: 'Order ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'order-001',
       columnWidth: 1,
@@ -41,7 +41,7 @@ export const invoiceFormConfig: FormConfig = {
     {
       key: 'user_id',
       label: 'Customer ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'user-001',
       columnWidth: 1,

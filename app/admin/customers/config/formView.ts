@@ -8,7 +8,7 @@ export const customerFormConfig: FormConfig = {
     {
       key: 'id',
       label: 'Customer ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'user-001',
       columnWidth: 1,
@@ -19,7 +19,7 @@ export const customerFormConfig: FormConfig = {
     {
       key: 'email',
       label: 'Email',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'customer@example.com',
       columnWidth: 1,
@@ -30,7 +30,7 @@ export const customerFormConfig: FormConfig = {
     {
       key: 'name',
       label: 'Full Name',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'John Doe',
       columnWidth: 2,

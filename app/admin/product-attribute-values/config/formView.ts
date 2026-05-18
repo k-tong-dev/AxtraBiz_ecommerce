@@ -10,7 +10,7 @@ export const productAttributeValueFormConfig: FormConfig = {
     {
       key: 'name',
       label: 'Value Name',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'e.g., Red, Large, Cotton',
       columnWidth: 2,
@@ -21,7 +21,7 @@ export const productAttributeValueFormConfig: FormConfig = {
     {
       key: 'value',
       label: 'Value Code',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'e.g., red, L, cotton',
       helper: 'Internal value code (lowercase, no spaces)',

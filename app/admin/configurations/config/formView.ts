@@ -8,7 +8,7 @@ export const configurationFormConfig: FormConfig = {
     {
       key: 'id',
       label: 'ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'config-001',
       columnWidth: 1,
@@ -19,7 +19,7 @@ export const configurationFormConfig: FormConfig = {
     {
       key: 'name',
       label: 'Name',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'site_name',
       columnWidth: 1,
@@ -46,7 +46,7 @@ export const configurationFormConfig: FormConfig = {
     {
       key: 'category',
       label: 'Category',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'general',
       columnWidth: 1,

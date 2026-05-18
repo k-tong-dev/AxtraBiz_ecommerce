@@ -161,7 +161,7 @@ function convertBuiltInActionsToServerActions(config: FormConfig, mode: 'create'
 export interface FormField {
     key: string
     label: string
-    type: 'text' | 'textarea' | 'number' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
+    type: 'textarea' | 'number' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
     required?: boolean
     readonly?: boolean
     helper?: string
@@ -892,24 +892,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         }
 
         switch (field.type) {
-            case 'text':
-                return (
-                    <div>
-                        <Input
-                            value={value || ''}
-                            onChange={(e) => onChange(e.target.value)}
-                            placeholder={field.placeholder}
-                            disabled={field.readonly}
-                            error={hasError}
-                            fullWidth
-                            className={field.readonly ? 'opacity-60 cursor-not-allowed' : ''}
-                        />
-                        {errorMessage && (
-                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
-                        )}
-                    </div>
-                )
-
             case 'textarea':
                 return (
                     <div>
@@ -1240,7 +1222,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 }
 
             // New Fields system cases
-            case 'selection':
+            case 'selection': {
+                const selOptions = field.selectOptions?.length
+                    ? field.selectOptions
+                    : field.options?.map((o) => ({ id: o.value, name: o.label }))
                 return (
                     <div>
                         <SelectionField
@@ -1252,7 +1237,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                 required: field.required,
                                 readonly: field.readonly,
                                 helper: field.helper,
-                                options: field.selectOptions as any,
+                                options: selOptions as any,
                                 fetchUrl: field.fetchUrl,
                                 multiple: field.multiple,
                                 groupBy: field.groupBy,
@@ -1266,6 +1251,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         />
                     </div>
                 )
+            }
 
             case 'string':
                 return (

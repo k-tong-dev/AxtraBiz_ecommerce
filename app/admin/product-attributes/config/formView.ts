@@ -10,7 +10,7 @@ export const productAttributeFormConfig: FormConfig = {
     {
       key: 'name',
       label: 'Attribute Name',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'e.g., Size, Color, Material',
       columnWidth: 2,

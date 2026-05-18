@@ -22,7 +22,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'name',
       label: 'Product Name',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'Enter product name',
       validation: (value) => {
@@ -38,7 +38,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'slug',
       label: 'Slug',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'Enter slug',
       validation: (value) => {
@@ -54,7 +54,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'barcode',
       label: 'Barcode',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'Enter Barcode',
       rows: 1,
@@ -150,7 +150,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'meta_title',
       label: 'Meta Title',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'SEO title (max 60 chars)',
       columnWidth: 1,
@@ -173,7 +173,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'meta_keywords',
       label: 'Meta Keywords',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'Comma-separated keywords',
       columnWidth: 3,
@@ -186,7 +186,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'tags',
       label: 'Tags',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'Comma-separated tags',
       columnWidth: 3,
@@ -249,7 +249,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'sku',
       label: 'SKU (Stock Keeping Unit)',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'Enter SKU',
       validation: (value) => {
@@ -332,7 +332,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'dimensions',
       label: 'Dimensions (L×W×H)',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'Length × Width × Height (cm)',
       validation: (value) => {

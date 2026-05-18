@@ -8,7 +8,7 @@ export const announcementFormConfig: FormConfig = {
     {
       key: 'id',
       label: 'ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'announcement-001',
       columnWidth: 1,
@@ -19,7 +19,7 @@ export const announcementFormConfig: FormConfig = {
     {
       key: 'title',
       label: 'Title',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'Enter announcement title',
       columnWidth: 2,

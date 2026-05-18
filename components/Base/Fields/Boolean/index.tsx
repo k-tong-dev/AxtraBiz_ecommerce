@@ -1,14 +1,14 @@
 'use client'
 
 import * as React from 'react'
-import { Switch } from '@/components/ui/switch'
+import { Toggle } from 'rsuite'
 import type { FieldProps } from '../types'
 
 export function BooleanField({ config, value, onChange, error }: FieldProps) {
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-3">
-        <Switch
+        <Toggle
           checked={value || false}
           onChange={(checked) => onChange(checked)}
           disabled={config.readonly}

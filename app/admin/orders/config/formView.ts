@@ -8,7 +8,7 @@ export const orderFormConfig: FormConfig = {
     {
       key: 'id',
       label: 'Order ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'order-001',
       columnWidth: 1,
@@ -19,7 +19,7 @@ export const orderFormConfig: FormConfig = {
     {
       key: 'user_id',
       label: 'User ID',
-      type: 'text',
+      type: 'string',
       required: true,
       placeholder: 'user-123',
       columnWidth: 1,
@@ -58,7 +58,7 @@ export const orderFormConfig: FormConfig = {
     {
       key: 'tracking_number',
       label: 'Tracking Number',
-      type: 'text',
+      type: 'string',
       required: false,
       placeholder: 'e.g., TRK123456789',
       columnWidth: 2,
