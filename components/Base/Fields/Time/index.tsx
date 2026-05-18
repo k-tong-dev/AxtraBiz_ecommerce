@@ -27,27 +27,10 @@ export function TimeField({ config, value, onChange, error }: FieldProps) {
     <div className={cn('w-full space-y-1', config.className)}>
       <div className="relative" id={uid}>
         <style>{`
-          #${uid} .rs-picker-toggle,
-          #${uid} .rs-picker-toggle-wrapper {
+          .rs-input-group {
             border: 0 !important;
-            box-shadow: none !important;
             border-radius: 0 !important;
-            background: transparent !important;
             outline: none !important;
-          }
-          #${uid} .rs-picker-toggle-input {
-            border: none !important;
-            outline: none !important;
-            background: transparent !important;
-          }
-          #${uid} .rs-input:focus-visible,
-          #${uid} .rs-picker-toggle:focus-visible {
-            outline: none !important;
-            box-shadow: none !important;
-          }
-          #${uid} .rs-input-group:focus-within {
-            outline: none !important;
-            box-shadow: none !important;
           }
         `}</style>
         <DatePicker

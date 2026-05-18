@@ -21,7 +21,6 @@ export function DateField({ config, value, onChange, error }: FieldProps) {
             border-radius: 0 !important;
             outline: none !important;
           }
-          
         `}</style>
         <DatePicker
           format="yyyy-MM-dd"

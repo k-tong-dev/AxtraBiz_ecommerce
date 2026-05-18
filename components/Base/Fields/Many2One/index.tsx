@@ -1,54 +1,73 @@
 'use client'
 
 import * as React from 'react'
-import { Select } from '@/components/ui/select'
+import { SelectPicker, Avatar } from 'rsuite'
+import { cn } from '@/lib/utils'
 import type { SelectOption, FieldProps } from '../types'
 
+const PICKER_STYLE = { borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, outlineColor: 'transparent', boxShadow: 'none' }
+const SIZE = { sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base' }
+
 export function Many2OneField({ config, value, onChange, error }: FieldProps) {
+  const [open, setOpen] = React.useState(false)
   const [options, setOptions] = React.useState<SelectOption[]>([])
   const [loading, setLoading] = React.useState(false)
+  const hasValue = value !== null && value !== undefined && value !== ''
 
   const fetchOptions = React.useCallback(async (search?: string) => {
     if (!config.fetchUrl) return
     setLoading(true)
     try {
-      const url = search
-        ? `${config.fetchUrl}?search=${encodeURIComponent(search)}`
-        : config.fetchUrl
+      const url = search ? `${config.fetchUrl}?search=${encodeURIComponent(search)}` : config.fetchUrl
       const res = await fetch(url)
       const data = await res.json()
       const items = Array.isArray(data) ? data : data.data || data.records || data.items || []
       setOptions(items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        avatar: item.avatar || item.image || item.thumbnail,
+        id: item.id, name: item.name, avatar: item.avatar || item.image || item.thumbnail,
       })))
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
+    } catch (e) { console.error(e) }
+    finally { setLoading(false) }
   }, [config.fetchUrl])
 
-  React.useEffect(() => {
-    fetchOptions()
-  }, [fetchOptions])
+  React.useEffect(() => { fetchOptions() }, [fetchOptions])
+
+  const data = options.map((opt) => ({
+    label: opt.avatar
+      ? <div className="flex items-center gap-2"><Avatar src={opt.avatar} size="xs" circle /><span>{opt.name}</span></div>
+      : opt.name,
+    value: String(opt.id),
+  }))
+
+  const floating = open || hasValue
 
   return (
-    <Select
-      options={options}
-      value={value}
-      onChange={onChange}
-      searchable
-      loading={loading}
-      placeholder={config.placeholder || `Select ${config.label}...`}
-      label={config.label}
-      error={!!error}
-      helperText={error || config.helper}
-      fullWidth
-      size={config.size}
-      renderAvatar
-      onSearch={(kw) => { if (kw.length > 1) fetchOptions(kw) }}
-    />
+    <div className="w-full space-y-1">
+      <div className="relative">
+        <style>{`.rs-input-group { border: 0 !important; border-radius: 0 !important; outline: none !important; }`}</style>
+        <div className={cn(config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm', error ? 'text-destructive' : 'text-foreground')}>
+          <SelectPicker
+            data={data}
+            value={(value as string) || null}
+            onChange={(next) => onChange(next ?? null)}
+            searchable
+            loading={loading}
+            placeholder={config.placeholder || ' '}
+            disabled={config.readonly}
+            style={PICKER_STYLE}
+            onOpen={() => setOpen(true)}
+            onClose={() => setOpen(false)}
+            cleanable={false}
+            onSearch={(kw) => { if (kw.length > 1) fetchOptions(kw) }}
+          />
+        </div>
+        {config.label && (
+          <label className={cn('absolute left-0 z-10 origin-[0] text-muted-foreground duration-200', floating ? '-translate-y-3 scale-75' : 'translate-y-0 scale-100', error ? 'text-destructive' : floating ? 'text-primary' : 'text-muted-foreground', SIZE[config.size || 'md'])}>
+            {config.label}
+          </label>
+        )}
+        <div className={cn('absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 scale-x-0 bg-foreground transition-transform duration-200', open && 'scale-x-100', error && 'bg-destructive')} />
+      </div>
+      {(error || config.helper) && <p className={cn('text-xs', error ? 'text-destructive' : 'text-muted-foreground')}>{error || config.helper}</p>}
+    </div>
   )
 }
