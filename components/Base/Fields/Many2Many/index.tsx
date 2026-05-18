@@ -59,7 +59,7 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
   return (
     <div className="w-full space-y-1">
       <div className="relative">
-        <style>{`.rs-input-group, .rs-picker-toggle, .rs-picker-toggle-wrapper { border: 0 !important; border-radius: 0 !important; outline: none !important; }`}</style>
+        <style>{`.rs-picker-toggle { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; }`}</style>
         <div className={cn(
             'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200',
             error ? 'border-destructive' : 'border-border',

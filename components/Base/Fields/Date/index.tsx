@@ -15,13 +15,7 @@ export function DateField({ config, value, onChange, error }: FieldProps) {
   return (
     <div className={cn('w-full space-y-1', config.className)}>
       <div className="relative" id={uid}>
-        <style>{`
-          .rs-input-group {
-            border: 0 !important;
-            border-radius: 0 !important;
-            outline: none !important;
-          }
-        `}</style>
+        <style>{`.rs-picker-input-group, .rs-input-group { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; }`}</style>
         <DatePicker
           format="yyyy-MM-dd"
           value={dateValue}
@@ -32,8 +26,7 @@ export function DateField({ config, value, onChange, error }: FieldProps) {
           editable={false}
           disabled={config.readonly}
           className={cn(
-            'w-full bg-transparent ' +
-            'border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50 ',
+            'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50',
             error ? 'border-destructive' : 'border-border',
             config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm',
           )}

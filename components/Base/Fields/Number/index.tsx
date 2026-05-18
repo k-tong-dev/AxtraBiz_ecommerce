@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils'
 import type { FieldProps } from '../types'
 
 const sizeStyles = {
-  sm: { input: 'text-sm pb-0.5', label: 'text-xs peer-placeholder-shown:text-sm' },
-  md: { input: 'text-sm pb-1', label: 'text-sm peer-placeholder-shown:text-base' },
-  lg: { input: 'text-base pb-1.5', label: 'text-base peer-placeholder-shown:text-lg' },
+  sm: { input: 'text-sm pb-0.5', label: 'text-xs' },
+  md: { input: 'text-sm pb-1', label: 'text-sm' },
+  lg: { input: 'text-base pb-1.5', label: 'text-base' },
 }
 
 export function NumberField({ config, value, onChange, error }: FieldProps) {
@@ -20,17 +20,16 @@ export function NumberField({ config, value, onChange, error }: FieldProps) {
   return (
     <div className="w-full space-y-1">
       <div className="relative">
+        <style>{`.rs-input-group { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; }`}</style>
         <RsNumberInput
           id={inputId}
           data-slot="number-input"
-          classPrefix=""
           value={value ?? null}
           placeholder={config.placeholder || ' '}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           onChange={(val: number | string | null) => onChange(val ?? null)}
           disabled={config.readonly}
-          min={0}
           scrollable={false}
           style={{
             borderTop: '0',
@@ -42,7 +41,7 @@ export function NumberField({ config, value, onChange, error }: FieldProps) {
           }}
           className={cn(
             'w-full border-b-1 border-b-foreground bg-transparent px-0 text-foreground transition-colors duration-200 rounded-none disabled:cursor-not-allowed disabled:opacity-50',
-            error && 'border-b-destructive',
+            error ? 'border-destructive' : 'border-border',
             sizeStyles[config.size || 'md'].input,
           )}
 
