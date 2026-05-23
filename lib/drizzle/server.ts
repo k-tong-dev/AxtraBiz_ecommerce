@@ -28,6 +28,7 @@ export {
   product_variants,
   product_categories,
   product_brand,
+  ir_attachment,
 } from '../../drizzle/schema'
 
 // Export types
@@ -44,4 +45,5 @@ export type {
   ProductVariant,
   ProductCategory,
   Brand,
+  IrAttachment,
 } from '../../drizzle/schema'
