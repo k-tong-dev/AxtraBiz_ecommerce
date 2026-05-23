@@ -32,11 +32,6 @@ export async function upsertProductAttributeInDrizzle(attribute: ProductAttribut
   return { success: result.success, error: result.error, data: result.data }
 }
 
-export async function bulkUpsertProductAttributesInDrizzle(attributes: ProductAttribute[], userId?: string): Promise<{ success: boolean; data?: any[]; error?: string }> {
-  const result = await productAttributeService.bulkUpsert(attributes, userId)
-  return { success: result.success, data: result.data, error: result.error }
-}
-
 export async function deleteProductAttributeFromDrizzle(attributeId: string): Promise<boolean> {
   const result = await productAttributeService.unlink(attributeId)
   return result.success
@@ -134,15 +129,6 @@ export async function upsertProductAttributeValueInDrizzle(
   }
   const result = await productAttributeValueService.upsert(valueFields as ProductAttributeValue & { id: string }, userId)
   return { success: result.success, error: result.error, data: result.data }
-}
-
-export async function bulkUpsertProductAttributeValuesInDrizzle(values: ProductAttributeValue[], userId?: string): Promise<{ success: boolean; data?: any[]; error?: string }> {
-  const clean = values.map((v) => {
-    const { attribute_ids: _a, ...rest } = v as ProductAttributeValue & { attribute_ids?: unknown }
-    return rest
-  })
-  const result = await productAttributeValueService.bulkUpsert(clean as (ProductAttributeValue & { id: string })[], userId)
-  return { success: result.success, data: result.data, error: result.error }
 }
 
 export async function deleteProductAttributeValueFromDrizzle(valueId: string): Promise<boolean> {

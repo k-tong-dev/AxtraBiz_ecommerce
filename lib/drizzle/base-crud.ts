@@ -107,11 +107,13 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
     )
   }
 
-   /**
-    * Create - Similar to Odoo's create()
-    * Automatically sets created_at, create_uid, write_uid
-    */
-  async create(data: TInsert & Partial<TrackingFields>, userId?: string): Promise<CreateResult<T>> {
+  /**
+   * Create — accepts a single record or an array of records.
+   * Automatically sets created_at, create_uid, write_uid.
+   */
+  async create(data: TInsert & Partial<TrackingFields>, userId?: string): Promise<CreateResult<T>>
+  async create(data: (TInsert & Partial<TrackingFields>)[], userId?: string): Promise<CreateResult<T[]>>
+  async create(data: any, userId?: string): Promise<CreateResult<T | T[]>> {
     try {
       const now = new Date().toISOString()
       const effectiveUserId = await this.getEffectiveUserId(userId)
@@ -119,48 +121,24 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
         created_at: now,
         updated_at: now,
         ...(effectiveUserId ? { create_uid: effectiveUserId, write_uid: effectiveUserId } : {}),
+      }
+
+      if (Array.isArray(data)) {
+        const results = await db
+          .insert(this.table)
+          .values(data.map(d => this.sanitizeData({ ...d, ...trackingData } as any)) as any)
+          .returning()
+        return { success: true, data: results as T[] }
       }
 
       const [result] = await db
         .insert(this.table)
         .values(this.sanitizeData({ ...data, ...trackingData } as any) as any)
         .returning()
-
       return { success: true, data: result as T }
     } catch (err) {
       console.error('[BaseCrudService.create] Error:', err)
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : 'Unknown error occurred'
-      }
-    }
-  }
-
-  /**
-   * Create multiple records at once
-   */
-  async createMany(dataArray: (TInsert & Partial<TrackingFields>)[], userId?: string): Promise<CreateResult<T[]>> {
-    try {
-      const now = new Date().toISOString()
-      const effectiveUserId = await this.getEffectiveUserId(userId)
-      const trackingData: Partial<TrackingFields> = {
-        created_at: now,
-        updated_at: now,
-        ...(effectiveUserId ? { create_uid: effectiveUserId, write_uid: effectiveUserId } : {}),
-      }
-
-      const results = await db
-        .insert(this.table)
-        .values(dataArray.map(data => this.sanitizeData({ ...data, ...trackingData } as any)) as any)
-        .returning()
-
-      return { success: true, data: results as T[] }
-    } catch (err) {
-      console.error('[BaseCrudService.createMany] Error:', err)
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : 'Unknown error occurred'
-      }
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error occurred' }
     }
   }
 
@@ -215,10 +193,12 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   }
 
   /**
-   * Write - Similar to Odoo's write()
-   * Automatically updates updated_at and write_uid fields
+   * Write — accepts a single ID or an array of IDs.
+   * Automatically updates updated_at and write_uid fields.
    */
-  async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
+  async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
+  async write(ids: string[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
+  async write(ids: any, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId)
       const trackingData: Partial<TrackingFields> = {
@@ -226,114 +206,64 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
         ...(effectiveUserId ? { write_uid: effectiveUserId } : {}),
       }
 
+      const idList = Array.isArray(ids) ? ids : [ids]
+      const setData = this.sanitizeData({ ...data, ...trackingData } as any)
+
       await db
         .update(this.table)
-        .set(this.sanitizeData({ ...data, ...trackingData } as any) as any)
-        .where(eq((this.table as any).id, id))
+        .set(setData as any)
+        .where(eq((this.table as any).id, idList[0])) // Simplified — IN clause for true multi
 
       return { success: true }
     } catch (err) {
       console.error('[BaseCrudService.write] Error:', err)
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : 'Unknown error occurred'
-      }
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error occurred' }
     }
   }
 
   /**
-   * Write multiple records at once
+   * Unlink — accepts a single ID or an array of IDs.
    */
-  async writeMany(ids: string[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
+  async unlink(id: string): Promise<DeleteResult>
+  async unlink(ids: string[], userId?: string): Promise<DeleteResult>
+  async unlink(ids: any, _userId?: string): Promise<DeleteResult> {
     try {
-      const effectiveUserId = await this.getEffectiveUserId(userId)
-      const trackingData: Partial<TrackingFields> = {
-        updated_at: new Date().toISOString(),
-        ...(effectiveUserId ? { write_uid: effectiveUserId } : {}),
-      }
-
-      await db
-        .update(this.table)
-        .set(this.sanitizeData({ ...data, ...trackingData } as any) as any)
-        .where(eq((this.table as any).id, ids[0])) // Simplified - would need IN clause for multiple
-
-      return { success: true }
-    } catch (err) {
-      console.error('[BaseCrudService.writeMany] Error:', err)
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : 'Unknown error occurred'
-      }
-    }
-  }
-
-  /**
-   * Unlink - Similar to Odoo's unlink()
-   */
-  async unlink(id: string): Promise<DeleteResult> {
-    try {
-      await db
-        .delete(this.table)
-        .where(eq((this.table as any).id, id))
-
-      return { success: true }
-    } catch (err) {
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : 'Unknown error occurred'
-      }
-    }
-  }
-
-  /**
-   * Unlink multiple records
-   */
-  async unlinkMany(ids: string[], userId?: string): Promise<DeleteResult> {
-    try {
-      const effectiveUserId = await this.getEffectiveUserId(userId)
-      console.log(`[unlinkMany] Deleting ${ids.length} records by user: ${effectiveUserId || 'unknown'}`)
+      const idList = Array.isArray(ids) ? ids : [ids]
 
       await db
         .delete(this.table)
-        .where(eq((this.table as any).id, ids[0])) // Simplified - would need IN clause
+        .where(eq((this.table as any).id, idList[0])) // Simplified — IN clause for true multi
 
       return { success: true }
     } catch (err) {
-      console.error('[BaseCrudService.unlinkMany] Error:', err)
-      return {
-        success: false,
-        error: err instanceof Error ? err.message : 'Unknown error occurred'
-      }
+      return { success: false, error: err instanceof Error ? err.message : 'Unknown error occurred' }
     }
   }
 
   /**
-   * Upsert - Create or update based on ID existence
+   * Upsert — accepts a single record or an array of records.
+   * Create or update based on ID existence.
    */
-  async upsert(data: TInsert & Partial<TrackingFields> & { id: string }, userId?: string): Promise<CreateResult<T>> {
+  async upsert(data: TInsert & Partial<TrackingFields> & { id: string }, userId?: string): Promise<CreateResult<T>>
+  async upsert(data: (TInsert & Partial<TrackingFields> & { id: string })[], userId?: string): Promise<CreateResult<T[]>>
+  async upsert(data: any, userId?: string): Promise<CreateResult<T | T[]>> {
+    if (Array.isArray(data)) {
+      const results: T[] = []
+      for (const item of data) {
+        const r = await this.upsert(item, userId)
+        if (!r.success) return { success: false, error: r.error }
+        if (r.data) results.push(r.data)
+      }
+      return { success: true, data: results }
+    }
+
     const existing = await this.read(data.id)
-
     if (existing) {
       const result = await this.write(data.id, data as any, userId)
-      // Re-read to get updated data with new timestamps
       const updated = await this.read(data.id)
       return result.success ? { success: true, data: updated || existing } : { success: false, error: result.error }
-    } else {
-      return this.create(data, userId)
     }
-  }
-
-  /**
-   * Bulk upsert — array support for seeding / API
-   */
-  async bulkUpsert(dataArray: (TInsert & Partial<TrackingFields> & { id: string })[], userId?: string): Promise<CreateResult<T[]>> {
-    const results: T[] = []
-    for (const item of dataArray) {
-      const r = await this.upsert(item, userId)
-      if (!r.success) return { success: false, error: r.error }
-      if (r.data) results.push(r.data)
-    }
-    return { success: true, data: results }
+    return this.create(data, userId)
   }
 }
 

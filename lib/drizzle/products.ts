@@ -24,11 +24,6 @@ export async function upsertProductInDrizzle(product: Product, userId?: string):
   return { success: result.success, error: result.error }
 }
 
-export async function bulkUpsertProductsInDrizzle(productsArr: Product[], userId?: string): Promise<{ success: boolean; data?: any[]; error?: string }> {
-  const result = await productService.bulkUpsert(productsArr, userId)
-  return { success: result.success, data: result.data, error: result.error }
-}
-
 export async function deleteProductFromDrizzle(productId: string): Promise<boolean> {
   try {
     // First, delete all attachments for this product
