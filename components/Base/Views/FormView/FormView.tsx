@@ -1161,44 +1161,68 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 )
 
             case 'one2many':
+                return (
+                    <div>
+                        <One2ManyField
+                            config={{
+                                name: field.key,
+                                type: 'one2many',
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                fetchUrl: field.fetchUrl,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
             case 'many2many':
+                return (
+                    <div>
+                        <Many2ManyField
+                            config={{
+                                name: field.key,
+                                type: 'many2many',
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                fetchUrl: field.fetchUrl,
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
+
             case 'many2one':
-                {
-                    // Auto-use corresponding widget for relation field types
-                    const widgetName = field.type
-                    console.log(`[FormView] Rendering ${widgetName} widget for field:`, field.key)
-                    console.log(`[FormView] Widget initial value:`, JSON.stringify(value))
-                    console.log(`[FormView] Widget field config:`, JSON.stringify(field.widgetConfig))
-                    console.log(`[FormView] Form data:`, JSON.stringify(data))
-                    
-                    const WidgetComponent = getWidget(widgetName)
-                    if (WidgetComponent) {
-                        return (
-                            <div>
-                                <WidgetComponent
-                                    value={value}
-                                    onChange={(newValue) => {
-                                        console.log(`[FormView] ${widgetName} widget onChange:`, newValue)
-                                        console.log(`[FormView] Field:`, field.key)
-                                        onChange(newValue)
-                                    }}
-                                    field={field}
-                                    data={data}
-                                    disabled={field.readonly}
-                                    readonly={field.readonly}
-                                />
-                                {errorMessage && (
-                                    <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
-                                )}
-                            </div>
-                        )
-                    }
-                    return (
-                        <div className="p-3 border rounded bg-gray-50 text-gray-500">
-                            Widget not found: {widgetName}
-                        </div>
-                    )
-                }
+                return (
+                    <div>
+                        <Many2OneField
+                            config={{
+                                name: field.key,
+                                type: 'many2one',
+                                placeholder: field.placeholder,
+                                required: field.required,
+                                readonly: field.readonly,
+                                helper: field.helper,
+                                fetchUrl: field.fetchUrl,
+                                options: field.options?.map((o) => ({ id: o.value, name: o.label })),
+                                size: field.size,
+                            }}
+                            value={value}
+                            onChange={onChange}
+                            error={errorMessage}
+                        />
+                    </div>
+                )
 
             // New Fields system cases
             case 'selection': {

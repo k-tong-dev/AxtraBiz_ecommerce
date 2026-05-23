@@ -1,35 +1,37 @@
-import { drizzle } from 'drizzle-orm/postgres-js'
+import {drizzle} from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './schema'
 
 // For server-side usage only
 const connectionString = process.env.DATABASE_URL
 if (!connectionString) {
-  throw new Error('DATABASE_URL is not set')
+    throw new Error('DATABASE_URL is not set')
 }
 
 // Disable prefetch as it is not supported for "Transaction" pool mode
-const client = postgres(connectionString, { prepare: false })
-export const db = drizzle(client, { schema })
+const client = postgres(connectionString, {prepare: false})
+export const db = drizzle(client, {schema})
 
 // Export all tables for easy access
 export {
-  users,
-  products,
-  orders,
-  invoices,
-  announcements,
-  settings,
-  configurations,
+    users,
+    products,
+    orders,
+    invoices,
+    announcements,
+    settings,
+    configurations,
+    product_brand
 } from './schema'
 
 // Export types
 export type {
-  User,
-  Product,
-  Order,
-  Invoice,
-  Announcement,
-  Setting,
-  Configuration,
+    User,
+    Product,
+    Order,
+    Invoice,
+    Announcement,
+    Setting,
+    Configuration,
+    Brand
 } from './schema'

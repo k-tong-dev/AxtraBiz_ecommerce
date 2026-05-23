@@ -54,7 +54,7 @@ export const products = pgTable('products', {
   sku: text('sku').default(''),
   barcode: text('barcode').default(''),
   category_id: text('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
-  brand_id: text('brand_id').references(() => brands.id, { onDelete: 'set null' }),
+  brand_id: text('brand_id').references(() => product_brand.id, { onDelete: 'set null' }),
   tax_rate_id: text('tax_rate_id').references(() => tax_rates.id, { onDelete: 'set null' }),
   product_type: text('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
   status: text('status').notNull().default('draft'), // draft, published, archived
@@ -79,7 +79,7 @@ export const products = pgTable('products', {
 });
 
 // Brands table
-export const brands = pgTable('brands', {
+export const product_brand = pgTable('product_brand', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
@@ -278,7 +278,7 @@ export type Announcement = typeof announcements.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Configuration = typeof configurations.$inferSelect;
 export type IrAttachment = typeof ir_attachment.$inferSelect;
-export type Brand = typeof brands.$inferSelect;
+export type Brand = typeof product_brand.$inferSelect;
 export type TaxRate = typeof tax_rates.$inferSelect;
 export type ProductCategory = typeof product_categories.$inferSelect;
 export type ShippingZone = typeof shipping_zones.$inferSelect;

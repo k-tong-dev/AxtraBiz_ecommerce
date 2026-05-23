@@ -414,10 +414,9 @@ export const productFormConfig: FormConfig = {
         {
           key: 'category_id',
           label: 'Category',
-          type: 'selection',
+          type: 'many2one',
           required: false,
           placeholder: 'Select category',
-          options: [],
           columnWidth: 1,
           groupNumber: 1,
           groupColumn: 2,
