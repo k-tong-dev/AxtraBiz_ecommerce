@@ -31,6 +31,7 @@ export async function PUT(
     const body = await request.json()
     const brandData: Brand = { ...body, id } as Brand
     if (!brandData.slug) brandData.slug = brandData.name?.toLowerCase().replace(/\s+/g, '-')
+    if (Array.isArray(brandData.logo_id)) brandData.logo_id = brandData.logo_id[0] || null
     const result = await upsertBrandInDrizzle(brandData)
 
     if (result.success) {

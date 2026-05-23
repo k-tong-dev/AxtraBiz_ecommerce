@@ -1,6 +1,7 @@
 import { db, product_brand } from './server'
 import { createCrudService } from './base-crud'
 import type { Brand } from './server'
+import { deleteAttachmentsByResModelAndResId } from './ir_attachment'
 
 export const brandService = createCrudService<Brand, any, any>(
   product_brand
@@ -20,6 +21,11 @@ export async function upsertBrandInDrizzle(brand: Brand, userId?: string): Promi
 }
 
 export async function deleteBrandFromDrizzle(brandId: string): Promise<boolean> {
-  const result = await brandService.unlink(brandId)
-  return result.success
+  try {
+    await deleteAttachmentsByResModelAndResId('brands', brandId)
+    const result = await brandService.unlink(brandId)
+    return result.success
+  } catch {
+    return false
+  }
 }

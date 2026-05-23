@@ -6,13 +6,24 @@ export const brandFormConfig: FormConfig = {
   apiEndpoint: '/api/brands',
   fields: [
     {
+      key: 'logo_id',
+      label: 'Logo',
+      type: 'file',
+      accept: 'image/*',
+      uploadText: 'Click to upload brand logo',
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 1,
+      order: 0
+    },
+    {
       key: 'name',
       label: 'Name',
       type: 'string',
       required: true,
       placeholder: 'Brand name',
       columnWidth: 1,
-      groupNumber: 1,
+      groupNumber: 2,
       groupColumn: 1,
       order: 0
     },
@@ -23,7 +34,7 @@ export const brandFormConfig: FormConfig = {
       required: true,
       placeholder: 'brand-slug',
       columnWidth: 1,
-      groupNumber: 1,
+      groupNumber: 2,
       groupColumn: 2,
       order: 1
     },
@@ -33,7 +44,7 @@ export const brandFormConfig: FormConfig = {
       type: 'string',
       placeholder: 'https://example.com',
       columnWidth: 1,
-      groupNumber: 1,
+      groupNumber: 2,
       groupColumn: 1,
       order: 2
     },
@@ -42,7 +53,7 @@ export const brandFormConfig: FormConfig = {
       label: 'Active',
       type: 'boolean',
       columnWidth: 1,
-      groupNumber: 1,
+      groupNumber: 2,
       groupColumn: 2,
       order: 3
     },
@@ -52,7 +63,7 @@ export const brandFormConfig: FormConfig = {
       type: 'html',
       placeholder: 'Brand description...',
       columnWidth: 2,
-      groupNumber: 2,
+      groupNumber: 3,
       groupColumn: 1,
       order: 0
     }
