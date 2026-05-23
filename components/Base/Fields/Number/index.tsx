@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { NumberInput as RsNumberInput } from 'rsuite'
+import { Input as RsInput } from 'rsuite'
 import { cn } from '@/lib/utils'
 import type { FieldProps } from '../types'
 
@@ -14,23 +14,32 @@ const sizeStyles = {
 export function NumberField({ config, value, onChange, error }: FieldProps) {
   const [focused, setFocused] = React.useState(false)
   const inputId = React.useId()
-  const hasValue = value !== null && value !== undefined && value !== ''
+  const strValue = value !== null && value !== undefined && value !== '' ? String(value) : ''
+  const hasValue = strValue !== ''
   const floating = focused || hasValue
+
+  const handleChange = (raw: string) => {
+    if (raw === '') {
+      onChange(null)
+      return
+    }
+    const num = Number(raw)
+    if (!isNaN(num)) onChange(num)
+  }
 
   return (
     <div className="w-full space-y-1">
       <div className="relative">
-        <style>{`.rs-input-group { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; }`}</style>
-        <RsNumberInput
+        <RsInput
           id={inputId}
           data-slot="number-input"
-          value={value ?? null}
+          type="number"
+          value={strValue}
           placeholder={config.placeholder || ' '}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          onChange={(val: number | string | null) => onChange(val ?? null)}
+          onChange={handleChange}
           disabled={config.readonly}
-          scrollable={false}
           style={{
             borderTop: '0',
             borderRight: '0',
@@ -40,8 +49,8 @@ export function NumberField({ config, value, onChange, error }: FieldProps) {
             boxShadow: 'none',
           }}
           className={cn(
-            'w-full border-b-1 border-b-foreground bg-transparent px-0 text-foreground transition-colors duration-200 rounded-none disabled:cursor-not-allowed disabled:opacity-50',
-            error ? 'border-destructive' : 'border-border',
+            'peer w-full border-b-1 border-b-foreground bg-transparent px-0 text-foreground transition-colors duration-200 rounded-none disabled:cursor-not-allowed disabled:opacity-50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+            error && 'border-b-destructive',
             sizeStyles[config.size || 'md'].input,
           )}
 
@@ -64,7 +73,7 @@ export function NumberField({ config, value, onChange, error }: FieldProps) {
         )}
         <div
           className={cn(
-            'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 bg-foreground transition-transform duration-200',
+            'absolute bottom-0 left-1/2 h-0.5 w-full -translate-x-1/2 bg-foreground transition-transform duration-200',
             focused ? 'scale-x-100' : 'scale-x-0',
           )}
         />

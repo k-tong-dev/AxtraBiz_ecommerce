@@ -112,7 +112,7 @@ export const invoiceFormConfig: FormConfig = {
     {
       key: 'items',
       label: 'Items (JSON)',
-      type: 'textarea',
+      type: 'html',
       required: true,
       placeholder: '[{"productId": "...", "quantity": 1, "price": 100}]',
       helper: 'Invoice items in JSON format',

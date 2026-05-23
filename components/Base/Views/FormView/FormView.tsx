@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/action-bar'
 import {Button} from '@/components/ui/button'
 import {Input, NumberInput} from '@/components/ui/input'
-import {Textarea} from '@/components/ui/textarea'
 import {
     SelectionField,
     Many2ManyField,
@@ -161,7 +160,7 @@ function convertBuiltInActionsToServerActions(config: FormConfig, mode: 'create'
 export interface FormField {
     key: string
     label: string
-    type: 'textarea' | 'number' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
+    type: 'number' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
     required?: boolean
     readonly?: boolean
     helper?: string
@@ -892,27 +891,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         }
 
         switch (field.type) {
-            case 'textarea':
-                return (
-                    <div>
-                        <Textarea
-                            value={value || ''}
-                            onChange={(e) => onChange(e.target.value)}
-                            placeholder={field.placeholder}
-                            disabled={field.readonly}
-                            rows={4}
-                            error={hasError}
-                            fullWidth
-                            autosize
-                            resize={"horizontal"}
-                            className={field.readonly ? 'opacity-60 cursor-not-allowed' : ''}
-                        />
-                        {errorMessage && (
-                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
-                        )}
-                    </div>
-                )
-
             case 'number':
                 return (
                     <div>
@@ -1285,6 +1263,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                 placeholder: field.placeholder,
                                 required: field.required,
                                 readonly: field.readonly,
+                                helper: field.helper,
                                 size: field.size,
                             }}
                             value={value}

@@ -57,7 +57,7 @@ export const configurationFormConfig: FormConfig = {
     {
       key: 'value',
       label: 'Value',
-      type: 'textarea',
+      type: 'html',
       required: true,
       placeholder: 'Configuration value',
       columnWidth: 2,

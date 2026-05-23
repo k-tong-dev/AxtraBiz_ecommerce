@@ -51,42 +51,42 @@ export const productFormConfig: FormConfig = {
       groupColumn: 1,
       order: 3
     },
-    {
-      key: 'barcode',
-      label: 'Barcode',
-      type: 'string',
-      required: false,
-      placeholder: 'Enter Barcode',
-      rows: 1,
-      columnWidth: 2,
-      groupNumber: 1,
-      groupColumn: 1,
-      order: 4
-    },
-    {
-      key: 'category_id',
-      label: 'Category',
-      type: 'selection',
-      required: false,
-      placeholder: 'Select category',
-      options: [],
-      columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 2,
-      order: 5
-    },
-    {
-      key: 'brand_id',
-      label: 'Brand',
-      type: 'selection',
-      required: false,
-      placeholder: 'Select brand',
-      options: [],
-      columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 2,
-      order: 6
-    },
+    // {
+    //   key: 'barcode',
+    //   label: 'Barcode',
+    //   type: 'string',
+    //   required: false,
+    //   placeholder: 'Enter Barcode',
+    //   rows: 1,
+    //   columnWidth: 2,
+    //   groupNumber: 1,
+    //   groupColumn: 1,
+    //   order: 4
+    // },
+    // {
+    //   key: 'category_id',
+    //   label: 'Category',
+    //   type: 'selection',
+    //   required: false,
+    //   placeholder: 'Select category',
+    //   options: [],
+    //   columnWidth: 1,
+    //   groupNumber: 1,
+    //   groupColumn: 2,
+    //   order: 5
+    // },
+    // {
+    //   key: 'brand_id',
+    //   label: 'Brand',
+    //   type: 'selection',
+    //   required: false,
+    //   placeholder: 'Select brand',
+    //   options: [],
+    //   columnWidth: 1,
+    //   groupNumber: 1,
+    //   groupColumn: 2,
+    //   order: 6
+    // },
     {
       key: 'tax_rate_id',
       label: 'Tax Rate',
@@ -133,18 +133,19 @@ export const productFormConfig: FormConfig = {
       groupColumn: 2,
       order: 9
     },
-    {
-      key: 'description',
-      label: 'Description',
-      type: 'textarea',
-      required: false,
-      placeholder: 'Enter detailed product description',
-      rows: 3,
-      columnWidth: 3,
-      groupNumber: 2,
-      groupColumn: 1,
-      order: 10
-    },
+    // {
+    //   key: 'description',
+    //   label: 'Description',
+    //   type: 'html',
+    //   required: false,
+    //   placeholder: 'Enter detailed product description',
+    //   rows: 3,
+    //   after:"tags",
+    //   columnWidth: 3,
+    //   groupNumber: 2,
+    //   groupColumn: 1,
+    //   order: 10
+    // },
 
     // SEO Section
     {
@@ -161,7 +162,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'meta_description',
       label: 'Meta Description',
-      type: 'textarea',
+      type: 'html',
       required: false,
       placeholder: 'SEO description (max 160 chars)',
       rows: 2,
@@ -256,7 +257,7 @@ export const productFormConfig: FormConfig = {
         if (value && !/^[A-Z0-9-]+$/.test(value)) return 'SKU can only contain uppercase letters and numbers'
         return null
       },
-      columnWidth: 2,
+      columnWidth: 3,
       groupNumber: 4,
       groupColumn: 1,
       order: 18
@@ -391,6 +392,69 @@ export const productFormConfig: FormConfig = {
     }
   ],
   pages: [
+    {
+      key: 'information',
+      label: 'Information',
+      fields: [
+        {
+          key: 'barcode',
+          label: 'Barcode',
+          type: 'string',
+          required: false,
+          placeholder: 'Enter Barcode',
+          rows: 1,
+          columnWidth: 1,
+          groupNumber: 1,
+          groupColumn: 1,
+          order: 0
+        },
+        {
+          key: 'category_id',
+          label: 'Category',
+          type: 'selection',
+          required: false,
+          placeholder: 'Select category',
+          options: [],
+          columnWidth: 1,
+          groupNumber: 1,
+          groupColumn: 2,
+          order: 0
+        },
+        {
+          key: 'brand_id',
+          label: 'Brand',
+          type: 'selection',
+          required: false,
+          placeholder: 'Select brand',
+          options: [],
+          columnWidth: 1,
+          groupNumber: 1,
+          groupColumn: 2,
+          order: 0
+        },
+      ],
+      order: 90
+    },
+    {
+      key: 'description',
+      label: 'Description',
+      fields: [
+        {
+          key: 'description',
+          label: 'Description',
+          type: 'html',
+          required: false,
+          placeholder: 'Enter detailed product description',
+          rows: 3,
+          after:"tags",
+          columnWidth: 3,
+          groupNumber: 2,
+          groupColumn: 1,
+          order: 10
+        },
+      ],
+      order: 90
+    },
     {
       key: 'attributes',
       label: 'Product Attributes',

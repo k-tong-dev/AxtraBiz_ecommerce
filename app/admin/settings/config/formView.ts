@@ -41,7 +41,7 @@ export const settingFormConfig: FormConfig = {
     {
       key: 'value',
       label: 'Value',
-      type: 'textarea',
+      type: 'html',
       required: true,
       placeholder: 'Setting value',
       columnWidth: 2,

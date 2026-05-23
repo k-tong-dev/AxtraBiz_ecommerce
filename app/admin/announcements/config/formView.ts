@@ -56,7 +56,7 @@ export const announcementFormConfig: FormConfig = {
     {
       key: 'content',
       label: 'Content',
-      type: 'textarea',
+      type: 'html',
       required: true,
       placeholder: 'Enter announcement content',
       columnWidth: 2,

@@ -79,7 +79,7 @@ export const orderFormConfig: FormConfig = {
     {
       key: 'items',
       label: 'Items (JSON)',
-      type: 'textarea',
+      type: 'html',
       required: true,
       placeholder: '[{"productId": "...", "quantity": 1, "price": 100}]',
       helper: 'Order items in JSON format',

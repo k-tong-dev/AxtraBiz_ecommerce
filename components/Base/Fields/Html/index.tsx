@@ -31,6 +31,8 @@ export function HtmlField({ config, value, onChange, error }: FieldProps) {
           onChange={(val: string) => onChange(val)}
           disabled={config.readonly}
           rows={8}
+          autosize
+
           style={{
             borderTop: '0',
             borderRight: '0',
