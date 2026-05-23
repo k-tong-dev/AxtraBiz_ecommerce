@@ -309,28 +309,46 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             setData(completeData as MutableEntity)
             setOriginalData(completeData as MutableEntity)
             // Initialize uploadedFiles from existing file fields
-            const existingFileIds = config.fields
-                .filter(f => f.type === 'file' && initialData[f.key])
-                .flatMap(f => Array.isArray(initialData[f.key]) ? initialData[f.key] : [initialData[f.key]])
-            // Fetch URLs from ir_attachment table
-            if (existingFileIds.length > 0) {
-                fetchAttachmentUrls(existingFileIds)
+            // Check companion *_url fields in initialData first; fall back to fetchAttachmentUrls
+            const fileFieldUrls = config.fields
+                .filter(f => f.type === 'file')
+                .flatMap(f => {
+                    const id = Array.isArray(initialData[f.key]) ? initialData[f.key][0] : initialData[f.key]
+                    if (!id) return []
+                    // Check for companion URL field (e.g., logo_id → logo_url)
+                    const urlKey = f.key.replace(/_id$/, '_url')
+                    const url = initialData[urlKey]
+                    return url ? [{ id, url }] : [id]
+                })
+            const existingIds = fileFieldUrls.filter((v): v is string => typeof v === 'string')
+            const existingUrls = fileFieldUrls.filter((v): v is { id: string; url: string } => typeof v === 'object')
+
+            if (existingUrls.length > 0) {
+                setUploadedFiles(existingUrls)
+                setLoading(false)
+            }
+
+            if (existingIds.length > 0) {
+                fetchAttachmentUrls(existingIds)
                     .then(attachments => {
-                        // If fetch returns empty but we have IDs, create entries with empty URLs
-                        if (attachments.length === 0 && existingFileIds.length > 0) {
-                            setUploadedFiles(existingFileIds.map(id => ({id, url: ''})))
-                        } else {
-                            setUploadedFiles(attachments)
-                        }
+                        setUploadedFiles(prev => {
+                            const existing = prev.length > 0 ? prev : []
+                            if (attachments.length === 0) {
+                                return [...existing, ...existingIds.map(id => ({id, url: ''}))]
+                            }
+                            return [...existing, ...attachments]
+                        })
                         setLoading(false)
                     })
                     .catch(error => {
                         console.error('Failed to fetch attachment URLs:', error)
-                        // Fallback to empty URLs
-                        setUploadedFiles(existingFileIds.map(id => ({id, url: ''})))
+                        setUploadedFiles(prev => {
+                            const existing = prev.length > 0 ? prev : []
+                            return [...existing, ...existingIds.map(id => ({id, url: ''}))]
+                        })
                         setLoading(false)
                     })
-            } else {
+            } else if (existingUrls.length === 0) {
                 setUploadedFiles([])
                 setLoading(false)
             }
