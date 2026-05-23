@@ -62,7 +62,7 @@ export const brandFormConfig: FormConfig = {
       label: 'Description',
       type: 'html',
       placeholder: 'Brand description...',
-      columnWidth: 2,
+      columnWidth: 3,
       groupNumber: 3,
       groupColumn: 1,
       order: 0

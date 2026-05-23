@@ -8,6 +8,12 @@ import type { SelectOption, FieldProps } from '../types'
 const PICKER_STYLE = { borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, outlineColor: 'transparent', boxShadow: 'none' }
 const SIZE = { sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base' }
 
+function renderLabel(opt: SelectOption) {
+  return opt.avatar
+    ? <div className="flex items-center gap-2"><Avatar src={opt.avatar} size="xs" circle /><span>{opt.name}</span></div>
+    : opt.name
+}
+
 export function Many2OneField({ config, value, onChange, error }: FieldProps) {
   const [open, setOpen] = React.useState(false)
   const [options, setOptions] = React.useState<SelectOption[]>([])
@@ -31,10 +37,10 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
 
   React.useEffect(() => { fetchOptions() }, [fetchOptions])
 
+  const selected = options.find((o) => String(o.id) === String(value))
+
   const data = options.map((opt) => ({
-    label: opt.avatar
-      ? <div className="flex items-center gap-2"><Avatar src={opt.avatar} size="xs" circle /><span>{opt.name}</span></div>
-      : opt.name,
+    label: renderLabel(opt),
     value: String(opt.id),
   }))
 
@@ -63,6 +69,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
             onClose={() => setOpen(false)}
             cleanable={false}
             onSearch={(kw) => { if (kw.length > 1) fetchOptions(kw) }}
+            renderValue={() => selected ? renderLabel(selected) : null}
           />
         </div>
         {config.label && (

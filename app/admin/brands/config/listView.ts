@@ -24,6 +24,7 @@ export const brandListConfig: ListViewConfig = {
     {
       key: 'active',
       title: 'Active',
+      type: 'boolean',
       width: 100,
       sortable: true,
     }
