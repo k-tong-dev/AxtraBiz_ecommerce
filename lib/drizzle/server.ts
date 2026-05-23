@@ -26,6 +26,7 @@ export {
   product_attribute_values_rel,
   product_attributes_rel,
   product_variants,
+  product_categories,
 } from '../../drizzle/schema'
 
 // Export types
@@ -40,4 +41,5 @@ export type {
   ProductAttribute,
   ProductAttributeValue,
   ProductVariant,
+  ProductCategory,
 } from '../../drizzle/schema'

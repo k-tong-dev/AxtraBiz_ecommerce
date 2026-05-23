@@ -22,6 +22,7 @@ export {
   announcements,
   settings,
   configurations,
+  product_categories,
 } from '../../drizzle/schema'
 
 // Export types
@@ -33,4 +34,5 @@ export type {
   Announcement,
   Setting,
   Configuration,
+  ProductCategory,
 } from '../../drizzle/schema'

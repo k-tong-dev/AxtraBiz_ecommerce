@@ -415,6 +415,7 @@ export const productFormConfig: FormConfig = {
           key: 'category_id',
           label: 'Category',
           type: 'many2one',
+          fetchUrl: '/api/categories',
           required: false,
           placeholder: 'Select category',
           columnWidth: 1,
