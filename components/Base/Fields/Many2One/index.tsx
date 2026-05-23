@@ -43,7 +43,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
   return (
     <div className="w-full space-y-1">
       <div className="relative">
-        <style>{`.rs-picker-toggle { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; }`}</style>
+        <style>{`.rs-picker-toggle { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-bottom: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; }`}</style>
         <div className={cn(
             'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200',
             error ? 'border-destructive' : 'border-border',
@@ -54,6 +54,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
             value={(value as string) || null}
             onChange={(next) => onChange(next ?? null)}
             searchable
+            block
             loading={loading}
             placeholder={config.placeholder || ' '}
             disabled={config.readonly}

@@ -11,7 +11,7 @@ export const categoryFormConfig: FormConfig = {
       type: 'string',
       required: true,
       placeholder: 'Category name',
-      columnWidth: 1,
+      columnWidth: 2,
       groupNumber: 1,
       groupColumn: 1,
       order: 1
@@ -34,7 +34,7 @@ export const categoryFormConfig: FormConfig = {
       required: false,
       placeholder: 'Enter category description',
       columnWidth: 3,
-      groupNumber: 2,
+      groupNumber: 3,
       groupColumn: 1,
       order: 3
     },
@@ -46,18 +46,18 @@ export const categoryFormConfig: FormConfig = {
       required: false,
       placeholder: 'Select parent category',
       columnWidth: 1,
-      groupNumber: 3,
+      groupNumber: 2,
       groupColumn: 1,
       order: 4
     },
     {
       key: 'position',
-      label: 'Position',
+      label: 'Position ( Optional )',
       type: 'number',
       required: false,
       placeholder: '0',
       columnWidth: 1,
-      groupNumber: 3,
+      groupNumber: 2,
       groupColumn: 2,
       order: 5
     },
@@ -67,7 +67,7 @@ export const categoryFormConfig: FormConfig = {
       type: 'boolean',
       required: false,
       columnWidth: 1,
-      groupNumber: 3,
+      groupNumber: 2,
       groupColumn: 3,
       order: 6
     },

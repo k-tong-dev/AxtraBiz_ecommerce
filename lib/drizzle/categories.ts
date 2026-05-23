@@ -14,9 +14,9 @@ export async function fetchCategoryFromDrizzle(categoryId: string): Promise<Prod
   return categoryService.read(categoryId)
 }
 
-export async function upsertCategoryInDrizzle(category: ProductCategory, userId?: string): Promise<{ success: boolean; error?: string }> {
+export async function upsertCategoryInDrizzle(category: ProductCategory, userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
   const result = await categoryService.upsert(category, userId)
-  return { success: result.success, error: result.error }
+  return { success: result.success, data: result.data, error: result.error }
 }
 
 export async function deleteCategoryFromDrizzle(categoryId: string): Promise<boolean> {

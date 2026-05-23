@@ -185,6 +185,7 @@ function Select({
           onChange={handleChange}
           cleanable={false}
           sticky
+          block
         />
       )
     }

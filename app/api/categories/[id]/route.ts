@@ -5,6 +5,7 @@ import {
   deleteCategoryFromDrizzle
 } from '../../../../lib/drizzle/categories'
 import type { ProductCategory } from '../../../../lib/drizzle/server'
+import { createClient } from '@/utils/supabase/server'
 
 export async function GET(
   _request: Request,
@@ -27,10 +28,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     const { id } = await params
     const body = await request.json()
     const categoryData: ProductCategory = { ...body, id }
-    const result = await upsertCategoryInDrizzle(categoryData)
+    const result = await upsertCategoryInDrizzle(categoryData, user?.id)
 
     if (result.success) {
       return NextResponse.json({ success: true, data: categoryData })

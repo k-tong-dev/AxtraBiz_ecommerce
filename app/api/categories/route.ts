@@ -3,7 +3,8 @@ import {
   fetchCategoriesFromDrizzle,
   upsertCategoryInDrizzle,
   deleteCategoryFromDrizzle
-} from '../../../lib/drizzle/categories'
+} from '@/lib/drizzle/categories'
+import { createClient } from '@/utils/supabase/server'
 
 export async function GET() {
   try {
@@ -16,11 +17,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     const body = await request.json()
-    const result = await upsertCategoryInDrizzle(body)
+    if (!body.id) body.id = crypto.randomUUID()
+    const result = await upsertCategoryInDrizzle(body, user?.id)
 
     if (result.success) {
-      return NextResponse.json({ success: true, data: body })
+      return NextResponse.json({ success: true, data: result.data })
     } else {
       return NextResponse.json({
         success: false,

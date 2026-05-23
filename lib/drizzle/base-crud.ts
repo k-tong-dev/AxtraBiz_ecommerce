@@ -1,6 +1,9 @@
 import { db } from '../drizzle/server'
-import { eq, and, SQL } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { PgTable } from 'drizzle-orm/pg-core'
+import { createClient } from '@/utils/supabase/server'
+
+const FK_META = Symbol.for('drizzle:PgInlineForeignKeys')
 
 /**
  * Base CRUD operations with automatic tracking fields
@@ -41,10 +44,68 @@ export interface SearchOptions {
  * Automatically handles tracking fields (created_at, updated_at, create_uid, write_uid)
  */
 export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends any> {
+  private fkColumns: Set<string>
+
   constructor(
     private table: PgTable,
     private userId?: string
-  ) {}
+  ) {
+    this.fkColumns = this.initForeignKeyColumns()
+  }
+
+  /**
+   * Extract foreign-key column names from the table's Drizzle metadata.
+   * Falls back to `_id` suffix convention when no Drizzle FK metadata exists.
+   */
+  private initForeignKeyColumns(): Set<string> {
+    const fks: any[] = (this.table as any)[FK_META]
+    if (fks?.length) {
+      return new Set(
+        fks.flatMap((fk: any) => {
+          const ref = typeof fk.reference === 'function' ? fk.reference() : fk.reference
+          return ref.columns.map((c: any) => c.name)
+        })
+      )
+    }
+    // No Drizzle FK declarations — fall back to naming convention
+    const columns: Record<string, any> = (this.table as any)[Symbol.for('drizzle:Columns')] ?? {}
+    return new Set(
+      Object.keys(columns).filter(k => k.endsWith('_id'))
+    )
+  }
+
+  /**
+   * Resolve the effective user ID:
+   * 1. Explicit userId parameter
+   * 2. Constructor-injected userId
+   * 3. Supabase session (try/catch — safe for migrations, tests)
+   */
+  private async getEffectiveUserId(userId?: string): Promise<string | undefined> {
+    if (userId) return userId
+    if (this.userId) return this.userId
+    try {
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      return user?.id
+    } catch {
+      return undefined
+    }
+  }
+
+  /**
+   * Sanitize insert/update data: convert empty strings to null for FK columns,
+   * strip undefined values.
+   */
+  private sanitizeData(data: Record<string, any>): Record<string, any> {
+    return Object.fromEntries(
+      Object.entries(data)
+        .map(([key, value]) => {
+          if (this.fkColumns.has(key)) return [key, value === '' ? null : value]
+          return [key, value]
+        })
+        .filter(([_, value]) => value !== undefined)
+    )
+  }
 
    /**
     * Create - Similar to Odoo's create()
@@ -53,36 +114,16 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   async create(data: TInsert & Partial<TrackingFields>, userId?: string): Promise<CreateResult<T>> {
     try {
       const now = new Date().toISOString()
+      const effectiveUserId = await this.getEffectiveUserId(userId)
       const trackingData: Partial<TrackingFields> = {
         created_at: now,
         updated_at: now,
+        ...(effectiveUserId ? { create_uid: effectiveUserId, write_uid: effectiveUserId } : {}),
       }
-
-      // Use passed userId or fallback to this.userId
-      const effectiveUserId = userId || this.userId
-      // Only set user tracking fields if userId is provided
-      if (effectiveUserId) {
-        trackingData.create_uid = effectiveUserId
-        trackingData.write_uid = effectiveUserId
-      }
-
-      const insertData = { ...data, ...trackingData } as any
-      
-      // Filter out undefined values to prevent Drizzle from inserting them as default
-      // Also convert empty strings to null for foreign key fields
-      const filteredData = Object.fromEntries(
-        Object.entries(insertData).map(([key, value]) => {
-          // Convert empty strings to null for foreign key fields
-          if (['category_id', 'brand_id', 'tax_rate_id', 'logo_id', 'image_id', 'parent_id', 'user_id', 'order_id', 'shipping_zone_id', 'product_id', 'attribute_id', 'res_id', 'res_model'].includes(key)) {
-            return [key, value === '' ? null : value]
-          }
-          return [key, value]
-        }).filter(([_, value]) => value !== undefined)
-      )
 
       const [result] = await db
         .insert(this.table)
-        .values(filteredData as any)
+        .values(this.sanitizeData({ ...data, ...trackingData } as any) as any)
         .returning()
 
       return { success: true, data: result as T }
@@ -101,28 +142,16 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   async createMany(dataArray: (TInsert & Partial<TrackingFields>)[], userId?: string): Promise<CreateResult<T[]>> {
     try {
       const now = new Date().toISOString()
+      const effectiveUserId = await this.getEffectiveUserId(userId)
       const trackingData: Partial<TrackingFields> = {
         created_at: now,
         updated_at: now,
-      }
-      
-      // Use passed userId or fallback to this.userId
-      const effectiveUserId = userId || this.userId
-      // Only set user tracking fields if userId is provided
-      if (effectiveUserId) {
-        trackingData.create_uid = effectiveUserId
-        trackingData.write_uid = effectiveUserId
+        ...(effectiveUserId ? { create_uid: effectiveUserId, write_uid: effectiveUserId } : {}),
       }
 
       const results = await db
         .insert(this.table)
-        .values(dataArray.map(data => {
-          const insertData = { ...data, ...trackingData } as any
-          // Filter out undefined values
-          return Object.fromEntries(
-            Object.entries(insertData).filter(([_, value]) => value !== undefined)
-          )
-        }) as any)
+        .values(dataArray.map(data => this.sanitizeData({ ...data, ...trackingData } as any)) as any)
         .returning()
 
       return { success: true, data: results as T[] }
@@ -191,31 +220,15 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    */
   async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId)
       const trackingData: Partial<TrackingFields> = {
         updated_at: new Date().toISOString(),
+        ...(effectiveUserId ? { write_uid: effectiveUserId } : {}),
       }
-
-      // Use passed userId or fallback to this.userId
-      const effectiveUserId = userId || this.userId
-      // Only set user tracking field if userId is provided
-      if (effectiveUserId) {
-        trackingData.write_uid = effectiveUserId
-      }
-
-      const updateData = { ...data, ...trackingData } as any
-      // Convert empty strings to null for foreign key fields
-      const filteredData = Object.fromEntries(
-        Object.entries(updateData).map(([key, value]) => {
-          if (['category_id', 'brand_id', 'tax_rate_id', 'logo_id', 'image_id', 'parent_id', 'user_id', 'order_id', 'shipping_zone_id', 'product_id', 'attribute_id', 'res_id', 'res_model'].includes(key)) {
-            return [key, value === '' ? null : value]
-          }
-          return [key, value]
-        }).filter(([_, value]) => value !== undefined)
-      )
 
       await db
         .update(this.table)
-        .set(filteredData as any)
+        .set(this.sanitizeData({ ...data, ...trackingData } as any) as any)
         .where(eq((this.table as any).id, id))
 
       return { success: true }
@@ -233,24 +246,20 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    */
   async writeMany(ids: string[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
+      const effectiveUserId = await this.getEffectiveUserId(userId)
       const trackingData: Partial<TrackingFields> = {
         updated_at: new Date().toISOString(),
-      }
-      
-      // Use passed userId or fallback to this.userId
-      const effectiveUserId = userId || this.userId
-      // Only set user tracking field if userId is provided
-      if (effectiveUserId) {
-        trackingData.write_uid = effectiveUserId
+        ...(effectiveUserId ? { write_uid: effectiveUserId } : {}),
       }
 
       await db
         .update(this.table)
-        .set({ ...data, ...trackingData } as any)
+        .set(this.sanitizeData({ ...data, ...trackingData } as any) as any)
         .where(eq((this.table as any).id, ids[0])) // Simplified - would need IN clause for multiple
 
       return { success: true }
     } catch (err) {
+      console.error('[BaseCrudService.writeMany] Error:', err)
       return {
         success: false,
         error: err instanceof Error ? err.message : 'Unknown error occurred'
@@ -281,9 +290,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    */
   async unlinkMany(ids: string[], userId?: string): Promise<DeleteResult> {
     try {
-      // Note: userId available for audit logging if needed
-      // (delete operations don't update write_uid, but can be logged)
-      const effectiveUserId = userId || this.userId
+      const effectiveUserId = await this.getEffectiveUserId(userId)
       console.log(`[unlinkMany] Deleting ${ids.length} records by user: ${effectiveUserId || 'unknown'}`)
 
       await db
@@ -292,6 +299,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
 
       return { success: true }
     } catch (err) {
+      console.error('[BaseCrudService.unlinkMany] Error:', err)
       return {
         success: false,
         error: err instanceof Error ? err.message : 'Unknown error occurred'

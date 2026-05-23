@@ -24,6 +24,7 @@ export const categoryListConfig: ListViewConfig = {
     {
       key: 'active',
       title: 'Active',
+      type: 'boolean',
       width: 80,
       sortable: true,
       render: (value: boolean) => value !== false ? 'Yes' : 'No'
