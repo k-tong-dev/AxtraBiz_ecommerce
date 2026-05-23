@@ -1,6 +1,8 @@
 import { FormConfig } from '@/components/Base/Views/FormView'
-import type { Many2ManyWidgetConfig } from '../../../../components/Base/Fields/Widgets'
-import type { Product } from '@/lib/drizzle/server'
+import type { Many2ManyWidgetConfig } from '@/components/Base/Fields/Widgets'
+import { createElement } from 'react'
+import { BsInfoSquareFill } from "react-icons/bs";
+import {MdDescription} from "react-icons/md";
 
 export const productFormConfig: FormConfig = {
   entityName: 'Product',
@@ -395,6 +397,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'information',
       label: 'Information',
+      icon: createElement(BsInfoSquareFill),
       fields: [
         {
           key: 'barcode',
@@ -438,6 +441,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'description',
       label: 'Description',
+      icon: createElement(MdDescription),
       fields: [
         {
           key: 'description',

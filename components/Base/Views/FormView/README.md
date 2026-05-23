@@ -113,7 +113,7 @@ const customConfig = createFormConfig()
     {
       key: 'name',
       label: 'Name',
-      type: 'text',
+      type: 'string',
       required: true,
       validation: (value) => {
         if (!value || value.length < 2) {
@@ -147,7 +147,7 @@ FormView supports multiple field types:
 export interface FormField {
   key: string
   label: string
-  type: 'text' | 'textarea' | 'number' | 'select' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle'
+  type: 'number' | 'file' | 'array' | 'json' | 'checkbox' | 'boolean' | 'toggle' | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day' | 'one2many' | 'many2many' | 'many2one' | 'selection' | 'string' | 'html'
   required?: boolean
   readonly?: boolean
   helper?: string
@@ -213,6 +213,7 @@ export interface FormConfig {
 export interface FormPage {
   key: string
   label: string
+  icon?: ReactNode  // Optional icon for tab header
   component?: React.ComponentType<{data: any; onDataChange: (data: any) => void}>  // Optional custom component
   fields?: FormField[]  // Optional fields to render on this page
   show?: (data: any) => boolean  // Conditional visibility
@@ -313,8 +314,8 @@ export const productFormConfig: FormConfig = {
         {
           key: 'return_policy',
           label: 'Return Policy',
-          type: 'textarea',
-          rows: 3,
+          type: 'html',
+          size: 'md',
           columnWidth: 2
         }
       ],
@@ -356,13 +357,13 @@ export const productFormConfig: FormConfig = {
         {
           key: 'meta_title',
           label: 'Meta Title',
-          type: 'text',
+          type: 'string',
           columnWidth: 1
         },
         {
           key: 'meta_description',
           label: 'Meta Description',
-          type: 'textarea',
+          type: 'html',
           columnWidth: 2
         }
       ],
@@ -375,7 +376,7 @@ export const productFormConfig: FormConfig = {
 ### Page Features
 
 - **Tab Rendering**: Multiple pages automatically render as tabs
-- **Single Page**: Single pages render without tabs (just a section)
+- **Single Page**: Single pages render with a single tab (still uses Tabs component)
 - **Conditional Visibility**: Use `show` function to conditionally display pages
 - **Ordering**: Use `order` property to control page sequence
 - **Custom Components**: Use `component` for complex UI with custom logic
@@ -403,7 +404,7 @@ export const productFormConfig: FormConfig = {
 {
   key: 'name',
   label: 'Name',
-  type: 'text',
+  type: 'string',
   required: true,
   placeholder: 'Enter name',
   validation: (value) => value ? null : 'Name is required',
@@ -416,7 +417,7 @@ export const productFormConfig: FormConfig = {
 {
   key: 'created_at',
   label: 'Created At',
-  type: 'text',
+  type: 'string',
   readonly: true,
   placeholder: 'Auto-generated'
 }
@@ -433,7 +434,7 @@ export const productFormConfig: FormConfig = {
 {
   key: 'slug',
   label: 'URL Slug',
-  type: 'text',
+  type: 'string',
   required: true,
   helper: 'A URL-friendly version of the product name. Used for SEO and clean URLs.'
 }
@@ -471,15 +472,15 @@ export const productFormConfig: FormConfig = {
 }
 ```
 
-### Textarea
+### Html (Textarea with Preview)
 ```typescript
 {
   key: 'description',
   label: 'Description',
-  type: 'textarea',
+  type: 'html',
   required: false,
   placeholder: 'Enter description',
-  rows: 4
+  size: 'md'      // 'sm' | 'md' | 'lg'
 }
 ```
 
@@ -945,7 +946,7 @@ import { FormViewValidator, commonValidations } from '@/components/admin/Resourc
 const fieldConfig = {
   key: 'email',
   label: 'Email',
-  type: 'text',
+  type: 'string',
   validation: commonValidations.email
 }
 
@@ -953,7 +954,7 @@ const fieldConfig = {
 const fieldConfig = {
   key: 'custom',
   label: 'Custom Field',
-  type: 'text',
+  type: 'string',
   validation: FormViewValidator.combine(
     FormViewValidator.required(),
     FormViewValidator.minLength(5),
@@ -1039,7 +1040,7 @@ FormView uses a **3-column grid layout** with intelligent field placement:
 ### Field Placement Rules
 
 **Main Form Area (Left Side - 2 columns):**
-- All field types: `text`, `textarea`, `number`, `select`, `array`, `json`
+- All field types: `string`, `html`, `number`, `selection`, `array`, `json`, `date`, `boolean`, `toggle`
 - **EXCLUDES**: `file` type fields
 - Responsive grid layouts based on `columnWidth` property
 
@@ -1096,7 +1097,7 @@ export const productFormConfig: FormConfig = {
     {
       key: 'name',
       label: 'Product Name',
-      type: 'text',
+      type: 'string',
       tab: 'basic',        // Assign to "Basic Info" tab
       columnWidth: 2
     },

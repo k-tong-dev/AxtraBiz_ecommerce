@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect} from 'react'
+import { useState, useEffect, type ReactNode} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
-import {Breadcrumb, Dropdown, Loader, Popover, Whisper, Drawer} from 'rsuite'
+import {Breadcrumb, Dropdown, Loader, Popover, Whisper, Drawer, Tabs, Tab} from 'rsuite'
 import {uploadFile, deleteFile, fetchAttachmentUrls} from '@/lib/utils/file-upload'
 import {
     ActionBar,
@@ -197,6 +197,7 @@ export interface FormField {
 export interface FormPage {
     key: string
     label: string
+    icon?: ReactNode
     component?: React.ComponentType<{data: any; onDataChange: (data: any) => void}>  // Optional custom component
     fields?: FormField[]  // Optional fields to render on this page
     show?: (data: any) => boolean
@@ -1415,59 +1416,20 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             .filter(page => !page.show || page.show(data))
                             .sort((a: FormPage, b: FormPage) => (a.order || 0) - (b.order || 0))
                         
-                        // Set initial active tab if not set
-                        if (!activePageTab && visiblePages.length > 0) {
-                            setActivePageTab(visiblePages[0].key)
-                        }
-                        
                         if (visiblePages.length === 0) return null
                         
                         return (
                             <div className="bg-card rounded-lg border p-6 border-dashed">
-                                {/* Tabs */}
-                                {visiblePages.length > 1 && (
-                                    <div className="border-b mb-4">
-                                        <div className="flex gap-4">
-                                            {visiblePages.map((page) => (
-                                                <button
-                                                    key={page.key}
-                                                    type="button"
-                                                    className={`px-4 py-2 border-b-2 transition-colors ${
-                                                        activePageTab === page.key
-                                                            ? 'border-blue-500 text-blue-600'
-                                                            : 'border-transparent text-gray-500 hover:text-gray-700'
-                                                    }`}
-                                                    onClick={() => setActivePageTab(page.key)}
-                                                >
-                                                    {page.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {/* Tab Content */}
-                                {visiblePages.map((page) => {
-                                    if (activePageTab !== page.key) return null
-                                    
-                                    if (page.component) {
-                                        const PageComponent = page.component
-                                        return (
-                                            <div key={page.key}>
-                                                {visiblePages.length <= 1 && (
-                                                    <h2 className="text-md font-semibold mb-4">{page.label}</h2>
-                                                )}
-                                                <PageComponent data={data} onDataChange={setData} />
-                                            </div>
-                                        )
-                                    }
-                                    
-                                    if (page.fields) {
-                                        return (
-                                            <div key={page.key}>
-                                                {visiblePages.length <= 1 && (
-                                                    <h2 className="text-md font-semibold mb-4">{page.label}</h2>
-                                                )}
+                                <Tabs appearance="subtle"
+                                      color={"violet"}
+                                      activeKey={activePageTab || visiblePages[0]?.key}
+                                      onSelect={(eventKey) => { if (eventKey) setActivePageTab(String(eventKey)) }}>
+                                    {visiblePages.map((page) => (
+                                        <Tab key={page.key} eventKey={page.key} title={page.label} icon={page.icon}>
+                                            {page.component ? (() => {
+                                                const PageComponent = page.component
+                                                return <PageComponent data={data} onDataChange={setData} />
+                                            })() : page.fields ? (
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                     {page.fields.map((field) => (
                                                         <div 
@@ -1478,7 +1440,11 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                                                 'md:col-span-1'
                                                             }`}
                                                         >
-                                                            <label className="text-sm font-medium flex items-center gap-1">
+                                                            <label className={
+                                                                "text-xs uppercase tracking-widest text-foreground/50 hover:text-foreground " +
+                                                                "font-medium " +
+                                                                "flex items-center gap-1 mb-2"
+                                                            }>
                                                                 {field.label}
                                                                 {field.required && <span className="text-red-500 ml-1">*</span>}
                                                                 {field.helper && (
@@ -1499,12 +1465,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                                         </div>
                                                     ))}
                                                 </div>
-                                            </div>
-                                        )
-                                    }
-                                    
-                                    return null
-                                })}
+                                            ) : null}
+                                        </Tab>
+                                    ))}
+                                </Tabs>
                             </div>
                         )
                     })()}
