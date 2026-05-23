@@ -38,7 +38,7 @@ export default function EditCategoryPage() {
     <ResourceView
       config={{
         type: 'form',
-        title: 'Edit Category',
+        title: `${category?.name || 'Error'}`,
         description: 'Edit category details.',
         formViewConfig: categoryConfig.formViewConfig,
         enableDefaultActions: true,

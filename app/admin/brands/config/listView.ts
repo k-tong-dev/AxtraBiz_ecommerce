@@ -1,9 +1,19 @@
 import { ListViewConfig } from '@/components/Base/Views/ListView'
+import { createElement } from 'react'
+import { SiBrandfolder } from 'react-icons/si'
 
 export const brandListConfig: ListViewConfig = {
   title: 'Brands',
   data: [],
   columns: [
+    {
+      key: 'logo_url',
+      title: 'Logo',
+      width: 80,
+      render: (value: string) => value
+        ? createElement('img', { src: value, className: 'w-8 h-8 rounded-full object-cover', alt: 'logo' })
+        : null,
+    },
     {
       key: 'name',
       title: 'Name',
