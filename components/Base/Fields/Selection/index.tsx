@@ -87,13 +87,13 @@ export function SelectionField({ config, value, onChange, error }: FieldProps) {
             config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm',
           )}>
           {config.tree && config.multiple ? (
-            <CheckTreePicker {...pickerProps as any} value={(value as string[]) || []} onChange={handleChange} cascade={false} cleanable={false} getChildren={undefined} />
+            <CheckTreePicker {...pickerProps as any} value={(value as string[]) || []} onChange={handleChange} cascade={false} cleanable={false} getChildren={undefined} block/>
           ) : config.tree ? (
-            <TreePicker {...pickerProps as any} value={(value as string) || null} onChange={handleChange} cleanable={false} getChildren={undefined} />
+            <TreePicker {...pickerProps as any} value={(value as string) || null} onChange={handleChange} cleanable={false} getChildren={undefined} block/>
           ) : config.multiple ? (
-            <CheckPicker {...pickerProps as any} value={(value as string[]) || []} onChange={handleChange} cleanable={false} sticky />
+            <CheckPicker {...pickerProps as any} value={(value as string[]) || []} onChange={handleChange} cleanable={false} sticky block/>
           ) : (
-            <SelectPicker {...pickerProps as any} value={(value as string) || null} onChange={handleChange} groupBy={config.groupBy} cleanable={false} />
+            <SelectPicker {...pickerProps as any} value={(value as string) || null} onChange={handleChange} groupBy={config.groupBy} cleanable={false} block/>
           )}
         </div>
         {config.label && (
