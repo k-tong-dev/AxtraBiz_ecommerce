@@ -35,7 +35,7 @@ export function DayField({ config, value, onChange, error }: FieldProps) {
             config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm',
           )}
           style={{
-            borderTop: 0, borderRight: 0, borderLeft: 0,
+            borderTop: 0, borderRight: 0, borderLeft: 0, borderBottom: 0,
             borderRadius: 0, outlineColor: 'transparent', boxShadow: 'none',
           }}
         />
