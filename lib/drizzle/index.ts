@@ -23,6 +23,7 @@ export {
   settings,
   configurations,
   product_categories,
+  product_brand,
 } from '../../drizzle/schema'
 
 // Export types
@@ -35,4 +36,5 @@ export type {
   Setting,
   Configuration,
   ProductCategory,
+  Brand,
 } from '../../drizzle/schema'

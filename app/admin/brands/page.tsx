@@ -1,0 +1,81 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import type { Brand } from '@/lib/drizzle/server'
+import { showToast } from '@/lib/ui/toast'
+import { ResourceView } from '../../../components/Base/Views'
+import { brandConfig } from './config'
+
+export default function AdminBrandsPage() {
+  const router = useRouter()
+  const [brands, setBrands] = useState<Brand[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const response = await fetch('/api/brands')
+        const all = await response.json()
+        if (!mounted) return
+        setBrands(all)
+        setLoading(false)
+        if (all.length === 0) {
+          showToast('info', 'No brands found', 'Your brands table is empty. Create your first brand.')
+        }
+      } catch (error) {
+        console.error('Error fetching brands:', error)
+        if (!mounted) return
+        showToast('error', 'Error', 'Failed to load brands')
+        setLoading(false)
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
+
+  const openCreate = () => router.push('/admin/brands/new')
+
+  const openEdit = (brand: Brand) => router.push(`/admin/brands/${brand.id}/edit`)
+
+  const remove = async (id: string) => {
+    const ok = window.confirm('Delete this brand?')
+    if (!ok) return
+
+    try {
+      setBrands((prev) => prev.filter((b) => b.id !== id))
+      const response = await fetch(`/api/brands?id=${id}`, { method: 'DELETE' })
+      const result = await response.json()
+      if (result.success) {
+        showToast('success', 'Brand deleted', 'The brand was removed successfully.')
+      } else {
+        showToast('error', 'Delete failed', 'The brand was removed from the UI, but delete did not succeed.')
+      }
+    } catch (error) {
+      showToast('error', 'Delete failed', 'The brand was removed from the UI, but delete did not succeed.')
+      console.error('Delete error:', error)
+    }
+  }
+
+  const handleRowClick = (rowData: Brand) => openEdit(rowData)
+
+  const config = brandConfig.listViewConfig(brands)
+
+  return (
+    <ResourceView
+      config={{
+        type: 'list',
+        title: 'Brands',
+        description: 'Create, edit, and manage product brands.',
+        listViewConfig: config,
+        formViewConfig: brandConfig.formViewConfig,
+        enableDefaultActions: true,
+        defaultActions: brandConfig.defaultActions,
+      }}
+      onEdit={handleRowClick}
+      onDelete={(rowData) => remove(rowData.id)}
+      onCreate={openCreate}
+      loading={loading}
+    />
+  )
+}

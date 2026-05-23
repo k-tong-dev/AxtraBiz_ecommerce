@@ -426,10 +426,10 @@ export const productFormConfig: FormConfig = {
         {
           key: 'brand_id',
           label: 'Brand',
-          type: 'selection',
+          type: 'many2one',
+          fetchUrl: '/api/brands',
           required: false,
           placeholder: 'Select brand',
-          options: [],
           columnWidth: 1,
           groupNumber: 1,
           groupColumn: 2,
