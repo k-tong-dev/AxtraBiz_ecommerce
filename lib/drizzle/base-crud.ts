@@ -322,6 +322,19 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
       return this.create(data, userId)
     }
   }
+
+  /**
+   * Bulk upsert — array support for seeding / API
+   */
+  async bulkUpsert(dataArray: (TInsert & Partial<TrackingFields> & { id: string })[], userId?: string): Promise<CreateResult<T[]>> {
+    const results: T[] = []
+    for (const item of dataArray) {
+      const r = await this.upsert(item, userId)
+      if (!r.success) return { success: false, error: r.error }
+      if (r.data) results.push(r.data)
+    }
+    return { success: true, data: results }
+  }
 }
 
 /**

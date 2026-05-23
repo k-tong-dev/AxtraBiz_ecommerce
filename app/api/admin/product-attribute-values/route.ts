@@ -34,58 +34,59 @@ export async function GET(request: Request) {
   }
 }
 
+function processAttributeValueFields(raw: Record<string, any>): Record<string, any> {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(raw)) {
+    if (key === 'id' || key === 'attribute_ids') continue
+    if (['position'].includes(key)) {
+      out[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
+    } else if (['active'].includes(key)) {
+      out[key] = value !== undefined ? (value === 'true' || value === true) : true
+    } else if (['name', 'value'].includes(key)) {
+      out[key] = value || ''
+    } else {
+      out[key] = value !== undefined && value !== null ? value : null
+    }
+  }
+  return out
+}
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    const attributeIds = Array.isArray(body.attribute_ids)
-      ? (body.attribute_ids as AttributeRelationPayload[])
-      : undefined
+    const body = await request.json()
+    const items = Array.isArray(body) ? body : [body]
 
-    const processedBody: Record<string, unknown> = {}
+    const results: any[] = []
+    for (const raw of items) {
+      const processed = processAttributeValueFields(raw)
+      const id = raw.id || crypto.randomUUID()
 
-    for (const [key, value] of Object.entries(body)) {
-      if (key === 'id' || key === 'attribute_ids') continue
+      const attributeIds = Array.isArray(raw.attribute_ids)
+        ? (raw.attribute_ids as AttributeRelationPayload[])
+        : undefined
 
-      if (['position'].includes(key)) {
-        processedBody[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
+      const result = await upsertProductAttributeValueInDrizzle({ ...processed, id } as ProductAttributeValue, user?.id)
+      if (!result.success) {
+        return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }
-      else if (['active'].includes(key)) {
-        processedBody[key] = value !== undefined ? (value === 'true' || value === true) : true
+
+      if (attributeIds?.length) {
+        const relResult = await updateProductAttributeValueRelations(id, attributeIds, user?.id)
+        if (!relResult.success) {
+          return NextResponse.json({ error: relResult.error, index: results.length }, { status: 400 })
+        }
       }
-      else if (['name', 'value'].includes(key)) {
-        processedBody[key] = value || ''
-      }
-      else {
-        processedBody[key] = value !== undefined && value !== null ? value : null
-      }
+
+      const saved = await fetchProductAttributeValueFromDrizzle(id)
+      results.push(saved ?? result.data ?? processed)
     }
 
-    if (!body.id) {
-      processedBody.id = crypto.randomUUID()
-    }
-
-    const valueId = (body.id as string) || (processedBody.id as string)
-    const result = await upsertProductAttributeValueInDrizzle(processedBody as ProductAttributeValue, user?.id)
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 })
-    }
-
-    if (attributeIds?.length) {
-      const relResult = await updateProductAttributeValueRelations(valueId, attributeIds, user?.id)
-      if (!relResult.success) {
-        return NextResponse.json({ error: relResult.error }, { status: 400 })
-      }
-    }
-
-    const saved = await fetchProductAttributeValueFromDrizzle(valueId)
     return NextResponse.json(
-      { success: true, data: saved ?? result.data ?? processedBody },
-      { status: body.id ? 200 : 201 }
+      { success: true, data: Array.isArray(body) ? results : results[0] },
+      { status: 201 }
     )
   } catch (error) {
     console.error('Product Attribute Value API Error:', error)

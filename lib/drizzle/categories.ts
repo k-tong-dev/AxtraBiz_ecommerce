@@ -19,6 +19,11 @@ export async function upsertCategoryInDrizzle(category: ProductCategory, userId?
   return { success: result.success, data: result.data, error: result.error }
 }
 
+export async function bulkUpsertCategoriesInDrizzle(categories: ProductCategory[], userId?: string): Promise<{ success: boolean; data?: any[]; error?: string }> {
+  const result = await categoryService.bulkUpsert(categories, userId)
+  return { success: result.success, data: result.data, error: result.error }
+}
+
 export async function deleteCategoryFromDrizzle(categoryId: string): Promise<boolean> {
   const result = await categoryService.unlink(categoryId)
   return result.success

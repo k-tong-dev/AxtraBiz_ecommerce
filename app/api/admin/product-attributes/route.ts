@@ -17,61 +17,45 @@ export async function GET() {
   }
 }
 
+function processAttributeFields(raw: Record<string, any>): Record<string, any> {
+  const out: any = {}
+  for (const [key, value] of Object.entries(raw)) {
+    if (key === 'id') continue
+    if (['position'].includes(key)) {
+      out[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
+    } else if (['name', 'type'].includes(key)) {
+      out[key] = value || ''
+    } else {
+      out[key] = value !== undefined && value !== null ? value : null
+    }
+  }
+  return out
+}
+
 export async function POST(request: Request) {
   try {
-    // Get current user from Supabase
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    console.log('[POST] Current user:', user?.id)
 
     const body = await request.json()
-    console.log('[POST] Request body:', body)
+    const items = Array.isArray(body) ? body : [body]
 
-    const processedBody: any = {}
+    const results: any[] = []
+    for (const raw of items) {
+      const processed = processAttributeFields(raw)
+      processed.id = raw.id || crypto.randomUUID()
 
-    for (const [key, value] of Object.entries(body)) {
-      if (key === 'id') continue
-
-      if (['position'].includes(key)) {
-        processedBody[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
+      const result = await upsertProductAttributeInDrizzle(processed as any, user?.id)
+      if (!result.success) {
+        return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }
-      else if (['name', 'type'].includes(key)) {
-        processedBody[key] = value || ''
-      }
-      else {
-        processedBody[key] = value !== undefined && value !== null ? value : null
-      }
+      results.push(result.data ?? processed)
     }
 
-    if (!body.id) {
-      // CREATE mode
-      processedBody.id = crypto.randomUUID()
-      console.log('[POST] Creating with:', processedBody)
-
-      // Pass userId to base CRUD for automatic tracking
-      const result = await upsertProductAttributeInDrizzle(processedBody, user?.id)
-      console.log('[POST] Create result:', result)
-
-      if (result.success) {
-        return NextResponse.json({ success: true, data: result.data }, { status: 201 })
-      } else {
-        return NextResponse.json({ error: result.error }, { status: 400 })
-      }
-    } else {
-      // UPDATE mode via POST
-      processedBody.id = body.id
-      console.log('[POST] Updating with:', processedBody)
-
-      // Pass userId to base CRUD for automatic tracking
-      const result = await upsertProductAttributeInDrizzle(processedBody, user?.id)
-      console.log('[POST] Update result:', result)
-
-      if (result.success) {
-        return NextResponse.json({ success: true, data: processedBody })
-      } else {
-        return NextResponse.json({ error: result.error }, { status: 400 })
-      }
-    }
+    return NextResponse.json(
+      { success: true, data: Array.isArray(body) ? results : results[0] },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Product Attribute API Error:', error)
     return NextResponse.json({

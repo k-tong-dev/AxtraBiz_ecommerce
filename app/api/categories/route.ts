@@ -21,17 +21,22 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
 
     const body = await request.json()
-    if (!body.id) body.id = crypto.randomUUID()
-    const result = await upsertCategoryInDrizzle(body, user?.id)
+    const items = Array.isArray(body) ? body : [body]
 
-    if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
-    } else {
-      return NextResponse.json({
-        success: false,
-        error: result.error
-      }, { status: 400 })
+    const results: any[] = []
+    for (const item of items) {
+      if (!item.id) item.id = crypto.randomUUID()
+      const r = await upsertCategoryInDrizzle(item, user?.id)
+      if (!r.success) {
+        return NextResponse.json({ success: false, error: r.error, index: results.length }, { status: 400 })
+      }
+      results.push(r.data ?? item)
     }
+
+    return NextResponse.json(
+      { success: true, data: Array.isArray(body) ? results : results[0] },
+      { status: 201 }
+    )
   } catch (error) {
     return NextResponse.json({
       success: false,
