@@ -326,14 +326,23 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             const existingIds = fileFieldUrls.filter((v): v is string => typeof v === 'string')
             const existingUrls = fileFieldUrls.filter((v): v is { id: string; url: string } => typeof v === 'object')
 
+            console.log('[FileInit] mode=', mode, 'config.fields(file)=', config.fields.filter(f => f.type === 'file').map(f => f.key))
+            console.log('[FileInit] initialData keys:', Object.keys(initialData))
+            console.log('[FileInit] fileFieldUrls:', JSON.stringify(fileFieldUrls))
+            console.log('[FileInit] existingIds:', existingIds, 'existingUrls:', existingUrls)
+            console.log('[FileInit] companion URL fields:', config.fields.filter(f => f.type === 'file').map(f => ({ key: f.key, urlKey: f.key.replace(/_id$/, '_url'), urlVal: initialData[f.key.replace(/_id$/, '_url')] })))
+
             if (existingUrls.length > 0) {
+                console.log('[FileInit] ✅ used companion URLs:', existingUrls)
                 setUploadedFiles(existingUrls)
                 setLoading(false)
             }
 
             if (existingIds.length > 0) {
+                console.log('[FileInit] 🔽 fetching attachment URLs for IDs:', existingIds)
                 fetchAttachmentUrls(existingIds)
                     .then(attachments => {
+                        console.log('[FileInit] ✅ fetchAttachmentUrls result:', attachments)
                         setUploadedFiles(prev => {
                             const existing = prev.length > 0 ? prev : []
                             if (attachments.length === 0) {
@@ -344,7 +353,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         setLoading(false)
                     })
                     .catch(error => {
-                        console.error('Failed to fetch attachment URLs:', error)
+                        console.error('[FileInit] ❌ fetchAttachmentUrls error:', error)
                         setUploadedFiles(prev => {
                             const existing = prev.length > 0 ? prev : []
                             return [...existing, ...existingIds.map(id => ({id, url: ''}))]
@@ -352,6 +361,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         setLoading(false)
                     })
             } else if (existingUrls.length === 0) {
+                console.log('[FileInit] ➡ no files, cleared uploadedFiles')
                 setUploadedFiles([])
                 setLoading(false)
             }
@@ -895,7 +905,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         const fileToRemove = uploadedFiles[index]
         if (fileToRemove) {
             // Revoke local object URL if it exists
-            if (fileToRemove.url && fileToRemove.url.startsWith('blob:')) {
+            if (typeof fileToRemove.url === 'string' && fileToRemove.url.startsWith('blob:')) {
                 URL.revokeObjectURL(fileToRemove.url)
             }
         }
@@ -1691,7 +1701,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                 setData(originalData)
                                 // Revoke local blob URLs before resetting
                                 uploadedFiles.forEach(f => {
-                                    if (f.url && f.url.startsWith('blob:')) {
+                                    if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
                                         URL.revokeObjectURL(f.url)
                                     }
                                 })
@@ -1718,7 +1728,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             } else {
                                 // Revoke local blob URLs before navigating away
                                 uploadedFiles.forEach(f => {
-                                    if (f.url && f.url.startsWith('blob:')) {
+                                    if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
                                         URL.revokeObjectURL(f.url)
                                     }
                                 })
