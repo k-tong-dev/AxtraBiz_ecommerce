@@ -646,15 +646,15 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
           {items.filter(i => !i._toDelete).map(item => {
             const displayValue = item[config.displayField || 'name'] || item.name || item.id || 'Undefined'
             return (
-              <TagGroup>
-                {config.allowRemove !== false && !readonly && !disabled && (
-                  <Tag key={item.id} size={"lg"} color={"violet"} closable onClose={() => handleUnlink(item.id)}>
+              <TagGroup key={item.id}>
+                {config.allowRemove !== false && !readonly && !disabled ? (
+                  <Tag size={"lg"} color={"violet"} closable onClose={() => handleUnlink(item.id)}>
                     {displayValue}
                   </Tag>
-                ) || (
-                    <Tag key={item.id} size={"lg"} color={"violet"}>
-                      {displayValue}
-                    </Tag>
+                ) : (
+                  <Tag size={"lg"} color={"violet"}>
+                    {displayValue}
+                  </Tag>
                 )}
               </TagGroup>
             )
