@@ -17,7 +17,7 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen overflow-x-hidden">
       <AdminSidebar />
-      <main className="flex-1 md:pl-64 transition-all">
+      <main className="flex-1 md:pl-60 transition-all">
         <AdminTopNavbar />
         <div className="px-4 pb-6 md:px-6">{children}</div>
       </main>
