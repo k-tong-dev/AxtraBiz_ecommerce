@@ -578,7 +578,7 @@ export function AssetManager() {
         </Modal.Footer>
       </Modal>
 
-      <Modal open={showUrlUpload} onClose={() => { if (!urlLoading) { setShowUrlUpload(false); setUrlInput(''); setUrlError('') } }} size="sm">
+      <Modal open={showUrlUpload} onClose={() => { if (!urlLoading) { setShowUrlUpload(false); setUrlInput(''); setUrlError('') } }} size="sm" backdrop={"static"}>
         <Modal.Header><Modal.Title>Upload from URL</Modal.Title></Modal.Header>
         <Modal.Body>
           <div className="space-y-3">
@@ -614,7 +614,7 @@ export function AssetManager() {
         </Modal.Footer>
       </Modal>
 
-      <Modal open={showRename} onClose={() => setShowRename(false)} size="xs">
+      <Modal open={showRename} onClose={() => setShowRename(false)} size="xs" backdrop={"static"}>
         <Modal.Header><Modal.Title>Rename Folder</Modal.Title></Modal.Header>
         <Modal.Body>
           <Input placeholder="Folder name" value={renameName} onChange={setRenameName} onKeyDown={(e) => { if (e.key === 'Enter') handleRenameFolder() }} autoFocus />
