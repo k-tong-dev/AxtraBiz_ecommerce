@@ -72,8 +72,8 @@ export function AssetPickerModal({ open, onClose, onSelect, maxFiles }: AssetPic
     <Modal open={open} onClose={onClose} size="lg" backdrop={"static"}>
       <Modal.Header><Modal.Title>Select Asset{maxFiles ? ` (max ${maxFiles})` : ''}</Modal.Title></Modal.Header>
       <Modal.Body>
-        <div className="flex gap-4 min-h-[400px]">
-          <div className="w-56 shrink-0 bg-muted/20 rounded-lg border border-border p-2 overflow-y-auto">
+        <div className="flex flex-col md:flex-row gap-4 min-h-[400px]">
+          <div className="w-full md:w-56 shrink-0 bg-muted/20 rounded-lg border border-border p-2 overflow-y-auto">
             <FolderTree
               selectedPath={currentPath}
               onSelect={setCurrentPath}
