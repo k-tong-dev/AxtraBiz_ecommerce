@@ -21,8 +21,9 @@ export interface FileFieldProps {
   onRemove: (index: number) => void
 }
 
-const isImageUrl = (url: string) =>
-  /\.(jpg|jpeg|png|webp|avif|gif|svg|bmp)(\?.*)?$/i.test(url) || url.startsWith('blob:')
+const isImageUrl = (url: unknown): url is string =>
+  typeof url === 'string' &&
+  (/\.(jpg|jpeg|png|webp|avif|gif|svg|bmp)(\?.*)?$/i.test(url) || url.startsWith('blob:'))
 
 const animationsStyle = `
 @keyframes fileEnter {
@@ -71,7 +72,7 @@ function SlideCarousel({
   const prev = () => goTo(Math.max(0, slide - 1), 'left')
   const next = () => goTo(Math.min(total - 1, slide + 1), 'right')
 
-  if (total === 0) return null
+  if (total === 0 || !files[slide]) return null
 
   const file = files[slide]
 
@@ -277,7 +278,7 @@ export function FileField({
 
       {/* File previews */}
       {displayFiles.length > 0 && (
-        isSingle ? (
+        isSingle && displayFiles[0] ? (
           <div className="w-full max-w-sm">
             <FilePreview
               file={displayFiles[0]}
@@ -347,7 +348,7 @@ function FilePreview({
       `}
     >
       {/* Image */}
-      {isImageUrl(file.url) ? (
+      {isImageUrl(file?.url) ? (
         <div className={`relative w-full ${isSingle ? 'h-48 sm:h-56' : 'w-full h-full'}`}>
           <img
             src={file.url}
