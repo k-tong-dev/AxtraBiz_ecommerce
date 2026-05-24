@@ -178,26 +178,58 @@ export async function moveFiles(paths: string[], targetFolder: string): Promise<
     const fileName = sourcePath.split('/').pop() || sourcePath
     const destPath = `${targetPrefix}${fileName}`
 
-    await s3.send(new CopyObjectCommand({
-      Bucket: BUCKET,
-      CopySource: `${BUCKET}/${sourcePath}`,
-      Key: destPath,
-    }))
+    // Check if this is a folder (has children under sourcePath/)
+    const children = await listAllFiles(sourcePath + '/')
 
-    await s3.send(new DeleteObjectCommand({
-      Bucket: BUCKET,
-      Key: sourcePath,
-    }))
+    if (children.length > 0) {
+      // Folder: recursive move via rename pattern
+      for (const file of children) {
+        const newPath = file.path.replace(sourcePath, destPath)
+        await s3.send(new CopyObjectCommand({
+          Bucket: BUCKET,
+          CopySource: `${BUCKET}/${file.path}`,
+          Key: newPath,
+        }))
+      }
+      const origPaths = children.map(f => f.path)
+      await deleteFiles(origPaths)
 
-    moved.push({
-      id: destPath,
-      name: fileName,
-      path: destPath,
-      url: buildPublicUrl(destPath),
-      updated_at: new Date().toISOString(),
-      created_at: new Date().toISOString(),
-      metadata: { size: 0, mimetype: guessMimeType(fileName) },
-    })
+      // Clean up folder marker if it exists as a bare object
+      try {
+        await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: sourcePath }))
+      } catch { /* ignore — not all folders have markers */ }
+
+      moved.push({
+        id: destPath,
+        name: fileName,
+        path: destPath,
+        url: buildPublicUrl(destPath),
+        updated_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        metadata: null,
+      })
+    } else {
+      // Single file: simple copy + delete
+      await s3.send(new CopyObjectCommand({
+        Bucket: BUCKET,
+        CopySource: `${BUCKET}/${sourcePath}`,
+        Key: destPath,
+      }))
+      await s3.send(new DeleteObjectCommand({
+        Bucket: BUCKET,
+        Key: sourcePath,
+      }))
+
+      moved.push({
+        id: destPath,
+        name: fileName,
+        path: destPath,
+        url: buildPublicUrl(destPath),
+        updated_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        metadata: { size: 0, mimetype: guessMimeType(fileName) },
+      })
+    }
   }
 
   return moved

@@ -74,6 +74,7 @@ export function FileGrid({
   const hasSelection = selectedIds.size > 0
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null)
+  const [dragOverEmpty, setDragOverEmpty] = useState(false)
 
   const handleDragStart = useCallback((e: React.DragEvent, path: string) => {
     const paths = selectedIds.size > 0
@@ -115,6 +116,7 @@ export function FileGrid({
   const handleEmptyDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setDragOverFolder(null)
+    setDragOverEmpty(false)
     const paths = parseDragPaths(e)
     if (paths.length > 0) {
       onMoveFiles?.(paths, null)
@@ -136,9 +138,15 @@ export function FileGrid({
   if (folders.length === 0 && files.length === 0) {
     return (
       <div
-        onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
+        onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverEmpty(true) }}
+        onDragLeave={() => setDragOverEmpty(false)}
         onDrop={handleEmptyDrop}
-        className="flex flex-col items-center justify-center h-80 text-muted-foreground gap-4"
+        className={`flex flex-col items-center justify-center h-80 text-muted-foreground gap-4 transition-all duration-200 rounded-xl border-2 ${
+          dragOverEmpty
+            ? 'border-primary border-dashed bg-primary/5 scale-[1.02]'
+            : 'border-transparent'
+        }`}
+        style={dragOverEmpty ? { animation: 'drop-target-pulse 1.2s ease-in-out infinite', boxShadow: '0 0 0 4px rgba(79,70,229,0.1)' } : undefined}
       >
         <div className="relative">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-muted/80 to-muted/40 flex items-center justify-center border border-border/50 shadow-sm">
@@ -240,15 +248,19 @@ export function FileGrid({
               >
                 <div className={`rounded-xl border-2 overflow-hidden transition-all duration-200 bg-background ${
                   isDragOver
-                    ? 'border-primary border-dashed bg-primary/5 shadow-lg shadow-primary/10'
+                    ? 'border-primary border-dashed bg-primary/5 scale-[1.03]'
                     : isHovered
                       ? 'border-primary/40 shadow-lg shadow-primary/5 translate-y-[-2px]'
                       : 'border-border/60 hover:border-primary/30 shadow-sm hover:shadow-md'
-                }`}>
+                }`}
+                  style={isDragOver ? { animation: 'drop-target-pulse 1.2s ease-in-out infinite', boxShadow: '0 0 0 4px rgba(79,70,229,0.1)' } : undefined}
+                >
                   <div className="aspect-square bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center relative">
                     <div className={`transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}>
                       {isDragOver ? (
-                        <Move className="w-12 h-12 text-primary/60 drop-shadow-sm" />
+                        <div className="flex items-center justify-center" style={{ animation: 'drop-target-glow 1.2s ease-in-out infinite' }}>
+                          <Move className="w-12 h-12 text-primary drop-shadow-sm" />
+                        </div>
                       ) : (
                         <Folder className="w-12 h-12 text-amber-400 drop-shadow-sm" />
                       )}
