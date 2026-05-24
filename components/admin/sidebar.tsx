@@ -13,6 +13,12 @@ import {
   Menu,
   X,
   Image,
+  Tag,
+  Percent,
+  FolderTree,
+  Truck,
+  SlidersHorizontal,
+  FileText,
 } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
 import { Button } from '@/components/ui/button'
@@ -22,11 +28,11 @@ function SidebarGroupLabel({ label }: { label: string }) {
   return (
     <div className="px-3 pt-4 pb-1">
       <div className="flex items-center gap-2">
-        <div className="h-px flex-1 bg-sidebar-border/20" />
-        <span className="text-[10px] font-semibold text-sidebar-foreground/30 uppercase tracking-[0.15em]">
+        <div className="h-px flex-1 bg-border/40" />
+        <span className="text-[10px] font-semibold text-muted-foreground/40 uppercase tracking-[0.15em]">
           {label}
         </span>
-        <div className="h-px flex-1 bg-sidebar-border/20" />
+        <div className="h-px flex-1 bg-border/40" />
       </div>
     </div>
   )
@@ -70,24 +76,24 @@ export function AdminSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-60 bg-sidebar transition-transform duration-300 z-50 ${
+        className={`fixed left-0 top-0 h-screen w-60 bg-background/80 backdrop-blur-xl transition-transform duration-300 z-50 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 flex flex-col border-r border-sidebar-border/20`}
+        } md:translate-x-0 flex flex-col border-r border-border/60 shadow-sm`}
       >
         {/* Header — compact user */}
         <div className="shrink-0 px-3 pt-3 pb-2">
           {user && (
-            <div className="flex items-center gap-2.5 rounded-lg bg-sidebar-accent/10 px-2.5 py-2 border border-sidebar-border/20">
+            <div className="flex items-center gap-2.5 rounded-lg bg-muted/50 px-2.5 py-2 border border-border/40">
               <div className="w-7 h-7 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shrink-0">
                 <span className="text-primary-foreground font-semibold text-[11px]">
                   {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
                 </span>
               </div>
               <div className="flex-1 min-w-0 leading-tight">
-                <p className="text-xs font-medium text-sidebar-foreground/80 truncate">
+                <p className="text-xs font-medium text-foreground/80 truncate">
                   {user.name || 'Admin User'}
                 </p>
-                <p className="text-[10px] text-sidebar-foreground/40 truncate">
+                <p className="text-[10px] text-muted-foreground/60 truncate">
                   {user.email}
                 </p>
               </div>
@@ -118,43 +124,43 @@ export function AdminSidebar() {
                 <SidebarGroupLabel label="Overview" />
                 <Nav.Item
                   eventKey="/admin"
-                  icon={<LayoutDashboard className="h-3.5 w-3.5" />}
+                  icon={<LayoutDashboard className="h-3.5 w-3.5 text-primary/70" />}
                 >
                   Dashboard
                 </Nav.Item>
 
                 <SidebarGroupLabel label="Commerce" />
-                <Nav.Menu eventKey="projects" title="Catalog" icon={<Package className="h-3.5 w-3.5" />}>
-                  <Nav.Item eventKey="/admin/products">All Products</Nav.Item>
-                  <Nav.Item eventKey="/admin/brands">Brands</Nav.Item>
-                  <Nav.Item eventKey="/admin/tax-rates">Taxes</Nav.Item>
-                  <Nav.Item eventKey="/admin/categories">Categories</Nav.Item>
-                  <Nav.Item eventKey="/admin/shipping-zones">Shipping Zones</Nav.Item>
-                  <Nav.Item eventKey="/admin/product-attributes">Product Attributes</Nav.Item>
-                  <Nav.Item eventKey="/admin/product-attribute-values">Attribute Values</Nav.Item>
+                <Nav.Menu eventKey="projects" title="Catalog" icon={<Package className="h-3.5 w-3.5 text-primary/70" />}>
+                  <Nav.Item eventKey="/admin/products" icon={<Package className="h-3.5 w-3.5 text-primary/50" />}>All Products</Nav.Item>
+                  <Nav.Item eventKey="/admin/brands" icon={<Tag className="h-3.5 w-3.5 text-primary/50" />}>Brands</Nav.Item>
+                  <Nav.Item eventKey="/admin/tax-rates" icon={<Percent className="h-3.5 w-3.5 text-primary/50" />}>Taxes</Nav.Item>
+                  <Nav.Item eventKey="/admin/categories" icon={<FolderTree className="h-3.5 w-3.5 text-primary/50" />}>Categories</Nav.Item>
+                  <Nav.Item eventKey="/admin/shipping-zones" icon={<Truck className="h-3.5 w-3.5 text-primary/50" />}>Shipping Zones</Nav.Item>
+                  <Nav.Item eventKey="/admin/product-attributes" icon={<SlidersHorizontal className="h-3.5 w-3.5 text-primary/50" />}>Product Attributes</Nav.Item>
+                  <Nav.Item eventKey="/admin/product-attribute-values" icon={<SlidersHorizontal className="h-3.5 w-3.5 text-primary/50" />}>Attribute Values</Nav.Item>
                 </Nav.Menu>
-                <Nav.Menu eventKey="sales" title="Sales" icon={<ShoppingCart className="h-3.5 w-3.5" />}>
-                  <Nav.Item eventKey="/admin/orders">Orders</Nav.Item>
-                  <Nav.Item eventKey="/admin/invoices">Invoices</Nav.Item>
+                <Nav.Menu eventKey="sales" title="Sales" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-600/70" />}>
+                  <Nav.Item eventKey="/admin/orders" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-500/50" />}>Orders</Nav.Item>
+                  <Nav.Item eventKey="/admin/invoices" icon={<FileText className="h-3.5 w-3.5 text-emerald-500/50" />}>Invoices</Nav.Item>
                 </Nav.Menu>
-                <Nav.Menu eventKey="crm" title="Customers" icon={<Users className="h-3.5 w-3.5" />}>
-                  <Nav.Item eventKey="/admin/customers">Customer Directory</Nav.Item>
+                <Nav.Menu eventKey="crm" title="Customers" icon={<Users className="h-3.5 w-3.5 text-blue-600/70" />}>
+                  <Nav.Item eventKey="/admin/customers" icon={<Users className="h-3.5 w-3.5 text-blue-500/50" />}>Customer Directory</Nav.Item>
                 </Nav.Menu>
 
                 <SidebarGroupLabel label="Content" />
-                <Nav.Menu eventKey="marketing" title="Marketing" icon={<Megaphone className="h-3.5 w-3.5" />}>
-                  <Nav.Item eventKey="/admin/announcements">Announcements</Nav.Item>
+                <Nav.Menu eventKey="marketing" title="Marketing" icon={<Megaphone className="h-3.5 w-3.5 text-amber-600/70" />}>
+                  <Nav.Item eventKey="/admin/announcements" icon={<Megaphone className="h-3.5 w-3.5 text-amber-500/50" />}>Announcements</Nav.Item>
                 </Nav.Menu>
 
                 <SidebarGroupLabel label="Media" />
-                <Nav.Item eventKey="/admin/assets" icon={<Image className="h-3.5 w-3.5" />}>
+                <Nav.Item eventKey="/admin/assets" icon={<Image className="h-3.5 w-3.5 text-purple-600/70" />}>
                   Asset Management
                 </Nav.Item>
 
                 <SidebarGroupLabel label="System" />
-                <Nav.Menu eventKey="preferences" title="Preferences" icon={<Settings className="h-3.5 w-3.5" />}>
-                  <Nav.Item eventKey="/admin/settings">Settings</Nav.Item>
-                  <Nav.Item eventKey="/admin/configurations">Configurations</Nav.Item>
+                <Nav.Menu eventKey="preferences" title="Preferences" icon={<Settings className="h-3.5 w-3.5 text-muted-foreground/70" />}>
+                  <Nav.Item eventKey="/admin/settings" icon={<Settings className="h-3.5 w-3.5 text-muted-foreground/50" />}>Settings</Nav.Item>
+                  <Nav.Item eventKey="/admin/configurations" icon={<SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground/50" />}>Configurations</Nav.Item>
                 </Nav.Menu>
               </Nav>
             </Sidenav.Body>
@@ -162,10 +168,10 @@ export function AdminSidebar() {
         </div>
 
         {/* Footer — compact logout */}
-        <div className="shrink-0 px-3 py-2.5 border-t border-sidebar-border/20">
+        <div className="shrink-0 px-3 py-2.5 border-t border-border/40">
           <Button
             onClick={logout}
-            className="w-full h-8 gap-2"
+            className="w-full h-8 gap-2 text-muted-foreground/60 hover:text-foreground/80"
             appearance="ghost"
             size="sm"
           >
@@ -192,19 +198,19 @@ export function AdminSidebar() {
           border-radius: 6px !important;
           font-size: 13px !important;
           line-height: 1.4 !important;
-          color: rgba(243, 244, 246, 0.6) !important;
+          color: color-mix(in srgb, var(--foreground) 60%, transparent) !important;
         }
         .rs-nav-item:not(.rs-nav-item-disabled) > .rs-nav-item-content:hover,
         .rs-sidenav-item:not(.rs-sidenav-item-disabled) > .rs-sidenav-item-content:hover {
-          background-color: rgba(79, 70, 229, 0.08) !important;
-          color: rgba(243, 244, 246, 0.9) !important;
+          background-color: color-mix(in srgb, var(--primary) 10%, transparent) !important;
+          color: color-mix(in srgb, var(--foreground) 90%, transparent) !important;
         }
         .rs-nav-item-active > .rs-nav-item-content,
         .rs-sidenav-item-active > .rs-sidenav-item-content {
-          background-color: rgba(79, 70, 229, 0.12) !important;
-          color: rgba(243, 244, 246, 0.95) !important;
+          background-color: color-mix(in srgb, var(--primary) 12%, transparent) !important;
+          color: color-mix(in srgb, var(--foreground) 95%, transparent) !important;
           font-weight: 500 !important;
-          box-shadow: inset 2px 0 0 0 rgba(79, 70, 229, 0.7) !important;
+          box-shadow: inset 2px 0 0 0 color-mix(in srgb, var(--primary) 60%, transparent) !important;
         }
         .rs-sidenav-item.rs-sidenav-item-active > .rs-sidenav-item-content {
           font-weight: 500 !important;
@@ -212,19 +218,6 @@ export function AdminSidebar() {
         .rs-nav-item-content > .rs-icon,
         .rs-sidenav-item-content > .rs-icon {
           margin-right: 8px !important;
-          opacity: 0.6;
-          transition: opacity 0.15s ease;
-        }
-        .rs-nav-item:not(.rs-nav-item-disabled) > .rs-nav-item-content:hover .rs-icon,
-        .rs-sidenav-item:not(.rs-sidenav-item-disabled) > .rs-sidenav-item-content:hover .rs-icon {
-          opacity: 0.9;
-        }
-        .rs-nav-item-active > .rs-nav-item-content .rs-icon,
-        .rs-sidenav-item-active > .rs-sidenav-item-content .rs-icon {
-          opacity: 0.95;
-        }
-        .rs-sidenav-item.rs-sidenav-item-active > .rs-sidenav-item-content {
-          background-color: rgba(79, 70, 229, 0.12) !important;
         }
         .rs-nav-item-disabled {
           opacity: 0.5;
@@ -239,7 +232,7 @@ export function AdminSidebar() {
           transition: all 0.15s ease !important;
         }
         .rs-sidenav-menu-item:not(.rs-sidenav-item-disabled) > .rs-sidenav-item-content:hover {
-          background-color: rgba(79, 70, 229, 0.08) !important;
+          background-color: color-mix(in srgb, var(--primary) 10%, transparent) !important;
         }
         .rs-dropdown-menu {
           background-color: transparent !important;
@@ -278,11 +271,11 @@ export function AdminSidebar() {
           background: transparent;
         }
         .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.06);
+          background: color-mix(in srgb, var(--foreground) 10%, transparent);
           border-radius: 99px;
         }
         .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: rgba(255,255,255,0.1);
+          background: color-mix(in srgb, var(--foreground) 18%, transparent);
         }
       `}</style>
     </>
