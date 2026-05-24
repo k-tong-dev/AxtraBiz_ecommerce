@@ -31,8 +31,9 @@ import {
     YearField,
     MonthField,
     DayField,
+    FileField,
 } from '@/components/Base/Fields'
-import {Save, Printer, Settings, Copy, Trash2, Archive, Upload, X, Plus} from 'lucide-react'
+import {Save, Printer, Settings, Copy, Trash2, Archive, X, Plus} from 'lucide-react'
 import {useToast} from '@/hooks/use-toast'
 import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
@@ -1007,69 +1008,21 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 )
 
             case 'file':
-                const isSingleFile = field.maxFiles === 1
-                const fileCount = uploadedFiles.filter(f => f.url).length
-                const atMax = field.maxFiles ? fileCount >= field.maxFiles : false
                 return (
-                    <div className="space-y-4">
-                        {(!atMax || isSingleFile) && (
-                            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
-                                <input
-                                    type="file"
-                                    multiple={!isSingleFile}
-                                    accept={field.accept || "image/*"}
-                                    onChange={(e) => handleFileUpload(e, field)}
-                                    className="hidden"
-                                    id={`file-upload-${field.key}`}
-                                    style={field.width ? { width: field.width } : {}}
-                                />
-                                <label
-                                    htmlFor={`file-upload-${field.key}`}
-                                    className={`flex flex-col items-center justify-center cursor-pointer ${field.className || ''}`}
-                                    style={field.width ? { width: field.width } : {}}
-                                >
-                                    {field.icon ? (
-                                        <div className="w-8 h-8 text-muted-foreground mb-2">
-                                            {field.icon}
-                                        </div>
-                                    ) : (
-                                        <Upload className="w-8 h-8 text-muted-foreground mb-2"/>
-                                    )}
-                                    <span className="text-sm text-muted-foreground">
-                                        {isSingleFile && fileCount > 0
-                                            ? 'Click to replace...'
-                                            : (field.uploadText || `Click to upload ${field.label.toLowerCase()}`)}
-                                    </span>
-                                </label>
-                            </div>
-                        )}
-
-                        <div className="space-y-2">
-                            {uploadedFiles.filter(f => f.url).map((file, index) => (
-                                <div key={index} className="flex items-center gap-2">
-                                    <img src={file.url} alt={`File ${index + 1}`}
-                                         className="w-16 h-16 object-cover rounded"/>
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium">File {index + 1}</p>
-                                        <p className="text-xs text-muted-foreground">Uploaded file</p>
-                                    </div>
-                                    <Button
-                                        onClick={() => removeFile(index)}
-                                        size="sm"
-                                        className="p-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                                    >
-                                        <X className="w-4 h-4"/>
-                                    </Button>
-                                </div>
-                            ))}
-                            {fileCount === 0 && (
-                                <p className="text-muted-foreground text-sm">No files uploaded yet</p>
-                            )}
-                            {field.maxFiles && fileCount > 0 && (
-                                <p className="text-xs text-muted-foreground">{fileCount} / {field.maxFiles} files</p>
-                            )}
-                        </div>
-                    </div>
+                    <FileField
+                        files={uploadedFiles}
+                        maxFiles={field.maxFiles}
+                        accept={field.accept}
+                        uploadText={field.uploadText}
+                        label={field.label}
+                        readonly={field.readonly}
+                        error={errorMessage}
+                        onFilesSelected={(files) => {
+                            const syntheticEvent = { target: { files } } as unknown as React.ChangeEvent<HTMLInputElement>
+                            handleFileUpload(syntheticEvent, field)
+                        }}
+                        onRemove={removeFile}
+                    />
                 )
 
             case 'array':
