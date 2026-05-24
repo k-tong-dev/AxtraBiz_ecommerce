@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Loader2, Folder, File, Image, Film, Music, Archive, Check, FolderPlus, Edit3, Trash2 } from 'lucide-react'
+import { useState, useCallback } from 'react'
+import { Loader2, Folder, File, Image, Film, Music, Archive, Check, FolderPlus, Edit3, Trash2, Move } from 'lucide-react'
 import type { StorageFile, StorageFolder } from './types'
 import { Checkbox } from '@/components/ui/checkbox'
 
@@ -19,6 +19,7 @@ interface FileGridProps {
   onNewSubfolder?: (parentPath: string | null) => void
   onRenameFolder?: (folder: StorageFolder) => void
   onDeleteFolder?: (folder: StorageFolder) => void
+  onMoveFiles?: (paths: string[], targetPath: string | null) => void
 }
 
 function formatSize(bytes: number): string {
@@ -67,10 +68,40 @@ export function FileGrid({
   onNewSubfolder,
   onRenameFolder,
   onDeleteFolder,
+  onMoveFiles,
 }: FileGridProps) {
   const allSelected = files.length > 0 && selectedIds.size === files.length
   const hasSelection = selectedIds.size > 0
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const [dragOverFolder, setDragOverFolder] = useState<string | null>(null)
+
+  const handleDragStart = useCallback((e: React.DragEvent, path: string) => {
+    e.dataTransfer.setData('text/plain', path)
+    e.dataTransfer.effectAllowed = 'move'
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }, [])
+
+  const handleFolderDrop = useCallback((e: React.DragEvent, targetPath: string) => {
+    e.preventDefault()
+    setDragOverFolder(null)
+    const sourcePath = e.dataTransfer.getData('text/plain')
+    if (sourcePath && sourcePath !== targetPath) {
+      onMoveFiles?.([sourcePath], targetPath)
+    }
+  }, [onMoveFiles])
+
+  const handleEmptyDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setDragOverFolder(null)
+    const sourcePath = e.dataTransfer.getData('text/plain')
+    if (sourcePath) {
+      onMoveFiles?.([sourcePath], null)
+    }
+  }, [onMoveFiles])
 
   if (loading) {
     return (
@@ -86,7 +117,11 @@ export function FileGrid({
 
   if (folders.length === 0 && files.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-80 text-muted-foreground gap-4">
+      <div
+        onDragOver={handleDragOver}
+        onDrop={handleEmptyDrop}
+        className="flex flex-col items-center justify-center h-80 text-muted-foreground gap-4"
+      >
         <div className="relative">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-muted/80 to-muted/40 flex items-center justify-center border border-border/50 shadow-sm">
             <Folder className="w-8 h-8 text-muted-foreground/40" />
@@ -105,101 +140,111 @@ export function FileGrid({
 
   return (
     <div className="space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <label className="flex items-center gap-2.5 text-sm text-muted-foreground/70 cursor-pointer">
-              <Checkbox
-                checked={allSelected}
-                color="violet"
-                onChange={allSelected ? onDeselectAll : onSelectAll}
-                className="rounded border-border"
-              />
-              <span className="text-xs font-medium uppercase tracking-wider">
-                {allSelected ? 'Deselect all' : 'Select all'}
-              </span>
-              <span className="text-xs text-muted-foreground/40 font-mono">
-                {folders.length + files.length} item{(folders.length + files.length) !== 1 ? 's' : ''}
-              </span>
-            </label>
-            {hasSelection && (
-              <button
-                onClick={() => {
-                  const selected = files.filter((f) => selectedIds.has(f.path))
-                  onDelete(selected)
-                }}
-                className="text-xs font-semibold uppercase tracking-wider text-red-500/80 hover:text-red-500 transition-colors px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30"
-              >
-                Delete {selectedIds.size}
-              </button>
-            )}
-          </div>
+      <div className="flex items-center justify-between px-1">
+        <label className="flex items-center gap-2.5 text-sm text-muted-foreground/70 cursor-pointer">
+          <Checkbox
+            checked={allSelected}
+            color="violet"
+            onChange={allSelected ? onDeselectAll : onSelectAll}
+            className="rounded border-border"
+          />
+          <span className="text-xs font-medium uppercase tracking-wider">
+            {allSelected ? 'Deselect all' : 'Select all'}
+          </span>
+          <span className="text-xs text-muted-foreground/40 font-mono">
+            {folders.length + files.length} item{(folders.length + files.length) !== 1 ? 's' : ''}
+          </span>
+        </label>
+        {hasSelection && (
+          <button
+            onClick={() => {
+              const selected = files.filter((f) => selectedIds.has(f.path))
+              onDelete(selected)
+            }}
+            className="text-xs font-semibold uppercase tracking-wider text-red-500/80 hover:text-red-500 transition-colors px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30"
+          >
+            Delete {selectedIds.size}
+          </button>
+        )}
+      </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-            {folders.map((folder) => {
-              const isHovered = hoveredCard === folder.path
-              return (
-                <div
-                  key={folder.path}
-                  onMouseEnter={() => setHoveredCard(folder.path)}
-                  onMouseLeave={() => setHoveredCard(null)}
-                  className="group relative focus:outline-none"
-                >
-                  {/* Folder actions on hover */}
-                  <div className="absolute top-2 right-2 z-20 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                    {onNewSubfolder && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onNewSubfolder(folder.path) }}
-                        className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-primary/50 transition-all text-muted-foreground/60 hover:text-foreground/80"
-                        title="New subfolder"
-                      >
-                        <FolderPlus className="w-3 h-3" />
-                      </button>
-                    )}
-                    {onRenameFolder && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onRenameFolder(folder) }}
-                        className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-primary/50 transition-all text-muted-foreground/60 hover:text-foreground/80"
-                        title="Rename"
-                      >
-                        <Edit3 className="w-3 h-3" />
-                      </button>
-                    )}
-                    {onDeleteFolder && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder) }}
-                        className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-red-300 transition-all text-muted-foreground/60 hover:text-red-500"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
-
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        {folders.map((folder) => {
+          const isHovered = hoveredCard === folder.path
+          const isDragOver = dragOverFolder === folder.path
+          return (
+            <div
+              key={folder.path}
+              onMouseEnter={() => setHoveredCard(folder.path)}
+              onMouseLeave={() => setHoveredCard(null)}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverFolder(folder.path) }}
+              onDragLeave={() => setDragOverFolder(null)}
+              onDrop={(e) => handleFolderDrop(e, folder.path)}
+              className="group relative focus:outline-none"
+            >
+              {/* Folder actions on hover */}
+              <div className="absolute top-2 right-2 z-20 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                {onNewSubfolder && (
                   <button
-                    onClick={() => onNavigate?.(folder.path)}
-                    className="w-full text-left focus:outline-none"
+                    onClick={(e) => { e.stopPropagation(); onNewSubfolder(folder.path) }}
+                    className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-primary/50 transition-all text-muted-foreground/60 hover:text-foreground/80"
+                    title="New subfolder"
                   >
-                    <div className={`rounded-xl border-2 overflow-hidden transition-all duration-200 bg-background ${
-                      isHovered
-                        ? 'border-primary/40 shadow-lg shadow-primary/5 translate-y-[-2px]'
-                        : 'border-border/60 hover:border-primary/30 shadow-sm hover:shadow-md'
-                    }`}>
-                      <div className="aspect-square bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center relative">
-                        <div className={`transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}>
-                          <Folder className="w-12 h-12 text-amber-400 drop-shadow-sm" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/[0.02] to-transparent pointer-events-none" />
-                      </div>
-                      <div className="p-2.5 space-y-0.5">
-                        <p className="text-xs font-medium truncate text-foreground/80 group-hover:text-foreground transition-colors">
-                          {folder.name}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-wider">Folder</p>
-                      </div>
-                    </div>
+                    <FolderPlus className="w-3 h-3" />
                   </button>
+                )}
+                {onRenameFolder && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onRenameFolder(folder) }}
+                    className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-primary/50 transition-all text-muted-foreground/60 hover:text-foreground/80"
+                    title="Rename"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                  </button>
+                )}
+                {onDeleteFolder && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder) }}
+                    className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-red-300 transition-all text-muted-foreground/60 hover:text-red-500"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                onClick={() => onNavigate?.(folder.path)}
+                className="w-full text-left focus:outline-none"
+              >
+                <div className={`rounded-xl border-2 overflow-hidden transition-all duration-200 bg-background ${
+                  isDragOver
+                    ? 'border-primary border-dashed bg-primary/5 shadow-lg shadow-primary/10'
+                    : isHovered
+                      ? 'border-primary/40 shadow-lg shadow-primary/5 translate-y-[-2px]'
+                      : 'border-border/60 hover:border-primary/30 shadow-sm hover:shadow-md'
+                }`}>
+                  <div className="aspect-square bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center relative">
+                    <div className={`transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}>
+                      {isDragOver ? (
+                        <Move className="w-12 h-12 text-primary/60 drop-shadow-sm" />
+                      ) : (
+                        <Folder className="w-12 h-12 text-amber-400 drop-shadow-sm" />
+                      )}
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/[0.02] to-transparent pointer-events-none" />
+                  </div>
+                  <div className="p-2.5 space-y-0.5">
+                    <p className="text-xs font-medium truncate text-foreground/80 group-hover:text-foreground transition-colors">
+                      {folder.name}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-wider">Folder</p>
+                  </div>
                 </div>
-              )
-            })}
+              </button>
+            </div>
+          )
+        })}
 
         {files.map((file) => {
           const isSelected = selectedIds.has(file.path)
@@ -210,13 +255,15 @@ export function FileGrid({
           return (
             <div
               key={file.path}
+              draggable
+              onDragStart={(e) => handleDragStart(e, file.path)}
               onMouseEnter={() => setHoveredCard(file.path)}
               onMouseLeave={() => setHoveredCard(null)}
               className={`group relative rounded-xl border-2 overflow-hidden transition-all duration-200 ${
                 isSelected
                   ? 'border-primary bg-primary/[0.02] shadow-lg shadow-primary/10'
                   : isHovered
-                    ? 'border-primary/30 shadow-lg shadow-primary/5 translate-y-[-2px]'
+                    ? 'border-primary/30 shadow-lg shadow-primary/5 translate-y-[-2px] cursor-grab active:cursor-grabbing'
                     : 'border-border/60 shadow-sm hover:shadow-md'
               }`}
             >

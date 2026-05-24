@@ -169,6 +169,40 @@ export async function renameFolder(oldPath: string, newPath: string): Promise<vo
   if (paths.length > 0) await deleteFiles(paths)
 }
 
+export async function moveFiles(paths: string[], targetFolder: string): Promise<S3FileItem[]> {
+  const s3 = getS3Client()
+  const targetPrefix = targetFolder ? `${targetFolder}/` : ''
+  const moved: S3FileItem[] = []
+
+  for (const sourcePath of paths) {
+    const fileName = sourcePath.split('/').pop() || sourcePath
+    const destPath = `${targetPrefix}${fileName}`
+
+    await s3.send(new CopyObjectCommand({
+      Bucket: BUCKET,
+      CopySource: `${BUCKET}/${sourcePath}`,
+      Key: destPath,
+    }))
+
+    await s3.send(new DeleteObjectCommand({
+      Bucket: BUCKET,
+      Key: sourcePath,
+    }))
+
+    moved.push({
+      id: destPath,
+      name: fileName,
+      path: destPath,
+      url: buildPublicUrl(destPath),
+      updated_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      metadata: { size: 0, mimetype: guessMimeType(fileName) },
+    })
+  }
+
+  return moved
+}
+
 export async function createFolder(path: string): Promise<void> {
   const s3 = getS3Client()
   const markerPath = `${path}/.empty`

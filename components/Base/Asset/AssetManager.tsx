@@ -405,6 +405,21 @@ export function AssetManager() {
         onNewSubfolder={(path) => { setNewFolderParent(path); setNewFolderName(''); setShowNewFolder(true) }}
         onRenameFolder={(folder) => { setRenameTarget(folder); setRenameName(folder.name); setShowRename(true) }}
         onDeleteFolder={(folder) => { setDeleteFolderTarget(folder); setShowDeleteFolder(true) }}
+        onMoveFiles={async (paths, targetPath) => {
+          try {
+            const res = await fetch('/api/admin/storage/move', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paths, targetPath: targetPath || '' }),
+            })
+            if (res.ok) {
+              await loadFiles(currentPath)
+              await loadStats()
+            }
+          } catch (e) {
+            console.error('Failed to move files', e)
+          }
+        }}
       />
 
       {/* Storage Policy Banner */}
