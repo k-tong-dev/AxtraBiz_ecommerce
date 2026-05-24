@@ -175,6 +175,7 @@ export interface FormField {
     icon?: React.ReactNode
     component?: React.ComponentType<any>  // Custom component
     uploadText?: string
+    maxFiles?: number  // Max files allowed (1 = single-file mode, replacing old on upload)
     order?: number
     after?: string
     before?: string
@@ -209,6 +210,7 @@ export interface FormConfig {
     entityName: string
     entityNamePlural: string
     apiEndpoint: string
+    resModel?: string  // Model name for ir_attachment res_model (default: derived from apiEndpoint)
     fields: FormField[]
     pages?: FormPage[]  // Custom pages with components or fields (like Odoo)
     actions?: {  // Made optional - now using centralized serverActions from ResourceView
@@ -531,10 +533,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 }
             }
 
+            // Track IDs to delete: user-removed files + replaced files (maxFiles=1)
+            const idsToDelete: string[] = []
+
+            const resModel = config.resModel || config.apiEndpoint.replace(/^\/api\//, '') || 'general'
+
             if (newFiles.length > 0) {
                 try {
                     const uploadPromises = newFiles.map(f => uploadFile(f.file!, {
-                        res_model: 'products',
+                        res_model: resModel,
                         res_id: entityId || ''
                     }))
                     const results = await Promise.all(uploadPromises)
@@ -544,16 +551,36 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         const uploaded = uploadedFilesMap.get(f.url)
                         return uploaded ? {id: uploaded.id, url: uploaded.url} : f
                     }))
-                    // Update payload with all file IDs (existing + newly uploaded)
+                    // All file IDs (existing + newly uploaded)
                     const allFileIds = uploadedFiles.map(f => {
                         const uploaded = uploadedFilesMap.get(f.url)
                         return uploaded ? uploaded.id : f.id
                     }).filter(id => id)
+
                     config.fields
                         .filter(f => f.type === 'file')
                         .forEach(field => {
-                            if (allFileIds.length > 0) {
-                                payload[field.key] = allFileIds
+                            if (allFileIds.length === 0) return
+
+                            if (field.maxFiles === 1) {
+                                // Single-file mode: replace old with new
+                                const oldFieldIds = originalData?.[field.key]
+                                    ? (Array.isArray(originalData[field.key])
+                                        ? originalData[field.key]
+                                        : [originalData[field.key]])
+                                    : []
+                                const newFieldIds = allFileIds.filter((id: string) => !oldFieldIds.includes(id))
+                                if (newFieldIds.length > 0) {
+                                    payload[field.key] = newFieldIds.slice(0, 1)
+                                    idsToDelete.push(...oldFieldIds)
+                                } else {
+                                    // No replacement — keep old ID as-is
+                                    payload[field.key] = oldFieldIds
+                                }
+                            } else {
+                                payload[field.key] = field.maxFiles
+                                    ? allFileIds.slice(0, field.maxFiles)
+                                    : allFileIds
                             }
                         })
                 } catch (error) {
@@ -573,16 +600,19 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     .forEach(field => {
                         const fileIds = uploadedFiles.map(f => f.id).filter(id => id)
                         if (fileIds.length > 0) {
-                            payload[field.key] = fileIds
+                            payload[field.key] = field.maxFiles
+                                ? fileIds.slice(0, field.maxFiles)
+                                : fileIds
                         }
                     })
             }
 
-            // Delete attachments that were removed from the UI
+            // Delete attachments: removed from UI + replaced (maxFiles=1)
             const currentFileIds = uploadedFiles.map(f => f.id).filter(id => id)
-            const deletedIds = originalFileIds.filter(id => !currentFileIds.includes(id))
-            if (deletedIds.length > 0) {
-                for (const id of deletedIds) {
+            const userRemovedIds = originalFileIds.filter(id => !currentFileIds.includes(id))
+            idsToDelete.push(...userRemovedIds)
+            if (idsToDelete.length > 0) {
+                for (const id of idsToDelete) {
                     try {
                         await deleteFile(id)
                     } catch (error) {
@@ -817,8 +847,16 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 URL.revokeObjectURL(fileToRemove.url)
             }
         }
-        // Don't delete from database immediately - only update UI state
-        setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
+        const newUploadedFiles = uploadedFiles.filter((_, i) => i !== index)
+        setUploadedFiles(newUploadedFiles)
+        // Clear data for single-file fields when all files are removed
+        if (newUploadedFiles.length === 0) {
+            config.fields
+                .filter(f => f.type === 'file' && f.maxFiles === 1)
+                .forEach(field => {
+                    setData(prev => ({...prev, [field.key]: null}))
+                })
+        }
     }
 
     const addArrayItem = (fieldKey: string) => {
@@ -931,35 +969,42 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 )
 
             case 'file':
+                const isSingleFile = field.maxFiles === 1
+                const fileCount = uploadedFiles.filter(f => f.url).length
+                const atMax = field.maxFiles ? fileCount >= field.maxFiles : false
                 return (
                     <div className="space-y-4">
-                        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
-                            <input
-                                type="file"
-                                multiple
-                                accept={field.accept || "image/*"}
-                                onChange={handleFileUpload}
-                                className="hidden"
-                                id={`file-upload-${field.key}`}
-                                style={field.width ? { width: field.width } : {}}
-                            />
-                            <label
-                                htmlFor={`file-upload-${field.key}`}
-                                className={`flex flex-col items-center justify-center cursor-pointer ${field.className || ''}`}
-                                style={field.width ? { width: field.width } : {}}
-                            >
-                                {field.icon ? (
-                                    <div className="w-8 h-8 text-muted-foreground mb-2">
-                                        {field.icon}
-                                    </div>
-                                ) : (
-                                    <Upload className="w-8 h-8 text-muted-foreground mb-2"/>
-                                )}
-                                <span className="text-sm text-muted-foreground">
-                                    {field.uploadText || `Click to upload ${field.label.toLowerCase()}`}
-                                </span>
-                            </label>
-                        </div>
+                        {(!atMax || isSingleFile) && (
+                            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
+                                <input
+                                    type="file"
+                                    multiple={!isSingleFile}
+                                    accept={field.accept || "image/*"}
+                                    onChange={handleFileUpload}
+                                    className="hidden"
+                                    id={`file-upload-${field.key}`}
+                                    style={field.width ? { width: field.width } : {}}
+                                />
+                                <label
+                                    htmlFor={`file-upload-${field.key}`}
+                                    className={`flex flex-col items-center justify-center cursor-pointer ${field.className || ''}`}
+                                    style={field.width ? { width: field.width } : {}}
+                                >
+                                    {field.icon ? (
+                                        <div className="w-8 h-8 text-muted-foreground mb-2">
+                                            {field.icon}
+                                        </div>
+                                    ) : (
+                                        <Upload className="w-8 h-8 text-muted-foreground mb-2"/>
+                                    )}
+                                    <span className="text-sm text-muted-foreground">
+                                        {isSingleFile && fileCount > 0
+                                            ? 'Click to replace...'
+                                            : (field.uploadText || `Click to upload ${field.label.toLowerCase()}`)}
+                                    </span>
+                                </label>
+                            </div>
+                        )}
 
                         <div className="space-y-2">
                             {uploadedFiles.filter(f => f.url).map((file, index) => (
@@ -979,8 +1024,11 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                     </Button>
                                 </div>
                             ))}
-                            {uploadedFiles.length === 0 && (
+                            {fileCount === 0 && (
                                 <p className="text-muted-foreground text-sm">No files uploaded yet</p>
+                            )}
+                            {field.maxFiles && fileCount > 0 && (
+                                <p className="text-xs text-muted-foreground">{fileCount} / {field.maxFiles} files</p>
                             )}
                         </div>
                     </div>

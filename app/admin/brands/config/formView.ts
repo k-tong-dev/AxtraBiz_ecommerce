@@ -4,12 +4,14 @@ export const brandFormConfig: FormConfig = {
   entityName: 'Brand',
   entityNamePlural: 'Brands',
   apiEndpoint: '/api/brands',
+  resModel: 'brands',
   fields: [
     {
       key: 'logo_id',
       label: 'Logo',
       type: 'file',
       accept: 'image/*',
+      maxFiles: 1,
       uploadText: 'Click to upload brand logo',
       columnWidth: 2,
       groupNumber: 1,
