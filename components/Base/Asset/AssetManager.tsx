@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Upload, FolderPlus, Copy, ExternalLink, Trash2,
   ChevronRight, Home, Shield, HardDrive, FileImage,
   FileText, FileSpreadsheet, Archive, FolderOpen,
-  BarChart3,
+  BarChart3, Link, Globe, Monitor, ChevronDown,
 } from 'lucide-react'
 import { FileGrid } from './FileGrid'
 import type { StorageFile, StorageFolder } from './types'
@@ -101,6 +101,13 @@ export function AssetManager() {
   const [showDeleteFiles, setShowDeleteFiles] = useState(false)
   const [deleteFilesTargets, setDeleteFilesTargets] = useState<StorageFile[]>([])
 
+  const [showUploadMenu, setShowUploadMenu] = useState(false)
+  const [showUrlUpload, setShowUrlUpload] = useState(false)
+  const [urlInput, setUrlInput] = useState('')
+  const [urlError, setUrlError] = useState('')
+  const [urlLoading, setUrlLoading] = useState(false)
+  const uploadBtnRef = useRef<HTMLDivElement>(null)
+
   const loadFiles = useCallback(async (path: string | null) => {
     setLoading(true)
     try {
@@ -137,6 +144,18 @@ export function AssetManager() {
     loadStats()
   }, [loadStats])
 
+  // Close upload dropdown on outside click
+  useEffect(() => {
+    if (!showUploadMenu) return
+    const handler = (e: MouseEvent) => {
+      if (uploadBtnRef.current && !uploadBtnRef.current.contains(e.target as Node)) {
+        setShowUploadMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showUploadMenu])
+
   const handleNavigate = useCallback((path: string | null) => {
     setCurrentPath(path)
     setSelectedIds(new Set())
@@ -155,7 +174,8 @@ export function AssetManager() {
     return segments
   })()
 
-  const handleUpload = () => {
+  const handleBrowseFiles = () => {
+    setShowUploadMenu(false)
     const input = document.createElement('input')
     input.type = 'file'
     input.multiple = true
@@ -186,6 +206,57 @@ export function AssetManager() {
       await loadStats()
     }
     input.click()
+  }
+
+  const handleUrlUpload = async () => {
+    const url = urlInput.trim()
+    if (!url) { setUrlError('Please enter a URL'); return }
+
+    // Validate URL format
+    try {
+      new URL(url)
+    } catch {
+      setUrlError('Invalid URL format')
+      return
+    }
+
+    // Basic extension check on the URL path
+    const pathname = new URL(url).pathname
+    const ext = pathname.split('.').pop()?.toLowerCase()
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bmp']
+    const docExts = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'json']
+    const archiveExts = ['zip', 'rar', '7z', 'tar', 'gz']
+    if (ext && ![...imageExts, ...docExts, ...archiveExts].includes(ext)) {
+      setUrlError(`File type ".${ext}" is not supported`)
+      return
+    }
+
+    setUrlError('')
+    setUrlLoading(true)
+    setUploading([{ name: url.split('/').pop() || url, status: 'uploading' }])
+
+    try {
+      const res = await fetch('/api/admin/storage/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, path: currentPath || '' }),
+      })
+      setUploading([{ name: url.split('/').pop() || url, status: res.ok ? 'done' : 'error' }])
+      if (res.ok) {
+        setShowUrlUpload(false)
+        setUrlInput('')
+        await loadFiles(currentPath)
+        await loadStats()
+      } else {
+        const data = await res.json()
+        setUrlError(data.error || 'Upload failed')
+      }
+    } catch {
+      setUploading([{ name: url.split('/').pop() || url, status: 'error' }])
+      setUrlError('Network error — could not reach server')
+    }
+    setUrlLoading(false)
+    setTimeout(() => setUploading([]), 3000)
   }
 
   const handleCreateFolder = async () => {
@@ -347,13 +418,41 @@ export function AssetManager() {
           >
             New Folder
           </Button>
-          <Button
-            appearance="primary"
-            onClick={handleUpload}
-            startIcon={<Upload className="w-4 h-4" />}
-          >
-            Upload
-          </Button>
+          <div className="relative" ref={uploadBtnRef}>
+            <Button
+              appearance="primary"
+              onClick={() => setShowUploadMenu(!showUploadMenu)}
+              startIcon={<Upload className="w-4 h-4" />}
+              endIcon={<ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showUploadMenu ? 'rotate-180' : ''}`} />}
+            >
+              Upload
+            </Button>
+            {showUploadMenu && (
+              <div className="absolute top-full left-0 mt-1.5 w-52 rounded-xl border border-border/60 bg-background shadow-xl shadow-black/5 z-50 overflow-hidden">
+                <button
+                  onClick={handleBrowseFiles}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/80 hover:bg-muted/50 transition-colors text-left"
+                >
+                  <Monitor className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="font-medium">Browse Files</span>
+                    <p className="text-[11px] text-muted-foreground/50 mt-px">Select files from your device</p>
+                  </div>
+                </button>
+                <div className="h-px bg-border/40 mx-3" />
+                <button
+                  onClick={() => { setShowUploadMenu(false); setShowUrlUpload(true) }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/80 hover:bg-muted/50 transition-colors text-left"
+                >
+                  <Globe className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="font-medium">From URL</span>
+                    <p className="text-[11px] text-muted-foreground/50 mt-px">Download from a web address</p>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -476,6 +575,42 @@ export function AssetManager() {
         <Modal.Footer>
           <Button onClick={() => setShowNewFolder(false)} appearance="subtle">Cancel</Button>
           <Button onClick={handleCreateFolder} appearance="primary" disabled={!newFolderName.trim()}>Create</Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal open={showUrlUpload} onClose={() => { if (!urlLoading) { setShowUrlUpload(false); setUrlInput(''); setUrlError('') } }} size="sm">
+        <Modal.Header><Modal.Title>Upload from URL</Modal.Title></Modal.Header>
+        <Modal.Body>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Enter a direct URL to an image, document, or other supported file type.
+            </p>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Link className="w-4 h-4 text-muted-foreground/40" />
+              </div>
+              <Input
+                placeholder="https://example.com/image.jpg"
+                value={urlInput}
+                onChange={(v) => { setUrlInput(v); setUrlError('') }}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !urlLoading) handleUrlUpload() }}
+                style={{ paddingLeft: '2.25rem' }}
+                autoFocus
+              />
+            </div>
+            {urlError && (
+              <p className="text-xs text-red-500 flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full bg-red-500 shrink-0" />
+                {urlError}
+              </p>
+            )}
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => { setShowUrlUpload(false); setUrlInput(''); setUrlError('') }} appearance="subtle" disabled={urlLoading}>Cancel</Button>
+          <Button onClick={handleUrlUpload} appearance="primary" disabled={!urlInput.trim() || urlLoading} loading={urlLoading}>
+            {urlLoading ? 'Downloading...' : 'Upload'}
+          </Button>
         </Modal.Footer>
       </Modal>
 
