@@ -396,9 +396,12 @@ export function AssetManager() {
                   onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
                   onDrop={async (e) => {
                     e.preventDefault()
-                    const sourcePath = e.dataTransfer.getData('text/plain')
-                    if (sourcePath) {
-                      await handleMoveFiles([sourcePath], crumb.path)
+                    const raw = e.dataTransfer.getData('text/plain')
+                    let paths: string[] = []
+                    try { paths = JSON.parse(raw); if (!Array.isArray(paths)) paths = [raw] }
+                    catch { paths = [raw] }
+                    if (paths.length > 0) {
+                      await handleMoveFiles(paths, crumb.path)
                     }
                   }}
                 >

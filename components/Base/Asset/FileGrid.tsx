@@ -76,30 +76,48 @@ export function FileGrid({
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null)
 
   const handleDragStart = useCallback((e: React.DragEvent, path: string) => {
-    e.dataTransfer.setData('text/plain', path)
+    const paths = selectedIds.size > 0
+      ? [...selectedIds]
+      : [path]
+    e.dataTransfer.setData('text/plain', JSON.stringify(paths))
     e.dataTransfer.effectAllowed = 'move'
+    if (paths.length > 1) {
+      const el = e.currentTarget as HTMLElement
+      el.style.opacity = '0.5'
+    }
+  }, [selectedIds])
+
+  const handleDragEnd = useCallback((e: React.DragEvent) => {
+    const el = e.currentTarget as HTMLElement
+    el.style.opacity = ''
   }, [])
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-  }, [])
+  const parseDragPaths = (e: React.DragEvent): string[] => {
+    try {
+      const raw = e.dataTransfer.getData('text/plain')
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed : [parsed]
+    } catch {
+      return []
+    }
+  }
 
   const handleFolderDrop = useCallback((e: React.DragEvent, targetPath: string) => {
     e.preventDefault()
     setDragOverFolder(null)
-    const sourcePath = e.dataTransfer.getData('text/plain')
-    if (sourcePath && sourcePath !== targetPath && !sourcePath.startsWith(targetPath + '/')) {
-      onMoveFiles?.([sourcePath], targetPath)
+    const paths = parseDragPaths(e)
+    const valid = paths.filter(p => p && p !== targetPath && !p.startsWith(targetPath + '/'))
+    if (valid.length > 0) {
+      onMoveFiles?.(valid, targetPath)
     }
   }, [onMoveFiles])
 
   const handleEmptyDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setDragOverFolder(null)
-    const sourcePath = e.dataTransfer.getData('text/plain')
-    if (sourcePath) {
-      onMoveFiles?.([sourcePath], null)
+    const paths = parseDragPaths(e)
+    if (paths.length > 0) {
+      onMoveFiles?.(paths, null)
     }
   }, [onMoveFiles])
 
@@ -118,7 +136,7 @@ export function FileGrid({
   if (folders.length === 0 && files.length === 0) {
     return (
       <div
-        onDragOver={handleDragOver}
+        onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
         onDrop={handleEmptyDrop}
         className="flex flex-col items-center justify-center h-80 text-muted-foreground gap-4"
       >
@@ -177,6 +195,7 @@ export function FileGrid({
               key={folder.path}
               draggable
               onDragStart={(e) => handleDragStart(e, folder.path)}
+              onDragEnd={handleDragEnd}
               onMouseEnter={() => setHoveredCard(folder.path)}
               onMouseLeave={() => setHoveredCard(null)}
               onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverFolder(folder.path) }}
@@ -259,6 +278,7 @@ export function FileGrid({
               key={file.path}
               draggable
               onDragStart={(e) => handleDragStart(e, file.path)}
+              onDragEnd={handleDragEnd}
               onMouseEnter={() => setHoveredCard(file.path)}
               onMouseLeave={() => setHoveredCard(null)}
               className={`group relative rounded-xl border-2 overflow-hidden transition-all duration-200 ${
