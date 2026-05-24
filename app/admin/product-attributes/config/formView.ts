@@ -1,6 +1,5 @@
 import { FormConfig } from '@/components/Base/Views/FormView'
-import type { Many2ManyWidgetConfig } from '../../../../components/Base/Fields/Widgets'
-import type { ProductAttribute } from '@/lib/drizzle/server'
+import type { Many2ManyWidgetConfig } from '@/components/Base/Fields/Widgets'
 
 export const productAttributeFormConfig: FormConfig = {
   entityName: 'Product Attribute',
@@ -60,6 +59,7 @@ export const productAttributeFormConfig: FormConfig = {
           groupNumber: 1,
           groupColumn: 1,
           order: 1,
+          widget: 'many2many',
           widgetConfig: {
             // Junction table: links attributes to values
             junctionTable: '/api/admin/product-attribute-values-rel',
@@ -73,7 +73,7 @@ export const productAttributeFormConfig: FormConfig = {
             columns: [
               { key: 'position', title: 'Position', width: 80, type: 'number', editable: true }
             ],
-            mode: 'list',
+            mode: 'tags',
             allowSelect: true,
             allowCreate: true,  // Allow creating new values inline
             allowRemove: true,
