@@ -402,6 +402,9 @@ export function AssetManager() {
         onDelete={(targets) => { setDeleteFilesTargets(targets); setShowDeleteFiles(true) }}
         onViewDetail={(file) => setDetailFile(file)}
         onNavigate={(path) => handleNavigate(path)}
+        onNewSubfolder={(path) => { setNewFolderParent(path); setNewFolderName(''); setShowNewFolder(true) }}
+        onRenameFolder={(folder) => { setRenameTarget(folder); setRenameName(folder.name); setShowRename(true) }}
+        onDeleteFolder={(folder) => { setDeleteFolderTarget(folder); setShowDeleteFolder(true) }}
       />
 
       {/* Storage Policy Banner */}
@@ -445,7 +448,7 @@ export function AssetManager() {
         </Modal.Footer>
       </Modal>
 
-      <Modal open={showDeleteFolder} onClose={() => setShowDeleteFolder(false)} size="xs">
+      <Modal open={showDeleteFolder} onClose={() => setShowDeleteFolder(false)} size="xs" backdrop={"static"}>
         <Modal.Header><Modal.Title>Delete Folder</Modal.Title></Modal.Header>
         <Modal.Body>
           <p className="text-sm text-muted-foreground">

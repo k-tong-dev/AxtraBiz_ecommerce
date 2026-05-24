@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2, Folder, File, Image, Film, Music, Archive, Check } from 'lucide-react'
+import { Loader2, Folder, File, Image, Film, Music, Archive, Check, FolderPlus, Edit3, Trash2 } from 'lucide-react'
 import type { StorageFile, StorageFolder } from './types'
 import { Checkbox } from '@/components/ui/checkbox'
 
@@ -16,6 +16,9 @@ interface FileGridProps {
   onDelete: (files: StorageFile[]) => void
   onViewDetail?: (file: StorageFile) => void
   onNavigate?: (path: string) => void
+  onNewSubfolder?: (parentPath: string | null) => void
+  onRenameFolder?: (folder: StorageFolder) => void
+  onDeleteFolder?: (folder: StorageFolder) => void
 }
 
 function formatSize(bytes: number): string {
@@ -61,6 +64,9 @@ export function FileGrid({
   onDelete,
   onViewDetail,
   onNavigate,
+  onNewSubfolder,
+  onRenameFolder,
+  onDeleteFolder,
 }: FileGridProps) {
   const allSelected = files.length > 0 && selectedIds.size === files.length
   const hasSelection = selectedIds.size > 0
@@ -99,66 +105,101 @@ export function FileGrid({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between px-1">
-        <label className="flex items-center gap-2.5 text-sm text-muted-foreground/70 cursor-pointer">
-          <Checkbox
-            checked={allSelected}
-            color="violet"
-            onChange={allSelected ? onDeselectAll : onSelectAll}
-            className="rounded border-border"
-          />
-          <span className="text-xs font-medium uppercase tracking-wider">
-            {allSelected ? 'Deselect all' : 'Select all'}
-          </span>
-          <span className="text-xs text-muted-foreground/40 font-mono">
-            {folders.length + files.length} item{(folders.length + files.length) !== 1 ? 's' : ''}
-          </span>
-        </label>
-        {hasSelection && (
-          <button
-            onClick={() => {
-              const selected = files.filter((f) => selectedIds.has(f.path))
-              onDelete(selected)
-            }}
-            className="text-xs font-semibold uppercase tracking-wider text-red-500/80 hover:text-red-500 transition-colors px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30"
-          >
-            Delete {selectedIds.size}
-          </button>
-        )}
-      </div>
+          <div className="flex items-center justify-between px-1">
+            <label className="flex items-center gap-2.5 text-sm text-muted-foreground/70 cursor-pointer">
+              <Checkbox
+                checked={allSelected}
+                color="violet"
+                onChange={allSelected ? onDeselectAll : onSelectAll}
+                className="rounded border-border"
+              />
+              <span className="text-xs font-medium uppercase tracking-wider">
+                {allSelected ? 'Deselect all' : 'Select all'}
+              </span>
+              <span className="text-xs text-muted-foreground/40 font-mono">
+                {folders.length + files.length} item{(folders.length + files.length) !== 1 ? 's' : ''}
+              </span>
+            </label>
+            {hasSelection && (
+              <button
+                onClick={() => {
+                  const selected = files.filter((f) => selectedIds.has(f.path))
+                  onDelete(selected)
+                }}
+                className="text-xs font-semibold uppercase tracking-wider text-red-500/80 hover:text-red-500 transition-colors px-2 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30"
+              >
+                Delete {selectedIds.size}
+              </button>
+            )}
+          </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-        {folders.map((folder) => {
-          const isHovered = hoveredCard === folder.path
-          return (
-            <button
-              key={folder.path}
-              onClick={() => onNavigate?.(folder.path)}
-              onMouseEnter={() => setHoveredCard(folder.path)}
-              onMouseLeave={() => setHoveredCard(null)}
-              className="group relative text-left focus:outline-none"
-            >
-              <div className={`rounded-xl border-2 overflow-hidden transition-all duration-200 bg-background ${
-                isHovered
-                  ? 'border-primary/40 shadow-lg shadow-primary/5 translate-y-[-2px]'
-                  : 'border-border/60 hover:border-primary/30 shadow-sm hover:shadow-md'
-              }`}>
-                <div className="aspect-square bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center relative">
-                  <div className={`transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}>
-                    <Folder className="w-12 h-12 text-amber-400 drop-shadow-sm" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            {folders.map((folder) => {
+              const isHovered = hoveredCard === folder.path
+              return (
+                <div
+                  key={folder.path}
+                  onMouseEnter={() => setHoveredCard(folder.path)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  className="group relative focus:outline-none"
+                >
+                  {/* Folder actions on hover */}
+                  <div className="absolute top-2 right-2 z-20 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                    {onNewSubfolder && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onNewSubfolder(folder.path) }}
+                        className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-primary/50 transition-all text-muted-foreground/60 hover:text-foreground/80"
+                        title="New subfolder"
+                      >
+                        <FolderPlus className="w-3 h-3" />
+                      </button>
+                    )}
+                    {onRenameFolder && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onRenameFolder(folder) }}
+                        className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-primary/50 transition-all text-muted-foreground/60 hover:text-foreground/80"
+                        title="Rename"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                      </button>
+                    )}
+                    {onDeleteFolder && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onDeleteFolder(folder) }}
+                        className="w-6 h-6 rounded-md bg-background/90 border border-border flex items-center justify-center hover:bg-background hover:border-red-300 transition-all text-muted-foreground/60 hover:text-red-500"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/[0.02] to-transparent pointer-events-none" />
+
+                  <button
+                    onClick={() => onNavigate?.(folder.path)}
+                    className="w-full text-left focus:outline-none"
+                  >
+                    <div className={`rounded-xl border-2 overflow-hidden transition-all duration-200 bg-background ${
+                      isHovered
+                        ? 'border-primary/40 shadow-lg shadow-primary/5 translate-y-[-2px]'
+                        : 'border-border/60 hover:border-primary/30 shadow-sm hover:shadow-md'
+                    }`}>
+                      <div className="aspect-square bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center relative">
+                        <div className={`transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}>
+                          <Folder className="w-12 h-12 text-amber-400 drop-shadow-sm" />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/[0.02] to-transparent pointer-events-none" />
+                      </div>
+                      <div className="p-2.5 space-y-0.5">
+                        <p className="text-xs font-medium truncate text-foreground/80 group-hover:text-foreground transition-colors">
+                          {folder.name}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-wider">Folder</p>
+                      </div>
+                    </div>
+                  </button>
                 </div>
-                <div className="p-2.5 space-y-0.5">
-                  <p className="text-xs font-medium truncate text-foreground/80 group-hover:text-foreground transition-colors">
-                    {folder.name}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-wider">Folder</p>
-                </div>
-              </div>
-            </button>
-          )
-        })}
+              )
+            })}
 
         {files.map((file) => {
           const isSelected = selectedIds.has(file.path)
