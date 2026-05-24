@@ -12,6 +12,7 @@ interface FileGridProps {
   onSelectAll: () => void
   onDeselectAll: () => void
   onDelete: (files: StorageFile[]) => void
+  onViewDetail?: (file: StorageFile) => void
 }
 
 function formatSize(bytes: number): string {
@@ -34,6 +35,7 @@ export function FileGrid({
   onSelectAll,
   onDeselectAll,
   onDelete,
+  onViewDetail,
 }: FileGridProps) {
   const allSelected = files.length > 0 && selectedIds.size === files.length
   const hasSelection = selectedIds.size > 0
@@ -91,14 +93,16 @@ export function FileGrid({
           return (
             <div
               key={file.path}
-              onClick={() => onToggleSelect(file.path)}
-              className={`group relative rounded-lg border-2 overflow-hidden cursor-pointer transition-all ${
+              className={`group relative rounded-lg border-2 overflow-hidden transition-all ${
                 isSelected
                   ? 'border-primary bg-primary/5 shadow-sm'
                   : 'border-border hover:border-muted-foreground/30 hover:shadow-sm'
               }`}
             >
-              <div className={`absolute top-1.5 left-1.5 z-10 transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+              <div
+                onClick={(e) => { e.stopPropagation(); onToggleSelect(file.path) }}
+                className={`absolute top-1.5 left-1.5 z-10 transition-opacity cursor-pointer ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+              >
                 <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
                   isSelected ? 'bg-primary text-primary-foreground' : 'bg-background/80 border border-border'
                 }`}>
@@ -110,29 +114,31 @@ export function FileGrid({
                 </div>
               </div>
 
-              <div className="aspect-square bg-muted/30 flex items-center justify-center">
-                {isImg ? (
-                  <img
-                    src={file.url}
-                    alt={file.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center text-muted-foreground/60">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                    <span className="text-[10px] mt-1 px-1 truncate max-w-full">
-                      {file.metadata?.mimetype.split('/').pop()?.toUpperCase() || 'FILE'}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <div onClick={() => onViewDetail?.(file)} className="cursor-pointer">
+                <div className="aspect-square bg-muted/30 flex items-center justify-center">
+                  {isImg ? (
+                    <img
+                      src={file.url}
+                      alt={file.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center text-muted-foreground/60">
+                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-[10px] mt-1 px-1 truncate max-w-full">
+                        {file.metadata?.mimetype.split('/').pop()?.toUpperCase() || 'FILE'}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              <div className="p-1.5">
-                <p className="text-xs truncate font-medium">{file.name}</p>
-                <p className="text-[10px] text-muted-foreground">{file.metadata ? formatSize(file.metadata.size) : ''}</p>
+                <div className="p-1.5">
+                  <p className="text-xs truncate font-medium">{file.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{file.metadata ? formatSize(file.metadata.size) : ''}</p>
+                </div>
               </div>
             </div>
           )
