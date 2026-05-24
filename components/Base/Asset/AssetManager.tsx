@@ -260,6 +260,22 @@ export function AssetManager() {
     }
   }
 
+  const handleMoveFiles = async (paths: string[], targetPath: string | null) => {
+    try {
+      const res = await fetch('/api/admin/storage/move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paths, targetPath: targetPath || '' }),
+      })
+      if (res.ok) {
+        await loadFiles(currentPath)
+        await loadStats()
+      }
+    } catch (e) {
+      console.error('Failed to move files', e)
+    }
+  }
+
   return (
     <div className="space-y-5">
       {/* Stats bar */}
@@ -364,25 +380,39 @@ export function AssetManager() {
       )}
 
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-1.5 text-sm">
-        <Home className="w-3.5 h-3.5 text-muted-foreground/40" />
-        {breadcrumbs.map((crumb, i) => (
-          <span key={crumb.path ?? '__root'} className="flex items-center gap-1.5">
-            {i > 0 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
-            {i === breadcrumbs.length - 1 ? (
-              <span className="text-sm font-medium text-foreground/80 px-1.5 py-0.5 rounded-md bg-muted/50">
-                {crumb.label}
-              </span>
-            ) : (
-              <button
-                onClick={() => handleNavigate(crumb.path)}
-                className="text-sm text-muted-foreground/50 hover:text-foreground/80 transition-colors px-1.5 py-0.5 rounded-md hover:bg-muted/50"
-              >
-                {crumb.label}
-              </button>
-            )}
-          </span>
-        ))}
+      <div className="flex items-center gap-1.5 text-sm flex-wrap">
+        <Home className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
+        {breadcrumbs.map((crumb, i) => {
+          const isLast = i === breadcrumbs.length - 1
+          return (
+            <span key={crumb.path ?? '__root'} className="flex items-center gap-1.5">
+              {i > 0 && <ChevronRight className="w-3 h-3 text-muted-foreground/30 shrink-0" />}
+              {isLast ? (
+                <span className="text-sm font-medium text-foreground/80 px-1.5 py-0.5 rounded-md bg-muted/50">
+                  {crumb.label}
+                </span>
+              ) : (
+                <span
+                  onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
+                  onDrop={async (e) => {
+                    e.preventDefault()
+                    const sourcePath = e.dataTransfer.getData('text/plain')
+                    if (sourcePath) {
+                      await handleMoveFiles([sourcePath], crumb.path)
+                    }
+                  }}
+                >
+                  <button
+                    onClick={() => handleNavigate(crumb.path)}
+                    className="text-sm text-muted-foreground/50 hover:text-foreground/80 transition-colors px-1.5 py-0.5 rounded-md hover:bg-muted/50"
+                  >
+                    {crumb.label}
+                  </button>
+                </span>
+              )}
+            </span>
+          )
+        })}
       </div>
 
       {/* Grid */}
@@ -405,21 +435,7 @@ export function AssetManager() {
         onNewSubfolder={(path) => { setNewFolderParent(path); setNewFolderName(''); setShowNewFolder(true) }}
         onRenameFolder={(folder) => { setRenameTarget(folder); setRenameName(folder.name); setShowRename(true) }}
         onDeleteFolder={(folder) => { setDeleteFolderTarget(folder); setShowDeleteFolder(true) }}
-        onMoveFiles={async (paths, targetPath) => {
-          try {
-            const res = await fetch('/api/admin/storage/move', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ paths, targetPath: targetPath || '' }),
-            })
-            if (res.ok) {
-              await loadFiles(currentPath)
-              await loadStats()
-            }
-          } catch (e) {
-            console.error('Failed to move files', e)
-          }
-        }}
+        onMoveFiles={handleMoveFiles}
       />
 
       {/* Storage Policy Banner */}

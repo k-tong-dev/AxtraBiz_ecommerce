@@ -89,7 +89,7 @@ export function FileGrid({
     e.preventDefault()
     setDragOverFolder(null)
     const sourcePath = e.dataTransfer.getData('text/plain')
-    if (sourcePath && sourcePath !== targetPath) {
+    if (sourcePath && sourcePath !== targetPath && !sourcePath.startsWith(targetPath + '/')) {
       onMoveFiles?.([sourcePath], targetPath)
     }
   }, [onMoveFiles])
@@ -175,6 +175,8 @@ export function FileGrid({
           return (
             <div
               key={folder.path}
+              draggable
+              onDragStart={(e) => handleDragStart(e, folder.path)}
               onMouseEnter={() => setHoveredCard(folder.path)}
               onMouseLeave={() => setHoveredCard(null)}
               onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverFolder(folder.path) }}
