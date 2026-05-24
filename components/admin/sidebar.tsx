@@ -9,7 +9,6 @@ import {
   Users,
   Megaphone,
   Settings,
-  LogOut,
   Menu,
   X,
   Image,
@@ -19,9 +18,9 @@ import {
   Truck,
   SlidersHorizontal,
   FileText,
+  HelpCircle,
 } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
-import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
 
 function SidebarGroupLabel({ label }: { label: string }) {
@@ -41,7 +40,7 @@ function SidebarGroupLabel({ label }: { label: string }) {
 export function AdminSidebar() {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [openKeys, setOpenKeys] = useState<string[]>([
     'projects',
@@ -167,17 +166,17 @@ export function AdminSidebar() {
           </Sidenav>
         </div>
 
-        {/* Footer — compact logout */}
+        {/* Footer — help */}
         <div className="shrink-0 px-3 py-2.5 border-t border-border/40">
-          <Button
-            onClick={logout}
-            className="w-full h-8 gap-2 text-muted-foreground/60 hover:text-foreground/80"
-            appearance="ghost"
-            size="sm"
+          <a
+            href="https://docs.example.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 w-full h-8 px-2 rounded-md text-xs font-medium text-muted-foreground/60 hover:text-foreground/80 hover:bg-muted/60 transition-all"
           >
-            <LogOut className="w-3.5 h-3.5 shrink-0" />
-            <span className="text-xs font-medium">Logout</span>
-          </Button>
+            <HelpCircle className="w-3.5 h-3.5 shrink-0" />
+            <span>Help Center</span>
+          </a>
         </div>
       </aside>
 
