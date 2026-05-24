@@ -96,6 +96,7 @@ export function AssetManager() {
 
   const [showDeleteFolder, setShowDeleteFolder] = useState(false)
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<StorageFolder | null>(null)
+  const [dragOverBreadcrumb, setDragOverBreadcrumb] = useState<string | null>(null)
 
   const [showDeleteFiles, setShowDeleteFiles] = useState(false)
   const [deleteFilesTargets, setDeleteFilesTargets] = useState<StorageFile[]>([])
@@ -393,9 +394,11 @@ export function AssetManager() {
                 </span>
               ) : (
                 <span
-                  onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
+                  onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverBreadcrumb(crumb.path) }}
+                  onDragLeave={() => setDragOverBreadcrumb(null)}
                   onDrop={async (e) => {
                     e.preventDefault()
+                    setDragOverBreadcrumb(null)
                     const raw = e.dataTransfer.getData('text/plain')
                     let paths: string[] = []
                     try { paths = JSON.parse(raw); if (!Array.isArray(paths)) paths = [raw] }
@@ -407,7 +410,12 @@ export function AssetManager() {
                 >
                   <button
                     onClick={() => handleNavigate(crumb.path)}
-                    className="text-sm text-muted-foreground/50 hover:text-foreground/80 transition-colors px-1.5 py-0.5 rounded-md hover:bg-muted/50"
+                    className={`text-sm transition-all duration-200 px-1.5 py-0.5 rounded-md ${
+                      dragOverBreadcrumb === crumb.path
+                        ? 'text-primary font-medium bg-primary/10 border-primary border-dashed border'
+                        : 'text-muted-foreground/50 hover:text-foreground/80 hover:bg-muted/50'
+                    }`}
+                    style={dragOverBreadcrumb === crumb.path ? { animation: 'drop-target-pulse 1.2s ease-in-out infinite' } : undefined}
                   >
                     {crumb.label}
                   </button>
