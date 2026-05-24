@@ -237,85 +237,85 @@ export function AssetManager() {
         </Modal.Footer>
       </Modal>
 
-        {detailFile && (
-          <>
-            <Modal open={!!detailFile} onClose={() => setDetailFile(null)} size="md" backdrop={"static"}>
+      {detailFile && (
+        <>
+          <Modal open={!!detailFile} onClose={() => setDetailFile(null)} size="md" backdrop={"static"}>
 
-              <Modal.Header><Modal.Title>{detailFile.name}</Modal.Title></Modal.Header>
-              <Modal.Body>
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="w-full md:w-64 shrink-0">
-                    {detailFile.metadata?.mimetype?.startsWith('image/') ? (
-                      <img src={detailFile.url} alt={detailFile.name} className="w-full rounded-lg border border-border object-cover" />
-                    ) : (
-                      <div className="aspect-square rounded-lg border border-border bg-muted/30 flex items-center justify-center">
-                        <span className="text-3xl font-bold text-muted-foreground/40">
-                          {detailFile.name.split('.').pop()?.toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-3 text-sm">
-                    <div>
-                      <label className="text-xs text-muted-foreground uppercase tracking-wider">Name</label>
-                      <p className="font-medium">{detailFile.name}</p>
+            <Modal.Header><Modal.Title>{detailFile.name}</Modal.Title></Modal.Header>
+            <Modal.Body>
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="w-full md:w-64 shrink-0">
+                  {detailFile.metadata?.mimetype?.startsWith('image/') ? (
+                    <img src={detailFile.url} alt={detailFile.name} className="w-full rounded-lg border border-border object-cover" />
+                  ) : (
+                    <div className="aspect-square rounded-lg border border-border bg-muted/30 flex items-center justify-center">
+                      <span className="text-3xl font-bold text-muted-foreground/40">
+                        {detailFile.name.split('.').pop()?.toUpperCase()}
+                      </span>
                     </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground uppercase tracking-wider">Storage Path</label>
-                      <p className="font-mono text-xs">{detailFile.path}</p>
-                    </div>
-                    <div>
-                      <label className="text-xs text-muted-foreground uppercase tracking-wider">URL</label>
-                      <div className="flex items-center gap-1">
-                        <p className="font-mono text-xs truncate">{detailFile.url}</p>
-                        <button
-                          onClick={() => navigator.clipboard.writeText(detailFile.url)}
-                          className="shrink-0 p-1 rounded hover:bg-muted transition-colors"
-                          title="Copy URL"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
-                        <a href={detailFile.url} target="_blank" rel="noreferrer" className="shrink-0 p-1 rounded hover:bg-muted transition-colors" title="Open in new tab">
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider">Type</label>
-                        <p>{detailFile.metadata?.mimetype || '—'}</p>
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider">Size</label>
-                        <p>{detailFile.metadata ? formatSize(detailFile.metadata.size) : '—'}</p>
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider">Created</label>
-                        <p>{detailFile.created_at ? new Date(detailFile.created_at).toLocaleString() : '—'}</p>
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider">Updated</label>
-                        <p>{detailFile.updated_at ? new Date(detailFile.updated_at).toLocaleString() : '—'}</p>
-                      </div>
-                    </div>
-                    {detailFile.id && (
-                      <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider">File ID</label>
-                        <p className="font-mono text-xs">{detailFile.id}</p>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button onClick={() => { setDeleteFilesTargets([detailFile]); setShowDeleteFiles(true); setDetailFile(null) }} color="red" appearance="primary" startIcon={<Trash2 className="w-4 h-4" />}>
-                  Delete
-                </Button>
-                <Button onClick={() => setDetailFile(null)} appearance="primary">Close</Button>
-              </Modal.Footer>
-            </Modal>
-          </>
-        )}
+                <div className="flex-1 space-y-3 text-sm">
+                  <div>
+                    <label className="text-xs text-muted-foreground uppercase tracking-wider">Name</label>
+                    <p className="font-medium">{detailFile.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground uppercase tracking-wider">Storage Path</label>
+                    <p className="font-mono text-xs">{detailFile.path}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground uppercase tracking-wider">URL</label>
+                    <div className="flex items-center gap-1">
+                      <p className="font-mono text-xs truncate">{detailFile.url}</p>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(detailFile.url)}
+                        className="shrink-0 p-1 rounded hover:bg-muted transition-colors"
+                        title="Copy URL"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                      <a href={detailFile.url} target="_blank" rel="noreferrer" className="shrink-0 p-1 rounded hover:bg-muted transition-colors" title="Open in new tab">
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground uppercase tracking-wider">Type</label>
+                      <p>{detailFile.metadata?.mimetype || '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground uppercase tracking-wider">Size</label>
+                      <p>{detailFile.metadata ? formatSize(detailFile.metadata.size) : '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground uppercase tracking-wider">Created</label>
+                      <p>{detailFile.created_at ? new Date(detailFile.created_at).toLocaleString() : '—'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground uppercase tracking-wider">Updated</label>
+                      <p>{detailFile.updated_at ? new Date(detailFile.updated_at).toLocaleString() : '—'}</p>
+                    </div>
+                  </div>
+                  {detailFile.id && (
+                    <div>
+                      <label className="text-xs text-muted-foreground uppercase tracking-wider">File ID</label>
+                      <p className="font-mono text-xs">{detailFile.id}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button onClick={() => { setDeleteFilesTargets([detailFile]); setShowDeleteFiles(true); setDetailFile(null) }} color="red" appearance="primary" startIcon={<Trash2 className="w-4 h-4" />}>
+                Delete
+              </Button>
+              <Button onClick={() => setDetailFile(null)} appearance="primary">Close</Button>
+            </Modal.Footer>
+          </Modal>
+        </>
+      )}
     </div>
   )
 }
