@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Upload, X, File as FileIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Upload, X, File as FileIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export interface UploadedFile {
   id: string
@@ -34,7 +33,99 @@ const animationsStyle = `
   from { opacity: 1; transform: scale(1); }
   to { opacity: 0; transform: scale(0.92); }
 }
+@keyframes dropPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.2); }
+  50% { box-shadow: 0 0 0 12px rgba(139, 92, 246, 0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
 `
+
+function SlideCarousel({
+  files,
+  isSingle,
+  enteringIndex,
+  readonly,
+  onRemove,
+}: {
+  files: UploadedFile[]
+  isSingle: boolean
+  enteringIndex: number | null
+  readonly?: boolean
+  onRemove: (index: number) => void
+}) {
+  const [slide, setSlide] = useState(0)
+  const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
+  const total = files.length
+
+  useEffect(() => {
+    if (slide >= total) setSlide(Math.max(0, total - 1))
+  }, [total, slide])
+
+  const goTo = (idx: number, dir: 'left' | 'right') => {
+    setSlideDir(dir)
+    setSlide(idx)
+  }
+  const prev = () => goTo(Math.max(0, slide - 1), 'left')
+  const next = () => goTo(Math.min(total - 1, slide + 1), 'right')
+
+  if (total === 0) return null
+
+  const file = files[slide]
+
+  return (
+    <div className="relative w-full">
+      {/* Main slide area */}
+      <div className="relative overflow-hidden rounded-xl border border-border/60 bg-background">
+        <FilePreview
+          file={file}
+          index={slide}
+          isSingle={isSingle}
+          entering={enteringIndex === slide}
+          readonly={readonly}
+          onRemove={onRemove}
+        />
+
+        {/* Slide arrows */}
+        {total > 1 && (
+          <>
+            {slide > 0 && (
+              <button
+                onClick={prev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+            {slide < total - 1 && (
+              <button
+                onClick={next}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/60 text-muted-foreground hover:text-foreground hover:bg-background/90 transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Slide index + dots */}
+      {total > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-2">
+          {files.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i, i > slide ? 'right' : 'left')}
+              className={`h-1.5 rounded-full transition-all duration-200 ${i === slide ? 'w-5 bg-violet-500' : 'w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function FileField({
   files,
@@ -131,11 +222,12 @@ export function FileField({
           onClick={handleClickUpload}
           className={`
             relative border-2 border-dashed rounded-xl p-5 text-center cursor-pointer
-            transition-all duration-200
+            transition-all duration-300 ease-out
             ${isDragging
-              ? 'border-violet-500 bg-violet-500/10 scale-[1.02]'
-              : 'border-muted-foreground/25 hover:border-muted-foreground/50 hover:bg-accent/50'
+              ? 'border-violet-500 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent scale-[1.02] drop-shadow-lg'
+              : 'border-muted-foreground/25 hover:border-violet-400/50 hover:bg-accent/40'
             }
+            ${isDragging ? 'animate-[dropPulse_1.2s_ease-in-out_infinite]' : ''}
           `}
         >
           <input
@@ -147,10 +239,19 @@ export function FileField({
             className="hidden"
           />
           <div className="flex flex-col items-center gap-2 pointer-events-none">
-            <div className={`p-2.5 rounded-full transition-colors duration-200 ${isDragging ? 'bg-violet-500/20' : 'bg-muted/30'}`}>
-              <Upload className={`w-5 h-5 transition-colors duration-200 ${isDragging ? 'text-violet-500' : 'text-muted-foreground'}`} />
+            {/* Icon circle */}
+            <div className={`
+              p-2.5 rounded-full transition-all duration-300
+              ${isDragging ? 'bg-violet-500/25 scale-110' : 'bg-muted/30 group-hover:bg-violet-500/10'}
+            `}>
+              <Upload className={`
+                w-5 h-5 transition-all duration-300
+                ${isDragging ? 'text-violet-500 -translate-y-0.5' : 'text-muted-foreground'}
+              `} />
             </div>
-            <span className="text-sm text-muted-foreground">
+
+            {/* Text */}
+            <span className="text-sm text-muted-foreground transition-colors duration-200">
               {isDragging
                 ? 'Drop files here...'
                 : (isSingle && fileCount > 0
@@ -159,6 +260,7 @@ export function FileField({
                   )
               }
             </span>
+
             {maxFiles && (
               <span className="text-xs text-muted-foreground/60">
                 {isSingle ? 'Single file' : `Up to ${maxFiles} files`}
@@ -175,19 +277,28 @@ export function FileField({
 
       {/* File previews */}
       {displayFiles.length > 0 && (
-        <div className={isSingle ? '' : 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3'}>
-          {displayFiles.map((file, index) => (
+        isSingle ? (
+          <div className="w-full max-w-sm">
             <FilePreview
-              key={`${file.id || file.url}-${index}`}
-              file={file}
-              index={index}
-              isSingle={isSingle}
-              entering={enteringIndex === index}
+              file={displayFiles[0]}
+              index={0}
+              isSingle
+              entering={enteringIndex === 0}
               readonly={readonly}
               onRemove={onRemove}
             />
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="group">
+            <SlideCarousel
+              files={displayFiles}
+              isSingle={false}
+              enteringIndex={enteringIndex}
+              readonly={readonly}
+              onRemove={onRemove}
+            />
+          </div>
+        )
       )}
 
       {displayFiles.length === 0 && !error && (
@@ -232,12 +343,12 @@ function FilePreview({
         transition-all duration-200
         ${entering ? 'animate-[fileEnter_0.25s_ease-out]' : ''}
         ${removing ? 'animate-[fileExit_0.2s_ease-in forwards]' : ''}
-        ${isSingle ? 'w-full max-w-sm' : 'aspect-square'}
+        ${isSingle ? 'w-full' : 'w-full aspect-[4/3]'}
       `}
     >
       {/* Image */}
       {isImageUrl(file.url) ? (
-        <div className={`relative w-full ${isSingle ? 'h-48' : 'aspect-square'}`}>
+        <div className={`relative w-full ${isSingle ? 'h-48 sm:h-56' : 'w-full h-full'}`}>
           <img
             src={file.url}
             alt=""
@@ -251,7 +362,7 @@ function FilePreview({
           )}
         </div>
       ) : (
-        <div className={`flex items-center justify-center bg-muted/20 ${isSingle ? 'h-48' : 'aspect-square'}`}>
+        <div className={`flex items-center justify-center bg-muted/20 ${isSingle ? 'h-48 sm:h-56' : 'w-full h-full'}`}>
           <FileIcon className="w-10 h-10 text-muted-foreground/40" />
         </div>
       )}

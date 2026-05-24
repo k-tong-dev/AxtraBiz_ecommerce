@@ -546,6 +546,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         res_id: entityId || ''
                     }))
                     const results = await Promise.all(uploadPromises)
+                    console.log('[FileUpload] Upload results:', results)
+
                     // Update uploadedFiles with the uploaded file IDs and URLs (remove file property)
                     const uploadedFilesMap = new Map(newFiles.map((f, i) => [f.url, results[i]]))
                     setUploadedFiles(prev => prev.map(f => {
@@ -571,17 +573,21 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                         : [originalData[field.key]])
                                     : []
                                 const newFieldIds = allFileIds.filter((id: string) => !oldFieldIds.includes(id))
+                                console.log(`[FileUpload] field=${field.key} oldIds=${JSON.stringify(oldFieldIds)} allIds=${JSON.stringify(allFileIds)} newIds=${JSON.stringify(newFieldIds)}`)
                                 if (newFieldIds.length > 0) {
                                     payload[field.key] = newFieldIds.slice(0, 1)
                                     idsToDelete.push(...oldFieldIds)
+                                    console.log(`[FileUpload] ✅ Replacing: payload.${field.key}=${JSON.stringify(payload[field.key])}, will delete old=${JSON.stringify(oldFieldIds)}`)
                                 } else {
                                     // No replacement — keep old ID as-is
                                     payload[field.key] = oldFieldIds
+                                    console.log(`[FileUpload] ➡ No replacement, keeping: payload.${field.key}=${JSON.stringify(oldFieldIds)}`)
                                 }
                             } else {
                                 payload[field.key] = field.maxFiles
                                     ? allFileIds.slice(0, field.maxFiles)
                                     : allFileIds
+                                console.log(`[FileUpload] ➡ Multi: payload.${field.key}=${JSON.stringify(payload[field.key])}`)
                             }
                         })
                 } catch (error) {
@@ -612,12 +618,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             const currentFileIds = uploadedFiles.map(f => f.id).filter(id => id)
             const userRemovedIds = originalFileIds.filter(id => !currentFileIds.includes(id))
             idsToDelete.push(...userRemovedIds)
-            if (idsToDelete.length > 0) {
-                for (const id of idsToDelete) {
+            const uniqueIdsToDelete = [...new Set(idsToDelete)]
+            if (uniqueIdsToDelete.length > 0) {
+                console.log('[FileUpload] Deleting old attachments:', uniqueIdsToDelete)
+                for (const id of uniqueIdsToDelete) {
                     try {
                         await deleteFile(id)
+                        console.log('[FileUpload] ✅ Deleted attachment:', id)
                     } catch (error) {
-                        console.error('Failed to delete attachment:', id, error)
+                        console.error('[FileUpload] Failed to delete attachment:', id, error)
                     }
                 }
             }
@@ -630,6 +639,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             const endpoint = mode === 'edit' && entityId ? `${config.apiEndpoint}/${entityId}` : config.apiEndpoint
             const method = mode === 'edit' ? 'PUT' : 'POST'
 
+            console.log(`[FileUpload] Payload → ${method} ${endpoint}:`, JSON.stringify(payload, null, 2))
+
             const response = await fetch(endpoint, {
                 method: method,
                 headers: {'Content-Type': 'application/json'},
@@ -637,6 +648,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             })
 
             const result = await response.json()
+            console.log(`[FileUpload] Response ← ${method} ${endpoint}:`, result)
 
             if (!response.ok) {
                 // Handle HTTP errors
@@ -829,17 +841,18 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         if (!files) return
 
         const fileArray = Array.from(files)
+        console.log(`[FileUpload] ${field.key}:`, fileArray.map(f => f.name))
 
         if (field.maxFiles === 1) {
-            // Single-file mode: replace any existing blob files (unsaved previews)
+            // Single-file mode: replace old preview immediately (don't keep old)
             uploadedFiles.filter(f => f.url?.startsWith('blob:')).forEach(f => URL.revokeObjectURL(f.url))
-            const savedFiles = uploadedFiles.filter(f => f.id && !f.file)
             const newFiles = fileArray.slice(0, 1).map(file => ({
                 id: '',
                 url: URL.createObjectURL(file),
                 file
             }))
-            setUploadedFiles([...savedFiles, ...newFiles])
+            console.log(`[FileUpload] maxFiles=1: replaced preview (old was kept in originalData for deletion on save)`)
+            setUploadedFiles(newFiles)
         } else if (field.maxFiles) {
             // Limited multi-file mode
             const existingCount = uploadedFiles.filter(f => f.url).length
