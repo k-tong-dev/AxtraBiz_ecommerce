@@ -48,7 +48,7 @@ function buildPublicUrl(path: string): string {
 
 export async function listFolder(path: string): Promise<{ folders: S3FolderItem[]; files: S3FileItem[] }> {
   const s3 = getS3Client()
-  const prefix = path ? `${path}/` : ''
+  const prefix = path ? `${path.replace(/\/+$/, '')}/` : ''
   const command = new ListObjectsV2Command({
     Bucket: BUCKET,
     Prefix: prefix,
@@ -83,7 +83,7 @@ export async function listFolder(path: string): Promise<{ folders: S3FolderItem[
 
 export async function listAllFiles(path: string): Promise<S3FileItem[]> {
   const s3 = getS3Client()
-  const prefix = path ? `${path}/` : ''
+  const prefix = path ? `${path.replace(/\/+$/, '')}/` : ''
   const all: S3FileItem[] = []
   let continuationToken: string | undefined
 
@@ -175,16 +175,19 @@ export async function moveFiles(paths: string[], targetFolder: string): Promise<
   const moved: S3FileItem[] = []
 
   for (const sourcePath of paths) {
-    const fileName = sourcePath.split('/').pop() || sourcePath
+    const cleanSource = sourcePath.replace(/\/+$/, '')
+    const fileName = cleanSource.split('/').pop() || cleanSource
     const destPath = `${targetPrefix}${fileName}`
 
     // Check if this is a folder (has children under sourcePath/)
-    const children = await listAllFiles(sourcePath + '/')
+    const children = await listAllFiles(cleanSource)
 
     if (children.length > 0) {
       // Folder: recursive move via rename pattern
       for (const file of children) {
-        const newPath = file.path.replace(sourcePath, destPath)
+        // Only remap paths that are actually under this folder
+        if (file.path === cleanSource) continue
+        const newPath = file.path.replace(cleanSource, destPath)
         await s3.send(new CopyObjectCommand({
           Bucket: BUCKET,
           CopySource: `${BUCKET}/${file.path}`,
@@ -194,9 +197,9 @@ export async function moveFiles(paths: string[], targetFolder: string): Promise<
       const origPaths = children.map(f => f.path)
       await deleteFiles(origPaths)
 
-      // Clean up folder marker if it exists as a bare object
+      // Clean up original folder marker if it exists as a bare object
       try {
-        await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: sourcePath }))
+        await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: cleanSource }))
       } catch { /* ignore — not all folders have markers */ }
 
       moved.push({
