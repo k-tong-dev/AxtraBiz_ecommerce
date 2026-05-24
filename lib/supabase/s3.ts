@@ -27,6 +27,7 @@ export function getS3Client(): S3Client {
 }
 
 export interface S3FileItem {
+  id: string
   name: string
   path: string
   url: string
@@ -67,11 +68,12 @@ export async function listFolder(path: string): Promise<{ folders: S3FolderItem[
       const key = obj.Key!
       const name = key.replace(prefix, '')
       return {
+        id: key,
         name,
         path: key,
         url: buildPublicUrl(key),
         updated_at: obj.LastModified?.toISOString() || null,
-        created_at: null,
+        created_at: obj.LastModified?.toISOString() || null,
         metadata: { size: obj.Size || 0, mimetype: guessMimeType(name) },
       }
     })
@@ -92,14 +94,15 @@ export async function listAllFiles(path: string): Promise<S3FileItem[]> {
       ContinuationToken: continuationToken,
     })
     const result = await s3.send(command)
-    for (const obj of result.Contents || []) {
+      for (const obj of result.Contents || []) {
       if (obj.Key && obj.Key !== prefix && !obj.Key!.endsWith('/')) {
         all.push({
+          id: obj.Key,
           name: obj.Key.replace(prefix, ''),
           path: obj.Key,
           url: buildPublicUrl(obj.Key),
           updated_at: obj.LastModified?.toISOString() || null,
-          created_at: null,
+          created_at: obj.LastModified?.toISOString() || null,
           metadata: { size: obj.Size || 0, mimetype: guessMimeType(obj.Key) },
         })
       }
@@ -121,6 +124,7 @@ export async function uploadFile(path: string, file: File): Promise<S3FileItem> 
   })
   await s3.send(command)
   return {
+    id: path,
     name: file.name,
     path,
     url: buildPublicUrl(path),
