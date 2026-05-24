@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Upload, X, File as FileIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { AssetPickerModal } from '@/components/Base/Asset/AssetPickerModal'
 import type { StorageFile } from '@/components/Base/Asset/types'
@@ -10,12 +10,10 @@ export type UploadedFile = StorageFile & { file?: File }
 export interface FileFieldProps {
   files: UploadedFile[]
   maxFiles?: number
-  accept?: string
   uploadText?: string
   label?: string
   readonly?: boolean
   error?: string | null
-  onFilesSelected: (files: File[]) => void
   onRemove: (index: number) => void
   onAssetSelected?: (asset: StorageFile) => void
 }
@@ -32,10 +30,6 @@ const animationsStyle = `
 @keyframes fileExit {
   from { opacity: 1; transform: scale(1); }
   to { opacity: 0; transform: scale(0.92); }
-}
-@keyframes dropPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.2); }
-  50% { box-shadow: 0 0 0 12px rgba(139, 92, 246, 0); }
 }
 `
 
@@ -113,30 +107,9 @@ function SlideCarousel({
   )
 }
 
-function uploadNativeFilesToAsset(files: File[]): Promise<StorageFile[]> {
-  console.log('[FileUpload] uploadNativeFilesToAsset called with', files.length, 'files:', files.map(f => ({ name: f.name, size: f.size, type: f.type })))
-  return Promise.all(
-    files.map(async (file) => {
-      const formData = new FormData()
-      formData.append('file', file)
-      const url = '/api/admin/storage/upload'
-      console.log('[FileUpload] POST', url, 'file:', file.name, 'size:', file.size, 'type:', file.type)
-      const res = await fetch(url, { method: 'POST', body: formData })
-      const data = await res.json()
-      console.log('[FileUpload] Response status:', res.status, 'body:', JSON.stringify(data, null, 2))
-      if (!res.ok) {
-        console.error('[FileUpload] Upload failed:', data)
-        throw new Error(data.error || `Upload failed with status ${res.status}`)
-      }
-      return data as StorageFile
-    })
-  )
-}
-
 export function FileField({
   files,
   maxFiles,
-  accept = 'image/*',
   uploadText,
   label,
   readonly,
@@ -144,16 +117,14 @@ export function FileField({
   onRemove,
   onAssetSelected,
 }: FileFieldProps) {
-  const [isDragging, setIsDragging] = useState(false)
   const [enteringIndex, setEnteringIndex] = useState<number | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
-  const dragCounter = useRef(0)
 
   const isSingle = maxFiles === 1
   const displayFiles = files.filter(f => f.url)
   const fileCount = displayFiles.length
   const atMax = maxFiles ? fileCount >= maxFiles : false
-  const canUpload = !atMax || isSingle
+  const canPick = !atMax || isSingle
 
   useEffect(() => {
     if (displayFiles.length > 0) {
@@ -164,81 +135,22 @@ export function FileField({
     }
   }, [displayFiles.length])
 
-  const handlePickAsset = useCallback(async (files: File[]) => {
-    if (readonly || files.length === 0) return
-    if (isSingle && fileCount > 0) {
-      onRemove(0)
-    }
-    const assets = await uploadNativeFilesToAsset(files)
-    for (const asset of assets) {
-      onAssetSelected?.(asset)
-    }
-  }, [readonly, isSingle, fileCount, onRemove, onAssetSelected])
-
-  const handleDragOver: React.DragEventHandler = (e) => {
-    e.preventDefault(); e.stopPropagation()
-  }
-
-  const handleDragEnter: React.DragEventHandler = (e) => {
-    e.preventDefault(); e.stopPropagation()
-    dragCounter.current++
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-      setIsDragging(true)
-    }
-  }
-
-  const handleDragLeave: React.DragEventHandler = (e) => {
-    e.preventDefault(); e.stopPropagation()
-    dragCounter.current--
-    if (dragCounter.current === 0) setIsDragging(false)
-  }
-
-  const handleDrop: React.DragEventHandler = (e) => {
-    e.preventDefault(); e.stopPropagation()
-    setIsDragging(false)
-    dragCounter.current = 0
-    if (readonly) return
-    const droppedFiles = Array.from(e.dataTransfer.files || [])
-    if (droppedFiles.length > 0) handlePickAsset(droppedFiles)
-  }
-
-  const handleClickZone = () => {
-    if (!readonly && canUpload) setPickerOpen(true)
-  }
-
   return (
     <>
       <style>{animationsStyle}</style>
       <div className="space-y-3">
-        {!readonly && canUpload && (
-          <div
-            onDragOver={handleDragOver}
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={handleClickZone}
-            className={`
-              relative border-2 border-dashed rounded-xl p-5 text-center cursor-pointer
-              transition-all duration-300 ease-out
-              ${isDragging
-                ? 'border-violet-500 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent scale-[1.02] drop-shadow-lg'
-                : 'border-muted-foreground/25 hover:border-violet-400/50 hover:bg-accent/40'
-              }
-              ${isDragging ? 'animate-[dropPulse_1.2s_ease-in-out_infinite]' : ''}
-            `}
+        {!readonly && canPick && (
+          <button
+            onClick={() => setPickerOpen(true)}
+            type="button"
+            className="w-full border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all duration-300 border-muted-foreground/25 hover:border-violet-400/50 hover:bg-gray-100"
           >
             <div className="flex flex-col items-center gap-2 pointer-events-none">
-              <div className={`p-2.5 rounded-full transition-all duration-300 ${isDragging ? 'bg-violet-500/25 scale-110' : 'bg-muted/30'}`}>
-                <Upload className={`w-5 h-5 transition-all duration-300 ${isDragging ? 'text-violet-500 -translate-y-0.5' : 'text-muted-foreground'}`} />
+              <div className="p-2.5 rounded-full bg-muted/30">
+                <Upload className="w-5 h-5 text-muted-foreground" />
               </div>
               <span className="text-sm text-muted-foreground">
-                {isDragging
-                  ? 'Drop files here...'
-                  : (isSingle && fileCount > 0
-                      ? 'Click or drag to replace...'
-                      : (uploadText || `Click to upload${label ? ` ${label.toLowerCase()}` : ''}`)
-                    )
-                }
+                {uploadText || (isSingle && fileCount > 0 ? 'Click to replace...' : `Click to upload${label ? ` ${label.toLowerCase()}` : ''}`)}
               </span>
               {maxFiles && (
                 <span className="text-xs text-muted-foreground/60">
@@ -246,7 +158,7 @@ export function FileField({
                 </span>
               )}
             </div>
-          </div>
+          </button>
         )}
 
         {error && <p className="text-red-500 text-xs">{error}</p>}

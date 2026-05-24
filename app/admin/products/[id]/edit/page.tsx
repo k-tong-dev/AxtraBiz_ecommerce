@@ -40,8 +40,8 @@ export default function EditProductPage() {
         <ResourceView
             config={{
                 type: 'form',
-                title: 'Edit Product',
-                description: 'Edit product details.',
+                title: `${product?.name || 'Edit Product'}`,
+                description: 'Product details.',
                 formViewConfig: productConfig.formViewConfig,
                 enableDefaultActions: true,
                 defaultActions: productConfig.defaultActions,

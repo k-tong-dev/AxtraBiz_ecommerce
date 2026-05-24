@@ -29,7 +29,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
       const data = await res.json()
       const items = Array.isArray(data) ? data : data.data || data.records || data.items || []
       setOptions(items.map((item: any) => ({
-        id: item.id, name: item.name, avatar: item.avatar || item.image || item.thumbnail || item.logo_url,
+        id: item.id, name: item.name, avatar: item.avatar || item.image || item.thumbnail || item.logo_url || item.image_id?.url,
       })))
     } catch (e) { console.error(e) }
     finally { setLoading(false) }

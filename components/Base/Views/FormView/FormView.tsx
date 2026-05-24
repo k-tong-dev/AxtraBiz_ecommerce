@@ -668,87 +668,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         }
     }
 
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, field: FormField) => {
-        const files = event.target.files
-        if (!files) return
-
-        const fileArray = Array.from(files)
-        console.log(`[FileUpload] ${field.key}:`, fileArray.map(f => f.name))
-
-        if (field.maxFiles === 1) {
-            // Single-file mode: replace old preview immediately (don't keep old)
-            uploadedFiles.filter(f => f.url?.startsWith('blob:')).forEach(f => URL.revokeObjectURL(f.url))
-            const newFiles = fileArray.slice(0, 1).map(file => ({
-                id: '',
-                name: file.name,
-                url: URL.createObjectURL(file),
-                file,
-                path: '',
-                updated_at: null,
-                created_at: null,
-                metadata: null,
-            } as UploadedFile))
-            console.log(`[FileUpload] maxFiles=1: replaced preview (old was kept in originalData for deletion on save)`)
-            setUploadedFiles(newFiles)
-        } else if (field.maxFiles) {
-            // Limited multi-file mode
-            const existingCount = uploadedFiles.filter(f => f.url).length
-            const slotsLeft = field.maxFiles - existingCount
-            if (slotsLeft <= 0) {
-                toast({
-                    title: 'Upload Limit Reached',
-                    description: `Maximum ${field.maxFiles} file${field.maxFiles > 1 ? 's' : ''} allowed for ${field.label.toLowerCase()}.`,
-                    variant: 'destructive'
-                })
-                event.target.value = ''
-                return
-            }
-            const newFiles = fileArray.slice(0, slotsLeft).map(file => ({
-                id: '',
-                name: file.name,
-                url: URL.createObjectURL(file),
-                file,
-                path: '',
-                updated_at: null,
-                created_at: null,
-                metadata: null,
-            } as UploadedFile))
-            if (fileArray.length > slotsLeft) {
-                toast({
-                    title: 'Too Many Files',
-                    description: `Only ${slotsLeft} more file${slotsLeft > 1 ? 's' : ''} allowed for ${field.label.toLowerCase()}. The rest were ignored.`,
-                })
-            }
-            setUploadedFiles([...uploadedFiles, ...newFiles])
-        } else {
-            // Unlimited: append all
-            const newFiles = fileArray.map(file => ({
-                id: '',
-                name: file.name,
-                url: URL.createObjectURL(file),
-                file,
-                path: '',
-                updated_at: null,
-                created_at: null,
-                metadata: null,
-            } as UploadedFile))
-            setUploadedFiles([...uploadedFiles, ...newFiles])
-        }
-        // Reset file input to allow re-uploading the same file
-        event.target.value = ''
-    }
-
-    const removeFile = async (index: number) => {
-        const fileToRemove = uploadedFiles[index]
-        if (fileToRemove) {
-            // Revoke local object URL if it exists
-            if (typeof fileToRemove.url === 'string' && fileToRemove.url.startsWith('blob:')) {
-                URL.revokeObjectURL(fileToRemove.url)
-            }
-        }
+    const removeFile = (index: number) => {
         const newUploadedFiles = uploadedFiles.filter((_, i) => i !== index)
         setUploadedFiles(newUploadedFiles)
-        // Clear data for single-file fields when all files are removed
         if (newUploadedFiles.length === 0) {
             config.fields
                 .filter(f => f.type === 'file' && f.maxFiles === 1)
@@ -872,15 +794,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     <FileField
                         files={uploadedFiles}
                         maxFiles={field.maxFiles}
-                        accept={field.accept}
                         uploadText={field.uploadText}
                         label={field.label}
                         readonly={field.readonly}
                         error={errorMessage}
-                        onFilesSelected={(files) => {
-                            const syntheticEvent = { target: { files } } as unknown as React.ChangeEvent<HTMLInputElement>
-                            handleFileUpload(syntheticEvent, field)
-                        }}
                         onRemove={removeFile}
                         onAssetSelected={(asset) => {
                             if (field.maxFiles === 1) {
@@ -1423,7 +1340,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 </div>
 
                 {/* Right Sidebar */}
-                <div className="space-y-6">
+                <div className="space-y-6 sticky top-[72px] self-start h-fit">
                     {/* File Upload Section */}
                     {config.fields.filter(f => f.type === 'file').length > 0 && (
                         <div className="bg-card rounded-lg border p-6 border-dashed">
