@@ -11,7 +11,6 @@ import { useCart } from '@/hooks/use-cart'
 import { useWishlist } from '@/hooks/use-wishlist'
 import { ProductCard } from '@/components/storefront/product-card'
 import { useParams } from 'next/navigation'
-import { fetchProductFromSupabase } from '@/lib/supabase/products'
 
 export default function ProductDetailPage() {
   const params = useParams()
@@ -26,12 +25,21 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     let mounted = true
-
-    fetchProductFromSupabase(productId).then((p) => {
-      if (!mounted) return
-      setProduct(p ?? initialProduct)
-    })
-
+    ;(async () => {
+      try {
+        const res = await fetch(`/api/products/${productId}`)
+        if (!res.ok) {
+          console.error('[ShopProductDetail] API error:', res.status)
+          return
+        }
+        const data = await res.json()
+        console.log('[ShopProductDetail] Fetched product from Drizzle:', data?.id)
+        if (!mounted) return
+        if (data) setProduct(mapDrizzleProductToShop(data))
+      } catch (err) {
+        console.error('[ShopProductDetail] Fetch failed:', err)
+      }
+    })()
     return () => {
       mounted = false
     }
@@ -58,7 +66,7 @@ export default function ProductDetailPage() {
   const discountPercent = product.original_price
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
     : 0
-  const images = product.images || [product.image]
+  const images = product.image_ids?.length ? product.image_ids : ['/placeholder.svg']
 
   const handleAddToCart = () => {
     addItem(product, quantity)
@@ -239,4 +247,46 @@ export default function ProductDetailPage() {
       </div>
     </div>
   )
+}
+
+function mapDrizzleProductToShop(d: any): Product {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  let urls: string[] = []
+  if (d.image_id?.url) urls.push(d.image_id.url)
+  if (Array.isArray(d.image_ids)) {
+    for (const item of d.image_ids) {
+      if (typeof item === 'string') {
+        if (item.startsWith('http')) urls.push(item)
+        else if (supabaseUrl && /^[0-9a-f-]{36}$/i.test(item))
+          urls.push(`${supabaseUrl}/storage/v1/object/public/assets/${item}`)
+      } else if (item?.url) urls.push(item.url)
+    }
+  } else if (typeof d.image_ids === 'string') {
+    try {
+      const parsed = JSON.parse(d.image_ids)
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          if (typeof item === 'string') {
+            if (item.startsWith('http')) urls.push(item)
+            else if (supabaseUrl && /^[0-9a-f-]{36}$/i.test(item))
+              urls.push(`${supabaseUrl}/storage/v1/object/public/assets/${item}`)
+          }
+        }
+      }
+    } catch {}
+  }
+  return {
+    id: d.id ?? '',
+    name: d.name ?? '',
+    slug: d.slug ?? '',
+    description: d.description ?? '',
+    price: parseFloat(String(d.price ?? '0')),
+    original_price: d.original_price ? parseFloat(String(d.original_price)) : undefined,
+    image_ids: urls,
+    category: d.category_id ?? '',
+    rating: parseFloat(String(d.rating ?? '0')),
+    reviews: typeof d.reviews === 'number' ? d.reviews : parseInt(String(d.reviews ?? '0'), 10),
+    stock: typeof d.stock === 'number' ? d.stock : parseInt(String(d.stock ?? '0'), 10),
+    features: Array.isArray(d.features) ? d.features : [],
+  }
 }

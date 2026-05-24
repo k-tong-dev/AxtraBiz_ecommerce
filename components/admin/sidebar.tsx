@@ -18,6 +18,7 @@ import {
   Percent,
   FolderTree,
   Truck,
+  Image,
 } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
 import { Button } from '@/components/ui/button'
@@ -162,6 +163,13 @@ export function AdminSidebar() {
                 <Nav.Menu eventKey="marketing" title="Marketing" icon={<Megaphone className="h-4 w-4" />}>
                   <Nav.Item eventKey="/admin/announcements">Announcements</Nav.Item>
                 </Nav.Menu>
+
+                <Nav.Item panel>
+                  <Sidenav.GroupLabel>Media</Sidenav.GroupLabel>
+                </Nav.Item>
+                <Nav.Item eventKey="/admin/assets" icon={<Image className="h-4 w-4" />}>
+                  Asset Management
+                </Nav.Item>
 
                 <Nav.Item panel>
                   <Sidenav.GroupLabel>System</Sidenav.GroupLabel>

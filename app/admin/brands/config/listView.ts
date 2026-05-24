@@ -7,11 +7,11 @@ export const brandListConfig: ListViewConfig = {
   data: [],
   columns: [
     {
-      key: 'logo_url',
+      key: 'image_id',
       title: 'Logo',
       width: 80,
-      render: (value: string) => value
-        ? createElement('img', { src: value, className: 'w-8 h-8 rounded-full object-cover', alt: 'logo' })
+      render: (value: any) => value?.url
+        ? createElement('img', { src: value.url, className: 'w-8 h-8 rounded-full object-cover', alt: 'logo' })
         : null,
     },
     {

@@ -7,7 +7,7 @@ export const brandFormConfig: FormConfig = {
   resModel: 'brands',
   fields: [
     {
-      key: 'logo_id',
+      key: 'image_id',
       label: 'Logo',
       type: 'file',
       accept: 'image/*',

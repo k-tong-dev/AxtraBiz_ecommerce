@@ -41,7 +41,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      type: 'string',
+      type: 'text',
       align: 'left'
     },
     {
@@ -51,7 +51,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      type: 'string',
+      type: 'text',
       align: 'left'
     },
     {
@@ -188,7 +188,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      type: 'string',
+      type: 'text',
       align: 'left'
     },
     {
@@ -198,7 +198,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       resizable: true,
       sortable: true,
       filterable: true,
-      type: 'string',
+      type: 'text',
       align: 'left'
     },
     {

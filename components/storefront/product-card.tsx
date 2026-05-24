@@ -26,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Image */}
       <div className="relative overflow-hidden bg-muted aspect-square">
         <Image
-          src={product.image}
+          src={product.image_ids?.[0] || '/placeholder.svg'}
           alt={product.name}
           fill
           className="object-cover group-hover:scale-120 transition-transform duration-500"

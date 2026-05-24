@@ -40,8 +40,8 @@ export const users = pgTable('users', {
   ...auditColumns,
 });
 
-// Products table
-export const products = pgTable('products', {
+// Product template table
+export const product_template = pgTable('product_template', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull(),
@@ -50,6 +50,7 @@ export const products = pgTable('products', {
   compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
   cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
   original_price: numeric('original_price', { precision: 12, scale: 2 }),
+  image_id: jsonb('image_id'),
   image_ids: jsonb('image_ids').notNull().default('[]'),
   sku: text('sku').default(''),
   barcode: text('barcode').default(''),
@@ -84,7 +85,7 @@ export const product_brand = pgTable('product_brand', {
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
-  logo_id: text('logo_id'),
+  image_id: jsonb('image_id'),
   website: text('website'),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
@@ -109,7 +110,7 @@ export const product_categories = pgTable('product_categories', {
   slug: text('slug').notNull().unique(),
   description: text('description'),
   parent_id: text('parent_id').references(() => product_categories.id, { onDelete: 'set null' }),
-  image_id: text('image_id'),
+  image_id: jsonb('image_id'),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
@@ -132,7 +133,7 @@ export const shipping_zones = pgTable('shipping_zones', {
 export const shipping_zone_product = pgTable('shipping_zone_product', {
   id: text('id').primaryKey(),
   shipping_zone_id: text('shipping_zone_id').notNull().references(() => shipping_zones.id, { onDelete: 'cascade' }),
-  product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  product_id: text('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
   custom_rate: numeric('custom_rate', { precision: 12, scale: 2 }),
   active: boolean('active').default(true).notNull(),
   ...timestamps,
@@ -170,7 +171,7 @@ export const product_attribute_values_rel = pgTable('product_attribute_values_re
 // Product attributes relation table
 export const product_attributes_rel = pgTable('product_attributes_rel', {
   id: text('id').primaryKey(),
-  product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  product_id: text('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
   attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
   position: integer('position').default(0),
   ...timestamps,
@@ -179,7 +180,7 @@ export const product_attributes_rel = pgTable('product_attributes_rel', {
 // Product variants table
 export const product_variants = pgTable('product_variants', {
   id: text('id').primaryKey(),
-  product_id: text('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  product_id: text('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   sku: text('sku').unique(),
   barcode: text('barcode').unique(),
@@ -191,21 +192,6 @@ export const product_variants = pgTable('product_variants', {
   image_ids: jsonb('image_ids').notNull().default('[]'),
   attributes: jsonb('attributes').notNull().default('{}'),
   position: integer('position').default(0),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-// Attachments table (ir_attachment)
-export const ir_attachment = pgTable('ir_attachment', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  filename: text('filename').notNull(),
-  mimetype: text('mimetype').notNull(),
-  url: text('url').notNull(),
-  size: integer('size').notNull(),
-  res_model: text('res_model').notNull(), // Model name (e.g., 'products')
-  res_id: text('res_id').notNull(), // Record ID
-  type: text('type').notNull().default('binary'), // 'binary', 'url'
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
 });
@@ -271,13 +257,13 @@ export const configurations = pgTable('configurations', {
 
 // Type exports
 export type User = typeof users.$inferSelect;
-export type Product = typeof products.$inferSelect;
+export type ProductTemplate = typeof product_template.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
 export type Announcement = typeof announcements.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Configuration = typeof configurations.$inferSelect;
-export type IrAttachment = typeof ir_attachment.$inferSelect;
+
 export type Brand = typeof product_brand.$inferSelect;
 export type TaxRate = typeof tax_rates.$inferSelect;
 export type ProductCategory = typeof product_categories.$inferSelect;

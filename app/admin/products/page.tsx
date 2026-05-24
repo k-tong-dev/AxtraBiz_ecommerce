@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
-import type { Product } from '@/lib/drizzle/server'
+import type { ProductTemplate } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '../../../components/Base/Views'
 import { productConfig } from './config'
 
 export default function AdminProductsPage() {
   const router = useRouter()
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ProductTemplate[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function AdminProductsPage() {
     router.push('/admin/products/new')
   }
 
-  const openEdit = (p: Product) => {
+  const openEdit = (p: ProductTemplate) => {
     router.push(`/admin/products/${p.id}/edit`)
   }
 
@@ -68,11 +68,11 @@ export default function AdminProductsPage() {
     }
   }
 
-  const handleRowClick = (rowData: Product) => {
+  const handleRowClick = (rowData: ProductTemplate) => {
     openEdit(rowData)
   }
 
-  const handleDelete = (product: Product) => {
+  const handleDelete = (product: ProductTemplate) => {
     remove(product.id)
   }
 

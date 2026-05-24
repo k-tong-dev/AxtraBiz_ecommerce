@@ -2,12 +2,10 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Upload, X, File as FileIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { AssetPickerModal } from '@/components/Base/Asset/AssetPickerModal'
+import type { StorageFile } from '@/components/Base/Asset/types'
 
-export interface UploadedFile {
-  id: string
-  url: string
-  file?: File
-}
+export type UploadedFile = StorageFile & { file?: File }
 
 export interface FileFieldProps {
   files: UploadedFile[]
@@ -19,6 +17,7 @@ export interface FileFieldProps {
   error?: string | null
   onFilesSelected: (files: File[]) => void
   onRemove: (index: number) => void
+  onAssetSelected?: (asset: StorageFile) => void
 }
 
 const isImageUrl = (url: unknown): url is string =>
@@ -38,10 +37,6 @@ const animationsStyle = `
   0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.2); }
   50% { box-shadow: 0 0 0 12px rgba(139, 92, 246, 0); }
 }
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
 `
 
 function SlideCarousel({
@@ -58,19 +53,14 @@ function SlideCarousel({
   onRemove: (index: number) => void
 }) {
   const [slide, setSlide] = useState(0)
-  const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
   const total = files.length
 
   useEffect(() => {
     if (slide >= total) setSlide(Math.max(0, total - 1))
   }, [total, slide])
 
-  const goTo = (idx: number, dir: 'left' | 'right') => {
-    setSlideDir(dir)
-    setSlide(idx)
-  }
-  const prev = () => goTo(Math.max(0, slide - 1), 'left')
-  const next = () => goTo(Math.min(total - 1, slide + 1), 'right')
+  const prev = () => setSlide(Math.max(0, slide - 1))
+  const next = () => setSlide(Math.min(total - 1, slide + 1))
 
   if (total === 0 || !files[slide]) return null
 
@@ -78,7 +68,6 @@ function SlideCarousel({
 
   return (
     <div className="relative w-full">
-      {/* Main slide area */}
       <div className="relative overflow-hidden rounded-xl border border-border/60 bg-background">
         <FilePreview
           file={file}
@@ -88,8 +77,6 @@ function SlideCarousel({
           readonly={readonly}
           onRemove={onRemove}
         />
-
-        {/* Slide arrows */}
         {total > 1 && (
           <>
             {slide > 0 && (
@@ -111,20 +98,38 @@ function SlideCarousel({
           </>
         )}
       </div>
-
-      {/* Slide index + dots */}
       {total > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-2">
           {files.map((_, i) => (
             <button
               key={i}
-              onClick={() => goTo(i, i > slide ? 'right' : 'left')}
+              onClick={() => setSlide(i)}
               className={`h-1.5 rounded-full transition-all duration-200 ${i === slide ? 'w-5 bg-violet-500' : 'w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'}`}
             />
           ))}
         </div>
       )}
     </div>
+  )
+}
+
+function uploadNativeFilesToAsset(files: File[]): Promise<StorageFile[]> {
+  console.log('[FileUpload] uploadNativeFilesToAsset called with', files.length, 'files:', files.map(f => ({ name: f.name, size: f.size, type: f.type })))
+  return Promise.all(
+    files.map(async (file) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      const url = '/api/admin/storage/upload'
+      console.log('[FileUpload] POST', url, 'file:', file.name, 'size:', file.size, 'type:', file.type)
+      const res = await fetch(url, { method: 'POST', body: formData })
+      const data = await res.json()
+      console.log('[FileUpload] Response status:', res.status, 'body:', JSON.stringify(data, null, 2))
+      if (!res.ok) {
+        console.error('[FileUpload] Upload failed:', data)
+        throw new Error(data.error || `Upload failed with status ${res.status}`)
+      }
+      return data as StorageFile
+    })
   )
 }
 
@@ -136,12 +141,12 @@ export function FileField({
   label,
   readonly,
   error,
-  onFilesSelected,
   onRemove,
+  onAssetSelected,
 }: FileFieldProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [enteringIndex, setEnteringIndex] = useState<number | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
   const dragCounter = useRef(0)
 
   const isSingle = maxFiles === 1
@@ -150,7 +155,6 @@ export function FileField({
   const atMax = maxFiles ? fileCount >= maxFiles : false
   const canUpload = !atMax || isSingle
 
-  // Animate new files entering
   useEffect(() => {
     if (displayFiles.length > 0) {
       const lastIdx = displayFiles.length - 1
@@ -160,156 +164,135 @@ export function FileField({
     }
   }, [displayFiles.length])
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }, [])
+  const handlePickAsset = useCallback(async (files: File[]) => {
+    if (readonly || files.length === 0) return
+    if (isSingle && fileCount > 0) {
+      onRemove(0)
+    }
+    const assets = await uploadNativeFilesToAsset(files)
+    for (const asset of assets) {
+      onAssetSelected?.(asset)
+    }
+  }, [readonly, isSingle, fileCount, onRemove, onAssetSelected])
 
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleDragOver: React.DragEventHandler = (e) => {
+    e.preventDefault(); e.stopPropagation()
+  }
+
+  const handleDragEnter: React.DragEventHandler = (e) => {
+    e.preventDefault(); e.stopPropagation()
     dragCounter.current++
     if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
       setIsDragging(true)
     }
-  }, [])
+  }
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleDragLeave: React.DragEventHandler = (e) => {
+    e.preventDefault(); e.stopPropagation()
     dragCounter.current--
-    if (dragCounter.current === 0) {
-      setIsDragging(false)
-    }
-  }, [])
+    if (dragCounter.current === 0) setIsDragging(false)
+  }
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleDrop: React.DragEventHandler = (e) => {
+    e.preventDefault(); e.stopPropagation()
     setIsDragging(false)
     dragCounter.current = 0
-
     if (readonly) return
-
     const droppedFiles = Array.from(e.dataTransfer.files || [])
-    if (droppedFiles.length > 0) {
-      onFilesSelected(droppedFiles)
-    }
-  }, [readonly, onFilesSelected])
+    if (droppedFiles.length > 0) handlePickAsset(droppedFiles)
+  }
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files || [])
-    if (selectedFiles.length > 0) {
-      onFilesSelected(selectedFiles)
-    }
-    e.target.value = ''
-  }, [onFilesSelected])
-
-  const handleClickUpload = useCallback(() => {
-    if (!readonly) inputRef.current?.click()
-  }, [readonly])
+  const handleClickZone = () => {
+    if (!readonly && canUpload) setPickerOpen(true)
+  }
 
   return (
     <>
       <style>{animationsStyle}</style>
       <div className="space-y-3">
-      {/* Drop zone */}
-      {!readonly && canUpload && (
-        <div
-          onDragOver={handleDragOver}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleClickUpload}
-          className={`
-            relative border-2 border-dashed rounded-xl p-5 text-center cursor-pointer
-            transition-all duration-300 ease-out
-            ${isDragging
-              ? 'border-violet-500 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent scale-[1.02] drop-shadow-lg'
-              : 'border-muted-foreground/25 hover:border-violet-400/50 hover:bg-accent/40'
-            }
-            ${isDragging ? 'animate-[dropPulse_1.2s_ease-in-out_infinite]' : ''}
-          `}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            multiple={!isSingle}
-            accept={accept}
-            onChange={handleInputChange}
-            className="hidden"
-          />
-          <div className="flex flex-col items-center gap-2 pointer-events-none">
-            {/* Icon circle */}
-            <div className={`
-              p-2.5 rounded-full transition-all duration-300
-              ${isDragging ? 'bg-violet-500/25 scale-110' : 'bg-muted/30 group-hover:bg-violet-500/10'}
-            `}>
-              <Upload className={`
-                w-5 h-5 transition-all duration-300
-                ${isDragging ? 'text-violet-500 -translate-y-0.5' : 'text-muted-foreground'}
-              `} />
-            </div>
-
-            {/* Text */}
-            <span className="text-sm text-muted-foreground transition-colors duration-200">
-              {isDragging
-                ? 'Drop files here...'
-                : (isSingle && fileCount > 0
-                    ? 'Click or drag to replace...'
-                    : (uploadText || `Click to upload${label ? ` ${label.toLowerCase()}` : ''}`)
-                  )
+        {!readonly && canUpload && (
+          <div
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleClickZone}
+            className={`
+              relative border-2 border-dashed rounded-xl p-5 text-center cursor-pointer
+              transition-all duration-300 ease-out
+              ${isDragging
+                ? 'border-violet-500 bg-gradient-to-br from-violet-500/15 via-violet-500/5 to-transparent scale-[1.02] drop-shadow-lg'
+                : 'border-muted-foreground/25 hover:border-violet-400/50 hover:bg-accent/40'
               }
-            </span>
-
-            {maxFiles && (
-              <span className="text-xs text-muted-foreground/60">
-                {isSingle ? 'Single file' : `Up to ${maxFiles} files`}
+              ${isDragging ? 'animate-[dropPulse_1.2s_ease-in-out_infinite]' : ''}
+            `}
+          >
+            <div className="flex flex-col items-center gap-2 pointer-events-none">
+              <div className={`p-2.5 rounded-full transition-all duration-300 ${isDragging ? 'bg-violet-500/25 scale-110' : 'bg-muted/30'}`}>
+                <Upload className={`w-5 h-5 transition-all duration-300 ${isDragging ? 'text-violet-500 -translate-y-0.5' : 'text-muted-foreground'}`} />
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {isDragging
+                  ? 'Drop files here...'
+                  : (isSingle && fileCount > 0
+                      ? 'Click or drag to replace...'
+                      : (uploadText || `Click to upload${label ? ` ${label.toLowerCase()}` : ''}`)
+                    )
+                }
               </span>
-            )}
+              {maxFiles && (
+                <span className="text-xs text-muted-foreground/60">
+                  {isSingle ? 'Single file' : `Up to ${maxFiles} files`}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Error */}
-      {error && (
-        <p className="text-red-500 text-xs">{error}</p>
-      )}
+        {error && <p className="text-red-500 text-xs">{error}</p>}
 
-      {/* File previews */}
-      {displayFiles.length > 0 && (
-        isSingle && displayFiles[0] ? (
-          <div className="w-full max-w-sm">
-            <FilePreview
-              file={displayFiles[0]}
-              index={0}
-              isSingle
-              entering={enteringIndex === 0}
-              readonly={readonly}
-              onRemove={onRemove}
-            />
-          </div>
-        ) : (
-          <div className="group">
-            <SlideCarousel
-              files={displayFiles}
-              isSingle={false}
-              enteringIndex={enteringIndex}
-              readonly={readonly}
-              onRemove={onRemove}
-            />
-          </div>
-        )
-      )}
+        {displayFiles.length > 0 && (
+          isSingle && displayFiles[0] ? (
+            <div className="w-full max-w-sm">
+              <FilePreview
+                file={displayFiles[0]}
+                index={0}
+                isSingle
+                entering={enteringIndex === 0}
+                readonly={readonly}
+                onRemove={onRemove}
+              />
+            </div>
+          ) : (
+            <div className="group">
+              <SlideCarousel
+                files={displayFiles}
+                isSingle={false}
+                enteringIndex={enteringIndex}
+                readonly={readonly}
+                onRemove={onRemove}
+              />
+            </div>
+          )
+        )}
 
-      {displayFiles.length === 0 && !error && (
-        <p className="text-muted-foreground text-sm">No files uploaded yet</p>
-      )}
+        {displayFiles.length === 0 && !error && (
+          <p className="text-muted-foreground text-sm">No files uploaded yet</p>
+        )}
 
-      {maxFiles && fileCount > 0 && (
-        <p className="text-xs text-muted-foreground/60">{fileCount} / {maxFiles} file{maxFiles > 1 ? 's' : ''}</p>
-      )}
-    </div>
+        {maxFiles && fileCount > 0 && (
+          <p className="text-xs text-muted-foreground/60">{fileCount} / {maxFiles} file{maxFiles > 1 ? 's' : ''}</p>
+        )}
+      </div>
+
+      <AssetPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        maxFiles={maxFiles}
+        onSelect={(asset) => {
+          onAssetSelected?.(asset)
+        }}
+      />
     </>
   )
 }
@@ -343,11 +326,10 @@ function FilePreview({
         group relative overflow-hidden rounded-xl border border-border/60 bg-background
         transition-all duration-200
         ${entering ? 'animate-[fileEnter_0.25s_ease-out]' : ''}
-        ${removing ? 'animate-[fileExit_0.2s_ease-in forwards]' : ''}
+        ${removing ? 'animate-[fileExit_0.2s_ease-in_forwards]' : ''}
         ${isSingle ? 'w-full' : 'w-full aspect-[4/3]'}
       `}
     >
-      {/* Image */}
       {isImageUrl(file?.url) ? (
         <div className={`relative w-full ${isSingle ? 'h-48 sm:h-56' : 'w-full h-full'}`}>
           <img
@@ -368,7 +350,6 @@ function FilePreview({
         </div>
       )}
 
-      {/* Remove overlay */}
       {!readonly && (
         <button
           onClick={handleRemove}
@@ -385,7 +366,6 @@ function FilePreview({
         </button>
       )}
 
-      {/* Filename for single mode */}
       {isSingle && file.file && (
         <div className="px-3 py-2 text-xs text-muted-foreground truncate border-t border-border/40 bg-muted/10">
           {file.file.name}

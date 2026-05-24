@@ -3,7 +3,7 @@ import {
   fetchProductsFromDrizzle,
   upsertProductInDrizzle
 } from '../../../lib/drizzle/products'
-import type { Product } from '../../../lib/drizzle/server'
+import type { ProductTemplate } from '../../../lib/drizzle/server'
 
 export async function GET() {
   try {

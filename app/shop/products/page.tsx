@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { mockProducts } from '@/lib/mock-data'
 import type { Product } from '@/lib/types'
-import { fetchProductsFromSupabase } from '@/lib/supabase/products'
 import { Search, ChevronDown } from 'lucide-react'
 
 type SortOption = 'newest' | 'price-low' | 'price-high' | 'rating' | 'popularity'
@@ -26,10 +25,23 @@ export default function ProductsPage() {
 
   useEffect(() => {
     let mounted = true
-    fetchProductsFromSupabase().then((next) => {
-      if (!mounted) return
-      setProducts(next)
-    })
+    ;(async () => {
+      try {
+        const res = await fetch('/api/products')
+        if (!res.ok) {
+          console.error('[ShopProducts] API error:', res.status)
+          return
+        }
+        const data = await res.json()
+        console.log('[ShopProducts] Fetched', data.length, 'products from Drizzle')
+        if (!mounted) return
+        if (data && data.length > 0) {
+          setProducts(data.map(mapDrizzleProductToShop))
+        }
+      } catch (err) {
+        console.error('[ShopProducts] Fetch failed:', err)
+      }
+    })()
     return () => {
       mounted = false
     }
@@ -76,6 +88,51 @@ export default function ProductsPage() {
 
     return sorted
   }, [products, searchQuery, selectedCategory, sortBy])
+
+// Maps Drizzle ProductTemplate to shop Product type (lib/types.ts)
+function mapDrizzleProductToShop(d: any): Product {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+
+  let urls: string[] = []
+  if (d.image_id?.url) urls.push(d.image_id.url)
+  if (Array.isArray(d.image_ids)) {
+    for (const item of d.image_ids) {
+      if (typeof item === 'string') {
+        if (item.startsWith('http')) urls.push(item)
+        else if (supabaseUrl && /^[0-9a-f-]{36}$/i.test(item))
+          urls.push(`${supabaseUrl}/storage/v1/object/public/assets/${item}`)
+      } else if (item?.url) urls.push(item.url)
+    }
+  } else if (typeof d.image_ids === 'string') {
+    try {
+      const parsed = JSON.parse(d.image_ids)
+      if (Array.isArray(parsed)) {
+        for (const item of parsed) {
+          if (typeof item === 'string') {
+            if (item.startsWith('http')) urls.push(item)
+            else if (supabaseUrl && /^[0-9a-f-]{36}$/i.test(item))
+              urls.push(`${supabaseUrl}/storage/v1/object/public/assets/${item}`)
+          }
+        }
+      }
+    } catch {}
+  }
+
+  return {
+    id: d.id ?? '',
+    name: d.name ?? '',
+    slug: d.slug ?? '',
+    description: d.description ?? '',
+    price: parseFloat(String(d.price ?? '0')),
+    original_price: d.original_price ? parseFloat(String(d.original_price)) : undefined,
+    image_ids: urls,
+    category: d.category_id ?? '',
+    rating: parseFloat(String(d.rating ?? '0')),
+    reviews: typeof d.reviews === 'number' ? d.reviews : parseInt(String(d.reviews ?? '0'), 10),
+    stock: typeof d.stock === 'number' ? d.stock : parseInt(String(d.stock ?? '0'), 10),
+    features: Array.isArray(d.features) ? d.features : [],
+  }
+}
 
   return (
     <div className="py-12">

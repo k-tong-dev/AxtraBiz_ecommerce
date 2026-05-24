@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ResourceView } from '../../../../../components/Base/Views'
 import { productConfig } from '../../config'
-import type { Product } from '@/lib/drizzle/server'
+import type { ProductTemplate } from '@/lib/drizzle/server'
 
 export default function EditProductPage() {
     const router = useRouter()
@@ -12,7 +12,7 @@ export default function EditProductPage() {
     const productId = params.id as string
 
     const [loading, setLoading] = useState(true)
-    const [product, setProduct] = useState<Product | null>(null)
+    const [product, setProduct] = useState<ProductTemplate | null>(null)
 
     useEffect(() => {
         const loadProduct = async () => {

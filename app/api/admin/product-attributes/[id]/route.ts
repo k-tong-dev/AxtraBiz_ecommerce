@@ -5,7 +5,7 @@ import {
   deleteProductAttributeFromDrizzle
 } from '../../../../../lib/drizzle/product-attributes'
 import { eq } from 'drizzle-orm'
-import { product_attributes_rel, products, product_variants, product_attributes, product_attribute_values } from '@/drizzle/schema'
+import { product_attributes_rel, product_template, product_variants, product_attributes, product_attribute_values } from '@/drizzle/schema'
 import { db } from '@/lib/drizzle/server'
 import { calculateVariants, compareVariants, Attribute, AttributeValue } from '@/lib/utils/variant-calculator'
 import { createClient } from '@/utils/supabase/server'

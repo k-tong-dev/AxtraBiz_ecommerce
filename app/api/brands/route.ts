@@ -23,8 +23,9 @@ export async function POST(request: Request) {
     for (const item of items) {
       if (!item.id) item.id = crypto.randomUUID()
       if (!item.slug) item.slug = item.name?.toLowerCase().replace(/\s+/g, '-')
-      // FormView sends logo_id as array; db expects single value
-      if (Array.isArray(item.logo_id)) item.logo_id = item.logo_id[0] || null
+      if (typeof item.image_id === 'string') {
+        try { item.image_id = JSON.parse(item.image_id) } catch {}
+      }
       const r = await upsertBrandInDrizzle(item)
       if (!r.success) {
         return NextResponse.json({ success: false, error: r.error, index: results.length }, { status: 400 })
