@@ -18,6 +18,7 @@ export function AdminTopNavbar() {
     const handleLogout = () => {
         logout()
         setShowLogoutModal(false)
+        window.location.href = '/'
     }
 
     return (
