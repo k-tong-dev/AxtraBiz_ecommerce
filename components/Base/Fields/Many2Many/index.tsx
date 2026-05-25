@@ -1,10 +1,23 @@
 'use client'
 
 import * as React from 'react'
-import { TagPicker, Tag, Avatar } from 'rsuite'
+import { TagPicker, Avatar } from 'rsuite'
+import { cn } from '@/lib/utils'
 import type { FieldProps } from '../types'
 
+const PICKER_STYLE = {
+  borderTop: 0,
+  borderRight: 0,
+  borderLeft: 0,
+  borderRadius: 0,
+  outlineColor: 'transparent',
+  boxShadow: 'none',
+}
+
+const SIZE = { sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base' }
+
 export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
+  const [open, setOpen] = React.useState(false)
   const [options, setOptions] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(false)
 
@@ -15,6 +28,9 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
       return v.id || v.value_id || v.key
     }).filter(Boolean)
   }, [value])
+
+  const hasValue = selectedIds.length > 0
+  const floating = open || hasValue
 
   // Seed initial options from value objects (API returns full relation data)
   React.useEffect(() => {
@@ -69,33 +85,59 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
 
   return (
     <div className="w-full space-y-1">
-      <TagPicker
-        data={pickerData}
-        value={selectedIds}
-        onChange={(next) => onChange(next)}
-        creatable
-        onCreate={(value, item) => {
-          setOptions(prev => [...prev, { id: value, name: value, ...item }])
-          onChange([...selectedIds, value])
-        }}
-        searchable
-        block
-        loading={loading}
-        placeholder={config.placeholder || 'Select...'}
-        disabled={config.readonly}
-        onSearch={(kw) => { if (kw.length >= 1) fetchOptions(kw) }}
-        renderValue={(value, items, tags) => {
-          return tags
-        }}
-        renderOption={(label, item) => {
-          return <div className="flex items-center gap-2 py-0.5">{label}</div>
-        }}
-        tagProps={{ color: 'violet', closable: !config.readonly }}
-        size={config.size || 'md'}
-        menuStyle={{ maxHeight: 240 }}
-      />
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-      {config.helper && !error && <p className="text-muted-foreground text-xs mt-0.5">{config.helper}</p>}
+      <div className="relative">
+        <style>{`.rs-picker-toggle { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-bottom: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; } .rs-picker-tag-wrapper { min-height: unset !important; padding-top: 0 !important; padding-bottom: 2px !important; } .rs-picker-textbox { margin-top: 0 !important; } .rs-picker-toggle-wrapper { display: block !important; }`}</style>
+        <div className={cn(
+          'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200',
+          error ? 'border-destructive' : 'border-border',
+          config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm',
+        )}>
+          <TagPicker
+            data={pickerData}
+            value={selectedIds}
+            onChange={(next) => onChange(next)}
+            creatable
+            onCreate={(value, item) => {
+              setOptions(prev => [...prev, { id: value, name: value, ...item }])
+              onChange([...selectedIds, value])
+            }}
+            searchable
+            block
+            loading={loading}
+            placeholder={config.placeholder || ' '}
+            disabled={config.readonly}
+            onSearch={(kw) => { if (kw.length >= 1) fetchOptions(kw) }}
+            onOpen={() => setOpen(true)}
+            onClose={() => setOpen(false)}
+            renderValue={(value, items, tags) => {
+              return <div className="flex flex-wrap gap-0.5 py-0.5">{tags}</div>
+            }}
+            tagProps={{ color: 'violet', closable: !config.readonly, size: 'sm' }}
+            style={PICKER_STYLE}
+            size={config.size || 'md'}
+            menuStyle={{ maxHeight: 240 }}
+            cleanable={false}
+            preventOverflow
+          />
+        </div>
+        {config.label && (
+          <label className={cn(
+            'absolute left-0 z-10 origin-[0] text-muted-foreground duration-200 pointer-events-none',
+            floating ? '-translate-y-3 scale-75' : 'translate-y-0 scale-100',
+            error ? 'text-destructive' : floating ? 'text-primary' : 'text-muted-foreground',
+            SIZE[config.size || 'md'],
+          )}>
+            {config.label}
+          </label>
+        )}
+        <div className={cn(
+          'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 bg-foreground transition-transform duration-200',
+          open && 'scale-x-100',
+          error && 'bg-destructive',
+        )} />
+      </div>
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      {config.helper && !error && <p className="text-xs text-muted-foreground">{config.helper}</p>}
     </div>
   )
 }
