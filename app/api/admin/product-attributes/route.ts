@@ -6,7 +6,7 @@ import {
   deleteProductAttributeFromDrizzle
 } from '../../../../lib/drizzle/product-attributes'
 import type { ProductAttribute } from '../../../../lib/drizzle/server'
-import { createClient } from '@/utils/supabase/server'
+import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET() {
   try {
@@ -34,8 +34,7 @@ function processAttributeFields(raw: Record<string, any>): Record<string, any> {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const userId = await getCurrentUserId()
 
     const body = await request.json()
     const items = Array.isArray(body) ? body : [body]
@@ -45,7 +44,7 @@ export async function POST(request: Request) {
       const processed = processAttributeFields(raw)
       if (raw.id) processed.id = raw.id
 
-      const result = await upsertProductAttributeInDrizzle(processed as any, user?.id)
+      const result = await upsertProductAttributeInDrizzle(processed as any, userId)
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }

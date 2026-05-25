@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm'
 import { product_attributes_rel, product_template, product_variants, product_attributes, product_attribute_values } from '@/drizzle/schema'
 import { db } from '@/lib/drizzle/server'
 import { calculateVariants, compareVariants, Attribute, AttributeValue } from '@/lib/utils/variant-calculator'
-import { createClient } from '@/utils/supabase/server'
+import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 /**
  * Cascade delete: Remove variants that depend on this attribute
@@ -171,9 +171,8 @@ export async function PUT(
     console.log('[PUT] ID from params:', id)
 
     // Get current user from Supabase
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    console.log('[PUT] Current user:', user?.id)
+    const userId = await getCurrentUserId()
+    console.log('[PUT] Current user:', userId)
 
     const body = await request.json()
     console.log('[PUT] Request body:', body)
@@ -199,15 +198,14 @@ export async function PUT(
     console.log('[PUT] Processed body:', processedBody)
 
     // Pass userId to base CRUD for automatic tracking
-    const result = await upsertProductAttributeInDrizzle(processedBody, user?.id)
-    console.log('[PUT] Upsert result:', result)
-
+    const result = await upsertProductAttributeInDrizzle(processedBody, userId)
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 })
+      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
     }
 
-    if (valueIds) {
-      const relResult = await updateProductAttributeValueRelationsForAttribute(id, valueIds, user?.id)
+    // Update value relations for this attribute
+    if (valueIds !== undefined) {
+      const relResult = await updateProductAttributeValueRelationsForAttribute(id, valueIds, userId)
       if (!relResult.success) {
         return NextResponse.json({ error: relResult.error }, { status: 400 })
       }

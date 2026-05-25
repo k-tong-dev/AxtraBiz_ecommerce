@@ -1,17 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+import { supabaseUrl, supabaseAnonKey, requireEnv } from './config'
 
 export const updateSession = async (request: NextRequest) => {
-  if (!supabaseUrl || !supabaseKey) return NextResponse.next({ request })
+  const url = requireEnv('NEXT_PUBLIC_SUPABASE_URL', supabaseUrl)
+  const key = requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey)
 
   let response = NextResponse.next({ request })
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+  const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
         return request.cookies.getAll()

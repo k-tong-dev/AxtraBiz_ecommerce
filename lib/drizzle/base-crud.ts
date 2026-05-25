@@ -1,7 +1,7 @@
 import { db } from '../drizzle/server'
 import { eq } from 'drizzle-orm'
 import { PgTable } from 'drizzle-orm/pg-core'
-import { createClient } from '@/utils/supabase/server'
+import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 const FK_META = Symbol.for('drizzle:PgInlineForeignKeys')
 
@@ -83,13 +83,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   private async getEffectiveUserId(userId?: string): Promise<string | undefined> {
     if (userId) return userId
     if (this.userId) return this.userId
-    try {
-      const supabase = await createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      return user?.id
-    } catch {
-      return undefined
-    }
+    return getCurrentUserId()
   }
 
   /**

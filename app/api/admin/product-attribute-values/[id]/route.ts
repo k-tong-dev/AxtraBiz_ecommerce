@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
+import { getCurrentUserId } from '@/utils/supabase/current-user'
 import {
   fetchProductAttributeValueFromDrizzle,
   upsertProductAttributeValueInDrizzle,
@@ -51,8 +51,7 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
 
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const userId = await getCurrentUserId()
 
     const processedBody = processScalarFields(body, id)
 
@@ -61,7 +60,7 @@ export async function PUT(
       processedBody.attribute_id = body.attribute_id
     }
 
-    const result = await upsertProductAttributeValueInDrizzle(processedBody as any, user?.id)
+    const result = await upsertProductAttributeValueInDrizzle(processedBody as any, userId)
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })

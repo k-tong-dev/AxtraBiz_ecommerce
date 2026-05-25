@@ -4,7 +4,7 @@ import {
   upsertCategoryInDrizzle,
   deleteCategoryFromDrizzle
 } from '@/lib/drizzle/categories'
-import { createClient } from '@/utils/supabase/server'
+import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET() {
   try {
@@ -17,15 +17,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const userId = await getCurrentUserId()
 
     const body = await request.json()
     const items = Array.isArray(body) ? body : [body]
 
     const results: any[] = []
     for (const item of items) {
-      const r = await upsertCategoryInDrizzle(item, user?.id)
+      const r = await upsertCategoryInDrizzle(item, userId)
       if (!r.success) {
         return NextResponse.json({ success: false, error: r.error, index: results.length }, { status: 400 })
       }

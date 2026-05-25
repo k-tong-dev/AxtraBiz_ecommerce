@@ -1,33 +1,29 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+import { supabaseUrl, supabaseAnonKey, requireEnv } from './config'
 
 export const createClient = async () => {
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase server environment variables')
-  }
-
   const cookieStore = await cookies()
 
-  return createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll()
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
-          )
-        } catch {
-          // Server Components may not allow setting cookies directly.
-        }
+  return createServerClient(
+    requireEnv('NEXT_PUBLIC_SUPABASE_URL', supabaseUrl),
+    requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey),
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            )
+          } catch {
+            // Server Components may not allow setting cookies directly.
+          }
+        },
       },
     },
-  })
+  )
 }
 
