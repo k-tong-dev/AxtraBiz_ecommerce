@@ -56,16 +56,44 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
   disabled,
   readonly
 }) => {
+  const config = field.widgetConfig as One2ManyWidgetConfig
+
+  // Developer validation
+  if (typeof window !== 'undefined') {
+    if (!config) {
+      console.error(
+        '[One2ManyWidget] Missing widgetConfig. ' +
+        'You must provide a widgetConfig with at least "relation" and "columns". ' +
+        'Example: widgetConfig: { relation: "/api/admin/child-records", inverseField: "parent_id", columns: [...] }'
+      )
+    } else if (!config.columns || !Array.isArray(config.columns)) {
+      console.error(
+        '[One2ManyWidget] Missing or invalid "columns" in widgetConfig. ' +
+        'You must define the columns to display/edit. ' +
+        'Example: columns: [{ key: "name", title: "Name", type: "string", editable: true }]'
+      )
+    }
+  }
+
+  // Guard: show fallback UI instead of crashing when config is missing
+  if (!config || !config.columns || !Array.isArray(config.columns)) {
+    return (
+      <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
+        <p className="text-sm text-destructive font-medium">One2ManyWidget configuration error</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Missing or invalid <code>widgetConfig.columns</code>. Check the browser console for details.
+        </p>
+      </div>
+    )
+  }
+
   const [items, setItems] = useState<any[]>(value || [])
   const [loading, setLoading] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [columnOptions, setColumnOptions] = useState<Record<string, any[]>>({})
-  
-  const config = field.widgetConfig as One2ManyWidgetConfig
   const parentId = formData?.id
   
   console.log('[One2ManyWidget] Config:', config)
-  console.log('[One2ManyWidget] allowCreate:', config.allowCreate)
   console.log('[One2ManyWidget] Field:', field)
   
   // Sync with external value

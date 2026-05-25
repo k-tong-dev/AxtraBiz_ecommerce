@@ -29,6 +29,7 @@ export function YearField({ config, value, onChange, error }: FieldProps) {
           placeholder={config.placeholder || ' '}
           editable={false}
           preventOverflow
+          placement={"auto"}
           disabled={config.readonly}
           className={cn(
             'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50',

@@ -97,7 +97,7 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
             data={pickerData}
             value={selectedIds}
             onChange={(next) => onChange(next)}
-            creatable
+            creatable={false}
             onCreate={(value, item) => {
               setOptions(prev => [...prev, { id: value, name: value, ...item }])
               onChange([...selectedIds, value])
@@ -113,11 +113,14 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
             renderValue={(value, items, tags) => {
               return <div className="flex flex-wrap gap-0.5 py-0.5">{tags}</div>
             }}
-            tagProps={{ color: 'violet', closable: !config.readonly, size: 'sm' }}
+            tagProps={{ color: 'azure', closable: !config.readonly, size: 'sm' }}
             style={PICKER_STYLE}
             size={config.size || 'md'}
             cleanable={true}
             preventOverflow
+            trigger={"Space"}
+            placement={"auto"}
+            virtualized
           />
         </div>
         {config.label && (
@@ -131,7 +134,7 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
           </label>
         )}
         <div className={cn(
-          'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 bg-foreground transition-transform duration-200',
+          'absolute bottom-0 left-1/2 h-px w-full -translate-x-1/2 scale-x-0 bg-foreground transition-transform duration-200',
           open && 'scale-x-100',
           error && 'bg-destructive',
         )} />

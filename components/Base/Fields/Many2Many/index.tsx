@@ -97,7 +97,7 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
             data={pickerData}
             value={selectedIds}
             onChange={(next) => onChange(next)}
-            creatable
+            creatable={false}
             onCreate={(value, item) => {
               setOptions(prev => [...prev, { id: value, name: value, ...item }])
               onChange([...selectedIds, value])
@@ -118,6 +118,7 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
             size={config.size || 'md'}
             cleanable={true}
             preventOverflow
+            placement={"auto"}
           />
         </div>
         {config.label && (

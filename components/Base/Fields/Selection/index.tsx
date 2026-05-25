@@ -118,7 +118,9 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             cascade={false}
                             cleanable={true}
                             getChildren={undefined}
-                            block preventOverflow sticky
+                            block
+                            preventOverflow
+                            placement={"auto"}
                         />
                     ) : config.tree ? (
                         <TreePicker
@@ -127,7 +129,9 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             onChange={handleChange}
                             cleanable={true}
                             getChildren={undefined}
-                            block preventOverflow sticky
+                            block
+                            preventOverflow
+                            placement={"auto"}
                         />
                     ) : config.multiple ? (
                         <CheckPicker
@@ -135,7 +139,10 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             value={(value as string[]) || []}
                             onChange={handleChange}
                             cleanable={true}
-                            sticky block preventOverflow
+                            sticky={true}
+                            block
+                            preventOverflow
+                            placement={"auto"}
                         />
                     ) : (
                         <SelectPicker
@@ -144,7 +151,9 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             onChange={handleChange}
                             groupBy={config.groupBy}
                             cleanable={true}
-                            block preventOverflow sticky
+                            block
+                            preventOverflow
+                            placement={"auto"}
                         />
                     )}
                 </div>

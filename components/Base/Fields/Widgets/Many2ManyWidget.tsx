@@ -117,6 +117,34 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
   const config = field.widgetConfig as Many2ManyWidgetConfig;
   const parentId = formData?.id;
 
+  // Developer validation
+  if (typeof window !== 'undefined') {
+    if (!config) {
+      console.error(
+        '[Many2ManyWidget] Missing widgetConfig. ' +
+        'You must provide a widgetConfig with at least "relation", "localField", and "remoteField". ' +
+        'Example: widgetConfig: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }'
+      )
+    } else if (!config.relation || !config.localField || !config.remoteField) {
+      console.error(
+        `[Many2ManyWidget] Missing required config: ${!config.relation ? 'relation ' : ''}${!config.localField ? 'localField ' : ''}${!config.remoteField ? 'remoteField' : ''}. ` +
+        'Example: widgetConfig: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }'
+      )
+    }
+  }
+
+  // Guard: show fallback UI instead of crashing when config is missing
+  if (!config || !config.relation || !config.localField || !config.remoteField) {
+    return (
+      <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
+        <p className="text-sm text-destructive font-medium">Many2ManyWidget configuration error</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Missing required widgetConfig properties (<code>relation</code>, <code>localField</code>, <code>remoteField</code>). Check the browser console for details.
+        </p>
+      </div>
+    )
+  }
+
   // Track original items from initial API load
   useEffect(() => {
     if (value && value.length > 0) {

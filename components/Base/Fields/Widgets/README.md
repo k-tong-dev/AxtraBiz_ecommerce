@@ -289,6 +289,35 @@ const renderField = (field: FormField) => {
 6. **Performance**: Use React.memo for expensive widgets
 7. **Testing**: Write unit tests for widget components
 
+## Widget Validation & Developer Warnings
+
+Widgets validate their required configuration at runtime and log clear errors to the browser console when misconfigured. This helps developers identify issues quickly instead of encountering cryptic crashes.
+
+### Required Configurations
+
+| Widget      | Required widgetConfig properties                    | Error example                                      |
+|-------------|-----------------------------------------------------|----------------------------------------------------|
+| `one2many`  | `relation`, `columns` (must be a non-empty array)   | `[One2ManyWidget] Missing widgetConfig.`           |
+| `many2many` | `relation`, `localField`, `remoteField`             | `[Many2ManyWidget] Missing required widgetConfig.` |
+| `many2one`  | `relation`                                          | `[Many2OneWidget] Missing required widgetConfig.`  |
+
+### Developer Experience
+
+When a widget is missing required configuration:
+1. A **red-bordered fallback UI** is rendered in place of the widget so the page doesn't crash
+2. A **detailed error message** is logged to the browser console explaining what's missing and how to fix it
+3. The error message includes an **example configuration** for reference
+
+Example browser console output:
+```
+[One2ManyWidget] Missing or invalid "columns" in widgetConfig.
+You must define the columns to display/edit.
+Example: columns: [{ key: "name", title: "Name", type: "string", editable: true }]
+```
+
+Example rendered fallback UI shows a red-bordered box with the message:
+"One2ManyWidget configuration error - Missing or invalid widgetConfig.columns. Check the browser console for details."
+
 ## Server-Side Handling
 
 ### One2Many Save Pattern
