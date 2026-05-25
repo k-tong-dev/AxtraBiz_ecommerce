@@ -40,7 +40,7 @@ import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
 
 import {ServerActions, ServerActionConfig, ActionContext} from '../../Actions'
-import { getWidget, registerWidget } from '../../Fields/Widgets'
+import { getWidget, registerWidget, fieldWidgets } from '../../Fields/Widgets'
 import { Many2ManyWidget } from '../../Fields/Widgets/Many2ManyWidget'
 import { One2ManyWidget } from '../../Fields/Widgets/One2ManyWidget'
 import { Many2OneWidget } from '../../Fields/Widgets/Many2OneWidget'
@@ -787,6 +787,12 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
                         )}
                     </div>
+                )
+            } else if (typeof window !== 'undefined') {
+                console.warn(
+                    `[FormView] No widget registered for name "${field.widget}" on field "${field.key}". ` +
+                    `Available widgets: ${Object.keys(fieldWidgets).join(', ') || 'none'}. ` +
+                    'Falling through to default field rendering or component.'
                 )
             }
         }
