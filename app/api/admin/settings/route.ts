@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
 import {
-  fetchOrdersFromDrizzle,
-  upsertOrderInDrizzle,
-  deleteOrderFromDrizzle
-} from '../../../lib/drizzle/orders'
-import type { Order } from '../../../lib/drizzle/server'
+  fetchSettingsFromDrizzle,
+  upsertSettingInDrizzle,
+  deleteSettingFromDrizzle
+} from '../../../../lib/drizzle/settings'
+import type { Setting } from '../../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allOrders = await fetchOrdersFromDrizzle()
-    return NextResponse.json(allOrders)
+    const allSettings = await fetchSettingsFromDrizzle()
+    return NextResponse.json(allSettings)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 })
   }
 }
 
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await upsertOrderInDrizzle(body)
+    const result = await upsertSettingInDrizzle(body)
     
     if (result.success) {
       return NextResponse.json({ success: true, data: body })
@@ -43,17 +43,17 @@ export async function DELETE(request: Request) {
     const id = url.searchParams.get('id')
     
     if (!id) {
-      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
+      return NextResponse.json({ error: 'Setting ID is required' }, { status: 400 })
     }
     
-    const result = await deleteOrderFromDrizzle(id)
+    const result = await deleteSettingFromDrizzle(id)
     
     if (result) {
       return NextResponse.json({ success: true })
     } else {
       return NextResponse.json({ 
         success: false, 
-        error: 'Failed to delete order'
+        error: 'Failed to delete setting'
       }, { status: 400 })
     }
   } catch (error) {

@@ -20,7 +20,7 @@ export default function AdminSettingsPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/settings')
+        const response = await fetch('/api/admin/settings')
         const allSettings = await response.json()
         setSettings(allSettings)
         setLoading(false)
@@ -53,7 +53,7 @@ export default function AdminSettingsPage() {
 
     try {
       setSettings((prev) => prev.filter((s) => String(s.id) !== id))
-      const response = await fetch(`/api/settings?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/settings?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Setting deleted', 'The setting was removed successfully.')

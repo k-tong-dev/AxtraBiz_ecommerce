@@ -27,7 +27,7 @@ export default function ProductsPage() {
     let mounted = true
     ;(async () => {
       try {
-        const res = await fetch('/api/products')
+        const res = await fetch('/api/admin/products')
         if (!res.ok) {
           console.error('[ShopProducts] API error:', res.status)
           return

@@ -20,7 +20,7 @@ export default function AdminOrdersPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/orders')
+        const response = await fetch('/api/admin/orders')
         const allOrders = await response.json()
         setOrders(allOrders)
         setLoading(false)
@@ -53,7 +53,7 @@ export default function AdminOrdersPage() {
 
     try {
       setOrders((prev) => prev.filter((o) => String(o.id) !== id))
-      const response = await fetch(`/api/orders?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/orders?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Order deleted', 'The order was removed successfully.')

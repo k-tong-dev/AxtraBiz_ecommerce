@@ -20,7 +20,7 @@ export default function EditBrandPage() {
 
     ;(async () => {
       try {
-        const response = await fetch(`/api/brands/${id}`)
+        const response = await fetch(`/api/admin/brands/${id}`)
         if (!response.ok) throw new Error('Not found')
         const data = await response.json()
         setBrand(data)

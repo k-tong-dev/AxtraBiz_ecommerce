@@ -3,7 +3,7 @@ import { FormConfig } from '@/components/Base/Views/FormView'
 export const categoryFormConfig: FormConfig = {
   entityName: 'Category',
   entityNamePlural: 'Categories',
-  apiEndpoint: '/api/categories',
+  apiEndpoint: '/api/admin/categories',
   fields: [
     {
       key: 'name',
@@ -42,7 +42,7 @@ export const categoryFormConfig: FormConfig = {
       key: 'parent_id',
       label: 'Parent Category',
       type: 'many2one',
-      fetchUrl: '/api/categories',
+      fetchUrl: '/api/admin/categories',
       required: false,
       placeholder: 'Select parent category',
       columnWidth: 1,

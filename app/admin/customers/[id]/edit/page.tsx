@@ -17,7 +17,7 @@ export default function EditCustomerPage() {
     useEffect(() => {
         const loadCustomer = async () => {
             try {
-                const response = await fetch(`/api/users?id=${customerId}`)
+                const response = await fetch(`/api/admin/users?id=${customerId}`)
                 if (response.ok) {
                     const data = await response.json()
                     setCustomer(data)

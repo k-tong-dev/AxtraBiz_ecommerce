@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { KanbanItemHandle } from '@/components/Base/Views/KanbanView/kanban'
 import { GripVertical } from 'lucide-react'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
 import { FaTrash } from "react-icons/fa";
 
 
@@ -20,29 +19,10 @@ interface ProductCardProps {
 
 export function ProductCard({ card, onCardClick, onCardEdit, onCardDelete, showDragHandle = false }: ProductCardProps) {
   const router = useRouter()
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchAttachmentUrl = async () => {
-      const imageIds = card.data.image_ids
-      if (imageIds && imageIds.length > 0) {
-        try {
-          const response = await fetch('/api/admin/get-attachments', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ids: imageIds })
-          })
-          const data = await response.json()
-          if (data.attachments && data.attachments.length > 0) {
-            setImageUrl(data.attachments[0].url)
-          }
-        } catch (error) {
-          console.error('Failed to fetch attachment:', error)
-        }
-      }
-    }
-    fetchAttachmentUrl()
-  }, [card.data.image_ids])
+  const imageIds = card.data.image_ids
+  const fileArray = Array.isArray(imageIds) ? imageIds : []
+  const imageUrl: string | null = fileArray.length > 0 && fileArray[0]?.url ? fileArray[0].url : null
 
   const handleCardClick = () => {
     if (onCardClick) {
@@ -113,7 +93,7 @@ export function ProductCard({ card, onCardClick, onCardEdit, onCardDelete, showD
                 if (onCardDelete) {
                   onCardDelete({ id: card.id, data: card.data })
                 } else if (confirm('Delete this product?')) {
-                  await fetch(`/api/products/${card.id}`, { method: 'DELETE' })
+                  await fetch(`/api/admin/products/${card.id}`, { method: 'DELETE' })
                   window.location.reload()
                 }
               }}

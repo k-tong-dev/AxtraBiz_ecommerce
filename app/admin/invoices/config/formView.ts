@@ -3,7 +3,7 @@ import { FormConfig } from '@/components/Base/Views/FormView'
 export const invoiceFormConfig: FormConfig = {
   entityName: 'Invoice',
   entityNamePlural: 'Invoices',
-  apiEndpoint: '/api/invoices',
+  apiEndpoint: '/api/admin/invoices',
   fields: [
     {
       key: 'id',

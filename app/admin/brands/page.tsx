@@ -19,7 +19,7 @@ export default function AdminBrandsPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/brands')
+        const response = await fetch('/api/admin/brands')
         const all = await response.json()
         setBrands(all)
         setLoading(false)
@@ -44,7 +44,7 @@ export default function AdminBrandsPage() {
 
     try {
       setBrands((prev) => prev.filter((b) => String(b.id) !== id))
-      const response = await fetch(`/api/brands?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/brands?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Brand deleted', 'The brand was removed successfully.')

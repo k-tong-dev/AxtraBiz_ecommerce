@@ -12,7 +12,7 @@ import { createElement } from 'react'
 export const invoiceConfig = {
   entityName: 'Invoice',
   entityNamePlural: 'Invoices',
-  apiEndpoint: '/api/invoices',
+  apiEndpoint: '/api/admin/invoices',
 
   // Default action flags - built-in actions enabled by default
   defaultActions: {

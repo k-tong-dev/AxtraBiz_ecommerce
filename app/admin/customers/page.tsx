@@ -20,7 +20,7 @@ export default function AdminCustomersPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/users')
+        const response = await fetch('/api/admin/users')
         const allCustomers = await response.json()
         setCustomers(allCustomers)
         setLoading(false)
@@ -53,7 +53,7 @@ export default function AdminCustomersPage() {
 
     try {
       setCustomers((prev) => prev.filter((u) => String(u.id) !== id))
-      const response = await fetch(`/api/users?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Customer deleted', 'The customer was removed successfully.')

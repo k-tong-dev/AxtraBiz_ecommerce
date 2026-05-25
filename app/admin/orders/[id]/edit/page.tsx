@@ -17,7 +17,7 @@ export default function EditOrderPage() {
     useEffect(() => {
         const loadOrder = async () => {
             try {
-                const response = await fetch(`/api/orders?id=${orderId}`)
+                const response = await fetch(`/api/admin/orders?id=${orderId}`)
                 if (response.ok) {
                     const data = await response.json()
                     setOrder(data)

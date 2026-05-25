@@ -3,8 +3,8 @@ import {
   fetchCategoryFromDrizzle,
   upsertCategoryInDrizzle,
   deleteCategoryFromDrizzle
-} from '../../../../lib/drizzle/categories'
-import type { ProductCategory } from '../../../../lib/drizzle/server'
+} from '../../../../../lib/drizzle/categories'
+import type { ProductCategory } from '../../../../../lib/drizzle/server'
 import { createClient } from '@/utils/supabase/server'
 
 export async function GET(

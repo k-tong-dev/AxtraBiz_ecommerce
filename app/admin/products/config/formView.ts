@@ -6,7 +6,7 @@ import {MdDescription} from "react-icons/md";
 export const productFormConfig: FormConfig = {
   entityName: 'Product',
   entityNamePlural: 'Products',
-  apiEndpoint: '/api/products',
+  apiEndpoint: '/api/admin/products',
   fields: [
     // Media & Files Section - Always first
     {
@@ -414,7 +414,7 @@ export const productFormConfig: FormConfig = {
           key: 'category_id',
           label: 'Category',
           type: 'many2one',
-          fetchUrl: '/api/categories',
+          fetchUrl: '/api/admin/categories',
           required: false,
           placeholder: 'Select category',
           columnWidth: 1,
@@ -426,7 +426,7 @@ export const productFormConfig: FormConfig = {
           key: 'brand_id',
           label: 'Brand',
           type: 'many2one',
-          fetchUrl: '/api/brands',
+          fetchUrl: '/api/admin/brands',
           required: false,
           placeholder: 'Select brand',
           columnWidth: 1,

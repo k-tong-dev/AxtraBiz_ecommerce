@@ -21,7 +21,7 @@ export default function EditProductPage() {
 
         const loadProduct = async () => {
             try {
-                const response = await fetch(`/api/products/${productId}`)
+                const response = await fetch(`/api/admin/products/${productId}`)
                 if (response.ok) {
                     const data = await response.json()
                     setProduct(data)

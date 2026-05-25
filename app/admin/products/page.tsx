@@ -20,7 +20,7 @@ export default function AdminProductsPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/products')
+        const response = await fetch('/api/admin/products')
         const allProducts = await response.json()
         setProducts(allProducts)
         setLoading(false)
@@ -53,7 +53,7 @@ export default function AdminProductsPage() {
 
     try {
       setProducts((prev) => prev.filter((p) => p.id !== id))
-      const response = await fetch(`/api/products/${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Product deleted', 'The product was removed successfully.')

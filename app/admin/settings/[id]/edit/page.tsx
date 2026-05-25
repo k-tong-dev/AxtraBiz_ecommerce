@@ -17,7 +17,7 @@ export default function EditSettingPage() {
     useEffect(() => {
         const loadSetting = async () => {
             try {
-                const response = await fetch(`/api/settings?id=${settingId}`)
+                const response = await fetch(`/api/admin/settings?id=${settingId}`)
                 if (response.ok) {
                     const data = await response.json()
                     setSetting(data)

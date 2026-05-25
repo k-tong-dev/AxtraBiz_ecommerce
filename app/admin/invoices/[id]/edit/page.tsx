@@ -17,7 +17,7 @@ export default function EditInvoicePage() {
     useEffect(() => {
         const loadInvoice = async () => {
             try {
-                const response = await fetch(`/api/invoices?id=${invoiceId}`)
+                const response = await fetch(`/api/admin/invoices?id=${invoiceId}`)
                 if (response.ok) {
                     const data = await response.json()
                     setInvoice(data)

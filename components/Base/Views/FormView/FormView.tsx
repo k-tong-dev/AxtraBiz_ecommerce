@@ -219,7 +219,7 @@ export interface FormConfig {
     entityName: string
     entityNamePlural: string
     apiEndpoint: string
-    resModel?: string  // Model name for ir_attachment res_model (default: derived from apiEndpoint)
+
     fields: FormField[]
     pages?: FormPage[]  // Custom pages with components or fields (like Odoo)
     actions?: {  // Made optional - now using centralized serverActions from ResourceView

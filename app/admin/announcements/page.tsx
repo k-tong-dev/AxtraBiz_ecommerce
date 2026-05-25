@@ -20,7 +20,7 @@ export default function AdminAnnouncementsPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/announcements')
+        const response = await fetch('/api/admin/announcements')
         const allAnnouncements = await response.json()
         setAnnouncements(allAnnouncements)
         setLoading(false)
@@ -53,7 +53,7 @@ export default function AdminAnnouncementsPage() {
 
     try {
       setAnnouncements((prev) => prev.filter((a) => String(a.id) !== id))
-      const response = await fetch(`/api/announcements?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/announcements?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Announcement deleted', 'The announcement was removed successfully.')

@@ -12,7 +12,7 @@ import { createElement } from 'react'
 export const orderConfig = {
   entityName: 'Order',
   entityNamePlural: 'Orders',
-  apiEndpoint: '/api/orders',
+  apiEndpoint: '/api/admin/orders',
 
   // Default action flags - built-in actions enabled by default
   defaultActions: {

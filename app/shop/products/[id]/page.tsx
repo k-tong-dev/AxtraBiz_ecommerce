@@ -27,7 +27,7 @@ export default function ProductDetailPage() {
     let mounted = true
     ;(async () => {
       try {
-        const res = await fetch(`/api/products/${productId}`)
+        const res = await fetch(`/api/admin/products/${productId}`)
         if (!res.ok) {
           console.error('[ShopProductDetail] API error:', res.status)
           return

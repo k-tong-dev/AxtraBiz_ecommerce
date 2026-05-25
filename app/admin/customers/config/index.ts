@@ -12,7 +12,7 @@ import { createElement } from 'react'
 export const customerConfig = {
   entityName: 'Customer',
   entityNamePlural: 'Customers',
-  apiEndpoint: '/api/users',
+  apiEndpoint: '/api/admin/users',
 
   // Default action flags - built-in actions enabled by default
   defaultActions: {

@@ -20,7 +20,7 @@ export default function AdminCategoriesPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/categories')
+        const response = await fetch('/api/admin/categories')
         const all = await response.json()
         setCategories(all)
         setLoading(false)
@@ -45,7 +45,7 @@ export default function AdminCategoriesPage() {
 
     try {
       setCategories((prev) => prev.filter((c) => String(c.id) !== id))
-      const response = await fetch(`/api/categories?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/categories?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Category deleted', 'The category was removed successfully.')

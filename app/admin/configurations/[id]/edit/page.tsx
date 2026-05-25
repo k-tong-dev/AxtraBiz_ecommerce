@@ -17,7 +17,7 @@ export default function EditConfigurationPage() {
     useEffect(() => {
         const loadConfiguration = async () => {
             try {
-                const response = await fetch(`/api/configurations?id=${configurationId}`)
+                const response = await fetch(`/api/admin/configurations?id=${configurationId}`)
                 if (response.ok) {
                     const data = await response.json()
                     setConfiguration(data)

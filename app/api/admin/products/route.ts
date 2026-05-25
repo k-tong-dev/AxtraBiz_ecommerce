@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import {
   fetchProductsFromDrizzle,
   upsertProductInDrizzle
-} from '../../../lib/drizzle/products'
-import type { ProductTemplate } from '../../../lib/drizzle/server'
+} from '../../../../lib/drizzle/products'
+import type { ProductTemplate } from '../../../../lib/drizzle/server'
 
 export async function GET() {
   try {

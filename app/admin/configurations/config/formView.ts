@@ -3,7 +3,7 @@ import { FormConfig } from '@/components/Base/Views/FormView'
 export const configurationFormConfig: FormConfig = {
   entityName: 'Configuration',
   entityNamePlural: 'Configurations',
-  apiEndpoint: '/api/configurations',
+  apiEndpoint: '/api/admin/configurations',
   fields: [
     {
       key: 'id',

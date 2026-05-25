@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
 import {
-  fetchInvoicesFromDrizzle,
-  upsertInvoiceInDrizzle,
-  deleteInvoiceFromDrizzle
-} from '../../../lib/drizzle/invoices'
-import type { Invoice } from '../../../lib/drizzle/server'
+  fetchOrdersFromDrizzle,
+  upsertOrderInDrizzle,
+  deleteOrderFromDrizzle
+} from '../../../../lib/drizzle/orders'
+import type { Order } from '../../../../lib/drizzle/server'
 
 export async function GET() {
   try {
-    const allInvoices = await fetchInvoicesFromDrizzle()
-    return NextResponse.json(allInvoices)
+    const allOrders = await fetchOrdersFromDrizzle()
+    return NextResponse.json(allOrders)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
   }
 }
 
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await upsertInvoiceInDrizzle(body)
+    const result = await upsertOrderInDrizzle(body)
     
     if (result.success) {
       return NextResponse.json({ success: true, data: body })
@@ -43,17 +43,17 @@ export async function DELETE(request: Request) {
     const id = url.searchParams.get('id')
     
     if (!id) {
-      return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 })
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
     }
     
-    const result = await deleteInvoiceFromDrizzle(id)
+    const result = await deleteOrderFromDrizzle(id)
     
     if (result) {
       return NextResponse.json({ success: true })
     } else {
       return NextResponse.json({ 
         success: false, 
-        error: 'Failed to delete invoice'
+        error: 'Failed to delete order'
       }, { status: 400 })
     }
   } catch (error) {

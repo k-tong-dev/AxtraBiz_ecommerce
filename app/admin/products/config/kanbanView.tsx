@@ -8,7 +8,7 @@ export const getProductKanbanConfig = (data: any[] = []): KanbanViewConfig => ({
   onStateChange: async (cardId, newState) => {
     console.log('Moving card', cardId, 'to', newState)
     // API call to update status
-    await fetch(`/api/products/${cardId}`, {
+    await fetch(`/api/admin/products/${cardId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newState })
@@ -16,7 +16,7 @@ export const getProductKanbanConfig = (data: any[] = []): KanbanViewConfig => ({
   },
   onCardDelete: async (card) => {
     if (confirm('Delete this product?')) {
-      await fetch(`/api/products/${card.id}`, { method: 'DELETE' })
+      await fetch(`/api/admin/products/${card.id}`, { method: 'DELETE' })
       // Refresh data after delete
       window.location.reload()
     }

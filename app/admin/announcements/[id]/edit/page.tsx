@@ -17,7 +17,7 @@ export default function EditAnnouncementPage() {
     useEffect(() => {
         const loadAnnouncement = async () => {
             try {
-                const response = await fetch(`/api/announcements?id=${announcementId}`)
+                const response = await fetch(`/api/admin/announcements?id=${announcementId}`)
                 if (response.ok) {
                     const data = await response.json()
                     setAnnouncement(data)

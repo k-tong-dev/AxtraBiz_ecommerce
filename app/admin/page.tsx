@@ -65,9 +65,9 @@ export default function AdminDashboard() {
 
     ;(async () => {
       const [productRows, orderRows, customerRows] = await Promise.all([
-        fetch('/api/products').then(r => r.ok ? r.json() : []),
-        fetch('/api/orders').then(r => r.ok ? r.json() : []),
-        fetch('/api/customers').then(r => r.ok ? r.json() : []),
+        fetch('/api/admin/products').then(r => r.ok ? r.json() : []),
+        fetch('/api/admin/orders').then(r => r.ok ? r.json() : []),
+        fetch('/api/admin/users').then(r => r.ok ? r.json() : []),
       ])
 
       if (!mounted) return

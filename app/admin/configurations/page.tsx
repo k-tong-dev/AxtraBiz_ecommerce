@@ -20,7 +20,7 @@ export default function AdminConfigurationsPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/configurations')
+        const response = await fetch('/api/admin/configurations')
         const allConfigurations = await response.json()
         setConfigurations(allConfigurations)
         setLoading(false)
@@ -53,7 +53,7 @@ export default function AdminConfigurationsPage() {
 
     try {
       setConfigurations((prev) => prev.filter((c) => String(c.id) !== id))
-      const response = await fetch(`/api/configurations?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/configurations?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Configuration deleted', 'The configuration was removed successfully.')

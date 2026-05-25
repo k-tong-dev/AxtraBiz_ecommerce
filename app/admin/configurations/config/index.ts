@@ -12,7 +12,7 @@ import { createElement } from 'react'
 export const configurationConfig = {
   entityName: 'Configuration',
   entityNamePlural: 'Configurations',
-  apiEndpoint: '/api/configurations',
+  apiEndpoint: '/api/admin/configurations',
 
   // Default action flags - built-in actions enabled by default
   defaultActions: {

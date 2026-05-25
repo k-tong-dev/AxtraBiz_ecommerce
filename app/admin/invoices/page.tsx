@@ -20,7 +20,7 @@ export default function AdminInvoicesPage() {
 
     ;(async () => {
       try {
-        const response = await fetch('/api/invoices')
+        const response = await fetch('/api/admin/invoices')
         const allInvoices = await response.json()
         setInvoices(allInvoices)
         setLoading(false)
@@ -53,7 +53,7 @@ export default function AdminInvoicesPage() {
 
     try {
       setInvoices((prev) => prev.filter((inv) => String(inv.id) !== id))
-      const response = await fetch(`/api/invoices?id=${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/admin/invoices?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
         showToast('success', 'Invoice deleted', 'The invoice was removed successfully.')

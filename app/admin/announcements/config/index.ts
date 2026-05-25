@@ -12,7 +12,7 @@ import { createElement } from 'react'
 export const announcementConfig = {
   entityName: 'Announcement',
   entityNamePlural: 'Announcements',
-  apiEndpoint: '/api/announcements',
+  apiEndpoint: '/api/admin/announcements',
 
   // Default action flags - built-in actions enabled by default
   defaultActions: {

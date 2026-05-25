@@ -3,8 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const brandFormConfig: FormConfig = {
   entityName: 'Brand',
   entityNamePlural: 'Brands',
-  apiEndpoint: '/api/brands',
-  resModel: 'brands',
+  apiEndpoint: '/api/admin/brands',
   fields: [
     {
       key: 'image_id',

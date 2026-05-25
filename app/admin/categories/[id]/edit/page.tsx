@@ -21,7 +21,7 @@ export default function EditCategoryPage() {
 
     const load = async () => {
       try {
-        const response = await fetch(`/api/categories/${categoryId}`)
+        const response = await fetch(`/api/admin/categories/${categoryId}`)
         if (response.ok) {
           const data = await response.json()
           setCategory(data)
