@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { SelectPicker, Button, Loader } from 'rsuite'
 import { VscAdd, VscEdit } from 'react-icons/vsc'
 import { FieldWidgetProps } from './index'
+import { showWizardError } from '../../Wizard'
 
 /**
  * Many2One Widget Configuration
@@ -46,16 +47,14 @@ export const Many2OneWidget: React.FC<FieldWidgetProps> = ({
   // Developer validation
   if (typeof window !== 'undefined') {
     if (!config) {
-      console.error(
-        '[Many2OneWidget] Missing widgetConfig. ' +
-        'You must provide a widgetConfig with at least "relation". ' +
-        'Example: widgetConfig: { relation: "/api/admin/related-records", displayField: "name" }'
+      showWizardError(
+        '[Many2OneWidget] Missing widgetConfig',
+        'You must provide a widgetConfig with at least "relation". Example: { relation: "/api/admin/related-records", displayField: "name" }'
       )
     } else if (!config.relation) {
-      console.error(
-        '[Many2OneWidget] Missing "relation" in widgetConfig. ' +
-        'You must specify the API endpoint for fetching options. ' +
-        'Example: widgetConfig: { relation: "/api/admin/product-categories" }'
+      showWizardError(
+        '[Many2OneWidget] Missing "relation" in widgetConfig',
+        'Example: { relation: "/api/admin/product-categories" }'
       )
     }
   }
@@ -66,7 +65,7 @@ export const Many2OneWidget: React.FC<FieldWidgetProps> = ({
       <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
         <p className="text-sm text-destructive font-medium">Many2OneWidget configuration error</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Missing required widgetConfig property <code>relation</code>. Check the browser console for details.
+          Missing required widgetConfig property <code>relation</code>. A warning has been shown.
         </p>
       </div>
     )
@@ -111,7 +110,7 @@ export const Many2OneWidget: React.FC<FieldWidgetProps> = ({
           setSelectedRecord(selected || null)
         }
       } catch (error) {
-        console.error('[Many2OneWidget] Failed to fetch options:', error)
+        showWizardError('[Many2OneWidget] Failed to fetch options', String(error))
       } finally {
         setLoading(false)
       }
@@ -160,7 +159,7 @@ export const Many2OneWidget: React.FC<FieldWidgetProps> = ({
         ...item
       })))
     } catch (error) {
-      console.error('[Many2OneWidget] Search failed:', error)
+      showWizardError('[Many2OneWidget] Search failed', String(error))
     } finally {
       setLoading(false)
     }

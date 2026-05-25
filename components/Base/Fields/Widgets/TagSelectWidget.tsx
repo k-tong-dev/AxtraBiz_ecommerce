@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { TagPicker } from 'rsuite'
 import { FieldWidgetProps, FieldWidgetComponent } from './index'
+import { showWizardError } from '../../Wizard'
 
 interface TagSelectWidgetConfig {
   relation: string
@@ -23,15 +24,14 @@ export const TagSelectWidget: React.FC<FieldWidgetProps> = ({
   // Developer validation
   if (typeof window !== 'undefined') {
     if (!widgetConfig) {
-      console.error(
-        '[TagSelectWidget] Missing widgetConfig. ' +
-        'You must provide a widgetConfig with at least "relation" and "displayField". ' +
-        'Example: widgetConfig: { relation: "/api/admin/related-records", displayField: "name" }'
+      showWizardError(
+        '[TagSelectWidget] Missing widgetConfig',
+        'You must provide a widgetConfig with at least "relation" and "displayField". Example: { relation: "/api/admin/related-records", displayField: "name" }'
       )
     } else if (!widgetConfig.relation || !widgetConfig.displayField) {
-      console.error(
-        `[TagSelectWidget] Missing required config: ${!widgetConfig.relation ? 'relation ' : ''}${!widgetConfig.displayField ? 'displayField' : ''}. ` +
-        'Example: widgetConfig: { relation: "/api/admin/related-records", displayField: "name" }'
+      showWizardError(
+        '[TagSelectWidget] Missing required config',
+        `Missing: ${!widgetConfig.relation ? 'relation ' : ''}${!widgetConfig.displayField ? 'displayField' : ''}. Example: { relation: "/api/admin/related-records", displayField: "name" }`
       )
     }
   }
@@ -42,7 +42,7 @@ export const TagSelectWidget: React.FC<FieldWidgetProps> = ({
       <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
         <p className="text-sm text-destructive font-medium">TagSelectWidget configuration error</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Missing required widgetConfig properties (<code>relation</code>, <code>displayField</code>). Check the browser console for details.
+          Missing required widgetConfig properties (<code>relation</code>, <code>displayField</code>). A warning has been shown.
         </p>
       </div>
     )
@@ -64,7 +64,7 @@ export const TagSelectWidget: React.FC<FieldWidgetProps> = ({
           value: item[valueField]
         })))
       } catch (error) {
-        console.error('Error fetching options:', error)
+        showWizardError('[TagSelectWidget] Failed to fetch options', String(error))
       } finally {
         setLoading(false)
       }

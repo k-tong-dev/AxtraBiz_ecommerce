@@ -46,6 +46,7 @@ import { One2ManyWidget } from '../../Fields/Widgets/One2ManyWidget'
 import { Many2OneWidget } from '../../Fields/Widgets/Many2OneWidget'
 import { TagSelectWidget } from '@/components/Base/Fields/Widgets/TagSelectWidget'
 import {Switch} from "@/components/ui/switch";
+import { showWizardWarning, showWizardError } from '../../Wizard'
 
 // Register widgets on module load
 registerWidget(Many2ManyWidget as any)
@@ -345,7 +346,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     delete defaultData.id
                     isDuplicate = true
                 } catch (error) {
-                    console.error('Error parsing duplicate data:', error)
+                    showWizardError('Error parsing duplicate data', (error as Error)?.message)
                 }
             }
             
@@ -766,9 +767,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             }
             const valid = compatibleTypes[field.widget]
             if (typeof window !== 'undefined' && valid && !valid.includes(field.type)) {
-                console.warn(
-                    `[FormView] Widget "${field.widget}" used on field "${field.key}" with type "${field.type}". ` +
-                    `Expected one of: ${valid.join(', ')}. This may cause rendering issues.`
+                showWizardWarning(
+                    `Widget/type mismatch on "${field.key}"`,
+                    `Widget "${field.widget}" used with type "${field.type}". Expected one of: ${valid.join(', ')}.`
                 )
             }
             const WidgetComponent = getWidget(field.widget)
@@ -789,10 +790,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     </div>
                 )
             } else if (typeof window !== 'undefined') {
-                console.warn(
-                    `[FormView] No widget registered for name "${field.widget}" on field "${field.key}". ` +
-                    `Available widgets: ${Object.keys(fieldWidgets).join(', ') || 'none'}. ` +
-                    'Falling through to default field rendering or component.'
+                showWizardWarning(
+                    `Unknown widget "${field.widget}" on "${field.key}"`,
+                    `No widget registered for "${field.widget}". Available: ${Object.keys(fieldWidgets).join(', ') || 'none'}. Falling through to default rendering.`
                 )
             }
         }

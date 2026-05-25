@@ -1,6 +1,47 @@
 # Wizard Component
 
-A reusable multi-step form wizard for guided data entry, similar to Odoo's concept or setup wizards.
+Two tools in one package:
+
+1. **Multi-step form Wizard** — guided data entry with validation
+2. **Developer message system** — toast notifications that replace `console.warn`/`console.error` with visible UI
+
+---
+
+## Developer Message System
+
+Shows warning/error/info toasts in the app UI instead of (or in addition to) console logs.
+
+### Usage
+
+```tsx
+import { showWizardWarning, showWizardError } from '@/components/Base/Wizard'
+
+// In any widget, field, or view:
+showWizardWarning(
+  'Missing widgetConfig',
+  'Many2OneWidget requires a "relation" property in widgetConfig.'
+)
+
+showWizardError(
+  'Configuration Error',
+  'Field "price" has unknown type "currency".'
+)
+```
+
+### API
+
+| Function | Toast type | Duration |
+|---|---|---|
+| `showWizardInfo(title, description?)` | Info toast | 4s |
+| `showWizardWarning(title, description?)` | Warning toast | 6s |
+| `showWizardError(title, description?)` | Error toast | 8s |
+| `showWizardMessage(type, title, description?)` | Any type | varies |
+
+When called during SSR (`typeof window === 'undefined'`), the message falls back to `console.log`/`console.warn`/`console.error` automatically.
+
+---
+
+## Multi-step Form Wizard
 
 ## Features
 

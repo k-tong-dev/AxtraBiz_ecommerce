@@ -12,6 +12,7 @@ import {
 } from "rsuite";
 import { VscEdit, VscSave, VscRemove, VscAdd } from "react-icons/vsc";
 import { FieldWidgetProps } from "./index";
+import { showWizardError } from "../../Wizard";
 import { IoIosCreate } from "react-icons/io";
 import {Switch} from "@/components/ui/switch";
 import {Many2ManyField} from "@/components/Base/Fields";
@@ -120,15 +121,14 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
   // Developer validation
   if (typeof window !== 'undefined') {
     if (!config) {
-      console.error(
-        '[Many2ManyWidget] Missing widgetConfig. ' +
-        'You must provide a widgetConfig with at least "relation", "localField", and "remoteField". ' +
-        'Example: widgetConfig: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }'
+      showWizardError(
+        '[Many2ManyWidget] Missing widgetConfig',
+        'You must provide a widgetConfig with at least "relation", "localField", and "remoteField". Example: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }'
       )
     } else if (!config.relation || !config.localField || !config.remoteField) {
-      console.error(
-        `[Many2ManyWidget] Missing required config: ${!config.relation ? 'relation ' : ''}${!config.localField ? 'localField ' : ''}${!config.remoteField ? 'remoteField' : ''}. ` +
-        'Example: widgetConfig: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }'
+      showWizardError(
+        '[Many2ManyWidget] Missing required config',
+        `Missing: ${!config.relation ? 'relation ' : ''}${!config.localField ? 'localField ' : ''}${!config.remoteField ? 'remoteField' : ''}. Example: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }`
       )
     }
   }
@@ -139,7 +139,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
       <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
         <p className="text-sm text-destructive font-medium">Many2ManyWidget configuration error</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Missing required widgetConfig properties (<code>relation</code>, <code>localField</code>, <code>remoteField</code>). Check the browser console for details.
+          Missing required widgetConfig properties (<code>relation</code>, <code>localField</code>, <code>remoteField</code>). A warning has been shown.
         </p>
       </div>
     )
@@ -197,10 +197,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
         setRelatedOptions(options);
         setHasFetched(true);
       } catch (error) {
-        console.error(
-          "[Many2ManyWidget] Failed to fetch related records:",
-          error,
-        );
+        showWizardError("[Many2ManyWidget] Failed to fetch related records", String(error));
       } finally {
         setLoading(false);
       }
@@ -260,10 +257,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
               value: item[col.valueField || "id"],
             }));
           } catch (error) {
-            console.error(
-              `[Many2ManyWidget] Failed to fetch options for ${col.key}:`,
-              error,
-            );
+            showWizardError(`[Many2ManyWidget] Failed to fetch options for ${col.key}`, String(error));
           }
         }
       }

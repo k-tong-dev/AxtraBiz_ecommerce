@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Table, Button, IconButton, Input, NumberInput, Checkbox, SelectPicker } from 'rsuite'
 import { VscEdit, VscSave, VscRemove, VscAdd } from 'react-icons/vsc'
 import { FieldWidgetProps } from './index'
+import { showWizardError } from '../../Wizard'
 import {IoIosCreate} from "react-icons/io";
 
 const { Column, HeaderCell, Cell } = Table
@@ -61,16 +62,14 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
   // Developer validation
   if (typeof window !== 'undefined') {
     if (!config) {
-      console.error(
-        '[One2ManyWidget] Missing widgetConfig. ' +
-        'You must provide a widgetConfig with at least "relation" and "columns". ' +
-        'Example: widgetConfig: { relation: "/api/admin/child-records", inverseField: "parent_id", columns: [...] }'
+      showWizardError(
+        '[One2ManyWidget] Missing widgetConfig',
+        'You must provide a widgetConfig with at least "relation" and "columns". Example: { relation: "/api/admin/child-records", inverseField: "parent_id", columns: [...] }'
       )
     } else if (!config.columns || !Array.isArray(config.columns)) {
-      console.error(
-        '[One2ManyWidget] Missing or invalid "columns" in widgetConfig. ' +
-        'You must define the columns to display/edit. ' +
-        'Example: columns: [{ key: "name", title: "Name", type: "string", editable: true }]'
+      showWizardError(
+        '[One2ManyWidget] Missing or invalid "columns" in widgetConfig',
+        'You must define the columns to display/edit. Example: columns: [{ key: "name", title: "Name", type: "string", editable: true }]'
       )
     }
   }
@@ -81,7 +80,7 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
       <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
         <p className="text-sm text-destructive font-medium">One2ManyWidget configuration error</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Missing or invalid <code>widgetConfig.columns</code>. Check the browser console for details.
+          Missing or invalid <code>widgetConfig.columns</code>. A warning has been shown.
         </p>
       </div>
     )
@@ -117,7 +116,7 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
               value: item[col.valueField || 'id']
             }))
           } catch (error) {
-            console.error(`[One2ManyWidget] Failed to fetch options for ${col.key}:`, error)
+            showWizardError(`[One2ManyWidget] Failed to fetch options for ${col.key}`, String(error))
           }
         }
       }
