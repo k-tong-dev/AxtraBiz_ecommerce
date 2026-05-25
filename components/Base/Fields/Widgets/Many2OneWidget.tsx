@@ -41,11 +41,41 @@ export const Many2OneWidget: React.FC<FieldWidgetProps> = ({
   disabled,
   readonly
 }) => {
+  const config = field.widgetConfig as Many2OneWidgetConfig
+
+  // Developer validation
+  if (typeof window !== 'undefined') {
+    if (!config) {
+      console.error(
+        '[Many2OneWidget] Missing widgetConfig. ' +
+        'You must provide a widgetConfig with at least "relation". ' +
+        'Example: widgetConfig: { relation: "/api/admin/related-records", displayField: "name" }'
+      )
+    } else if (!config.relation) {
+      console.error(
+        '[Many2OneWidget] Missing "relation" in widgetConfig. ' +
+        'You must specify the API endpoint for fetching options. ' +
+        'Example: widgetConfig: { relation: "/api/admin/product-categories" }'
+      )
+    }
+  }
+
+  // Guard: show fallback UI instead of crashing when config is missing
+  if (!config || !config.relation) {
+    return (
+      <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
+        <p className="text-sm text-destructive font-medium">Many2OneWidget configuration error</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Missing required widgetConfig property <code>relation</code>. Check the browser console for details.
+        </p>
+      </div>
+    )
+  }
+
   const [options, setOptions] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<any>(null)
   
-  const config = field.widgetConfig as Many2OneWidgetConfig
   const displayField = config.displayField || 'name'
   const valueField = config.valueField || 'id'
   const searchField = config.searchField || displayField

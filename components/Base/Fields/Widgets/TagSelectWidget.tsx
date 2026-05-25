@@ -18,10 +18,38 @@ export const TagSelectWidget: React.FC<FieldWidgetProps> = ({
   disabled,
   readonly
 }) => {
+  const widgetConfig = field.widgetConfig as TagSelectWidgetConfig
+
+  // Developer validation
+  if (typeof window !== 'undefined') {
+    if (!widgetConfig) {
+      console.error(
+        '[TagSelectWidget] Missing widgetConfig. ' +
+        'You must provide a widgetConfig with at least "relation" and "displayField". ' +
+        'Example: widgetConfig: { relation: "/api/admin/related-records", displayField: "name" }'
+      )
+    } else if (!widgetConfig.relation || !widgetConfig.displayField) {
+      console.error(
+        `[TagSelectWidget] Missing required config: ${!widgetConfig.relation ? 'relation ' : ''}${!widgetConfig.displayField ? 'displayField' : ''}. ` +
+        'Example: widgetConfig: { relation: "/api/admin/related-records", displayField: "name" }'
+      )
+    }
+  }
+
+  // Guard: show fallback UI instead of crashing when config is missing
+  if (!widgetConfig || !widgetConfig.relation || !widgetConfig.displayField) {
+    return (
+      <div className="border border-destructive/30 rounded-md p-4 bg-destructive/5">
+        <p className="text-sm text-destructive font-medium">TagSelectWidget configuration error</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Missing required widgetConfig properties (<code>relation</code>, <code>displayField</code>). Check the browser console for details.
+        </p>
+      </div>
+    )
+  }
+
   const [options, setOptions] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-
-  const widgetConfig = field.widgetConfig as TagSelectWidgetConfig
   const valueField = widgetConfig.valueField || 'id'
   const displayField = widgetConfig.displayField
 
