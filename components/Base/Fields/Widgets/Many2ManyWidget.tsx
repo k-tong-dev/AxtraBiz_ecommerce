@@ -553,7 +553,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
               block
               size="sm"
               style={{ outlineColor: "transparent" }}
-              cleanable={false}
+              cleanable={true}
             />
           </div>
         )}
@@ -727,7 +727,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
               block
               size="md"
               style={{ outlineColor: "transparent" }}
-              cleanable={false}
+              cleanable={true}
             />
           </div>
         )}

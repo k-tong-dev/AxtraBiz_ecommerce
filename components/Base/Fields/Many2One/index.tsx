@@ -67,7 +67,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
             style={PICKER_STYLE}
             onOpen={() => setOpen(true)}
             onClose={() => setOpen(false)}
-            cleanable={false}
+            cleanable={true}
             preventOverflow
             onSearch={(kw) => { if (kw.length > 1) fetchOptions(kw) }}
             renderValue={() => selected ? renderLabel(selected) : null}

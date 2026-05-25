@@ -161,7 +161,7 @@ function Select({
           value={(value as string[]) || []}
           onChange={handleChange}
           cascade={false}
-          cleanable={false}
+          cleanable={true}
           getChildren={undefined}
         />
       )
@@ -172,7 +172,7 @@ function Select({
           {...(sharedPickerProps as any)}
           value={(value as string) || null}
           onChange={handleChange}
-          cleanable={false}
+          cleanable={true}
           getChildren={undefined}
         />
       )
@@ -183,7 +183,7 @@ function Select({
           {...(sharedPickerProps as CheckPickerProps<any>)}
           value={(value as string[]) || []}
           onChange={handleChange}
-          cleanable={false}
+          cleanable={true}
           sticky
           block
         />
@@ -195,7 +195,7 @@ function Select({
         value={(value as string) || null}
         onChange={handleChange}
         groupBy={groupBy}
-        cleanable={false}
+        cleanable={true}
       />
     )
   }

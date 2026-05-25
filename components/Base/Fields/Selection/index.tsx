@@ -116,7 +116,7 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             value={(value as string[]) || []}
                             onChange={handleChange}
                             cascade={false}
-                            cleanable={false}
+                            cleanable={true}
                             getChildren={undefined}
                             block preventOverflow sticky
                         />
@@ -125,7 +125,7 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             {...pickerProps as any}
                             value={(value as string) || null}
                             onChange={handleChange}
-                            cleanable={false}
+                            cleanable={true}
                             getChildren={undefined}
                             block preventOverflow sticky
                         />
@@ -134,7 +134,7 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             {...pickerProps as any}
                             value={(value as string[]) || []}
                             onChange={handleChange}
-                            cleanable={false}
+                            cleanable={true}
                             sticky block preventOverflow
                         />
                     ) : (
@@ -143,7 +143,7 @@ export function SelectionField({config, value, onChange, error}: FieldProps) {
                             value={(value as string) || null}
                             onChange={handleChange}
                             groupBy={config.groupBy}
-                            cleanable={false}
+                            cleanable={true}
                             block preventOverflow sticky
                         />
                     )}

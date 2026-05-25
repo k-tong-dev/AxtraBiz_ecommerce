@@ -116,7 +116,7 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
             tagProps={{ color: 'violet', closable: !config.readonly, size: 'sm' }}
             style={PICKER_STYLE}
             size={config.size || 'md'}
-            cleanable={false}
+            cleanable={true}
             preventOverflow
           />
         </div>
