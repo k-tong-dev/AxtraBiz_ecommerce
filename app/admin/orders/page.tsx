@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Order } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -12,13 +12,16 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
 
+  const fetchedRef = useRef(false)
+
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/orders')
         const allOrders = await response.json()
-        if (!mounted) return
         setOrders(allOrders)
         setLoading(false)
         if (allOrders.length === 0) {
@@ -30,14 +33,10 @@ export default function AdminOrdersPage() {
         }
       } catch (error) {
         console.error('Error fetching orders:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load orders')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {

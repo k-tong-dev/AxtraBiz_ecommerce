@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Setting } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -12,13 +12,16 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Setting[]>([])
   const [loading, setLoading] = useState(true)
 
+  const fetchedRef = useRef(false)
+
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/settings')
         const allSettings = await response.json()
-        if (!mounted) return
         setSettings(allSettings)
         setLoading(false)
         if (allSettings.length === 0) {
@@ -30,14 +33,10 @@ export default function AdminSettingsPage() {
         }
       } catch (error) {
         console.error('Error fetching settings:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load settings')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Invoice } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -12,13 +12,16 @@ export default function AdminInvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
 
+  const fetchedRef = useRef(false)
+
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/invoices')
         const allInvoices = await response.json()
-        if (!mounted) return
         setInvoices(allInvoices)
         setLoading(false)
         if (allInvoices.length === 0) {
@@ -30,14 +33,10 @@ export default function AdminInvoicesPage() {
         }
       } catch (error) {
         console.error('Error fetching invoices:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load invoices')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {

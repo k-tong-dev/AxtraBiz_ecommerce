@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Brand } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -11,14 +11,16 @@ export default function AdminBrandsPage() {
   const router = useRouter()
   const [brands, setBrands] = useState<Brand[]>([])
   const [loading, setLoading] = useState(true)
+  const fetchedRef = useRef(false)
 
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/brands')
         const all = await response.json()
-        if (!mounted) return
         setBrands(all)
         setLoading(false)
         if (all.length === 0) {
@@ -26,12 +28,10 @@ export default function AdminBrandsPage() {
         }
       } catch (error) {
         console.error('Error fetching brands:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load brands')
         setLoading(false)
       }
     })()
-    return () => { mounted = false }
   }, [])
 
   const openCreate = () => router.push('/admin/brands/new')

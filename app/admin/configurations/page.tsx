@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Configuration } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -12,13 +12,16 @@ export default function AdminConfigurationsPage() {
   const [configurations, setConfigurations] = useState<Configuration[]>([])
   const [loading, setLoading] = useState(true)
 
+  const fetchedRef = useRef(false)
+
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/configurations')
         const allConfigurations = await response.json()
-        if (!mounted) return
         setConfigurations(allConfigurations)
         setLoading(false)
         if (allConfigurations.length === 0) {
@@ -30,14 +33,10 @@ export default function AdminConfigurationsPage() {
         }
       } catch (error) {
         console.error('Error fetching configurations:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load configurations')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {

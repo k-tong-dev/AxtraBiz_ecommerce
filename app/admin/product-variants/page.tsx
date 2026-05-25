@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import type { ProductVariant } from '@/lib/drizzle/server'
@@ -12,14 +12,16 @@ export default function AdminProductVariantsPage() {
   const router = useRouter()
   const [variants, setVariants] = useState<ProductVariant[]>([])
   const [loading, setLoading] = useState(true)
+  const fetchedRef = useRef(false)
 
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/admin/product-variants')
         const allVariants = await response.json()
-        if (!mounted) return
         setVariants(allVariants)
         setLoading(false)
         if (allVariants.length === 0) {
@@ -31,14 +33,10 @@ export default function AdminProductVariantsPage() {
         }
       } catch (error) {
         console.error('Error fetching variants:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load product variants')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {

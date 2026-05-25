@@ -18,23 +18,19 @@ export default function EditBrandPage() {
     if (fetchedRef.current) return
     fetchedRef.current = true
 
-    let mounted = true
     ;(async () => {
       try {
         const response = await fetch(`/api/brands/${id}`)
         if (!response.ok) throw new Error('Not found')
         const data = await response.json()
-        if (!mounted) return
         setBrand(data)
         setLoading(false)
       } catch (error) {
         console.error('Error fetching brand:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load brand')
         setLoading(false)
       }
     })()
-    return () => { mounted = false }
   }, [id])
 
   // if (loading) return <div className="p-8 text-muted-foreground">Loading...</div>

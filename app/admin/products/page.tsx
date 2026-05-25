@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import type { ProductTemplate } from '@/lib/drizzle/server'
@@ -12,14 +12,16 @@ export default function AdminProductsPage() {
   const router = useRouter()
   const [products, setProducts] = useState<ProductTemplate[]>([])
   const [loading, setLoading] = useState(true)
+  const fetchedRef = useRef(false)
 
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/products')
         const allProducts = await response.json()
-        if (!mounted) return
         setProducts(allProducts)
         setLoading(false)
         if (allProducts.length === 0) {
@@ -31,14 +33,10 @@ export default function AdminProductsPage() {
         }
       } catch (error) {
         console.error('Error fetching products:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load products')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {

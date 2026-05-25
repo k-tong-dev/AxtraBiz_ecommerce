@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductCategory } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -12,13 +12,16 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<ProductCategory[]>([])
   const [loading, setLoading] = useState(true)
 
+  const fetchedRef = useRef(false)
+
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/categories')
         const all = await response.json()
-        if (!mounted) return
         setCategories(all)
         setLoading(false)
         if (all.length === 0) {
@@ -26,12 +29,10 @@ export default function AdminCategoriesPage() {
         }
       } catch (error) {
         console.error('Error fetching categories:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load categories')
         setLoading(false)
       }
     })()
-    return () => { mounted = false }
   }, [])
 
   const openCreate = () => router.push('/admin/categories/new')

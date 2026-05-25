@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Announcement } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -12,13 +12,16 @@ export default function AdminAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [loading, setLoading] = useState(true)
 
+  const fetchedRef = useRef(false)
+
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/announcements')
         const allAnnouncements = await response.json()
-        if (!mounted) return
         setAnnouncements(allAnnouncements)
         setLoading(false)
         if (allAnnouncements.length === 0) {
@@ -30,14 +33,10 @@ export default function AdminAnnouncementsPage() {
         }
       } catch (error) {
         console.error('Error fetching announcements:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load announcements')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {

@@ -39,7 +39,7 @@ export const categoryListConfig: ListViewConfig = {
   ],
   data: [],
   showSearch: true,
-  pageSize: 20
+  pageSize: 10
 }
 
 export type CategoryListConfig = typeof categoryListConfig

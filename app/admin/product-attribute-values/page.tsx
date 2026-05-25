@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductAttributeValue } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -12,13 +12,16 @@ export default function AdminProductAttributeValuesPage() {
   const [values, setValues] = useState<ProductAttributeValue[]>([])
   const [loading, setLoading] = useState(true)
 
+  const fetchedRef = useRef(false)
+
   useEffect(() => {
-    let mounted = true
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     ;(async () => {
       try {
         const response = await fetch('/api/admin/product-attribute-values')
         const data = await response.json()
-        if (!mounted) return
         setValues(data)
         setLoading(false)
         if (data.length === 0) {
@@ -30,14 +33,10 @@ export default function AdminProductAttributeValuesPage() {
         }
       } catch (error) {
         console.error('Error fetching values:', error)
-        if (!mounted) return
         showToast('error', 'Error', 'Failed to load attribute values')
         setLoading(false)
       }
     })()
-    return () => {
-      mounted = false
-    }
   }, [])
 
   const openCreate = () => {
