@@ -1,5 +1,4 @@
 import { FormConfig } from '@/components/Base/Views/FormView'
-import type { Many2ManyWidgetConfig } from '@/components/Base/Fields/Widgets'
 
 export const productAttributeFormConfig: FormConfig = {
   entityName: 'Product Attribute',
@@ -61,8 +60,6 @@ export const productAttributeFormConfig: FormConfig = {
           order: 1,
           widget: 'many2many',
           widgetConfig: {
-            // Junction table: links attributes to values
-            junctionTable: '/api/admin/product-attribute-values-rel',
             localField: 'attribute_id',
             remoteField: 'value_id',
             // Related records: product attribute values
@@ -78,7 +75,7 @@ export const productAttributeFormConfig: FormConfig = {
             allowCreate: true,  // Allow creating new values inline
             allowRemove: true,
             allowEdit: true
-          } as Many2ManyWidgetConfig
+          }
         }
       ],
       order: 100

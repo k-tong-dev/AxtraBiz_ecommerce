@@ -26,7 +26,7 @@ export function AdminTopNavbar() {
             <div className="sticky top-0 z-40 px-4 py-3 md:px-6">
                 <div className={"ml-auto flex w-fit items-center gap-2 " +
                     "rounded-full border border-border/60 bg-background/85 " +
-                    "px-3 py-1 backdrop-blur-md shadow-sm"}>
+                    "px-3 py-1 backdrop-blur-sm shadow-sm"}>
                     <Button
                         className="rounded-full"
                         aria-label="Notifications"
@@ -37,13 +37,13 @@ export function AdminTopNavbar() {
                     <Dropdown
                         title={
                             <div className="flex items-center gap-2">
-                <span
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
-                  <User className="h-4 w-4"/>
-                </span>
-                                <span className="max-w-[120px] truncate text-sm font-medium">
-                  {user?.name ?? 'Admin'}
-                </span>
+                                <span
+                                    className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                                  <User className="h-4 w-4"/>
+                                </span>
+                                                <span className="max-w-[120px] truncate text-sm font-medium">
+                                  {user?.name ?? 'Admin'}
+                                </span>
                             </div>
                         }
                         placement="bottomEnd"

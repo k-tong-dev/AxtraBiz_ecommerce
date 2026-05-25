@@ -28,18 +28,10 @@ export function getWidget(name: string): FieldWidgetComponent | undefined {
   return fieldWidgets[name]
 }
 
-// Import and register widgets
-import { One2ManyWidget } from './One2ManyWidget'
-import { Many2ManyWidget } from './Many2ManyWidget'
-import { Many2OneWidget } from './Many2OneWidget'
-import { TagSelectWidget } from './TagSelectWidget'
+// Static widget map — always available, no side effects needed
+export const widgetMap: Record<string, () => Promise<any>> = {}
 
-registerWidget(One2ManyWidget as any)
-registerWidget(Many2ManyWidget as any)
-registerWidget(Many2OneWidget as any)
-registerWidget(TagSelectWidget as any)
-
-// Export config types for form configuration
-export type { One2ManyWidgetConfig } from './One2ManyWidget'
-export type { Many2ManyWidgetConfig } from './Many2ManyWidget'
-export type { Many2OneWidgetConfig } from './Many2OneWidget'
+// Register a lazily-loaded widget
+export function registerLazyWidget(name: string, loader: () => Promise<any>) {
+  widgetMap[name] = loader
+}

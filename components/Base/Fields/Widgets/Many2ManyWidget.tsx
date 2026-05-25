@@ -104,7 +104,7 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
 }) => {
   const [items, setItems] = useState<any[]>(value || []);
   const [relatedOptions, setRelatedOptions] = useState<any[]>([]);
-  const [originalItemIds, setOriginalItemIds] = useState<Set<string>>(new Set()); // Track items from initial API load
+  const [originalItemIds, setOriginalItemIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showSelector, setShowSelector] = useState(false);
@@ -112,6 +112,9 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
   const [searchKeyword, setSearchKeyword] = useState("");
   const [hasFetched, setHasFetched] = useState(false);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true) }, [])
 
   const config = field.widgetConfig as Many2ManyWidgetConfig;
   const parentId = formData?.id;
@@ -160,9 +163,9 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
         const options = (
           Array.isArray(data) ? data : data.rows || data.items || []
         ).map((item: any) => ({
+          ...item,
           label: item[config.displayField || "name"],
           value: item[config.valueField || "id"],
-          ...item,
         }));
 
         setRelatedOptions(options);
@@ -442,6 +445,15 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
       </Cell>
     );
   };
+
+  // Hydration safety — ensure consistent SSR + client render
+  if (!mounted) {
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2" />
+      </div>
+    )
+  }
 
   // Kanban mode display
   if (mode === "kanban") {

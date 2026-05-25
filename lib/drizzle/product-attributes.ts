@@ -3,10 +3,8 @@ import { createCrudService } from './base-crud'
 import { eq, sql } from 'drizzle-orm'
 import type { ProductAttribute, ProductAttributeValue } from './server'
 import type { ProductAttributeValuesRel } from '../../drizzle/schema'
-import {
-  productAttributeValuesRelService,
-  checkProductAttributeValuesRelExists,
-} from './product-attribute-values-rel'
+import { productAttributeValuesRelService } from './product-attribute-values-rel'
+import { checkProductAttributeValuesRelExists } from './product-attribute-values-rel'
 
 // Create CRUD service for product attributes
 export const productAttributeService = createCrudService<ProductAttribute, any, any>(
@@ -35,6 +33,69 @@ export async function upsertProductAttributeInDrizzle(attribute: ProductAttribut
 export async function deleteProductAttributeFromDrizzle(attributeId: string): Promise<boolean> {
   const result = await productAttributeService.unlink(attributeId)
   return result.success
+}
+
+// Enriched fetch for product attributes that includes many2many value_ids
+export interface ProductAttributeWithValues extends ProductAttribute {
+  value_ids?: Array<{
+    id: string
+    attribute_id: string
+    value_id: string
+    position: number
+    name: string
+    value: string
+    active: boolean
+    rel_id: string
+    isNew?: boolean
+    _toDelete?: boolean
+    isChanged?: boolean
+  }>
+}
+
+export async function fetchProductAttributeValueRelations(attributeId: string): Promise<ProductAttributeValuesRel[]> {
+  return productAttributeValuesRelService.search(
+    eq(product_attribute_values_rel.attribute_id, attributeId)
+  )
+}
+
+export async function fetchProductAttributeWithValueIdsFromDrizzle(attributeId: string): Promise<ProductAttributeWithValues | null> {
+  const attribute = await productAttributeService.read(attributeId)
+  if (!attribute) return null
+
+  const relations = await fetchProductAttributeValueRelations(attributeId)
+
+  if (relations.length === 0) {
+    return { ...attribute, value_ids: [] }
+  }
+
+  const valueIds = relations.map(r => r.value_id)
+  const values = await Promise.all(
+    valueIds.map(id => productAttributeValueService.read(id))
+  )
+  const valuesMap = new Map(values.filter((v): v is ProductAttributeValue => v !== null).map(v => [v.id, v]))
+
+  const seen = new Set<string>()
+  const value_ids = relations
+    .filter(rel => {
+      if (seen.has(rel.value_id)) return false
+      seen.add(rel.value_id)
+      return true
+    })
+    .map(rel => {
+      const v = valuesMap.get(rel.value_id)
+      return {
+        id: rel.value_id,
+        attribute_id: rel.attribute_id,
+        value_id: rel.value_id,
+        position: rel.position ?? 0,
+        name: v?.name ?? '',
+        value: v?.value ?? '',
+        active: v?.active ?? true,
+        rel_id: rel.id,
+      }
+    })
+
+  return { ...attribute, value_ids }
 }
 
 // Convenience functions for product attribute values
@@ -144,6 +205,75 @@ export async function deleteProductAttributeValuesByAttributeId(attributeId: str
     return results.every(r => r.success)
   } catch {
     return false
+  }
+}
+
+export async function updateProductAttributeValueRelationsForAttribute(
+  attributeId: string,
+  values: Array<{
+    id?: string
+    value_id?: string
+    attribute_id?: string
+    rel_id?: string
+    position?: number
+    name?: string
+    value?: string
+    active?: boolean
+    isNew?: boolean
+    _toDelete?: boolean
+    isChanged?: boolean
+  }>,
+  userId?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const toDelete = values.filter(v => v._toDelete && v.rel_id)
+    for (const val of toDelete) {
+      await productAttributeValuesRelService.unlink(val.rel_id!)
+    }
+
+    const toAdd = values.filter(v => v.isNew && !v._toDelete)
+    for (const val of toAdd) {
+      const valueId = val.value_id || val.id
+      if (!valueId) continue
+
+      const exists = await checkProductAttributeValuesRelExists(attributeId, valueId)
+      if (exists) continue
+
+      // If the value doesn't exist in product_attribute_values, create it first
+      const existingValue = await productAttributeValueService.read(valueId)
+      if (!existingValue && val.name) {
+        await productAttributeValueService.upsert({
+          id: valueId,
+          name: val.name,
+          value: val.value || val.name,
+          position: val.position ?? 0,
+          active: val.active ?? true,
+        } as ProductAttributeValue & { id: string }, userId)
+      }
+
+      await db.insert(product_attribute_values_rel).values({
+        id: crypto.randomUUID(),
+        attribute_id: attributeId,
+        value_id: valueId,
+        position: val.position ?? 0,
+      })
+    }
+
+    const toUpdate = values.filter(v => v.isChanged && !v._toDelete && !v.isNew && v.value_id)
+    for (const val of toUpdate) {
+      await productAttributeValueService.upsert({
+        id: val.value_id,
+        name: val.name,
+        value: val.value || val.name,
+        position: val.position ?? 0,
+        active: val.active ?? true,
+      } as ProductAttributeValue & { id: string }, userId)
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('[API] Failed to update attribute value relations:', error)
+    return { success: false, error: String(error) }
   }
 }
 

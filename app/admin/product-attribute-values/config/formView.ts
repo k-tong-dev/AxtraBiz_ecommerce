@@ -1,6 +1,4 @@
 import { FormConfig } from '@/components/Base/Views/FormView'
-import type { Many2ManyWidgetConfig } from '../../../../components/Base/Fields/Widgets'
-import type { ProductAttributeValue } from '@/lib/drizzle/server'
 
 export const productAttributeValueFormConfig: FormConfig = {
   entityName: 'Product Attribute Value',
@@ -103,7 +101,7 @@ export const productAttributeValueFormConfig: FormConfig = {
             allowSelect: true,
             allowRemove: true,
             allowEdit: true
-          } as Many2ManyWidgetConfig
+          }
         }
       ],
       order: 100

@@ -41,10 +41,16 @@ import {BsTools} from "react-icons/bs";
 
 import {ServerActions, ServerActionConfig, ActionContext} from '../../Actions'
 import { getWidget, registerWidget } from '../../Fields/Widgets'
+import { Many2ManyWidget } from '../../Fields/Widgets/Many2ManyWidget'
+import { One2ManyWidget } from '../../Fields/Widgets/One2ManyWidget'
+import { Many2OneWidget } from '../../Fields/Widgets/Many2OneWidget'
 import { TagSelectWidget } from '@/components/Base/Fields/Widgets/TagSelectWidget'
 import {Switch} from "@/components/ui/switch";
 
 // Register widgets on module load
+registerWidget(Many2ManyWidget as any)
+registerWidget(One2ManyWidget as any)
+registerWidget(Many2OneWidget as any)
 registerWidget(TagSelectWidget as any)
 
 // Convert FormView customActions to ServerActionConfig

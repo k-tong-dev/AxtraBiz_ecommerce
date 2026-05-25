@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import {
-  fetchProductAttributeFromDrizzle,
+  fetchProductAttributeWithValueIdsFromDrizzle,
   upsertProductAttributeInDrizzle,
-  deleteProductAttributeFromDrizzle
+  deleteProductAttributeFromDrizzle,
+  updateProductAttributeValueRelationsForAttribute,
 } from '../../../../../lib/drizzle/product-attributes'
 import { eq } from 'drizzle-orm'
 import { product_attributes_rel, product_template, product_variants, product_attributes, product_attribute_values } from '@/drizzle/schema'
@@ -152,7 +153,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const attribute = await fetchProductAttributeFromDrizzle(id)
+    const attribute = await fetchProductAttributeWithValueIdsFromDrizzle(id)
     if (!attribute) {
       return NextResponse.json({ error: 'Attribute not found' }, { status: 404 })
     }
@@ -178,10 +179,12 @@ export async function PUT(
     const body = await request.json()
     console.log('[PUT] Request body:', body)
 
+    const valueIds = Array.isArray(body.value_ids) ? body.value_ids : undefined
+
     const processedBody: any = { id }
 
     for (const [key, value] of Object.entries(body)) {
-      if (key === 'id') continue
+      if (key === 'id' || key === 'value_ids') continue
 
       if (['position'].includes(key)) {
         processedBody[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
@@ -200,11 +203,19 @@ export async function PUT(
     const result = await upsertProductAttributeInDrizzle(processedBody, user?.id)
     console.log('[PUT] Upsert result:', result)
 
-    if (result.success) {
-      return NextResponse.json({ success: true, data: processedBody })
-    } else {
+    if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })
     }
+
+    if (valueIds) {
+      const relResult = await updateProductAttributeValueRelationsForAttribute(id, valueIds, user?.id)
+      if (!relResult.success) {
+        return NextResponse.json({ error: relResult.error }, { status: 400 })
+      }
+    }
+
+    const saved = await fetchProductAttributeWithValueIdsFromDrizzle(id)
+    return NextResponse.json({ success: true, data: saved ?? processedBody })
   } catch (error) {
     console.error('[PUT] Error:', error)
     return NextResponse.json({ error: 'Failed to update attribute' }, { status: 500 })

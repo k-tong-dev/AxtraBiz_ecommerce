@@ -9,7 +9,8 @@ import {
 } from 'lucide-react'
 import { FileGrid } from './FileGrid'
 import type { StorageFile, StorageFolder } from './types'
-import { Modal, Input, Button } from 'rsuite'
+import {Modal, Input, Button, StatGroup, Stat, StatLabel, StatValue, StatHelpText} from 'rsuite'
+import {linearGradient} from "html2canvas/dist/types/css/types/functions/linear-gradient";
 
 const STORAGE_POLICY = {
   maxSize: 50 * 1024 * 1024,
@@ -351,68 +352,41 @@ export function AssetManager() {
   return (
     <div className="space-y-5">
       {/* Stats bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-border/60 bg-background p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <HardDrive className="w-4.5 h-4.5 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">Total Size</p>
-              <p className="text-sm font-semibold text-foreground/80 mt-0.5">{formatSize(stats.totalSize)}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-background p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <FileImage className="w-4.5 h-4.5 text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">Files</p>
-              <p className="text-sm font-semibold text-foreground/80 mt-0.5">{stats.totalFiles}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-background p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-              <FolderOpen className="w-4.5 h-4.5 text-amber-500" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">Folders</p>
-              <p className="text-sm font-semibold text-foreground/80 mt-0.5">{stats.totalFolders}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-border/60 bg-background p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-              <BarChart3 className="w-4.5 h-4.5 text-purple-500" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest">File Types</p>
-              <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                {stats.fileTypes.length > 0 ? (
-                  <>{stats.fileTypes.map(t => (
-                    <span key={t.label} className="text-[10px] font-medium text-foreground/60 bg-muted/50 rounded px-1.5 py-0.5">
-                      {t.label} ({t.count})
-                    </span>
-                  ))}</>
-                ) : (
-                  <span className="text-xs text-muted-foreground/50">—</span>
-                )}
+      <StatGroup columns={4} spacing={16}>
+        <Stat bordered icon={<HardDrive className="text-blue-500"/>}>
+          <StatLabel uppercase>Total Size</StatLabel>
+          <StatValue>{formatSize(stats.totalSize)}</StatValue>
+        </Stat>
+        <Stat bordered icon={<FileImage className="text-emerald-500" />}>
+          <StatLabel uppercase>Files</StatLabel>
+          <StatValue value={stats.totalFiles} />
+        </Stat>
+        <Stat bordered icon={<FolderOpen className="text-amber-500" />}>
+          <StatLabel uppercase>Folders</StatLabel>
+          <StatValue value={stats.totalFolders} />
+        </Stat>
+        <Stat bordered icon={<BarChart3 className="text-purple-500" />}>
+          <StatLabel uppercase>File Types</StatLabel>
+          <StatHelpText>
+            {stats.fileTypes.length > 0 ? (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {stats.fileTypes.map(t => (
+                  <span key={t.label} className="text-[10px] font-medium text-foreground/60 bg-muted/50 rounded px-1.5 py-0.5">
+                    {t.label} ({t.count})
+                  </span>
+                ))}
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            ) : '—'}
+          </StatHelpText>
+        </Stat>
+      </StatGroup>
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-4 m-0">
+        <div className="flex items-center ml-auto gap-2">
           <Button
             appearance="ghost"
+            size="sm"
             onClick={() => { setNewFolderParent(currentPath); setNewFolderName(''); setShowNewFolder(true) }}
             startIcon={<FolderPlus className="w-4 h-4" />}
           >
@@ -421,6 +395,7 @@ export function AssetManager() {
           <div className="relative" ref={uploadBtnRef}>
             <Button
               appearance="primary"
+              size="sm"
               onClick={() => setShowUploadMenu(!showUploadMenu)}
               startIcon={<Upload className="w-4 h-4" />}
               endIcon={<ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showUploadMenu ? 'rotate-180' : ''}`} />}
@@ -428,7 +403,7 @@ export function AssetManager() {
               Upload
             </Button>
             {showUploadMenu && (
-              <div className="absolute top-full left-0 mt-1.5 w-52 rounded-xl border border-border/60 bg-background shadow-xl shadow-black/5 z-50 overflow-hidden">
+              <div className="absolute top-full left-0 mt-1.5 -translate-x-5/12 w-52 rounded-xl border border-border/60 bg-background shadow-xl shadow-black/5 z-50 overflow-hidden">
                 <button
                   onClick={handleBrowseFiles}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/80 hover:bg-muted/50 transition-colors text-left"
