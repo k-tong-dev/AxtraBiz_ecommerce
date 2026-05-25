@@ -435,13 +435,25 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     if (!Array.isArray(v)) return []
                     return v.map((x: any) => typeof x === 'string' ? x : x.id || x.value_id || x.key).filter(Boolean).sort()
                 }
-                dataWithoutFiles[field.key] = norm(dataWithoutFiles[field.key])
-                originalWithoutFiles[field.key] = norm(originalWithoutFiles[field.key])
+                const rawCurrent = dataWithoutFiles[field.key]
+                const rawOrig = originalWithoutFiles[field.key]
+                const normCurrent = norm(rawCurrent)
+                const normOrig = norm(rawOrig)
+                console.log('[FormView] norm debug:', {
+                    field: field.key,
+                    rawCurrent: JSON.stringify(rawCurrent),
+                    rawOrig: JSON.stringify(rawOrig),
+                    normCurrent: JSON.stringify(normCurrent),
+                    normOrig: JSON.stringify(normOrig),
+                    same: JSON.stringify(normCurrent) === JSON.stringify(normOrig),
+                })
+                dataWithoutFiles[field.key] = normCurrent
+                originalWithoutFiles[field.key] = normOrig
             }
         }
         const dataChanged = JSON.stringify(dataWithoutFiles) !== JSON.stringify(originalWithoutFiles)
 
-        console.log('[FormView] Data changed:', dataChanged)
+        console.log('[FormView] Data changed:', { dataChanged, dataWithoutFiles: JSON.stringify(dataWithoutFiles), originalWithoutFiles: JSON.stringify(originalWithoutFiles) })
 
         const isChanged = dataChanged || filesChanged
 
@@ -449,8 +461,12 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             dataChanged,
             filesChanged,
             isChanged,
-            hasChanges
+            hasChanges,
+            allKeys: Object.keys(dataWithoutFiles),
         })
+
+        setHasChanges(isChanged)
+        console.log('[FormView] setHasChanges called with:', isChanged)
 
         // Simple logging for many2many field
         const many2manyField = config.fields.find(f => f.type === 'many2many' || f.type === 'one2many')
