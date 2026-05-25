@@ -405,9 +405,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     useEffect(() => {
         if (!originalData || !data) return
 
+        const allFields = [
+            ...config.fields,
+            ...(config.pages || []).flatMap(p => p.fields || []),
+        ]
+
         // Get original file values from originalData for all file fields
         let originalFileValues: any[] = []
-        for (const field of config.fields) {
+        for (const field of allFields) {
             if (field.type === 'file' && originalData[field.key]) {
                 const vals = Array.isArray(originalData[field.key])
                     ? originalData[field.key]
@@ -425,7 +430,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         // Check if any non-file data changed
         const dataWithoutFiles = {...data}
         const originalWithoutFiles = {...originalData}
-        for (const field of config.fields) {
+        for (const field of allFields) {
             if (field.type === 'file') {
                 delete dataWithoutFiles[field.key]
                 delete originalWithoutFiles[field.key]
@@ -469,7 +474,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         console.log('[FormView] setHasChanges called with:', isChanged)
 
         // Simple logging for many2many field
-        const many2manyField = config.fields.find(f => f.type === 'many2many' || f.type === 'one2many')
+        const many2manyField = allFields.find(f => f.type === 'many2many' || f.type === 'one2many')
         if (many2manyField) {
             console.log('[FormView] Many2many field:', {
                 fieldKey: many2manyField?.key,
@@ -478,8 +483,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 hasChanges
             })
         }
-
-        setHasChanges(isChanged)
     }, [data, originalData, uploadedFiles, config.fields])
 
     const handleSubmit = async () => {
