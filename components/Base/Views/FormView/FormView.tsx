@@ -463,10 +463,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             })
         }
 
-        // Small delay to ensure state updates properly
-        setTimeout(() => {
-            setHasChanges(isChanged)
-        }, 0)
+        setHasChanges(isChanged)
     }, [data, originalData, uploadedFiles, config.fields])
 
     const handleSubmit = async () => {
