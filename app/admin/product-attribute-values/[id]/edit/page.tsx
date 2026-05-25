@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ResourceView } from '../../../../../components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { productAttributeValueConfig } from '../../config'
 import type { ProductAttributeValue } from '@/lib/drizzle/server'
 
@@ -10,11 +10,15 @@ export default function EditProductAttributeValuePage() {
     const router = useRouter()
     const params = useParams()
     const valueId = params.id as string
+    const fetchedRef = useRef(false)
 
     const [loading, setLoading] = useState(true)
     const [attrValue, setAttrValue] = useState<ProductAttributeValue | null>(null)
 
     useEffect(() => {
+        if (fetchedRef.current) return
+        fetchedRef.current = true
+
         const loadValue = async () => {
             try {
                 const response = await fetch(`/api/admin/product-attribute-values/${valueId}`)

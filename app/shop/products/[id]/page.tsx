@@ -16,7 +16,7 @@ export default function ProductDetailPage() {
   const params = useParams()
   const productId = params.id as string
 
-  const initialProduct = mockProducts.find((p) => p.id === productId) ?? null
+  const initialProduct = mockProducts.find((p) => p.id === Number(productId)) ?? null
   const [product, setProduct] = useState<Product | null>(initialProduct)
   const [quantity, setQuantity] = useState(1)
   const { addItem } = useCart()

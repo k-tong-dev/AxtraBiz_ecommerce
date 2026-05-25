@@ -20,7 +20,7 @@ async function cascadeDeleteAttributeVariants(attributeId: string) {
     const productRelations = await db
       .select()
       .from(product_attributes_rel)
-      .where(eq(product_attributes_rel.attribute_id, attributeId))
+      .where(eq(product_attributes_rel.attribute_id, Number(attributeId)))
     
     for (const relation of productRelations) {
       const productId = relation.product_id
@@ -32,7 +32,7 @@ async function cascadeDeleteAttributeVariants(attributeId: string) {
         .where(eq(product_attributes_rel.product_id, productId))
       
       const remainingAttributeIds = allRelations
-        .filter(r => r.attribute_id !== attributeId)
+        .filter(r => r.attribute_id !== Number(attributeId))
         .map(r => r.attribute_id)
       
       // If no attributes left, delete all variants
@@ -110,7 +110,6 @@ async function cascadeDeleteAttributeVariants(attributeId: string) {
         // Add new variants
         for (const variant of toAdd) {
           await db.insert(product_variants).values({
-            id: crypto.randomUUID(),
             product_id: productId,
             name: variant.name,
             attributes: variant.attributes,

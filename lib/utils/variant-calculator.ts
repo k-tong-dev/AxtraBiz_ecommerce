@@ -10,22 +10,22 @@
  */
 
 export interface AttributeValue {
-  id: string
-  attribute_id: string | null
+  id: number
+  attribute_id: number | null
   name: string
   value: string
   position: number | null
 }
 
 export interface Attribute {
-  id: string
+  id: number
   name: string
   type: string
   values: AttributeValue[]
 }
 
 export interface Variant {
-  id?: string
+  id?: number
   name: string
   attributes: Record<string, string>  // attribute_id -> value_id
   sku?: string | null

@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1779618867247,
-      "tag": "0000_curly_landau",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1779702834195,
-      "tag": "0001_little_scarlet_witch",
+      "when": 1779724803764,
+      "tag": "0000_initial_schema",
       "breakpoints": true
     }
   ]

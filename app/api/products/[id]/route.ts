@@ -21,14 +21,14 @@ async function generateVariantsForProduct(productId: string, attributeIds: strin
       const [attrData] = await db
         .select()
         .from(product_attributes)
-        .where(eq(product_attributes.id, attrId))
+        .where(eq(product_attributes.id, Number(attrId)))
       
       if (!attrData) continue
       
       const values = await db
         .select()
         .from(product_attribute_values)
-        .where(eq(product_attribute_values.attribute_id, attrId))
+        .where(eq(product_attribute_values.attribute_id, Number(attrId)))
       
       attributes.push({
         id: attrData.id,
@@ -51,7 +51,7 @@ async function generateVariantsForProduct(productId: string, attributeIds: strin
     const existingVariants = await db
       .select()
       .from(product_variants)
-      .where(eq(product_variants.product_id, productId))
+      .where(eq(product_variants.product_id, Number(productId)))
     
     // Compare and determine changes
     const { toAdd, toUpdate, toRemove } = compareVariants(
@@ -83,8 +83,7 @@ async function generateVariantsForProduct(productId: string, attributeIds: strin
     // Add new variants
     for (const variant of toAdd) {
       await db.insert(product_variants).values({
-        id: crypto.randomUUID(),
-        product_id: productId,
+        product_id: Number(productId),
         name: variant.name,
         attributes: variant.attributes,
         sku: variant.sku || '',

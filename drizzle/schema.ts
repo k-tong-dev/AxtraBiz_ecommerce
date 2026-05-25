@@ -32,7 +32,7 @@ export const timestamps = {
 
 // Users table
 export const users = pgTable('users', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
   role: text('role').notNull().default('customer'),
@@ -42,7 +42,7 @@ export const users = pgTable('users', {
 
 // Product template table
 export const product_template = pgTable('product_template', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull(),
   description: text('description').notNull().default(''),
@@ -54,9 +54,9 @@ export const product_template = pgTable('product_template', {
   image_ids: jsonb('image_ids').notNull().default('[]'),
   sku: text('sku').default(''),
   barcode: text('barcode').default(''),
-  category_id: text('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
-  brand_id: text('brand_id').references(() => product_brand.id, { onDelete: 'set null' }),
-  tax_rate_id: text('tax_rate_id').references(() => tax_rates.id, { onDelete: 'set null' }),
+  category_id: integer('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
+  brand_id: integer('brand_id').references(() => product_brand.id, { onDelete: 'set null' }),
+  tax_rate_id: integer('tax_rate_id').references(() => tax_rates.id, { onDelete: 'set null' }),
   product_type: text('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
   status: text('status').notNull().default('draft'), // draft, published, archived
   meta_title: text('meta_title'),
@@ -81,7 +81,7 @@ export const product_template = pgTable('product_template', {
 
 // Brands table
 export const product_brand = pgTable('product_brand', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
@@ -93,7 +93,7 @@ export const product_brand = pgTable('product_brand', {
 
 // Tax rates table
 export const tax_rates = pgTable('tax_rates', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   rate: numeric('rate', { precision: 5, scale: 2 }).notNull(),
   country: text('country').notNull(),
@@ -105,11 +105,11 @@ export const tax_rates = pgTable('tax_rates', {
 
 // Product categories table
 export const product_categories = pgTable('product_categories', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
-  parent_id: text('parent_id').references(() => product_categories.id, { onDelete: 'set null' }),
+  parent_id: integer('parent_id').references(() => product_categories.id, { onDelete: 'set null' }),
   image_id: jsonb('image_id'),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
@@ -118,7 +118,7 @@ export const product_categories = pgTable('product_categories', {
 
 // Shipping zones table
 export const shipping_zones = pgTable('shipping_zones', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
   countries: jsonb('countries').notNull().default('[]'),
@@ -131,9 +131,9 @@ export const shipping_zones = pgTable('shipping_zones', {
 
 // Shipping zone product relation table
 export const shipping_zone_product = pgTable('shipping_zone_product', {
-  id: text('id').primaryKey(),
-  shipping_zone_id: text('shipping_zone_id').notNull().references(() => shipping_zones.id, { onDelete: 'cascade' }),
-  product_id: text('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
+  id: serial('id').primaryKey(),
+  shipping_zone_id: integer('shipping_zone_id').notNull().references(() => shipping_zones.id, { onDelete: 'cascade' }),
+  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
   custom_rate: numeric('custom_rate', { precision: 12, scale: 2 }),
   active: boolean('active').default(true).notNull(),
   ...timestamps,
@@ -141,7 +141,7 @@ export const shipping_zone_product = pgTable('shipping_zone_product', {
 
 // Product attributes table
 export const product_attributes = pgTable('product_attributes', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   type: text('type').notNull(), // select, radio, color, text
   position: integer('position').default(0),
@@ -151,10 +151,10 @@ export const product_attributes = pgTable('product_attributes', {
 // Product attribute values table
 // Each value belongs to exactly one attribute (one2many)
 export const product_attribute_values = pgTable('product_attribute_values', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull(),
   value: text('value').notNull(), // The actual value (e.g., 'red', 'M', 'XL')
-  attribute_id: text('attribute_id').references(() => product_attributes.id, { onDelete: 'set null' }),
+  attribute_id: integer('attribute_id').references(() => product_attributes.id, { onDelete: 'set null' }),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
@@ -162,17 +162,17 @@ export const product_attribute_values = pgTable('product_attribute_values', {
 
 // Product attributes relation table
 export const product_attributes_rel = pgTable('product_attributes_rel', {
-  id: text('id').primaryKey(),
-  product_id: text('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
-  attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
+  id: serial('id').primaryKey(),
+  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
+  attribute_id: integer('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
   position: integer('position').default(0),
   ...timestamps,
 });
 
 // Product variants table
 export const product_variants = pgTable('product_variants', {
-  id: text('id').primaryKey(),
-  product_id: text('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
+  id: serial('id').primaryKey(),
+  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   sku: text('sku').unique(),
   barcode: text('barcode').unique(),
@@ -190,8 +190,8 @@ export const product_variants = pgTable('product_variants', {
 
 // Orders table
 export const orders = pgTable('orders', {
-  id: text('id').primaryKey(),
-  user_id: text('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+  id: serial('id').primaryKey(),
+  user_id: integer('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   items: jsonb('items').notNull().default('[]'),
   shipping_address: jsonb('shipping_address').notNull(),
   total_price: numeric('total_price', { precision: 12, scale: 2 }).notNull().default('0'),
@@ -203,10 +203,10 @@ export const orders = pgTable('orders', {
 
 // Invoices table
 export const invoices = pgTable('invoices', {
-  id: text('id').primaryKey(),
-  order_id: text('order_id').notNull().references(() => orders.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+  id: serial('id').primaryKey(),
+  order_id: integer('order_id').notNull().references(() => orders.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   invoice_number: text('invoice_number').notNull().unique(),
-  user_id: text('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+  user_id: integer('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   items: jsonb('items').notNull().default('[]'),
   subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
   tax: numeric('tax', { precision: 12, scale: 2 }).notNull().default('0'),
@@ -218,7 +218,7 @@ export const invoices = pgTable('invoices', {
 
 // Announcements table
 export const announcements = pgTable('announcements', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   title: text('title').notNull(),
   content: text('content').notNull(),
   type: text('type').notNull().default('info'),
@@ -230,7 +230,7 @@ export const announcements = pgTable('announcements', {
 
 // Settings table
 export const settings = pgTable('settings', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   key: text('key').notNull().unique(),
   value: text('value').notNull(),
   category: text('category').notNull().default('general'),
@@ -239,7 +239,7 @@ export const settings = pgTable('settings', {
 
 // Configuration table
 export const configurations = pgTable('configurations', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   name: text('name').notNull().unique(),
   value: text('value').notNull(),
   type: text('type').notNull().default('string'),

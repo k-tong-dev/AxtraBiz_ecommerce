@@ -35,7 +35,7 @@ export function useCart() {
     []
   )
 
-  const removeItem = useCallback((productId: string) => {
+  const removeItem = useCallback((productId: number) => {
     setItems((prevItems) => {
       const newItems = prevItems.filter((item) => item.productId !== productId)
       cartStorage.setCart(newItems)
@@ -43,7 +43,7 @@ export function useCart() {
     })
   }, [])
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const updateQuantity = useCallback((productId: number, quantity: number) => {
     setItems((prevItems) => {
       let newItems: CartItem[]
       if (quantity <= 0) {

@@ -53,7 +53,7 @@ export default function AdminProductAttributeValuesPage() {
     if (!ok) return
 
     try {
-      setValues((prev) => prev.filter((v) => v.id !== id))
+      setValues((prev) => prev.filter((v) => String(v.id) !== id))
       const response = await fetch(`/api/admin/product-attribute-values/${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

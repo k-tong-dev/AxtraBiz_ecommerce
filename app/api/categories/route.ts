@@ -25,7 +25,6 @@ export async function POST(request: Request) {
 
     const results: any[] = []
     for (const item of items) {
-      if (!item.id) item.id = crypto.randomUUID()
       const r = await upsertCategoryInDrizzle(item, user?.id)
       if (!r.success) {
         return NextResponse.json({ success: false, error: r.error, index: results.length }, { status: 400 })

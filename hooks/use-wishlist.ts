@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { wishlistStorage } from '@/lib/storage'
 
 export function useWishlist() {
-  const [wishlist, setWishlist] = useState<string[]>([])
+  const [wishlist, setWishlist] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -13,26 +13,26 @@ export function useWishlist() {
     setIsLoading(false)
   }, [])
 
-  const toggleWishlist = useCallback((productId: string) => {
+  const toggleWishlist = useCallback((productId: number) => {
     setWishlist((prev) => {
       const newWishlist = wishlistStorage.toggleWishlist(productId)
       return newWishlist
     })
   }, [])
 
-  const addToWishlist = useCallback((productId: string) => {
+  const addToWishlist = useCallback((productId: number) => {
     if (!wishlist.includes(productId)) {
       toggleWishlist(productId)
     }
   }, [wishlist, toggleWishlist])
 
-  const removeFromWishlist = useCallback((productId: string) => {
+  const removeFromWishlist = useCallback((productId: number) => {
     if (wishlist.includes(productId)) {
       toggleWishlist(productId)
     }
   }, [wishlist, toggleWishlist])
 
-  const isInWishlist = useCallback((productId: string) => {
+  const isInWishlist = useCallback((productId: number) => {
     return wishlist.includes(productId)
   }, [wishlist])
 

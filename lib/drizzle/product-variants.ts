@@ -8,7 +8,7 @@ export const productVariantService = createCrudService<ProductVariant, any, any>
 )
 
 // Convenience functions that match the pattern
-export async function fetchProductVariantsFromDrizzle(productId?: string): Promise<ProductVariant[]> {
+export async function fetchProductVariantsFromDrizzle(productId?: string | number): Promise<ProductVariant[]> {
   if (productId) {
     return productVariantService.search(
       (product_variants as any).product_id.equals(productId)
@@ -17,7 +17,7 @@ export async function fetchProductVariantsFromDrizzle(productId?: string): Promi
   return productVariantService.search()
 }
 
-export async function fetchProductVariantFromDrizzle(variantId: string): Promise<ProductVariant | null> {
+export async function fetchProductVariantFromDrizzle(variantId: string | number): Promise<ProductVariant | null> {
   return productVariantService.read(variantId)
 }
 
@@ -29,12 +29,12 @@ export async function upsertProductVariantInDrizzle(
   return { success: result.success, error: result.error }
 }
 
-export async function deleteProductVariantFromDrizzle(variantId: string): Promise<boolean> {
+export async function deleteProductVariantFromDrizzle(variantId: string | number): Promise<boolean> {
   const result = await productVariantService.unlink(variantId)
   return result.success
 }
 
-export async function deleteProductVariantsByProductId(productId: string): Promise<boolean> {
+export async function deleteProductVariantsByProductId(productId: string | number): Promise<boolean> {
   try {
     // Find all variants for this product
     const variants = await fetchProductVariantsFromDrizzle(productId)
@@ -55,11 +55,11 @@ export async function deleteProductVariantsByProductId(productId: string): Promi
  * This is called when attributes are applied to a product
  */
 export async function generateProductVariants(
-  productId: string,
+  productId: number,
   attributes: Array<{
-    attribute_id: string
+    attribute_id: number
     attribute_name: string
-    values: Array<{ id: string; name: string; value: string }>
+    values: Array<{ id: number; name: string; value: string }>
   }>,
   basePrice: number = 0,
   baseSku: string = '',
@@ -94,8 +94,7 @@ export async function generateProductVariants(
       }))
 
       const variant: ProductVariant = {
-        id: crypto.randomUUID(),
-        product_id: productId,
+        product_id: Number(productId),
         sku: sku.toUpperCase(),
         name: variantName,
         price: basePrice.toString(),
@@ -127,14 +126,14 @@ export async function generateProductVariants(
  */
 function generateCombinations(
   attributes: Array<{
-    attribute_id: string
+    attribute_id: number
     attribute_name: string
-    values: Array<{ id: string; name: string; value: string }>
+    values: Array<{ id: number; name: string; value: string }>
   }>
 ): Array<Array<{
-  attribute_id: string
+  attribute_id: number
   attribute_name: string
-  value_id: string
+  value_id: number
   value_name: string
   value: string
 }>> {
@@ -142,9 +141,9 @@ function generateCombinations(
   
   // Start with first attribute's values
   let combinations: Array<Array<{
-    attribute_id: string
+    attribute_id: number
     attribute_name: string
-    value_id: string
+    value_id: number
     value_name: string
     value: string
   }>> = attributes[0].values.map(v => [{

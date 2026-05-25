@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ResourceView } from '../../../../../components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { productVariantConfig } from '../../config'
 import type { ProductVariant } from '@/lib/drizzle/server'
 

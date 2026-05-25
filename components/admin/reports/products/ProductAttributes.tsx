@@ -14,9 +14,9 @@ interface ProductAttributesProps {
 }
 
 interface AttributeRow {
-  id: string
-  attribute_id: string
-  value_ids: string[]
+  id: number
+  attribute_id: number
+  value_ids: number[]
   _editing?: boolean
 }
 
@@ -67,33 +67,33 @@ export const ProductAttributes: React.FC<ProductAttributesProps> = ({
 
   const handleAddRow = () => {
     const newRow: AttributeRow = {
-      id: crypto.randomUUID(),
-      attribute_id: '',
+      id: Date.now(),
+      attribute_id: 0,
       value_ids: [],
       _editing: true
     }
     setRows([...rows, newRow])
   }
 
-  const handleDeleteRow = (rowId: string) => {
+  const handleDeleteRow = (rowId: number) => {
     setRows(rows.filter(row => row.id !== rowId))
     onChange(rows.filter(row => row.id !== rowId))
   }
 
-  const handleEditRow = (rowId: string) => {
+  const handleEditRow = (rowId: number) => {
     setRows(rows.map(row => 
       row.id === rowId ? { ...row, _editing: true } : row
     ))
   }
 
-  const handleSaveRow = (rowId: string) => {
+  const handleSaveRow = (rowId: number) => {
     setRows(rows.map(row => 
       row.id === rowId ? { ...row, _editing: false } : row
     ))
     onChange(rows)
   }
 
-  const handleRowChange = (rowId: string, field: string, value: any) => {
+  const handleRowChange = (rowId: number, field: string, value: any) => {
     setRows(rows.map(row => 
       row.id === rowId ? { ...row, [field]: value } : row
     ))

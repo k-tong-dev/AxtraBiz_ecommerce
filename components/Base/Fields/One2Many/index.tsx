@@ -21,6 +21,8 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
   const [open, setOpen] = React.useState(false)
   const [options, setOptions] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(false)
+  const seeded = React.useRef(false)
+  const fetchGuard = React.useRef(false)
 
   const selectedIds = React.useMemo(() => {
     if (!Array.isArray(value)) return []
@@ -45,6 +47,7 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
         }))
         .filter((v: any) => v.id)
       if (valueOptions.length > 0) {
+        seeded.current = true
         setOptions(prev => {
           const existing = new Set(prev.map((o: any) => o.id))
           const newOnes = valueOptions.filter((v: any) => !existing.has(v.id))
@@ -74,7 +77,12 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
     }
   }, [config.fetchUrl])
 
-  React.useEffect(() => { fetchOptions() }, [fetchOptions])
+  React.useEffect(() => {
+    if (seeded.current) return
+    if (fetchGuard.current) return
+    fetchGuard.current = true
+    fetchOptions()
+  }, [fetchOptions])
 
   const pickerData = options.map((item: any) => ({
     label: item.avatar

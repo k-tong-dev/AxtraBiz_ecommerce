@@ -4,7 +4,7 @@
  */
 
 export interface UploadResult {
-  id: string
+  id: number
   path: string
   url: string
 }
@@ -84,7 +84,7 @@ export async function uploadFiles(
  * @returns Promise with success status
  */
 export async function deleteFile(
-  attachmentId: string,
+  attachmentId: number,
   path?: string,
   options: DeleteOptions = {}
 ): Promise<{ success: boolean }> {
@@ -117,7 +117,7 @@ export async function deleteFile(
  * @returns Promise with array of success statuses
  */
 export async function deleteFiles(
-  attachments: Array<{ id: string; path?: string }>,
+  attachments: Array<{ id: number; path?: string }>,
   options: DeleteOptions = {}
 ): Promise<{ success: boolean }[]> {
   const deletePromises = attachments.map(att => deleteFile(att.id, att.path, options))
@@ -142,8 +142,8 @@ export function extractPathFromUrl(url: string): string {
  * @returns Promise with array of {id, url} objects
  */
 export async function fetchAttachmentUrls(
-  attachmentIds: string[]
-): Promise<Array<{ id: string; url: string }>> {
+  attachmentIds: number[]
+): Promise<Array<{ id: number; url: string }>> {
   if (!attachmentIds || attachmentIds.length === 0) {
     return []
   }

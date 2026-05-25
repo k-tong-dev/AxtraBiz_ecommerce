@@ -56,7 +56,7 @@ export const authStorage = {
 
 // Wishlist Storage
 export const wishlistStorage = {
-  getWishlist: (): string[] => {
+  getWishlist: (): number[] => {
     if (typeof window === 'undefined') return []
     try {
       const wishlist = localStorage.getItem(STORAGE_KEYS.WISHLIST)
@@ -66,12 +66,12 @@ export const wishlistStorage = {
     }
   },
 
-  setWishlist: (wishlist: string[]) => {
+  setWishlist: (wishlist: number[]) => {
     if (typeof window === 'undefined') return
     localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(wishlist))
   },
 
-  toggleWishlist: (productId: string) => {
+  toggleWishlist: (productId: number) => {
     const wishlist = wishlistStorage.getWishlist()
     const index = wishlist.indexOf(productId)
     if (index > -1) {

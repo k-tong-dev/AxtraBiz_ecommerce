@@ -43,7 +43,7 @@ export default function AdminCategoriesPage() {
     if (!ok) return
 
     try {
-      setCategories((prev) => prev.filter((c) => c.id !== id))
+      setCategories((prev) => prev.filter((c) => String(c.id) !== id))
       const response = await fetch(`/api/categories?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

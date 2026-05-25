@@ -21,7 +21,6 @@ export async function POST(request: Request) {
 
     const results: any[] = []
     for (const item of items) {
-      if (!item.id) item.id = crypto.randomUUID()
       if (!item.slug) item.slug = item.name?.toLowerCase().replace(/\s+/g, '-')
       if (typeof item.image_id === 'string') {
         try { item.image_id = JSON.parse(item.image_id) } catch {}

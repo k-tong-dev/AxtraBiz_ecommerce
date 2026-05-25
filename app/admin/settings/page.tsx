@@ -53,7 +53,7 @@ export default function AdminSettingsPage() {
     if (!ok) return
 
     try {
-      setSettings((prev) => prev.filter((s) => s.id !== id))
+      setSettings((prev) => prev.filter((s) => String(s.id) !== id))
       const response = await fetch(`/api/settings?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

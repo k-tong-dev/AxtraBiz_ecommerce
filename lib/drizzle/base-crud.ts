@@ -145,12 +145,12 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   /**
    * Read - Similar to Odoo's read() / search()
    */
-  async read(id: string): Promise<T | null> {
+  async read(id: string | number): Promise<T | null> {
     try {
       const [result] = await db
         .select()
         .from(this.table)
-        .where(eq((this.table as any).id, id))
+        .where(eq((this.table as any).id, Number(id)))
         .limit(1)
 
       return result as T || null
@@ -196,8 +196,8 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Write — accepts a single ID or an array of IDs.
    * Automatically updates updated_at and write_uid fields.
    */
-  async write(id: string, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
-  async write(ids: string[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
+  async write(id: string | number, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
+  async write(ids: (string | number)[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
   async write(ids: any, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId)
@@ -212,7 +212,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
       await db
         .update(this.table)
         .set(setData as any)
-        .where(eq((this.table as any).id, idList[0])) // Simplified — IN clause for true multi
+        .where(eq((this.table as any).id, Number(idList[0]))) // Simplified — IN clause for true multi
 
       return { success: true }
     } catch (err) {
@@ -224,15 +224,15 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   /**
    * Unlink — accepts a single ID or an array of IDs.
    */
-  async unlink(id: string): Promise<DeleteResult>
-  async unlink(ids: string[], userId?: string): Promise<DeleteResult>
+  async unlink(id: string | number): Promise<DeleteResult>
+  async unlink(ids: (string | number)[], userId?: string): Promise<DeleteResult>
   async unlink(ids: any, _userId?: string): Promise<DeleteResult> {
     try {
       const idList = Array.isArray(ids) ? ids : [ids]
 
       await db
         .delete(this.table)
-        .where(eq((this.table as any).id, idList[0])) // Simplified — IN clause for true multi
+        .where(eq((this.table as any).id, Number(idList[0]))) // Simplified — IN clause for true multi
 
       return { success: true }
     } catch (err) {
@@ -244,8 +244,8 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Upsert — accepts a single record or an array of records.
    * Create or update based on ID existence.
    */
-  async upsert(data: TInsert & Partial<TrackingFields> & { id: string }, userId?: string): Promise<CreateResult<T>>
-  async upsert(data: (TInsert & Partial<TrackingFields> & { id: string })[], userId?: string): Promise<CreateResult<T[]>>
+  async upsert(data: TInsert & Partial<TrackingFields> & { id: string | number }, userId?: string): Promise<CreateResult<T>>
+  async upsert(data: (TInsert & Partial<TrackingFields> & { id: string | number })[], userId?: string): Promise<CreateResult<T[]>>
   async upsert(data: any, userId?: string): Promise<CreateResult<T | T[]>> {
     if (Array.isArray(data)) {
       const results: T[] = []

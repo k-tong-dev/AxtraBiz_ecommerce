@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import {
   fetchProductAttributeValuesFromDrizzle,
-  fetchProductAttributeValueFromDrizzle,
   upsertProductAttributeValueInDrizzle,
   deleteProductAttributeValueFromDrizzle,
 } from '../../../../lib/drizzle/product-attributes'
@@ -53,20 +52,20 @@ export async function POST(request: Request) {
     const results: any[] = []
     for (const raw of items) {
       const processed = processAttributeValueFields(raw)
-      const id = raw.id || crypto.randomUUID()
 
       // Include attribute_id directly if provided (now a direct FK)
       if (raw.attribute_id) {
         processed.attribute_id = raw.attribute_id
       }
 
-      const result = await upsertProductAttributeValueInDrizzle({ ...processed, id } as ProductAttributeValue, user?.id)
+      const dataToUpsert = raw.id ? { ...processed, id: Number(raw.id) } : processed
+      const result = await upsertProductAttributeValueInDrizzle(dataToUpsert as ProductAttributeValue, user?.id)
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }
 
-      const saved = await fetchProductAttributeValueFromDrizzle(id)
-      results.push(saved ?? result.data ?? processed)
+      const saved = result.data ?? processed
+      results.push(saved)
     }
 
     return NextResponse.json(

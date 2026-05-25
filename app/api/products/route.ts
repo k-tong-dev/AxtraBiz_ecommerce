@@ -56,7 +56,6 @@ export async function POST(request: Request) {
     const results: any[] = []
     for (const raw of items) {
       const processed = processProductFields(raw)
-      if (!raw.id) processed.id = crypto.randomUUID()
       const result = await upsertProductInDrizzle(processed as any)
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })

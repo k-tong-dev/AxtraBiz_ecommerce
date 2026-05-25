@@ -1,19 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import type { Brand } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
-import { ResourceView } from '../../../../../components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { brandConfig } from '../../config'
 
 export default function EditBrandPage() {
   const params = useParams()
   const id = params.id as string
+  const fetchedRef = useRef(false)
   const [brand, setBrand] = useState<Brand | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+
     let mounted = true
     ;(async () => {
       try {

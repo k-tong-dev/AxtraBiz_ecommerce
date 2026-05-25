@@ -53,7 +53,7 @@ export default function AdminCustomersPage() {
     if (!ok) return
 
     try {
-      setCustomers((prev) => prev.filter((u) => u.id !== id))
+      setCustomers((prev) => prev.filter((u) => String(u.id) !== id))
       const response = await fetch(`/api/users?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

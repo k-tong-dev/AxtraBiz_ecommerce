@@ -54,7 +54,7 @@ export default function AdminProductVariantsPage() {
     if (!ok) return
 
     try {
-      setVariants((prev) => prev.filter((v) => v.id !== id))
+      setVariants((prev) => prev.filter((v) => String(v.id) !== id))
       const response = await fetch(`/api/admin/product-variants/${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     const results: any[] = []
     for (const raw of items) {
       const processed = processAttributeFields(raw)
-      processed.id = raw.id || crypto.randomUUID()
+      if (raw.id) processed.id = raw.id
 
       const result = await upsertProductAttributeInDrizzle(processed as any, user?.id)
       if (!result.success) {

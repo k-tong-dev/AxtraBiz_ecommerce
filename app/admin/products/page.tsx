@@ -49,7 +49,7 @@ export default function AdminProductsPage() {
     router.push(`/admin/products/${p.id}/edit`)
   }
 
-  const remove = async (id: string) => {
+  const remove = async (id: number) => {
     const ok = window.confirm('Delete this product?')
     if (!ok) return
 

@@ -53,7 +53,7 @@ export default function AdminConfigurationsPage() {
     if (!ok) return
 
     try {
-      setConfigurations((prev) => prev.filter((c) => c.id !== id))
+      setConfigurations((prev) => prev.filter((c) => String(c.id) !== id))
       const response = await fetch(`/api/configurations?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

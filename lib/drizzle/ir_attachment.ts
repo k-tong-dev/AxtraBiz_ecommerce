@@ -4,7 +4,7 @@ import { eq, and } from 'drizzle-orm'
 
 export async function deleteAttachmentsByResModelAndResId(
   resModel: string,
-  resId: string
+  resId: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // First, fetch all attachments for this record
@@ -60,7 +60,7 @@ export async function deleteAttachmentsByResModelAndResId(
 }
 
 export async function deleteAttachmentById(
-  attachmentId: string
+  attachmentId: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Fetch the attachment to get the URL
@@ -103,7 +103,7 @@ export async function deleteAttachmentById(
 
 export async function fetchAttachmentsByResModelAndResId(
   resModel: string,
-  resId: string
+  resId: number
 ) {
   try {
     const attachments = await db

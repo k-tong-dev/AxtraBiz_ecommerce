@@ -53,7 +53,7 @@ export default function AdminInvoicesPage() {
     if (!ok) return
 
     try {
-      setInvoices((prev) => prev.filter((inv) => inv.id !== id))
+      setInvoices((prev) => prev.filter((inv) => String(inv.id) !== id))
       const response = await fetch(`/api/invoices?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

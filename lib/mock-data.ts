@@ -11,7 +11,7 @@ import type {
 
 export const mockProducts: Product[] = [
   {
-    id: '1',
+    id: 1,
     name: 'Premium Wireless Headphones',
     slug: 'premium-wireless-headphones',
     description: 'High-quality wireless headphones with noise cancellation and 30-hour battery life.',
@@ -28,7 +28,7 @@ export const mockProducts: Product[] = [
     features: ['Noise Cancellation', '30-hour Battery', 'Bluetooth 5.0', 'Touch Controls'],
   },
   {
-    id: '2',
+    id: 2,
     name: 'Luxury Smartwatch',
     slug: 'luxury-smartwatch',
     description: 'Advanced smartwatch with health tracking, fitness modes, and long battery life.',
@@ -45,7 +45,7 @@ export const mockProducts: Product[] = [
     features: ['Heart Rate Monitor', 'GPS', '7-day Battery', 'Water Resistant'],
   },
   {
-    id: '3',
+    id: 3,
     name: 'Professional Camera',
     slug: 'professional-camera',
     description: '24MP mirrorless camera with 4K video recording and professional features.',
@@ -62,7 +62,7 @@ export const mockProducts: Product[] = [
     features: ['24MP Sensor', '4K Video', 'Fast AF', 'Weather Sealed'],
   },
   {
-    id: '4',
+    id: 4,
     name: 'Ultra-Light Laptop',
     slug: 'ultra-light-laptop',
     description: 'Premium ultrabook with Intel i7, 16GB RAM, and long battery life.',
@@ -78,7 +78,7 @@ export const mockProducts: Product[] = [
     features: ['Intel i7', '16GB RAM', '512GB SSD', '10-hour Battery'],
   },
   {
-    id: '5',
+    id: 5,
     name: 'Portable Bluetooth Speaker',
     slug: 'portable-bluetooth-speaker',
     description: 'Waterproof speaker with 360-degree sound and 12-hour battery.',
@@ -94,7 +94,7 @@ export const mockProducts: Product[] = [
     features: ['Waterproof', '360° Sound', '12-hour Battery', 'Compact Design'],
   },
   {
-    id: '6',
+    id: 6,
     name: 'Mechanical Gaming Keyboard',
     slug: 'mechanical-gaming-keyboard',
     description: 'RGB mechanical keyboard with custom switches and programmable keys.',

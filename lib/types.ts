@@ -1,6 +1,6 @@
 // User and Authentication
 export interface User {
-  id: string;
+  id: number | string;
   email: string;
   name: string;
   avatar?: string;
@@ -10,7 +10,7 @@ export interface User {
 
 // Products
 export interface Product {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   description: string;
@@ -27,13 +27,13 @@ export interface Product {
 
 // Cart & Order
 export interface CartItem {
-  productId: string;
+  productId: number;
   quantity: number;
   price: number;
 }
 
 export interface ShippingAddress {
-  id?: string;
+  id?: number | string;
   name: string;
   email: string;
   phone: string;
@@ -46,8 +46,8 @@ export interface ShippingAddress {
 }
 
 export interface Order {
-  id: string;
-  userId: string;
+  id: number | string;
+  userId: number | string;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   totalPrice: number;
@@ -58,7 +58,7 @@ export interface Order {
 }
 
 export interface OrderItem {
-  productId: string;
+  productId: number | string;
   productName: string;
   price: number;
   quantity: number;
@@ -66,9 +66,9 @@ export interface OrderItem {
 
 // Reviews
 export interface Review {
-  id: string;
-  productId: string;
-  userId: string;
+  id: number | string;
+  productId: number | string;
+  userId: number | string;
   userName: string;
   rating: number;
   text: string;
@@ -77,7 +77,7 @@ export interface Review {
 
 // Announcements
 export interface Announcement {
-  id: string;
+  id: number | string;
   title: string;
   message: string;
   type: 'info' | 'success' | 'warning' | 'error';
@@ -104,9 +104,9 @@ export interface ChartData {
 
 // Admin - Invoices & Settings
 export interface Invoice {
-  id: string
-  orderId: string
-  customerId: string
+  id: number | string
+  orderId: number | string
+  customerId: number | string
   total: number
   status: 'draft' | 'issued' | 'paid' | 'void'
   createdAt: string
@@ -114,7 +114,7 @@ export interface Invoice {
 }
 
 export interface Setting {
-  id: string
+  id: number | string
   key: string
   value: string
   updatedAt: string

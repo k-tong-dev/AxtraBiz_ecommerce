@@ -53,7 +53,7 @@ export default function AdminAnnouncementsPage() {
     if (!ok) return
 
     try {
-      setAnnouncements((prev) => prev.filter((a) => a.id !== id))
+      setAnnouncements((prev) => prev.filter((a) => String(a.id) !== id))
       const response = await fetch(`/api/announcements?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

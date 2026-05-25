@@ -18,7 +18,7 @@ export async function fetchProductAttributesFromDrizzle(): Promise<ProductAttrib
   return productAttributeService.search()
 }
 
-export async function fetchProductAttributeFromDrizzle(attributeId: string): Promise<ProductAttribute | null> {
+export async function fetchProductAttributeFromDrizzle(attributeId: string | number): Promise<ProductAttribute | null> {
   return productAttributeService.read(attributeId)
 }
 
@@ -27,7 +27,7 @@ export async function upsertProductAttributeInDrizzle(attribute: ProductAttribut
   return { success: result.success, error: result.error, data: result.data }
 }
 
-export async function deleteProductAttributeFromDrizzle(attributeId: string): Promise<boolean> {
+export async function deleteProductAttributeFromDrizzle(attributeId: string | number): Promise<boolean> {
   const result = await productAttributeService.unlink(attributeId)
   return result.success
 }
@@ -35,8 +35,8 @@ export async function deleteProductAttributeFromDrizzle(attributeId: string): Pr
 // Enriched fetch for product attributes that includes one2many value_ids
 export interface ProductAttributeWithValues extends ProductAttribute {
   value_ids?: Array<{
-    id: string
-    attribute_id: string | null
+    id: number
+    attribute_id: number | null
     position: number
     name: string
     value: string
@@ -47,12 +47,12 @@ export interface ProductAttributeWithValues extends ProductAttribute {
   }>
 }
 
-export async function fetchProductAttributeWithValueIdsFromDrizzle(attributeId: string): Promise<ProductAttributeWithValues | null> {
+export async function fetchProductAttributeWithValueIdsFromDrizzle(attributeId: string | number): Promise<ProductAttributeWithValues | null> {
   const attribute = await productAttributeService.read(attributeId)
   if (!attribute) return null
 
   const values = await productAttributeValueService.search(
-    eq(product_attribute_values.attribute_id, attributeId)
+    eq(product_attribute_values.attribute_id, Number(attributeId))
   )
 
   return {
@@ -69,9 +69,9 @@ export async function fetchProductAttributeWithValueIdsFromDrizzle(attributeId: 
 }
 
 // Convenience functions for product attribute values
-export async function fetchProductAttributeValuesFromDrizzle(attributeId?: string): Promise<ProductAttributeValue[]> {
+export async function fetchProductAttributeValuesFromDrizzle(attributeId?: string | number): Promise<ProductAttributeValue[]> {
   if (attributeId) {
-    return productAttributeValueService.search(eq(product_attribute_values.attribute_id, attributeId))
+    return productAttributeValueService.search(eq(product_attribute_values.attribute_id, Number(attributeId)))
   }
   return productAttributeValueService.search()
 }
@@ -81,7 +81,7 @@ export interface ProductAttributeValueWithRelations extends ProductAttributeValu
   // The attribute_id is now a direct FK on the value, no need for extra relation
 }
 
-export async function fetchProductAttributeValueFromDrizzle(valueId: string): Promise<ProductAttributeValueWithRelations | null> {
+export async function fetchProductAttributeValueFromDrizzle(valueId: string | number): Promise<ProductAttributeValueWithRelations | null> {
   const value = await productAttributeValueService.read(valueId)
   return value
 }
@@ -93,17 +93,17 @@ export async function upsertProductAttributeValueInDrizzle(
   const { attribute_ids: _attributeIds, ...valueFields } = value as ProductAttributeValue & {
     attribute_ids?: unknown
   }
-  const result = await productAttributeValueService.upsert(valueFields as ProductAttributeValue & { id: string }, userId)
+  const result = await productAttributeValueService.upsert(valueFields as ProductAttributeValue, userId)
   return { success: result.success, error: result.error, data: result.data }
 }
 
-export async function deleteProductAttributeValueFromDrizzle(valueId: string): Promise<boolean> {
+export async function deleteProductAttributeValueFromDrizzle(valueId: string | number): Promise<boolean> {
   const result = await productAttributeValueService.unlink(valueId)
   return result.success
 }
 
 // Batch delete attribute values by attribute_id
-export async function deleteProductAttributeValuesByAttributeId(attributeId: string): Promise<boolean> {
+export async function deleteProductAttributeValuesByAttributeId(attributeId: string | number): Promise<boolean> {
   try {
     const values = await fetchProductAttributeValuesFromDrizzle(attributeId)
     const results = await Promise.all(values.map(v => productAttributeValueService.unlink(v.id)))
@@ -114,10 +114,10 @@ export async function deleteProductAttributeValuesByAttributeId(attributeId: str
 }
 
 export async function updateProductAttributeValueRelationsForAttribute(
-  attributeId: string,
+  attributeId: string | number,
   values: Array<{
-    id?: string
-    attribute_id?: string
+    id?: number
+    attribute_id?: number
     position?: number
     name?: string
     value?: string
@@ -136,13 +136,13 @@ export async function updateProductAttributeValueRelationsForAttribute(
     if (isPlainStrings) {
       // Tags mode: diff against existing DB values
       const existing = await productAttributeValueService.search(
-        eq(product_attribute_values.attribute_id, attributeId)
+        eq(product_attribute_values.attribute_id, Number(attributeId))
       )
       const existingIds = new Set(existing.map(v => v.id))
 
       // Delete values that are no longer selected (actually unlink by nullifying FK)
       for (const val of existing) {
-        if (!stringValues.includes(val.id)) {
+        if (!stringValues.includes(String(val.id))) {
           await productAttributeValueService.upsert({
             id: val.id,
             attribute_id: null,
@@ -150,27 +150,26 @@ export async function updateProductAttributeValueRelationsForAttribute(
             value: val.value,
             position: val.position ?? 0,
             active: val.active,
-          } as ProductAttributeValue & { id: string }, userId)
+          } as ProductAttributeValue, userId)
         }
       }
 
       // Create values that are new (not in DB)
       for (const valId of stringValues) {
-        if (!existingIds.has(valId)) {
+        if (!existingIds.has(Number(valId))) {
           await productAttributeValueService.upsert({
-            id: valId,
-            attribute_id: attributeId,
+            attribute_id: Number(attributeId),
             name: valId,
             value: valId,
             position: 0,
             active: true,
-          } as ProductAttributeValue & { id: string }, userId)
+          } as ProductAttributeValue, userId)
         }
       }
     } else {
       // Widget mode: process items with flags
       const objValues = values as Array<{
-        id?: string; _toDelete?: boolean; isNew?: boolean; isChanged?: boolean
+        id?: number; _toDelete?: boolean; isNew?: boolean; isChanged?: boolean
         name?: string; value?: string; position?: number; active?: boolean
       }>
 
@@ -183,20 +182,20 @@ export async function updateProductAttributeValueRelationsForAttribute(
           value: val.value || val.name || '',
           position: val.position ?? 0,
           active: val.active ?? false,
-        } as ProductAttributeValue & { id: string }, userId)
+        } as ProductAttributeValue, userId)
       }
 
       const toAdd = objValues.filter(v => v.isNew && !v._toDelete)
       for (const val of toAdd) {
-        const valueId = val.id || crypto.randomUUID()
-        await productAttributeValueService.upsert({
-          id: valueId,
+        const data: Record<string, any> = {
           attribute_id: attributeId,
           name: val.name || '',
           value: val.value || val.name || '',
           position: val.position ?? 0,
           active: val.active ?? true,
-        } as ProductAttributeValue & { id: string }, userId)
+        }
+        if (val.id) data.id = val.id
+        await productAttributeValueService.upsert(data as ProductAttributeValue, userId)
       }
 
       const toUpdate = objValues.filter(v => v.isChanged && !v._toDelete && !v.isNew && v.id)
@@ -208,7 +207,7 @@ export async function updateProductAttributeValueRelationsForAttribute(
           value: val.value || val.name,
           position: val.position ?? 0,
           active: val.active ?? true,
-        } as ProductAttributeValue & { id: string }, userId)
+        } as ProductAttributeValue, userId)
       }
     }
 

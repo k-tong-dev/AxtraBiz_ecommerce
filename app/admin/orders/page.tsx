@@ -53,7 +53,7 @@ export default function AdminOrdersPage() {
     if (!ok) return
 
     try {
-      setOrders((prev) => prev.filter((o) => o.id !== id))
+      setOrders((prev) => prev.filter((o) => String(o.id) !== id))
       const response = await fetch(`/api/orders?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {

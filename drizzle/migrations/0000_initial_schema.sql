@@ -1,5 +1,5 @@
 CREATE TABLE "announcements" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
 	"content" text NOT NULL,
 	"type" text DEFAULT 'info' NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE "announcements" (
 );
 --> statement-breakpoint
 CREATE TABLE "configurations" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"value" text NOT NULL,
 	"type" text DEFAULT 'string' NOT NULL,
@@ -26,10 +26,10 @@ CREATE TABLE "configurations" (
 );
 --> statement-breakpoint
 CREATE TABLE "invoices" (
-	"id" text PRIMARY KEY NOT NULL,
-	"order_id" text NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
+	"order_id" integer NOT NULL,
 	"invoice_number" text NOT NULL,
-	"user_id" text NOT NULL,
+	"user_id" integer NOT NULL,
 	"items" jsonb DEFAULT '[]' NOT NULL,
 	"subtotal" numeric(12, 2) DEFAULT '0' NOT NULL,
 	"tax" numeric(12, 2) DEFAULT '0' NOT NULL,
@@ -44,8 +44,8 @@ CREATE TABLE "invoices" (
 );
 --> statement-breakpoint
 CREATE TABLE "orders" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" integer NOT NULL,
 	"items" jsonb DEFAULT '[]' NOT NULL,
 	"shipping_address" jsonb NOT NULL,
 	"total_price" numeric(12, 2) DEFAULT '0' NOT NULL,
@@ -59,9 +59,10 @@ CREATE TABLE "orders" (
 );
 --> statement-breakpoint
 CREATE TABLE "product_attribute_values" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"value" text NOT NULL,
+	"attribute_id" integer,
 	"position" integer DEFAULT 0,
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -70,17 +71,8 @@ CREATE TABLE "product_attribute_values" (
 	"write_uid" text
 );
 --> statement-breakpoint
-CREATE TABLE "product_attribute_values_rel" (
-	"id" text PRIMARY KEY NOT NULL,
-	"attribute_id" text NOT NULL,
-	"value_id" text NOT NULL,
-	"position" integer DEFAULT 0,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "product_attributes" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"type" text NOT NULL,
 	"position" integer DEFAULT 0,
@@ -91,16 +83,16 @@ CREATE TABLE "product_attributes" (
 );
 --> statement-breakpoint
 CREATE TABLE "product_attributes_rel" (
-	"id" text PRIMARY KEY NOT NULL,
-	"product_id" text NOT NULL,
-	"attribute_id" text NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
+	"product_id" integer NOT NULL,
+	"attribute_id" integer NOT NULL,
 	"position" integer DEFAULT 0,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "product_brand" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
 	"description" text,
@@ -115,11 +107,11 @@ CREATE TABLE "product_brand" (
 );
 --> statement-breakpoint
 CREATE TABLE "product_categories" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
 	"description" text,
-	"parent_id" text,
+	"parent_id" integer,
 	"image_id" jsonb,
 	"position" integer DEFAULT 0,
 	"active" boolean DEFAULT true NOT NULL,
@@ -131,7 +123,7 @@ CREATE TABLE "product_categories" (
 );
 --> statement-breakpoint
 CREATE TABLE "product_template" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
 	"description" text DEFAULT '' NOT NULL,
@@ -143,9 +135,9 @@ CREATE TABLE "product_template" (
 	"image_ids" jsonb DEFAULT '[]' NOT NULL,
 	"sku" text DEFAULT '',
 	"barcode" text DEFAULT '',
-	"category_id" text,
-	"brand_id" text,
-	"tax_rate_id" text,
+	"category_id" integer,
+	"brand_id" integer,
+	"tax_rate_id" integer,
 	"product_type" text DEFAULT 'simple' NOT NULL,
 	"status" text DEFAULT 'draft' NOT NULL,
 	"meta_title" text,
@@ -172,8 +164,8 @@ CREATE TABLE "product_template" (
 );
 --> statement-breakpoint
 CREATE TABLE "product_variants" (
-	"id" text PRIMARY KEY NOT NULL,
-	"product_id" text NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
+	"product_id" integer NOT NULL,
 	"name" text NOT NULL,
 	"sku" text,
 	"barcode" text,
@@ -195,7 +187,7 @@ CREATE TABLE "product_variants" (
 );
 --> statement-breakpoint
 CREATE TABLE "settings" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"key" text NOT NULL,
 	"value" text NOT NULL,
 	"category" text DEFAULT 'general' NOT NULL,
@@ -207,9 +199,9 @@ CREATE TABLE "settings" (
 );
 --> statement-breakpoint
 CREATE TABLE "shipping_zone_product" (
-	"id" text PRIMARY KEY NOT NULL,
-	"shipping_zone_id" text NOT NULL,
-	"product_id" text NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
+	"shipping_zone_id" integer NOT NULL,
+	"product_id" integer NOT NULL,
 	"custom_rate" numeric(12, 2),
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -217,7 +209,7 @@ CREATE TABLE "shipping_zone_product" (
 );
 --> statement-breakpoint
 CREATE TABLE "shipping_zones" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
 	"countries" jsonb DEFAULT '[]' NOT NULL,
@@ -232,7 +224,7 @@ CREATE TABLE "shipping_zones" (
 );
 --> statement-breakpoint
 CREATE TABLE "tax_rates" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"rate" numeric(5, 2) NOT NULL,
 	"country" text NOT NULL,
@@ -246,7 +238,7 @@ CREATE TABLE "tax_rates" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"email" text NOT NULL,
 	"name" text NOT NULL,
 	"role" text DEFAULT 'customer' NOT NULL,
@@ -261,8 +253,7 @@ CREATE TABLE "users" (
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "product_attribute_values_rel" ADD CONSTRAINT "product_attribute_values_rel_attribute_id_product_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."product_attributes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "product_attribute_values_rel" ADD CONSTRAINT "product_attribute_values_rel_value_id_product_attribute_values_id_fk" FOREIGN KEY ("value_id") REFERENCES "public"."product_attribute_values"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "product_attribute_values" ADD CONSTRAINT "product_attribute_values_attribute_id_product_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."product_attributes"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_attributes_rel" ADD CONSTRAINT "product_attributes_rel_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_attributes_rel" ADD CONSTRAINT "product_attributes_rel_attribute_id_product_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."product_attributes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_categories" ADD CONSTRAINT "product_categories_parent_id_product_categories_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."product_categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint

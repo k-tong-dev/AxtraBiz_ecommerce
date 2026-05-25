@@ -43,7 +43,7 @@ export default function AdminBrandsPage() {
     if (!ok) return
 
     try {
-      setBrands((prev) => prev.filter((b) => b.id !== id))
+      setBrands((prev) => prev.filter((b) => String(b.id) !== id))
       const response = await fetch(`/api/brands?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
