@@ -1,14 +1,8 @@
 'use client'
 
-import { Message, toaster } from 'rsuite'
+import { Notification, toaster } from 'rsuite'
 
 export type WizardMessageType = 'info' | 'warning' | 'error'
-
-interface WizardMessage {
-  type: WizardMessageType
-  title: string
-  description?: string
-}
 
 const typeConfig: Record<WizardMessageType, { rsuiteType: 'info' | 'warning' | 'error'; duration: number }> = {
   info: { rsuiteType: 'info', duration: 4000 },
@@ -31,10 +25,10 @@ export function showWizardMessage(type: WizardMessageType, title: string, descri
   }
 
   toaster.push(
-    <Message showIcon type={config.rsuiteType} closable header={title}>
+    <Notification type={config.rsuiteType} header={title} closable duration={config.duration}>
       {description}
-    </Message>,
-    { placement: 'topEnd', duration: config.duration },
+    </Notification>,
+    { placement: 'topEnd' },
   )
 }
 
