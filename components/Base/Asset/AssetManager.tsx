@@ -354,19 +354,19 @@ export function AssetManager() {
       {/* Stats bar */}
       <StatGroup columns={4} spacing={16}>
         <Stat bordered icon={<HardDrive className="text-blue-500"/>}>
-          <StatLabel uppercase>Total Size</StatLabel>
+          <StatLabel >Total Size</StatLabel>
           <StatValue>{formatSize(stats.totalSize)}</StatValue>
         </Stat>
         <Stat bordered icon={<FileImage className="text-emerald-500" />}>
-          <StatLabel uppercase>Files</StatLabel>
+          <StatLabel >Files</StatLabel>
           <StatValue value={stats.totalFiles} />
         </Stat>
         <Stat bordered icon={<FolderOpen className="text-amber-500" />}>
-          <StatLabel uppercase>Folders</StatLabel>
+          <StatLabel >Folders</StatLabel>
           <StatValue value={stats.totalFolders} />
         </Stat>
         <Stat bordered icon={<BarChart3 className="text-purple-500" />}>
-          <StatLabel uppercase>File Types</StatLabel>
+          <StatLabel >File Types</StatLabel>
           <StatHelpText>
             {stats.fileTypes.length > 0 ? (
               <div className="flex items-center gap-1.5 flex-wrap">
