@@ -30,9 +30,9 @@ export const timestamps = {
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 };
 
-// Users table
+// Users table — id stores Supabase Auth UUID, not auto-increment
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+  id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
   role: text('role').notNull().default('customer'),
@@ -191,7 +191,7 @@ export const product_variants = pgTable('product_variants', {
 // Orders table
 export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
-  user_id: integer('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+  user_id: text('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   items: jsonb('items').notNull().default('[]'),
   shipping_address: jsonb('shipping_address').notNull(),
   total_price: numeric('total_price', { precision: 12, scale: 2 }).notNull().default('0'),
@@ -206,7 +206,7 @@ export const invoices = pgTable('invoices', {
   id: serial('id').primaryKey(),
   order_id: integer('order_id').notNull().references(() => orders.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   invoice_number: text('invoice_number').notNull().unique(),
-  user_id: integer('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
+  user_id: text('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   items: jsonb('items').notNull().default('[]'),
   subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
   tax: numeric('tax', { precision: 12, scale: 2 }).notNull().default('0'),
