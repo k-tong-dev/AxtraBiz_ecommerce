@@ -757,6 +757,20 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
 
         // Check if field has a widget
         if (field.widget) {
+            const compatibleTypes: Record<string, string[]> = {
+                many2many: ['many2many', 'json', 'array'],
+                many2many_list: ['many2many', 'json', 'array'],
+                one2many: ['one2many', 'json', 'array'],
+                many2one: ['many2one', 'json', 'string'],
+                tag_select: ['selection', 'string'],
+            }
+            const valid = compatibleTypes[field.widget]
+            if (typeof window !== 'undefined' && valid && !valid.includes(field.type)) {
+                console.warn(
+                    `[FormView] Widget "${field.widget}" used on field "${field.key}" with type "${field.type}". ` +
+                    `Expected one of: ${valid.join(', ')}. This may cause rendering issues.`
+                )
+            }
             const WidgetComponent = getWidget(field.widget)
             if (WidgetComponent) {
                 return (

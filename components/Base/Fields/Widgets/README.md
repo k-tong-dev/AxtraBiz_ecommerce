@@ -301,6 +301,24 @@ Widgets validate their required configuration at runtime and log clear errors to
 | `many2many` | `relation`, `localField`, `remoteField`             | `[Many2ManyWidget] Missing required widgetConfig.` |
 | `many2one`  | `relation`                                          | `[Many2OneWidget] Missing required widgetConfig.`  |
 
+### Type-Widget Compatibility Check
+
+FormView also validates that the `widget` is compatible with the field `type` at runtime. For example, using `widget: 'one2many'` on a `type: 'number'` field will log a warning.
+
+| Widget            | Compatible types                              |
+|-------------------|-----------------------------------------------|
+| `many2many`       | `many2many`, `json`, `array`                  |
+| `many2many_list`  | `many2many`, `json`, `array`                  |
+| `one2many`        | `one2many`, `json`, `array`                   |
+| `many2one`        | `many2one`, `json`, `string`                  |
+| `tag_select`      | `selection`, `string`                         |
+
+Console warning example:
+```
+[FormView] Widget "one2many" used on field "value_ids" with type "number".
+Expected one of: one2many, json, array. This may cause rendering issues.
+```
+
 ### Developer Experience
 
 When a widget is missing required configuration:
