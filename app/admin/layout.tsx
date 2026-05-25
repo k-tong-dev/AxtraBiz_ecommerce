@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { AdminSidebar } from '@/components/admin/sidebar'
 import { AdminTopNavbar } from '@/components/admin/top-navbar'
-import { Toaster } from '@/components/ui/toaster'
 import 'rsuite/dist/rsuite-no-reset.min.css';
 
 export const metadata: Metadata = {
@@ -21,7 +20,6 @@ export default function AdminLayout({
         <AdminTopNavbar />
         <div className="px-4 pb-6 md:px-6">{children}</div>
       </main>
-      <Toaster />
     </div>
   )
 }

@@ -35,7 +35,7 @@ import {
     FileField,
 } from '@/components/Base/Fields'
 import {Save, Printer, Settings, Copy, Trash2, Archive, X, Plus} from 'lucide-react'
-import {useToast} from '@/hooks/use-toast'
+import { showToast } from '@/lib/ui/toast'
 import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
 
@@ -275,7 +275,6 @@ interface FormViewProps<T extends Entity> {
 export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const {toast} = useToast()
 
     const [data, setData] = useState<MutableEntity>({} as MutableEntity)
     const [originalData, setOriginalData] = useState<MutableEntity | null>(null)
@@ -490,22 +489,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         // Validate required fields
         for (const field of config.fields) {
             if (field.required && !data[field.key]) {
-                toast({
-                    title: 'Validation Error',
-                    description: `${field.label} is required`,
-                    variant: 'destructive'
-                })
+                showToast('error', 'Validation Error', `${field.label} is required`)
                 return
             }
 
             if (field.validation) {
                 const error = field.validation(data[field.key])
                 if (error) {
-                    toast({
-                        title: 'Validation Error',
-                        description: error,
-                        variant: 'destructive'
-                    })
+                    showToast('error', 'Validation Error', error)
                     return
                 }
             }
@@ -551,26 +542,16 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
 
             if (!response.ok) {
                 // Handle HTTP errors
-                toast({
-                    title: 'Error',
-                    description: `HTTP ${response.status}: ${result.error || result.message || 'Failed to save'}`,
-                    variant: 'destructive'
-                })
+                showToast('error', 'Error', `HTTP ${response.status}: ${result.error || result.message || 'Failed to save'}`)
                 return
             }
 
             if (result.success) {
                 if (mode === 'create') {
-                    toast({
-                        title: `${config.entityName} Created`,
-                        description: `${config.entityName} has been successfully created`
-                    })
+                    showToast('success', `${config.entityName} Created`, `${config.entityName} has been successfully created`)
                     router.push(config.breadcrumbs.list)
                 } else {
-                    toast({
-                        title: `${config.entityName} Updated`,
-                        description: `${config.entityName} has been successfully updated`
-                    })
+                    showToast('success', `${config.entityName} Updated`, `${config.entityName} has been successfully updated`)
                     const serverData = result.data || data
                     setOriginalData(serverData)
                     setData(serverData)
@@ -583,18 +564,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 }
             } else {
                 // Handle API success=false response
-                toast({
-                    title: 'Error',
-                    description: result.error || result.message || 'Failed to save',
-                    variant: 'destructive'
-                })
+                showToast('error', 'Error', result.error || result.message || 'Failed to save')
             }
         } catch (error) {
-            toast({
-                title: 'Error',
-                description: `An error occurred while saving ${config.entityName.toLowerCase()}`,
-                variant: 'destructive'
-            })
+            showToast('error', 'Error', `An error occurred while saving ${config.entityName.toLowerCase()}`)
         } finally {
             setSaving(false)
         }
@@ -631,10 +604,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
 
     const handleCopy = () => {
         navigator.clipboard.writeText(JSON.stringify(data, null, 2))
-        toast({
-            title: `${config.entityName} Copied`,
-            description: `${config.entityName} data copied to clipboard`
-        })
+        showToast('success', `${config.entityName} Copied`, `${config.entityName} data copied to clipboard`)
     }
 
     const handleDelete = async () => {
@@ -647,24 +617,13 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 })
 
                 if (response.ok) {
-                    toast({
-                        title: `${config.entityName} Deleted`,
-                        description: `${config.entityName} has been successfully deleted`
-                    })
+                    showToast('success', `${config.entityName} Deleted`, `${config.entityName} has been successfully deleted`)
                     router.push(config.breadcrumbs.list)
                 } else {
-                    toast({
-                        title: 'Error',
-                        description: `Failed to delete ${config.entityName.toLowerCase()}`,
-                        variant: 'destructive'
-                    })
+                    showToast('error', 'Error', `Failed to delete ${config.entityName.toLowerCase()}`)
                 }
             } catch (error) {
-                toast({
-                    title: 'Error',
-                    description: `An error occurred while deleting ${config.entityName.toLowerCase()}`,
-                    variant: 'destructive'
-                })
+                showToast('error', 'Error', `An error occurred while deleting ${config.entityName.toLowerCase()}`)
             }
         }
     }
@@ -678,24 +637,13 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             })
 
             if (response.ok) {
-                toast({
-                    title: `${config.entityName} Archived`,
-                    description: `${config.entityName} has been successfully archived`
-                })
+                showToast('success', `${config.entityName} Archived`, `${config.entityName} has been successfully archived`)
                 router.push(config.breadcrumbs.list)
             } else {
-                toast({
-                    title: 'Error',
-                    description: `Failed to archive ${config.entityName.toLowerCase()}`,
-                    variant: 'destructive'
-                })
+                showToast('error', 'Error', `Failed to archive ${config.entityName.toLowerCase()}`)
             }
         } catch (error) {
-            toast({
-                title: 'Error',
-                description: `An error occurred while archiving ${config.entityName.toLowerCase()}`,
-                variant: 'destructive'
-            })
+            showToast('error', 'Error', `An error occurred while archiving ${config.entityName.toLowerCase()}`)
         }
     }
 

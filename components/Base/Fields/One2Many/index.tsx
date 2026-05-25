@@ -113,7 +113,7 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
             renderValue={(value, items, tags) => {
               return <div className="flex flex-wrap gap-0.5 py-0.5">{tags}</div>
             }}
-            tagProps={{ color: 'azure', closable: !config.readonly, size: 'sm' }}
+            tagProps={{ color: 'violet', closable: !config.readonly, size: 'sm' }}
             style={PICKER_STYLE}
             size={config.size || 'md'}
             cleanable={true}

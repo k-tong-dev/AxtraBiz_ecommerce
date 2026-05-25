@@ -54,7 +54,7 @@ export const productAttributeFormConfig: FormConfig = {
           key: 'value_ids',
           label: '',
           type: 'one2many',
-          widget:"one2many",
+          widget:"many2one",
           columnWidth: 3,
           groupNumber: 1,
           groupColumn: 1,

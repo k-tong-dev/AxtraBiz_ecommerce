@@ -26,7 +26,7 @@ export function showToast(type: ToastType, title: string, description?: string, 
     >
       {description}
     </Notification>,
-    { placement: options?.placement ?? 'topEnd' },
+    { placement: options?.placement ?? 'bottomEnd' },
   )
 }
 
@@ -43,6 +43,6 @@ export function showDevToast(type: ToastType, title: string, description?: strin
     <Notification type={type} header={title} duration={0}>
       {description}
     </Notification>,
-    { placement: 'topEnd' },
+    { placement: 'bottomEnd' },
   )
 }
