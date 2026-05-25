@@ -430,6 +430,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 delete dataWithoutFiles[field.key]
                 delete originalWithoutFiles[field.key]
             }
+            if (field.type === 'many2many' || field.type === 'one2many') {
+                const norm = (v: any) => {
+                    if (!Array.isArray(v)) return []
+                    return v.map((x: any) => typeof x === 'string' ? x : x.id || x.value_id || x.key).filter(Boolean).sort()
+                }
+                dataWithoutFiles[field.key] = norm(dataWithoutFiles[field.key])
+                originalWithoutFiles[field.key] = norm(originalWithoutFiles[field.key])
+            }
         }
         const dataChanged = JSON.stringify(dataWithoutFiles) !== JSON.stringify(originalWithoutFiles)
 

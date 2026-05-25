@@ -68,6 +68,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
             onOpen={() => setOpen(true)}
             onClose={() => setOpen(false)}
             cleanable={false}
+            preventOverflow
             onSearch={(kw) => { if (kw.length > 1) fetchOptions(kw) }}
             renderValue={() => selected ? renderLabel(selected) : null}
           />

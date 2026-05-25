@@ -16,8 +16,13 @@ Same as FieldProps with config requiring `fetchUrl`.
 ## Pre-selected Values
 Configure default badges by passing IDs in `default`:
 ```typescript
-{ name: 'tags', type: 'many2many', label: 'Tags',
-  fetchUrl: '/api/tags', default: ['1', '3'] }
+{ 
+    name: 'tags', 
+    type: 'many2many', 
+    label: 'Tags',
+    fetchUrl: '/api/tags', 
+    default: ['1', '3'] 
+}
 ```
 
 ## Example

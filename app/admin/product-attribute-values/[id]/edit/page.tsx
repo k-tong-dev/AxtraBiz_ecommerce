@@ -40,7 +40,7 @@ export default function EditProductAttributeValuePage() {
         <ResourceView
             config={{
                 type: 'form',
-                title: 'Edit Product Attribute Value',
+                title: `${attrValue?.name || 'Unknown'}`,
                 description: 'Edit product attribute value details.',
                 formViewConfig: productAttributeValueConfig.formViewConfig,
                 enableDefaultActions: true,

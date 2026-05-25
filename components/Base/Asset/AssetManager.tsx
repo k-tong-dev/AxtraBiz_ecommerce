@@ -10,7 +10,6 @@ import {
 import { FileGrid } from './FileGrid'
 import type { StorageFile, StorageFolder } from './types'
 import {Modal, Input, Button, StatGroup, Stat, StatLabel, StatValue, StatHelpText} from 'rsuite'
-import {linearGradient} from "html2canvas/dist/types/css/types/functions/linear-gradient";
 
 const STORAGE_POLICY = {
   maxSize: 50 * 1024 * 1024,

@@ -1,5 +1,4 @@
 import { FormConfig } from '@/components/Base/Views/FormView'
-import type { Many2ManyWidgetConfig } from '@/components/Base/Fields/Widgets'
 import { createElement } from 'react'
 import { BsInfoSquareFill } from "react-icons/bs";
 import {MdDescription} from "react-icons/md";
@@ -489,7 +488,7 @@ export const productFormConfig: FormConfig = {
             allowSelect: true,
             allowRemove: true,
             allowEdit: true
-          } as Many2ManyWidgetConfig
+          }
         }
       ],
       show: (data: any) => data.product_type === 'variable',

@@ -35,6 +35,7 @@ export function TimeField({ config, value, onChange, error }: FieldProps) {
           onClose={() => setOpen(false)}
           placeholder={config.placeholder || ' '}
           editable={false}
+          preventOverflow
           disabled={config.readonly}
           className={cn(
             'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50',
