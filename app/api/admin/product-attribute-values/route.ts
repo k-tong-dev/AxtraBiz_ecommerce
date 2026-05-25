@@ -5,17 +5,8 @@ import {
   fetchProductAttributeValueFromDrizzle,
   upsertProductAttributeValueInDrizzle,
   deleteProductAttributeValueFromDrizzle,
-  updateProductAttributeValueRelations,
 } from '../../../../lib/drizzle/product-attributes'
-import type { ProductAttribute, ProductAttributeValue } from '../../../../lib/drizzle/server'
-
-type AttributeRelationPayload = ProductAttribute & {
-  rel_id?: string
-  attribute_id?: string
-  isNew?: boolean
-  isChanged?: boolean
-  _toDelete?: boolean
-}
+import type { ProductAttributeValue } from '../../../../lib/drizzle/server'
 
 export async function GET(request: Request) {
   try {
@@ -42,7 +33,7 @@ function processAttributeValueFields(raw: Record<string, any>): Record<string, a
       out[key] = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
     } else if (['active'].includes(key)) {
       out[key] = value !== undefined ? (value === 'true' || value === true) : true
-    } else if (['name', 'value'].includes(key)) {
+    } else if (['name', 'value', 'attribute_id'].includes(key)) {
       out[key] = value || ''
     } else {
       out[key] = value !== undefined && value !== null ? value : null
@@ -64,20 +55,14 @@ export async function POST(request: Request) {
       const processed = processAttributeValueFields(raw)
       const id = raw.id || crypto.randomUUID()
 
-      const attributeIds = Array.isArray(raw.attribute_ids)
-        ? (raw.attribute_ids as AttributeRelationPayload[])
-        : undefined
+      // Include attribute_id directly if provided (now a direct FK)
+      if (raw.attribute_id) {
+        processed.attribute_id = raw.attribute_id
+      }
 
       const result = await upsertProductAttributeValueInDrizzle({ ...processed, id } as ProductAttributeValue, user?.id)
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
-      }
-
-      if (attributeIds?.length) {
-        const relResult = await updateProductAttributeValueRelations(id, attributeIds, user?.id)
-        if (!relResult.success) {
-          return NextResponse.json({ error: relResult.error, index: results.length }, { status: 400 })
-        }
       }
 
       const saved = await fetchProductAttributeValueFromDrizzle(id)

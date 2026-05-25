@@ -482,7 +482,7 @@ export const productFormConfig: FormConfig = {
             valueField: 'id',
             // Extra columns on junction table
             columns: [
-              { key: 'value_ids', title: 'Values', width: 200, type: 'tags', editable: true }
+              // TODO: Re-implement value_ids as JSONB column on product_attributes_rel
             ],
             mode: 'list',
             allowSelect: true,

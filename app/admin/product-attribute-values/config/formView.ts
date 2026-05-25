@@ -29,6 +29,17 @@ export const productAttributeValueFormConfig: FormConfig = {
       order: 2
     },
     {
+      key: 'attribute_id',
+      label: 'Attribute',
+      type: 'many2one',
+      required: true,
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 2,
+      order: 3,
+      fetchUrl: '/api/admin/product-attributes',
+    },
+    {
       key: 'position',
       label: 'Position',
       type: 'number',
@@ -38,7 +49,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       columnWidth: 2,
       groupNumber: 1,
       groupColumn: 1,
-      order: 3
+      order: 4
     },
     {
       key: 'active',
@@ -48,64 +59,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       columnWidth: 1,
       groupNumber: 1,
       groupColumn: 2,
-      order: 4
-    }
-  ],
-  pages: [
-    {
-      key: 'linked_attributes',
-      label: 'Attributes',
-      fields: [
-        {
-          key: 'attribute_ids',
-          label: 'Used By Attributes',
-          type: 'many2many',
-          columnWidth: 3,
-          groupNumber: 1,
-          groupColumn: 1,
-          order: 1,
-          fetchUrl: '/api/admin/product-attributes',
-          // widget: 'many2many',
-          // widgetConfig: {
-          //   // Relation config (for dropdown & display)
-          //   relation: '/api/admin/product-attributes',
-          //   displayField: 'name',
-          //   valueField: 'id',
-          //   // Junction config (for data structure)
-          //   localField: 'value_id',
-          //   remoteField: 'attribute_id',
-          //   // Client only configures additional display columns
-          //   columns: [
-          //     { key: 'name',
-          //       title: 'Name',
-          //       width: 80,
-          //       type: 'string',
-          //       editable: true
-          //     },
-          //     {
-          //       key: 'type',
-          //       title: 'Type',
-          //       width: 150,
-          //       type: 'selection',
-          //       options: [
-          //         { label: 'Select Dropdown', value: 'select' },
-          //         { label: 'Radio Buttons', value: 'radio' },
-          //         { label: 'Color Swatches', value: 'color' },
-          //         { label: 'Text Input', value: 'text' }
-          //       ],
-          //       editable: true
-          //     },
-          //     { key: 'position', title: 'Position', width: 80, type: 'number', editable: true },
-          //     { key: 'create_uid', title: 'create_uid', width: 80, type: 'string', editable: true },
-          //   ],
-          //   mode: 'tags',
-          //   allowSelect: true,
-          //   allowRemove: true,
-          //   allowEdit: true
-          // }
-        }
-      ],
-      order: 100
+      order: 5
     }
   ],
   breadcrumbs: {

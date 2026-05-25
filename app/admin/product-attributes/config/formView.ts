@@ -60,19 +60,15 @@ export const productAttributeFormConfig: FormConfig = {
           order: 1,
           widget: 'many2many',
           widgetConfig: {
-            localField: 'attribute_id',
-            remoteField: 'value_id',
-            // Related records: product attribute values
             relation: '/api/admin/product-attribute-values',
             displayField: 'name',
             valueField: 'id',
-            // Extra data on junction
             columns: [
               { key: 'position', title: 'Position', width: 80, type: 'number', editable: true }
             ],
             mode: 'tags',
             allowSelect: true,
-            allowCreate: true,  // Allow creating new values inline
+            allowCreate: true,
             allowRemove: true,
             allowEdit: true
           }

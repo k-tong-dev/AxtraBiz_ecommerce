@@ -149,23 +149,15 @@ export const product_attributes = pgTable('product_attributes', {
 });
 
 // Product attribute values table
-// Values can be reused across multiple attributes via product_attribute_values_rel
+// Each value belongs to exactly one attribute (one2many)
 export const product_attribute_values = pgTable('product_attribute_values', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   value: text('value').notNull(), // The actual value (e.g., 'red', 'M', 'XL')
+  attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
-});
-
-// Product attribute values relation table (junction table for many2many)
-export const product_attribute_values_rel = pgTable('product_attribute_values_rel', {
-  id: text('id').primaryKey(),
-  attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
-  value_id: text('value_id').notNull().references(() => product_attribute_values.id, { onDelete: 'cascade' }),
-  position: integer('position').default(0),
-  ...timestamps,
 });
 
 // Product attributes relation table
@@ -271,6 +263,5 @@ export type ShippingZone = typeof shipping_zones.$inferSelect;
 export type ShippingZoneProduct = typeof shipping_zone_product.$inferSelect;
 export type ProductAttribute = typeof product_attributes.$inferSelect;
 export type ProductAttributeValue = typeof product_attribute_values.$inferSelect;
-export type ProductAttributeValuesRel = typeof product_attribute_values_rel.$inferSelect;
 export type ProductAttributesRel = typeof product_attributes_rel.$inferSelect;
 export type ProductVariant = typeof product_variants.$inferSelect;

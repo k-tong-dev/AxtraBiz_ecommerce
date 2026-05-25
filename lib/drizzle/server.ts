@@ -23,7 +23,6 @@ export {
   configurations,
   product_attributes,
   product_attribute_values,
-  product_attribute_values_rel,
   product_attributes_rel,
   product_variants,
   product_categories,

@@ -4,18 +4,7 @@ import {
   fetchProductAttributeValueFromDrizzle,
   upsertProductAttributeValueInDrizzle,
   deleteProductAttributeValueFromDrizzle,
-  updateProductAttributeValueRelations,
 } from '../../../../../lib/drizzle/product-attributes'
-import type { ProductAttribute } from '../../../../../lib/drizzle/server'
-
-type AttributeRelationPayload = ProductAttribute & {
-  rel_id?: string
-  attribute_id?: string
-  value_id?: string
-  isNew?: boolean
-  isChanged?: boolean
-  _toDelete?: boolean
-}
 
 function processScalarFields(body: Record<string, unknown>, id: string) {
   const processedBody: Record<string, unknown> = { id }
@@ -28,7 +17,7 @@ function processScalarFields(body: Record<string, unknown>, id: string) {
         typeof value === 'string' || typeof value === 'number' ? parseInt(String(value), 10) : 0
     } else if (['active'].includes(key)) {
       processedBody[key] = value !== undefined ? value === 'true' || value === true : true
-    } else if (['name', 'value'].includes(key)) {
+    } else if (['name', 'value', 'attribute_id'].includes(key)) {
       processedBody[key] = value || ''
     } else {
       processedBody[key] = value !== undefined && value !== null ? value : null
@@ -65,23 +54,17 @@ export async function PUT(
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    const attributeIds = Array.isArray(body.attribute_ids)
-      ? (body.attribute_ids as AttributeRelationPayload[])
-      : undefined
-
     const processedBody = processScalarFields(body, id)
+
+    // If attribute_id was provided, include it directly (now a direct FK)
+    if (body.attribute_id) {
+      processedBody.attribute_id = body.attribute_id
+    }
 
     const result = await upsertProductAttributeValueInDrizzle(processedBody as any, user?.id)
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })
-    }
-
-    if (attributeIds) {
-      const relResult = await updateProductAttributeValueRelations(id, attributeIds, user?.id)
-      if (!relResult.success) {
-        return NextResponse.json({ error: relResult.error }, { status: 400 })
-      }
     }
 
     const saved = await fetchProductAttributeValueFromDrizzle(id)
