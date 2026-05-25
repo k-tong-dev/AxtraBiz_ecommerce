@@ -52,26 +52,13 @@ export const productAttributeFormConfig: FormConfig = {
       fields: [
         {
           key: 'value_ids',
-          label: 'Values',
-          type: 'many2many',
+          label: '',
+          type: 'one2many',
           columnWidth: 3,
           groupNumber: 1,
           groupColumn: 1,
           order: 1,
-          widget: 'many2many',
-          widgetConfig: {
-            relation: '/api/admin/product-attribute-values',
-            displayField: 'name',
-            valueField: 'id',
-            columns: [
-              { key: 'position', title: 'Position', width: 80, type: 'number', editable: true }
-            ],
-            mode: 'tags',
-            allowSelect: true,
-            allowCreate: true,
-            allowRemove: true,
-            allowEdit: true
-          }
+          fetchUrl: '/api/admin/product-attribute-values',
         }
       ],
       order: 100
