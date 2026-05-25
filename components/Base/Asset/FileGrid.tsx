@@ -255,23 +255,23 @@ export function FileGrid({
                 }`}
                   style={isDragOver ? { animation: 'drop-target-pulse 1.2s ease-in-out infinite', boxShadow: '0 0 0 4px rgba(79,70,229,0.1)' } : undefined}
                 >
-                  <div className="aspect-square bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center relative">
+                  <div className="aspect-[4/3] bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center relative">
                     <div className={`transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}>
                       {isDragOver ? (
                         <div className="flex items-center justify-center" style={{ animation: 'drop-target-glow 1.2s ease-in-out infinite' }}>
-                          <Move className="w-12 h-12 text-primary drop-shadow-sm" />
+                          <Move className="w-10 h-10 text-primary drop-shadow-sm" />
                         </div>
                       ) : (
-                        <Folder className="w-12 h-12 text-amber-400 drop-shadow-sm" />
+                        <Folder className="w-10 h-10 text-amber-400 drop-shadow-sm" />
                       )}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/[0.02] to-transparent pointer-events-none" />
                   </div>
-                  <div className="p-2.5 space-y-0.5">
+                  <div className="p-2 space-y-0">
                     <p className="text-xs font-medium truncate text-foreground/80 group-hover:text-foreground transition-colors">
                       {folder.name}
                     </p>
-                    <p className="text-[10px] text-muted-foreground/50 font-medium uppercase tracking-wider">Folder</p>
+                    <p className="text-[10px] text-muted-foreground/40 font-medium uppercase tracking-wider">Folder</p>
                   </div>
                 </div>
               </button>
