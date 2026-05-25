@@ -9,14 +9,12 @@ import {
   NumberInput,
   Checkbox,
   SelectPicker,
-  TagPicker,
-  TagGroup,
-  Tag,
 } from "rsuite";
 import { VscEdit, VscSave, VscRemove, VscAdd } from "react-icons/vsc";
 import { FieldWidgetProps } from "./index";
 import { IoIosCreate } from "react-icons/io";
 import {Switch} from "@/components/ui/switch";
+import {Many2ManyField} from "@/components/Base/Fields";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -650,49 +648,24 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
     );
   }
 
-  // Tags mode display
+  // Tags mode — delegates to Many2ManyField
   if (mode === 'tags') {
+    const fieldValue = value || []
     return (
-      <div className="space-y-2 flex">
-        <div className="flex flex-wrap gap-2">
-          {items.filter(i => !i._toDelete).map(item => {
-            const displayValue = item[config.displayField || 'name'] || item.name || item.id || 'Undefined'
-            return (
-              <TagGroup key={item.id}>
-                {config.allowRemove !== false && !readonly && !disabled ? (
-                  <Tag size={"lg"} color={"violet"} closable onClose={() => handleUnlink(item.id)}>
-                    {displayValue}
-                  </Tag>
-                ) : (
-                  <Tag size={"lg"} color={"violet"}>
-                    {displayValue}
-                  </Tag>
-                )}
-              </TagGroup>
-            )
-          })}
-          {config.allowSelect && !readonly && !disabled && (
-            <div className="ml-2">
-              <TagPicker
-                data={getAvailableOptions()}
-                value={[]}
-                creatable={false}
-                searchable={true}
-                loading={loading}
-                onSearch={handleSelectorSearch}
-                onOpen={handleOpenSelector}
-                onChange={(values) => handleSelect(values as string[])}
-                onClose={() => setSearchKeyword("")}
-                placeholder="Add"
-                block
-                size="sm"
-                style={{ outlineColor: "transparent" }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    );
+      <Many2ManyField
+        config={{
+          name: field.key,
+          type: 'many2many',
+          label: field.label,
+          placeholder: config.allowCreate ? 'Type to create or select...' : 'Select...',
+          fetchUrl: config.relation,
+          readonly,
+          size: 'md',
+        }}
+        value={fieldValue}
+        onChange={onChange}
+      />
+    )
   }
 
   // List mode (default)
