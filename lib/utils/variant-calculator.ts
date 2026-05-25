@@ -11,7 +11,7 @@
 
 export interface AttributeValue {
   id: string
-  attribute_id: string
+  attribute_id: string | null
   name: string
   value: string
   position: number | null

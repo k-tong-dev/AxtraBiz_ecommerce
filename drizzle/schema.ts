@@ -154,7 +154,7 @@ export const product_attribute_values = pgTable('product_attribute_values', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   value: text('value').notNull(), // The actual value (e.g., 'red', 'M', 'XL')
-  attribute_id: text('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
+  attribute_id: text('attribute_id').references(() => product_attributes.id, { onDelete: 'set null' }),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,

@@ -36,7 +36,7 @@ export async function deleteProductAttributeFromDrizzle(attributeId: string): Pr
 export interface ProductAttributeWithValues extends ProductAttribute {
   value_ids?: Array<{
     id: string
-    attribute_id: string
+    attribute_id: string | null
     position: number
     name: string
     value: string
@@ -140,10 +140,17 @@ export async function updateProductAttributeValueRelationsForAttribute(
       )
       const existingIds = new Set(existing.map(v => v.id))
 
-      // Delete values that are no longer selected
+      // Delete values that are no longer selected (actually unlink by nullifying FK)
       for (const val of existing) {
         if (!stringValues.includes(val.id)) {
-          await productAttributeValueService.unlink(val.id)
+          await productAttributeValueService.upsert({
+            id: val.id,
+            attribute_id: null,
+            name: val.name,
+            value: val.value,
+            position: val.position ?? 0,
+            active: val.active,
+          } as ProductAttributeValue & { id: string }, userId)
         }
       }
 
@@ -169,7 +176,14 @@ export async function updateProductAttributeValueRelationsForAttribute(
 
       const toDelete = objValues.filter(v => v._toDelete && v.id)
       for (const val of toDelete) {
-        await productAttributeValueService.unlink(val.id!)
+        await productAttributeValueService.upsert({
+          id: val.id,
+          attribute_id: null,
+          name: val.name || '',
+          value: val.value || val.name || '',
+          position: val.position ?? 0,
+          active: val.active ?? false,
+        } as ProductAttributeValue & { id: string }, userId)
       }
 
       const toAdd = objValues.filter(v => v.isNew && !v._toDelete)
