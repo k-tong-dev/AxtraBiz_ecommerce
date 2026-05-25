@@ -9,6 +9,7 @@ const PICKER_STYLE = {
   borderTop: 0,
   borderRight: 0,
   borderLeft: 0,
+  borderBottom: 0,
   borderRadius: 0,
   outlineColor: 'transparent',
   boxShadow: 'none',
@@ -86,10 +87,9 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
   return (
     <div className="w-full space-y-1">
       <div className="relative">
-        <style>{`.rs-picker-toggle { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-bottom: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; } .rs-picker-tag-wrapper { min-height: unset !important; padding-top: 0 !important; padding-bottom: 2px !important; } .rs-picker-textbox { margin-top: 0 !important; } .rs-picker-toggle-wrapper { display: block !important; }`}</style>
+        <style>{`.rs-picker-toggle { border-top: 0 !important; border-right: 0 !important; border-left: 0 !important; border-bottom: 0 !important; border-radius: 0 !important; outline: none !important; box-shadow: none !important; } .rs-picker-tag-wrapper { min-height: unset !important; padding-top: 0 !important; padding-bottom: 2px !important; } .rs-picker-textbox { margin-top: 0 !important; } .rs-picker-toggle-wrapper { display: block !important; } .rs-picker-menu { max-height: 240px !important; }`}</style>
         <div className={cn(
-          'w-full bg-transparent border-b-1 border-b-foreground text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200',
-          error ? 'border-destructive' : 'border-border',
+          'w-full bg-transparent text-foreground rounded-none disabled:cursor-not-allowed disabled:opacity-50',
           config.size === 'sm' ? 'text-sm' : config.size === 'lg' ? 'text-base' : 'text-sm',
         )}>
           <TagPicker
