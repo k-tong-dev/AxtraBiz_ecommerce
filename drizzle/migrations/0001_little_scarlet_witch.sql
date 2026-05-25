@@ -1,3 +1,6 @@
+-- Add the attribute_id column (nullable initially for data migration)
+ALTER TABLE "product_attribute_values" ADD COLUMN "attribute_id" text;
+--> statement-breakpoint
 -- Copy existing junction data: set attribute_id on each value (pick one if multiple)
 UPDATE "product_attribute_values" SET "attribute_id" = sub."attribute_id"
 FROM (
@@ -29,6 +32,7 @@ UPDATE "product_attribute_values"
 SET "attribute_id" = (SELECT "id" FROM "product_attributes" LIMIT 1)
 WHERE "attribute_id" IS NULL OR "attribute_id" = '';
 --> statement-breakpoint
+-- Now set NOT NULL and add the FK constraint
 ALTER TABLE "product_attribute_values" ALTER COLUMN "attribute_id" SET NOT NULL;
 --> statement-breakpoint
 ALTER TABLE "product_attribute_values_rel" DISABLE ROW LEVEL SECURITY;
