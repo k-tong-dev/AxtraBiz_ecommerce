@@ -53,12 +53,12 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
 
         if (config.enableDefaultActions !== false && config.defaultActions) {
             const {getDefaultServerActions} = require('../Actions')
-            const defaultActions = getDefaultServerActions(config.defaultActions)
+            const defaultActions = getDefaultServerActions(config.defaultActions, config.formViewConfig?.apiEndpoint)
             actions = [...defaultActions, ...actions]
         }
 
         return actions
-    }, [config.serverActions, config.enableDefaultActions, config.defaultActions])
+    }, [config.serverActions, config.enableDefaultActions, config.defaultActions, config.formViewConfig?.apiEndpoint])
 
     const handleEdit = (rowData: any) => {
         setLastViewType(viewType)
@@ -275,7 +275,8 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             context={{
                                 mode: 'bulk',
                                 view: 'list',
-                                selectedIds
+                                selectedIds,
+                                apiEndpoint: config.formViewConfig?.apiEndpoint
                             }}
                             layout="dropdown"
                             onPrint={handlePrint}

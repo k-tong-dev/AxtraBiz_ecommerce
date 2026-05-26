@@ -7,6 +7,7 @@ import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestor
 import {createElement} from 'react'
 import {Export} from '../Export'
 import {ExportConfig} from '@/components/Base/Export/types'
+import { showToast } from '@/lib/ui/toast'
 
 // Built-in default ServerActions - generic utility that can be used by any resource
 export const getDefaultServerActions = (flags: {
@@ -17,7 +18,7 @@ export const getDefaultServerActions = (flags: {
     copyJson?: boolean
     archive?: boolean
     unarchive?: boolean
-} = {}): ServerActionConfig[] => {
+} = {}, apiEndpoint?: string): ServerActionConfig[] => {
     const actions: ServerActionConfig[] = []
     
     if (flags.print !== false) {
@@ -65,14 +66,31 @@ export const getDefaultServerActions = (flags: {
             },
             helper: 'Permanently remove record(s)',
             onClick: async (data, context) => {
+                const endpoint = apiEndpoint || context?.apiEndpoint
+                if (!endpoint) {
+                    console.error('[Delete action] No apiEndpoint available')
+                    return
+                }
                 if (context?.mode === 'bulk') {
-                    const ids = context.selectedIds || data.map(d => d.id)
-                    console.log('Bulk delete:', ids)
-                    // TODO: Implement bulk delete API call
+                    const ids = context?.selectedIds || data.map(d => d.id)
+                    const results = await Promise.allSettled(
+                        ids.map(id => fetch(`${endpoint}/${id}`, { method: 'DELETE' }))
+                    )
+                    const failed = results.filter(r => r.status === 'rejected')
+                    if (failed.length > 0) {
+                        showToast('error', 'Delete failed', `${failed.length} record(s) could not be deleted`)
+                    } else {
+                        showToast('success', 'Deleted', `${ids.length} record(s) deleted successfully`)
+                    }
                 } else {
                     const id = context?.record?.id || data[0]?.id
-                    console.log('Delete:', id)
-                    // TODO: Implement delete API call
+                    if (!id) return
+                    const res = await fetch(`${endpoint}/${id}`, { method: 'DELETE' })
+                    if (res.ok) {
+                        showToast('success', 'Deleted', 'Record deleted successfully')
+                    } else {
+                        showToast('error', 'Delete failed', 'Failed to delete record')
+                    }
                 }
             }
         })
@@ -87,9 +105,27 @@ export const getDefaultServerActions = (flags: {
             mode: 'both',
             helper: 'Create a copy of this record',
             onClick: async (data, context) => {
+                const endpoint = apiEndpoint || context?.apiEndpoint
+                if (!endpoint) {
+                    console.error('[Duplicate action] No apiEndpoint available')
+                    return
+                }
                 const record = context?.record || data[0]
-                console.log('Duplicate:', record)
-                // TODO: Implement duplication logic
+                if (!record) return
+                const copy = { ...record }
+                delete copy.id
+                delete copy.created_at
+                delete copy.updated_at
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(copy),
+                })
+                if (res.ok) {
+                    showToast('success', 'Duplicated', 'Record duplicated successfully')
+                } else {
+                    showToast('error', 'Duplicate failed', 'Failed to duplicate record')
+                }
             }
         })
     }
@@ -120,9 +156,23 @@ export const getDefaultServerActions = (flags: {
             mode: 'both',
             helper: 'Archive this record',
             onClick: async (data, context) => {
+                const endpoint = apiEndpoint || context?.apiEndpoint
+                if (!endpoint) {
+                    console.error('[Archive action] No apiEndpoint available')
+                    return
+                }
                 const id = context?.record?.id || data[0]?.id
-                console.log('Archive:', id)
-                // TODO: Implement archive logic
+                if (!id) return
+                const res = await fetch(`${endpoint}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ active: false }),
+                })
+                if (res.ok) {
+                    showToast('success', 'Archived', 'Record archived successfully')
+                } else {
+                    showToast('error', 'Archive failed', 'Failed to archive record')
+                }
             }
         })
     }
@@ -136,9 +186,23 @@ export const getDefaultServerActions = (flags: {
             mode: 'both',
             helper: 'Unarchive this record',
             onClick: async (data, context) => {
+                const endpoint = apiEndpoint || context?.apiEndpoint
+                if (!endpoint) {
+                    console.error('[Unarchive action] No apiEndpoint available')
+                    return
+                }
                 const id = context?.record?.id || data[0]?.id
-                console.log('Unarchive:', id)
-                // TODO: Implement unarchive logic
+                if (!id) return
+                const res = await fetch(`${endpoint}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ active: true }),
+                })
+                if (res.ok) {
+                    showToast('success', 'Unarchived', 'Record unarchived successfully')
+                } else {
+                    showToast('error', 'Unarchive failed', 'Failed to unarchive record')
+                }
             }
         })
     }
@@ -206,6 +270,7 @@ export interface ActionContext {
     record?: any
     selectedIds?: string[]
     actionKey?: string
+    apiEndpoint?: string
 }
 
 export interface ServerActionsProps {

@@ -1,7 +1,7 @@
 'use client'
 
 import { brandConfig } from '../config'
-import { ResourceView } from '../../../../components/Base/Views'
+import { ResourceView } from '../@/components/Base/Views'
 
 export default function NewBrandPage() {
   return (

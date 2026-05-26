@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Configuration } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
-import { ResourceView } from '../../../components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { configurationConfig } from './config'
 
 export default function AdminConfigurationsPage() {

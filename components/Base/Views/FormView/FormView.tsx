@@ -288,7 +288,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     const [actionContext, setActionContext] = useState<ActionContext>({
         mode: 'single',
         view: 'form',
-        record: data
+        record: data,
+        apiEndpoint: config.apiEndpoint
     })
 
     useEffect(() => {
@@ -630,20 +631,23 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
 
     const handleArchive = async () => {
         if (!entityId) return
+        const willArchive = data.active !== false
 
         try {
-            const response = await fetch(`${config.apiEndpoint}/${entityId}/archive`, {
-                method: 'POST'
+            const response = await fetch(`${config.apiEndpoint}/${entityId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ active: !willArchive })
             })
 
             if (response.ok) {
-                showToast('success', `${config.entityName} Archived`, `${config.entityName} has been successfully archived`)
+                showToast('success', willArchive ? 'Archived' : 'Unarchived', `${config.entityName} has been successfully ${willArchive ? 'archived' : 'unarchived'}`)
                 router.push(config.breadcrumbs.list)
             } else {
-                showToast('error', 'Error', `Failed to archive ${config.entityName.toLowerCase()}`)
+                showToast('error', 'Error', `Failed to ${willArchive ? 'archive' : 'unarchive'} ${config.entityName.toLowerCase()}`)
             }
         } catch (error) {
-            showToast('error', 'Error', `An error occurred while archiving ${config.entityName.toLowerCase()}`)
+            showToast('error', 'Error', `An error occurred while ${willArchive ? 'archiving' : 'unarchiving'} ${config.entityName.toLowerCase()}`)
         }
     }
 

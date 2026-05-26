@@ -4,8 +4,8 @@ import {
   fetchProductAttributeFromDrizzle,
   upsertProductAttributeInDrizzle,
   deleteProductAttributeFromDrizzle
-} from '../../../../lib/drizzle/product-attributes'
-import type { ProductAttribute } from '../../../../lib/drizzle/server'
+} from '@/lib/drizzle/product-attributes'
+// import type { ProductAttribute } from '../../../../lib/drizzle/server'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET() {

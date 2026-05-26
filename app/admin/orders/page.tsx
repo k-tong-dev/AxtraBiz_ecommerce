@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Order } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
-import { ResourceView } from '../../../components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { orderConfig } from './config'
 
 export default function AdminOrdersPage() {

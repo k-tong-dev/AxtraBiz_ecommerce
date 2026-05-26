@@ -1,6 +1,6 @@
 'use client'
 
-import { ResourceView } from '../../../../components/Base/Views'
+import { ResourceView } from '../@/components/Base/Views'
 import { invoiceConfig } from '../config'
 
 export default function NewInvoicePage() {

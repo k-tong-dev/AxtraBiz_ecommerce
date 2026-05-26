@@ -29,11 +29,16 @@ export const updateSession = async (request: NextRequest) => {
 
   const { pathname, search } = request.nextUrl
   const isAdminRoute = pathname.startsWith('/admin')
+  const isAdminApiRoute = pathname.startsWith('/api/admin')
   const isProtectedShopRoute =
     pathname.startsWith('/shop/profile') ||
     pathname.startsWith('/shop/orders') ||
     pathname.startsWith('/shop/checkout') ||
     pathname.startsWith('/shop/wishlist')
+
+  if (!user && isAdminApiRoute) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   if (!user && (isAdminRoute || isProtectedShopRoute)) {
     const loginUrl = request.nextUrl.clone()

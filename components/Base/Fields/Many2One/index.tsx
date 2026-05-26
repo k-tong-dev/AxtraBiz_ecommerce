@@ -19,6 +19,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
   const [options, setOptions] = React.useState<SelectOption[]>([])
   const [loading, setLoading] = React.useState(false)
   const hasValue = value !== null && value !== undefined && value !== ''
+  const fetchedRef = React.useRef(false)
 
   const fetchOptions = React.useCallback(async (search?: string) => {
     if (!config.fetchUrl) return
@@ -35,7 +36,11 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
     finally { setLoading(false) }
   }, [config.fetchUrl])
 
-  React.useEffect(() => { fetchOptions() }, [fetchOptions])
+  React.useEffect(() => {
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+    fetchOptions()
+  }, [fetchOptions])
 
   const selected = options.find((o) => String(o.id) === String(value))
 

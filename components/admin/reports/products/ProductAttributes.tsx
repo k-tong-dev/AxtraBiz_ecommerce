@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Table, Button, IconButton, TagPicker, SelectPicker, Message } from 'rsuite'
 import { VscAdd, VscTrash, VscSave, VscEdit } from 'react-icons/vsc'
 
@@ -30,9 +30,13 @@ export const ProductAttributes: React.FC<ProductAttributesProps> = ({
   const [attributes, setAttributes] = useState<any[]>([])
   const [attributeValues, setAttributeValues] = useState<Record<string, any[]>>({})
   const [loading, setLoading] = useState(false)
+  const fetchedAttrsRef = useRef(false)
+  const fetchedValuesRef = useRef(false)
 
   // Fetch attributes
   useEffect(() => {
+    if (fetchedAttrsRef.current) return
+    fetchedAttrsRef.current = true
     fetch('/api/admin/product-attributes')
       .then(res => res.json())
       .then(data => {
@@ -47,6 +51,8 @@ export const ProductAttributes: React.FC<ProductAttributesProps> = ({
 
   // Fetch all attribute values
   useEffect(() => {
+    if (fetchedValuesRef.current) return
+    fetchedValuesRef.current = true
     fetch('/api/admin/product-attribute-values')
       .then(res => res.json())
       .then(data => {

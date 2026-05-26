@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductAttribute } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
-import { ResourceView } from '../../../components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { productAttributeConfig } from './config'
 
 export default function AdminProductAttributesPage() {
