@@ -298,7 +298,8 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
 
     const [internalRecordIds, setInternalRecordIds] = useState<(string | number)[] | null>(null)
     const resolvedRecordIds = recordIds || internalRecordIds
-    const currentIndex = resolvedRecordIds && entityId ? resolvedRecordIds.indexOf(entityId as never) : -1
+    const currentId = entityId ? Number(entityId) : undefined
+    const currentIndex = resolvedRecordIds && currentId !== undefined ? resolvedRecordIds.indexOf(currentId as never) : -1
 
     // Auto-fetch recordIds list when in edit mode if not provided via props
     useEffect(() => {
@@ -308,7 +309,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 .then(result => {
                     const list = result.data || result
                     if (Array.isArray(list)) {
-                        setInternalRecordIds(list.map((r: any) => r.id))
+                        setInternalRecordIds(list.map((r: any) => Number(r.id)))
                     }
                 })
                 .catch(() => {})
@@ -670,21 +671,35 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     }
 
     const performArchive = async (id: string | number, willArchive: boolean) => {
+        const newActive = !willArchive
+        console.log('[FormView] performArchive start:', { id, willArchive, newActive, activeField: data.active })
         try {
             const response = await fetch(`${config.apiEndpoint}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active: !willArchive })
+                body: JSON.stringify({ active: newActive })
             })
+            console.log('[FormView] performArchive PUT response:', { ok: response.ok, status: response.status })
             if (response.ok) {
                 showToast('success', willArchive ? 'Archived' : 'Unarchived', `${config.entityName} has been successfully ${willArchive ? 'archived' : 'unarchived'}`)
-                setData(prev => ({ ...prev, active: !willArchive }))
-                setOriginalData(prev => ({ ...prev, active: !willArchive }))
+                setData(prev => {
+                    console.log('[FormView] performArchive setData toggle:', { prevActive: prev.active, newActive })
+                    return { ...prev, active: newActive }
+                })
+                setOriginalData(prev => {
+                    const base = prev || {} as MutableEntity
+                    console.log('[FormView] performArchive setOriginalData toggle:', { prevActive: base.active, newActive })
+                    return { ...base, active: newActive }
+                })
                 setHasChanges(false)
+                console.log('[FormView] performArchive complete — hasChanges reset to false')
             } else {
+                const err = await response.text()
+                console.error('[FormView] performArchive PUT failed:', err)
                 showToast('error', 'Error', `Failed to ${willArchive ? 'archive' : 'unarchive'} ${config.entityName.toLowerCase()}`)
             }
         } catch (error) {
+            console.error('[FormView] performArchive error:', error)
             showToast('error', 'Error', `An error occurred while ${willArchive ? 'archiving' : 'unarchiving'} ${config.entityName.toLowerCase()}`)
         }
     }

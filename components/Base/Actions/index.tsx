@@ -521,7 +521,7 @@ export function ServerActions({
         if (layout === 'dropdown') {
             return (
                 <Whisper
-                    trigger="hover"
+                    trigger="click"
                     enterable
                     placement="bottomEnd"
                     speaker={

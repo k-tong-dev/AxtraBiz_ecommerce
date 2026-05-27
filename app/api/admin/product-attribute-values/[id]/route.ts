@@ -60,7 +60,12 @@ export async function PUT(
       processedBody.attribute_id = body.attribute_id
     }
 
-    const result = await upsertProductAttributeValueInDrizzle(processedBody as any, userId)
+    // Merge with existing record so partial updates (e.g. archive: { active: false })
+    // don't cause INSERT with null required fields
+    const existing = await fetchProductAttributeValueFromDrizzle(id)
+    const fullData = { ...existing, ...processedBody }
+
+    const result = await upsertProductAttributeValueInDrizzle(fullData as any, userId)
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })
