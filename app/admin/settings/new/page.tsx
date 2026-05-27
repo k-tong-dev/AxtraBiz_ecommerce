@@ -1,6 +1,6 @@
 'use client'
 
-import { ResourceView } from '../@/components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { settingConfig } from '../config'
 
 export default function NewSettingPage() {

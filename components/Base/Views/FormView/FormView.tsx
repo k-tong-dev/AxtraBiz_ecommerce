@@ -34,7 +34,7 @@ import {
     DayField,
     FileField,
 } from '@/components/Base/Fields'
-import {Save, Printer, Settings, Copy, Trash2, Archive, X, Plus} from 'lucide-react'
+import {Save, Printer, Settings, Copy, Trash2, Archive, X, Plus, ChevronLeft, ChevronRight} from 'lucide-react'
 import { showToast } from '@/lib/ui/toast'
 import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
@@ -46,7 +46,7 @@ import { One2ManyWidget } from '../../Fields/Widgets/One2ManyWidget'
 import { Many2OneWidget } from '../../Fields/Widgets/Many2OneWidget'
 import { TagSelectWidget } from '@/components/Base/Fields/Widgets/TagSelectWidget'
 import {Switch} from "@/components/ui/switch";
-import { showWizardWarning, showWizardError } from '../../Wizard'
+import { showWizardWarning, showWizardError, Wizard } from '../../Wizard'
 
 // Register widgets on module load
 registerWidget(Many2ManyWidget as any)
@@ -270,9 +270,11 @@ interface FormViewProps<T extends Entity> {
     serverActions?: ServerActionConfig[]  // Centralized ServerActions from ResourceView
     availableFields?: Array<{ key: string; label: string; type?: string }>
     onPrint?: (data: any[], mode: 'single' | 'bulk', title: string, template?: React.ComponentType<any>) => void
+    recordIds?: (string | number)[]  // ordered list for prev/next navigation
+    onNavigate?: (recordId: string | number) => void  // navigate to a specific record
 }
 
-export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint}: FormViewProps<T>) {
+export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint, recordIds, onNavigate}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -291,6 +293,10 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         record: data,
         apiEndpoint: config.apiEndpoint
     })
+    const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
+    const [pendingUnsavedAction, setPendingUnsavedAction] = useState<{ onDiscard: () => void } | null>(null)
+
+    const currentIndex = recordIds && entityId ? recordIds.indexOf(entityId as never) : -1
 
     useEffect(() => {
         setActionContext(prev => ({
@@ -608,46 +614,129 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         showToast('success', `${config.entityName} Copied`, `${config.entityName} data copied to clipboard`)
     }
 
-    const handleDelete = async () => {
-        if (!entityId) return
-
-        if (confirm(`Are you sure you want to delete this ${config.entityName.toLowerCase()}? This action cannot be undone.`)) {
-            try {
-                const response = await fetch(`${config.apiEndpoint}/${entityId}`, {
-                    method: 'DELETE'
-                })
-
-                if (response.ok) {
-                    showToast('success', `${config.entityName} Deleted`, `${config.entityName} has been successfully deleted`)
-                    router.push(config.breadcrumbs.list)
-                } else {
-                    showToast('error', 'Error', `Failed to delete ${config.entityName.toLowerCase()}`)
+    const performDelete = async (id: string | number) => {
+        try {
+            const response = await fetch(`${config.apiEndpoint}/${id}`, {
+                method: 'DELETE'
+            })
+            if (response.ok) {
+                showToast('success', `${config.entityName} Deleted`, `${config.entityName} has been successfully deleted`)
+                if (recordIds && recordIds.length > 1) {
+                    const idx = recordIds.indexOf(id as never)
+                    const nextIdx = idx < recordIds.length - 1 ? idx + 1 : idx - 1
+                    if (nextIdx >= 0 && nextIdx < recordIds.length) {
+                        const next = recordIds[nextIdx]
+                        if (onNavigate) {
+                            onNavigate(next)
+                        } else {
+                            router.push(`${config.breadcrumbs.edit}/${next}/edit`)
+                        }
+                        return
+                    }
                 }
-            } catch (error) {
-                showToast('error', 'Error', `An error occurred while deleting ${config.entityName.toLowerCase()}`)
+                if (onNavigate) {
+                    onNavigate('')
+                } else {
+                    router.push(config.breadcrumbs.list)
+                }
+            } else {
+                showToast('error', 'Error', `Failed to delete ${config.entityName.toLowerCase()}`)
             }
+        } catch (error) {
+            showToast('error', 'Error', `An error occurred while deleting ${config.entityName.toLowerCase()}`)
         }
     }
 
-    const handleArchive = async () => {
+    const handleDelete = () => {
         if (!entityId) return
-        const willArchive = data.active !== false
+        performDelete(entityId)
+    }
 
+    const performArchive = async (id: string | number, willArchive: boolean) => {
         try {
-            const response = await fetch(`${config.apiEndpoint}/${entityId}`, {
+            const response = await fetch(`${config.apiEndpoint}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ active: !willArchive })
             })
-
             if (response.ok) {
                 showToast('success', willArchive ? 'Archived' : 'Unarchived', `${config.entityName} has been successfully ${willArchive ? 'archived' : 'unarchived'}`)
-                router.push(config.breadcrumbs.list)
+                const refreshed = await fetch(`${config.apiEndpoint}/${id}`)
+                if (refreshed.ok) {
+                    const newData = await refreshed.json()
+                    setData(newData)
+                    setOriginalData(newData)
+                    setHasChanges(false)
+                }
             } else {
                 showToast('error', 'Error', `Failed to ${willArchive ? 'archive' : 'unarchive'} ${config.entityName.toLowerCase()}`)
             }
         } catch (error) {
             showToast('error', 'Error', `An error occurred while ${willArchive ? 'archiving' : 'unarchiving'} ${config.entityName.toLowerCase()}`)
+        }
+    }
+
+    const handleArchive = () => {
+        if (!entityId) return
+        const willArchive = data.active !== false
+        if (hasChanges) {
+            setPendingUnsavedAction({
+                onDiscard: async () => {
+                    setShowUnsavedWarning(false)
+                    await performArchive(entityId, willArchive)
+                }
+            })
+            setShowUnsavedWarning(true)
+        } else {
+            performArchive(entityId, willArchive)
+        }
+    }
+
+    const navigateTo = (recordId: string | number) => {
+        if (hasChanges) {
+            setPendingUnsavedAction({
+                onDiscard: () => {
+                    setShowUnsavedWarning(false)
+                    if (onNavigate) {
+                        onNavigate(recordId)
+                    } else {
+                        router.push(`${config.breadcrumbs.edit}/${recordId}/edit`)
+                    }
+                }
+            })
+            setShowUnsavedWarning(true)
+        } else {
+            if (onNavigate) {
+                onNavigate(recordId)
+            } else {
+                router.push(`${config.breadcrumbs.edit}/${recordId}/edit`)
+            }
+        }
+    }
+
+    const handlePrevious = () => {
+        if (currentIndex > 0 && recordIds) {
+            navigateTo(recordIds[currentIndex - 1])
+        }
+    }
+
+    const handleNext = () => {
+        if (currentIndex < recordIds!.length - 1 && recordIds) {
+            navigateTo(recordIds[currentIndex + 1])
+        }
+    }
+
+    const handleBack = () => {
+        if (hasChanges) {
+            setPendingUnsavedAction({
+                onDiscard: () => {
+                    setShowUnsavedWarning(false)
+                    router.push(config.breadcrumbs.list)
+                }
+            })
+            setShowUnsavedWarning(true)
+        } else {
+            router.push(config.breadcrumbs.list)
         }
     }
 
@@ -1194,21 +1283,54 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-                <Button
-                    size="sm"
-                    onClick={() => router.push(config.breadcrumbs.list)}
-                    className="gap-2 hover:gap-4"
-                    style={{
-                        backgroundColor: 'transparent',
-                        boxShadow: 'none',
-                }}
-                >
-                    <IoMdArrowBack className="w-4 h-4" />
-                    Back
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button
+                        size="sm"
+                        onClick={handleBack}
+                        className="gap-2 hover:gap-4"
+                        style={{
+                            backgroundColor: 'transparent',
+                            boxShadow: 'none',
+                    }}
+                    >
+                        <IoMdArrowBack className="w-4 h-4" />
+                        Back
+                    </Button>
+                    {mode === 'edit' && recordIds && recordIds.length > 1 && (
+                        <div className="flex items-center gap-1 ml-2 border-l pl-2 border-border">
+                            <Button
+                                size="sm"
+                                onClick={handlePrevious}
+                                disabled={currentIndex <= 0}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    boxShadow: 'none',
+                                }}
+                                className="gap-1"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {currentIndex + 1} / {recordIds.length}
+                            </span>
+                            <Button
+                                size="sm"
+                                onClick={handleNext}
+                                disabled={currentIndex >= recordIds.length - 1}
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    boxShadow: 'none',
+                                }}
+                                className="gap-1"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    )}
+                </div>
 
                 {/* Top Action Buttons - Only in Edit Mode */}
-                {mode === 'edit' && (
+                {mode === 'edit' && mounted && (
                     <ServerActions
                         actions={serverActions || []}
                         data={[data]}
@@ -1377,7 +1499,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     {/* Quick Actions - Desktop */}
                     <div className="hidden lg:block bg-card rounded-lg border p-6 border-dashed">
                         <h2 className="text-sm uppercase text-foreground/50 hover:text-foreground font-semibold mb-4">Quick Actions</h2>
-                        {serverActions && serverActions.length > 0 && (
+                        {serverActions && serverActions.length > 0 && mounted && (
                             <ServerActions
                                 actions={serverActions
                                     .filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key))
@@ -1418,7 +1540,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                 </Drawer.Title>
                             </Drawer.Header>
                             <Drawer.Body>
-                                {serverActions && serverActions.length > 0 && (
+                                {serverActions && serverActions.length > 0 && mounted && (
                                     <ServerActions
                                         actions={serverActions
                                             .filter(action => !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key))
@@ -1436,6 +1558,28 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                     </div>
                 </div>
             </div>
+
+            {/* Unsaved Changes Warning */}
+            <Wizard
+                open={showUnsavedWarning}
+                onClose={() => setShowUnsavedWarning(false)}
+                title="Unsaved Changes"
+                variant="warning"
+                buttons={[
+                    {
+                        label: 'Discard Changes',
+                        onClick: () => pendingUnsavedAction?.onDiscard(),
+                        color: 'red',
+                    },
+                    {
+                        label: 'Continue Editing',
+                        onClick: () => setShowUnsavedWarning(false),
+                        appearance: 'subtle',
+                    },
+                ]}
+            >
+                <p>You have unsaved changes. What would you like to do?</p>
+            </Wizard>
 
             <ActionBar
                 key={hasChanges ? 'has-changes' : 'no-changes'}

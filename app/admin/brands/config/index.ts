@@ -14,6 +14,8 @@ export const brandConfig = {
     delete: true,
     duplicate: true,
     copyJson: true,
+    archive: true,
+    unarchive: true,
   },
   listViewConfig: (data: any[] = []) => ({
     ...brandListConfig,

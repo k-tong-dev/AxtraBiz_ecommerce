@@ -21,6 +21,8 @@ export const configurationConfig = {
     delete: true,
     duplicate: true,
     copyJson: true,
+    archive: true,
+    unarchive: true,
   },
 
   // Custom ServerActions - additional actions beyond defaults

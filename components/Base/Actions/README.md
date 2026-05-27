@@ -3,348 +3,134 @@
 A shared action system inspired by Odoo's server actions. Allows defining reusable actions that work across ListView (bulk actions) and FormView (quick actions).
 
 ## Location
-- Component: `components/admin/ResourceView/ServerActions/index.tsx`
-- Default Actions: `getDefaultServerActions()` function in the same file
+- Component: `components/Base/Actions/index.tsx`
+- Default Actions: `getDefaultServerActions()` function (same file)
 - Documentation: This file
 
 ## Architecture
 
 ### Centralized Default Actions
 
-The `getDefaultServerActions()` function provides built-in default actions that can be used by any resource. This is a generic utility that can be imported and used across different models (products, customers, orders, etc.).
+`getDefaultServerActions(flags, apiEndpoint?)` provides built-in default actions that make real API calls. Passed from model configs (e.g. `brands/config/index.ts`) via `defaultActions` flags.
 
 ```typescript
-import { getDefaultServerActions } from '@/components/admin/ResourceView/ServerActions'
+import { getDefaultServerActions } from '@/components/Base/Actions'
 
-const defaultActions = getDefaultServerActions({
-  print: true,
-  exportExcel: true,
-  delete: true,
-  duplicate: true,
-  copyJson: true,
-  archive: true,
-  unarchive: true
-})
+const defaultActions = getDefaultServerActions(
+  { print: true, exportExcel: true, delete: true, duplicate: true, copyJson: true, archive: true, unarchive: true },
+  '/api/admin/brands'
+)
 ```
 
-**Available Default Actions:**
-- `print`: Print the current record (mode: 'both') - Opens print template page with preview
-- `export`: Export records to Excel or CSV (mode: 'both') - Opens Export modal
-- `delete`: Delete record(s) (mode: 'both')
-- `duplicate`: Create a copy of the record (mode: 'both')
-- `copyJson`: Copy record data as JSON to clipboard (mode: 'both')
-- `archive`: Archive the record (mode: 'both')
-- `unarchive`: Unarchive the record (mode: 'both')
+**Available Default Actions (all `mode: 'both'`):**
 
-**Note:** All default actions use `mode: 'both'` to appear in both FormView and ListView bulk actions.
+| Action | Key | API Call |
+|--------|-----|----------|
+| Print | `print` | `window.print()` |
+| Export | `export_excel` | Triggers Export modal |
+| Delete | `delete` | `DELETE {apiEndpoint}/{id}` |
+| Duplicate | `duplicate` | `POST {apiEndpoint}` (strips `id`/timestamps) |
+| Copy JSON | `copy_json` | `navigator.clipboard.writeText()` |
+| Archive | `archive` | `PUT {apiEndpoint}/{id} { active: false }` |
+| Unarchive | `unarchive` | `PUT {apiEndpoint}/{id} { active: true }` |
+
+The `apiEndpoint` parameter is passed from the model config's `apiEndpoint` field (e.g. `'/api/admin/brands'`). When rendered inside a ResourceView or FormView, it falls back to `context.apiEndpoint`.
 
 ### Context-Aware Actions
 
-ServerActions is designed to handle the same action in different contexts:
+- **ListView (Bulk Mode)**: `context.mode = 'bulk'`, `context.view = 'list'`, `context.selectedIds = [...]`
+- **FormView (Single Mode)**: `context.mode = 'single'`, `context.view = 'form'`, `context.record = { ... }`, `context.apiEndpoint = '/api/admin/...'`
 
-- **ListView (Bulk Mode)**: Actions operate on multiple selected records
-  - `context.mode = 'bulk'`
-  - `context.view = 'list'`
-  - `context.selectedIds = ['id1', 'id2', ...]`
-  - `data = [record1, record2, ...]`
+### Context API Endpoint Flow
 
-- **FormView (Single Mode)**: Actions operate on a single record
-  - `context.mode = 'single'`
-  - `context.view = 'form'`
-  - `context.record = { id: 'id1', ... }`
-  - `data = [{ id: 'id1', ... }]`
+1. Model config defines `apiEndpoint` (e.g. `'/api/admin/brands'`)
+2. ResourceView passes it to `getDefaultServerActions(flags, apiEndpoint)` and to `ActionContext.apiEndpoint`
+3. FormView passes `context.apiEndpoint` via `actionContext`
+4. Default action `onClick` handlers use the endpoint for all `fetch()` calls
 
-### Example: Delete Action in Both Contexts
-
-```typescript
-const deleteAction: ServerActionConfig = {
-    key: 'delete',
-    label: 'Delete',
-    icon: <Trash2 size={16} />,
-    color: 'red',
-    mode: 'both', // Works in both create and edit modes
-    confirm: (data, context) => {
-        if (context.mode === 'bulk') {
-            return `Delete ${context.selectedIds?.length || data.length} selected records?`
-        } else {
-            return `Delete this record? This action cannot be undone.`
-        }
-    },
-    helper: 'Permanently remove record(s)',
-    onClick: async (data, context) => {
-        if (context.mode === 'bulk') {
-            // ListView: Delete multiple records
-            const ids = context.selectedIds || data.map(d => d.id)
-            await fetch('/api/bulk-delete', {
-                method: 'POST',
-                body: JSON.stringify({ ids })
-            })
-        } else {
-            // FormView: Delete single record
-            const id = context.record?.id || data[0]?.id
-            await fetch(`/api/records/${id}`, {
-                method: 'DELETE'
-            })
-        }
-    }
-}
-```
-
-## ServerActionConfig Interface
+## Interfaces
 
 ```typescript
 export interface ServerActionConfig {
-    label: string              // Button label
-    key: string                // Unique action identifier
-    icon?: React.ReactNode     // Icon component
+    label: string
+    key: string
+    icon?: React.ReactNode
     color?: 'blue' | 'green' | 'red' | 'orange' | 'violet' | 'yellow' | 'cyan'
     variant?: 'default' | 'primary' | 'danger' | 'success' | 'warning' | 'info'
     onClick: (data: any[], context?: ActionContext) => void | Promise<void>
     show?: (data: any[], context?: ActionContext) => boolean
     confirm?: string | ((data: any[], context?: ActionContext) => string)
-    helper?: string            // Tooltip text shown on hover
+    helper?: string
     mode?: 'create' | 'edit' | 'both' | 'bulk'
     readonly?: boolean
     badge?: string | number
     className?: string
 }
-```
 
-## ActionContext Interface
-
-```typescript
 export interface ActionContext {
-    mode: 'bulk' | 'single'      // 'bulk' for ListView, 'single' for FormView
-    view: 'list' | 'form'       // Current view type
-    record?: any                // Single record (FormView only)
-    selectedIds?: string[]      // Selected IDs (ListView only)
+    mode: 'bulk' | 'single'
+    view: 'list' | 'form'
+    record?: any
+    selectedIds?: string[]
+    refresh?: () => void
+    apiEndpoint?: string
 }
 ```
 
-## Usage Examples
+## Integration with Model Configs
 
-### ListView (Bulk Actions)
+In each model's `config/index.ts`:
 
 ```typescript
-import { ServerActions, ServerActionConfig, ActionContext } from '@/components/admin/ResourceView/ServerActions'
-
-const bulkActions: ServerActionConfig[] = [
-    {
-        key: 'delete_selected',
-        label: 'Delete Selected',
-        icon: <Trash2 size={16} />,
-        color: 'red',
-        mode: 'bulk',
-        confirm: (data, context) => `Delete ${context.selectedIds?.length || data.length} records?`,
-        helper: 'Permanently remove selected records',
-        onClick: async (data, context) => {
-            const ids = context.selectedIds || data.map(d => d.id)
-            // Delete logic
-        }
-    },
-    {
-        key: 'export',
-        label: 'Export to Excel',
-        icon: <FileSpreadsheet size={16} />,
-        color: 'green',
-        mode: 'bulk',
-        helper: 'Export selected records to Excel',
-        onClick: async (data, context) => {
-            // Export logic
-        }
-    }
-]
-
-// In ListView component
-<ServerActions
-    actions={bulkActions}
-    data={selectedData}
-    context={{
-        mode: 'bulk',
-        view: 'list',
-        selectedIds: selectedIds
-    }}
-    onActionComplete={(actionKey) => {
-        setActionsDrawerOpen(false)
-    }}
-    layout="drawer"
-    block
-/>
+export const brandConfig = {
+  entityName: 'Brand',
+  entityNamePlural: 'Brands',
+  apiEndpoint: '/api/admin/brands',
+  defaultActions: {
+    print: true,
+    exportExcel: true,
+    delete: true,
+    duplicate: true,
+    copyJson: true,
+    archive: true,
+    unarchive: true,
+  },
+  customServerActions: [...] as ServerActionConfig[],
+  listViewConfig: ...,
+  formViewConfig: ...,
+}
 ```
 
-### FormView (Built-in Actions)
+The `customServerActions` array allows adding model-specific actions beyond the defaults (e.g. "Mark as Featured" for products).
 
-```typescript
-const builtInActions: ServerActionConfig[] = [
-    {
-        key: 'delete',
-        label: 'Delete',
-        icon: <Trash2 size={16} />,
-        color: 'red',
-        mode: 'edit', // Only show in edit mode
-        confirm: 'Delete this record? This action cannot be undone.',
-        helper: 'Permanently remove this record',
-        onClick: async (data, context) => {
-            const id = context.record?.id || data[0]?.id
-            await fetch(`/api/records/${id}`, { method: 'DELETE' })
-            router.push('/list')
-        }
-    },
-    {
-        key: 'duplicate',
-        label: 'Duplicate',
-        icon: <Copy size={16} />,
-        color: 'blue',
-        mode: 'edit',
-        helper: 'Create a copy of this record',
-        onClick: async (data, context) => {
-            const record = context.record || data[0]
-            const duplicate = { ...record, id: undefined, name: `${record.name} (Copy)` }
-            router.push(`/create?data=${JSON.stringify(duplicate)}`)
-        }
-    },
-    {
-        key: 'print',
-        label: 'Print',
-        icon: <Printer size={16} />,
-        color: 'blue',
-        mode: 'both',
-        helper: 'Print this record',
-        onClick: async (data, context) => {
-            window.print()
-        }
-    }
-]
+## FormView ServerActions
 
-// In FormView component
-<ServerActions
-    actions={builtInActions}
-    data={[formData]}
-    context={{
-        mode: 'single',
-        view: 'form',
-        record: formData
-    }}
-    layout="toolbar"
-/>
-```
+Two ServerActions instances appear in FormView:
 
-### FormView (Custom Quick Actions)
+1. **Dropdown (top-right)**: Shows in edit mode only — contains all actions (defaults + custom). Wrapped with `mounted` guard for SSR hydration safety.
 
-```typescript
-const customActions: ServerActionConfig[] = [
-    {
-        key: 'send_email',
-        label: 'Send Email',
-        icon: <Mail size={16} />,
-        color: 'blue',
-        mode: 'edit',
-        confirm: 'Send email notification to customer?',
-        helper: 'Send email notification to the customer',
-        onClick: async (data, context) => {
-            const record = context.record || data[0]
-            await fetch('/api/send-email', {
-                method: 'POST',
-                body: JSON.stringify({ email: record.email })
-            })
-        }
-    },
-    {
-        key: 'archive',
-        label: 'Archive',
-        icon: <Archive size={16} />,
-        color: 'orange',
-        mode: 'edit',
-        show: (data, context) => {
-            // Only show if record is not already archived
-            return !(context.record?.archived || data[0]?.archived)
-        },
-        helper: 'Move this record to archive',
-        onClick: async (data, context) => {
-            const id = context.record?.id || data[0]?.id
-            await fetch(`/api/records/${id}/archive`, { method: 'POST' })
-        }
-    }
-]
+2. **Inline sidebar (Quick Actions)**: Shows default actions filtered out — only custom actions appear. Also wrapped with `mounted` guard.
+
+The sidebar filter:
+```tsx
+serverActions.filter(action => 
+  !['print', 'export_excel', 'delete', 'duplicate', 'copy_json', 'archive', 'unarchive'].includes(action.key)
+)
 ```
 
 ## Layout Options
 
-The `layout` prop controls how actions are rendered:
-
-- **`inline`**: Vertical stack of buttons (default)
-- **`toolbar`**: Horizontal row of buttons (for action bars)
-- **`drawer`**: Vertical stack with larger spacing (for side drawers)
-- **`dropdown`**: Actions in a dropdown menu with a settings icon button
-
-### Example Usage
-
-```tsx
-// Inline layout (vertical stack)
-<ServerActions
-    actions={actions}
-    data={data}
-    context={context}
-    layout="inline"
-/>
-
-// Toolbar layout (horizontal row)
-<ServerActions
-    actions={actions}
-    data={data}
-    context={context}
-    layout="toolbar"
-/>
-
-// Dropdown layout (dropdown menu)
-<ServerActions
-    actions={actions}
-    data={data}
-    context={context}
-    layout="dropdown"
-    availableFields={availableFields}
-/>
-```
-
-**Note:** The `dropdown` layout is particularly useful when space is limited, such as in the ResourceView toolbar. It renders a settings icon button that opens a dropdown with all available actions.
-
-## Migration from BulkActionConfig
-
-For existing ListView configurations using `BulkActionConfig`, use the converter:
-
-```typescript
-function convertToServerAction(config: BulkActionConfig): ServerActionConfig {
-    return {
-        key: config.label.toLowerCase().replace(/\s+/g, '_'),
-        label: config.label,
-        icon: config.icon,
-        color: config.color,
-        onClick: (data, context) => {
-            const selectedIds = context?.selectedIds || []
-            config.onClick(selectedIds, data)
-        },
-        show: (data, context) => {
-            const selectedIds = context?.selectedIds || []
-            return config.show ? config.show(selectedIds, data) : true
-        },
-        confirm: config.confirm ? (data, context) => {
-            const selectedIds = context?.selectedIds || []
-            if (typeof config.confirm === 'function') {
-                return config.confirm(selectedIds, data)
-            }
-            return config.confirm as string
-        } : undefined,
-        helper: config.helper,
-        mode: 'bulk'
-    }
-}
-```
+- **`inline`**: Vertical stack (default). Used in sidebar.
+- **`toolbar`**: Horizontal row. Used in action bars.
+- **`drawer`**: Larger vertical spacing. Used in mobile drawer.
+- **`dropdown`**: Dropdown via settings icon. Used in FormView header.
 
 ## Best Practices
 
-1. **Always check context.mode**: Actions should handle both bulk and single modes
-2. **Use context.record for FormView**: Access single record data via `context.record`
-3. **Use context.selectedIds for ListView**: Access selected IDs via `context.selectedIds`
-4. **Dynamic confirm messages**: Use function form of `confirm` to provide context-specific messages
-5. **Mode filtering**: Use `mode` prop to control when actions appear (create, edit, both, bulk)
-6. **Conditional display**: Use `show` prop to conditionally hide actions based on data/context
+1. **Always check context.mode**: Handle both bulk and single modes
+2. **Use context.record for FormView**: Access single record via `context.record`
+3. **Use context.selectedIds for ListView**: Access IDs via `context.selectedIds`
+4. **Dynamic confirm messages**: Use function form of `confirm`
+5. **Mode filtering**: Use `mode` prop (create, edit, both, bulk)
+6. **Conditional display**: Use `show` prop to conditionally hide actions
+7. **mounted guard**: Wrap ServerActions on edit pages with `mounted &&` to avoid hydration mismatches from mode switching

@@ -22,25 +22,11 @@ export const productAttributeValueConfig = {
     delete: true,
     duplicate: true,
     copyJson: true,
+    archive: true,
+    unarchive: true,
   },
-  
   // Custom ServerActions - additional actions beyond defaults
-  customServerActions: [
-    {
-      key: 'duplicate_value',
-      label: 'Duplicate',
-      icon: createElement(Copy, { size: 16 }),
-      color: 'blue' as const,
-      mode: 'edit' as const,
-      helper: 'Duplicate this attribute value',
-      onClick: async (data: any[], context?: any) => {
-        const record = context?.record || data[0]
-        console.log('Duplicate Value for:', record)
-        // TODO: Implement duplicate value logic
-        alert('Duplicate Value functionality - Coming soon!')
-      }
-    }
-  ] as ServerActionConfig[],
+  customServerActions: [] as ServerActionConfig[],
   
   // View-specific configs (without actions)
   listViewConfig: (data: any[] = []) => getProductAttributeValueListConfig(data),

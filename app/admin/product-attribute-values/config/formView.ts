@@ -57,6 +57,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       label: 'Active',
       type: 'boolean',
       required: false,
+
       columnWidth: 1,
       groupNumber: 1,
       groupColumn: 2,

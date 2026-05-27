@@ -1,6 +1,6 @@
 'use client'
 
-import { ResourceView } from '../@/components/Base/Views'
+import { ResourceView } from '@/components/Base/Views'
 import { productAttributeValueConfig } from '../config'
 
 export default function NewProductAttributeValuePage() {

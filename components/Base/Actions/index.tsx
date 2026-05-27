@@ -7,7 +7,7 @@ import {Printer, FileSpreadsheet, Trash2, Copy, Download, Archive, ArchiveRestor
 import {createElement} from 'react'
 import {Export} from '../Export'
 import {ExportConfig} from '@/components/Base/Export/types'
-import { showToast } from '@/lib/ui/toast'
+import { showToast } from '@/components/ui/notification'
 
 // Built-in default ServerActions - generic utility that can be used by any resource
 export const getDefaultServerActions = (flags: {
@@ -81,6 +81,7 @@ export const getDefaultServerActions = (flags: {
                         showToast('error', 'Delete failed', `${failed.length} record(s) could not be deleted`)
                     } else {
                         showToast('success', 'Deleted', `${ids.length} record(s) deleted successfully`)
+                        context?.refresh?.()
                     }
                 } else {
                     const id = context?.record?.id || data[0]?.id
@@ -88,6 +89,7 @@ export const getDefaultServerActions = (flags: {
                     const res = await fetch(`${endpoint}/${id}`, { method: 'DELETE' })
                     if (res.ok) {
                         showToast('success', 'Deleted', 'Record deleted successfully')
+                        context?.refresh?.()
                     } else {
                         showToast('error', 'Delete failed', 'Failed to delete record')
                     }
@@ -123,6 +125,7 @@ export const getDefaultServerActions = (flags: {
                 })
                 if (res.ok) {
                     showToast('success', 'Duplicated', 'Record duplicated successfully')
+                    context?.refresh?.()
                 } else {
                     showToast('error', 'Duplicate failed', 'Failed to duplicate record')
                 }
@@ -170,6 +173,7 @@ export const getDefaultServerActions = (flags: {
                 })
                 if (res.ok) {
                     showToast('success', 'Archived', 'Record archived successfully')
+                    context?.refresh?.()
                 } else {
                     showToast('error', 'Archive failed', 'Failed to archive record')
                 }
@@ -200,6 +204,7 @@ export const getDefaultServerActions = (flags: {
                 })
                 if (res.ok) {
                     showToast('success', 'Unarchived', 'Record unarchived successfully')
+                    context?.refresh?.()
                 } else {
                     showToast('error', 'Unarchive failed', 'Failed to unarchive record')
                 }
@@ -271,6 +276,7 @@ export interface ActionContext {
     selectedIds?: string[]
     actionKey?: string
     apiEndpoint?: string
+    refresh?: () => void
 }
 
 export interface ServerActionsProps {
@@ -441,32 +447,31 @@ export function ServerActions({
         return actions.map(action => renderButton(action))
     }
 
-    if (layout === 'inline') {
-        return (
-            <>
+    const renderExport = () => (
+        <Export
+            data={data}
+            availableFields={availableFields}
+            onExport={(config: ExportConfig) => {
+                console.log('Export config:', config)
+                if (onActionComplete) {
+                    onActionComplete('export_excel')
+                }
+            }}
+            onClose={() => setShowExportModal(false)}
+        />
+    )
+
+    const renderContent = () => {
+        if (layout === 'inline') {
+            return (
                 <div className="flex flex-wrap gap-2">
                     {renderActions()}
                 </div>
-                {showExportModal && (
-                    <Export
-                        data={data}
-                        availableFields={availableFields}
-                        onExport={(config: ExportConfig) => {
-                            console.log('Export config:', config)
-                            if (onActionComplete) {
-                                onActionComplete('export_excel')
-                            }
-                        }}
-                        onClose={() => setShowExportModal(false)}
-                    />
-                )}
-            </>
-        )
-    }
+            )
+        }
 
-    if (layout === 'dropdown') {
-        return (
-            <>
+        if (layout === 'dropdown') {
+            return (
                 <Whisper
                     trigger="hover"
                     enterable
@@ -485,73 +490,42 @@ export function ServerActions({
                         className="bg-accent"
                     />
                 </Whisper>
-                {showExportModal && (
-                    <Export
-                        data={data}
-                        availableFields={availableFields}
-                        onExport={(config: ExportConfig) => {
-                            console.log('Export config:', config)
-                            if (onActionComplete) {
-                                onActionComplete('export_excel')
-                            }
-                        }}
-                        onClose={() => setShowExportModal(false)}
-                    />
-                )}
-            </>
-        )
-    }
+            )
+        }
 
-    if (layout === 'toolbar') {
-        return (
-            <>
+        if (layout === 'toolbar') {
+            return (
                 <div className="flex gap-2">
                     {renderActions()}
                 </div>
-                {showExportModal && (
-                    <Export
-                        data={data}
-                        availableFields={availableFields}
-                        onExport={(config: ExportConfig) => {
-                            console.log('Export config:', config)
-                            if (onActionComplete) {
-                                onActionComplete('export_excel')
-                            }
-                        }}
-                        onClose={() => setShowExportModal(false)}
-                    />
-                )}
-            </>
-        )
-    }
+            )
+        }
 
-    if (layout === 'drawer') {
+        if (layout === 'drawer') {
+            return (
+                <div className="flex flex-col gap-4">
+                    {renderActions()}
+                </div>
+            )
+        }
+
+        // Default inline layout
         return (
-            <div className="flex flex-col gap-4">
-                {renderActions()}
-            </div>
-        )
-    }
-
-    // Default inline layout
-    return (
-        <>
             <div className="flex flex-col gap-2">
                 {renderActions()}
             </div>
-            {showExportModal && (
-                <Export
-                    data={data}
-                    availableFields={availableFields}
-                    onExport={(config: ExportConfig) => {
-                        console.log('Export config:', config)
-                        if (onActionComplete) {
-                            onActionComplete('export_excel')
-                        }
-                    }}
-                    onClose={() => setShowExportModal(false)}
-                />
-            )}
+        )
+    }
+
+    return (
+        <>
+            {renderContent()}
+            {showExportModal && renderExport()}
+            <ConfirmationModal
+                open={confirmModalOpen}
+                onClose={() => setConfirmModalOpen(false)}
+                config={confirmModalConfig}
+            />
         </>
     )
 }
@@ -584,6 +558,7 @@ export function ConfirmationModal({
             open={open}
             onClose={onClose}
             size="sm"
+            backdrop={"static"}
         >
             <Modal.Header>
                 <Modal.Title>Confirm Action</Modal.Title>

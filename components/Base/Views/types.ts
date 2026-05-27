@@ -38,4 +38,6 @@ export interface ResourceViewProps {
   loading?: boolean
   entityId?: string  // For form mode - determines if edit or create
   initialData?: any  // Initial data for form mode (edit)
+  recordIds?: (string | number)[]  // ordered list for prev/next form navigation
+  onNavigate?: (recordId: string | number) => void  // navigate to a specific record
 }

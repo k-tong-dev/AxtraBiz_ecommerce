@@ -19,7 +19,7 @@ import {Filter, FilterValue} from '../Filter'
 import {GroupBy} from '../GroupBy'
 import {ServerActions} from '../Actions'
 
-export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData}: ResourceViewProps) {
+export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData, recordIds, onNavigate}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
     const [editingId, setEditingId] = useState<string | undefined>(undefined)
     const [searchValues, setSearchValues] = useState<SearchValue[]>([])
@@ -178,6 +178,8 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                                 label: f.label,
                                 type: f.type
                             })) || []}
+                            recordIds={recordIds}
+                            onNavigate={onNavigate}
                         />
                     </div>
                 )

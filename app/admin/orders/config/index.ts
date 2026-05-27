@@ -21,6 +21,8 @@ export const orderConfig = {
     delete: true,
     duplicate: false,
     copyJson: true,
+    archive: true,
+    unarchive: true,
   },
 
   // Custom ServerActions - additional actions beyond defaults
