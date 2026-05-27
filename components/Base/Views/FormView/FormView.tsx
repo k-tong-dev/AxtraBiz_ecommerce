@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type ReactNode} from 'react'
+import { useState, useEffect, useCallback, type ReactNode} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {Breadcrumb, Dropdown, Loader, Popover, Whisper, Drawer, Tabs, Tab} from 'rsuite'
 import type { StorageFile } from '@/components/Base/Asset/types'
@@ -272,9 +272,10 @@ interface FormViewProps<T extends Entity> {
     onPrint?: (data: any[], mode: 'single' | 'bulk', title: string, template?: React.ComponentType<any>) => void
     recordIds?: (string | number)[]  // ordered list for prev/next navigation
     onNavigate?: (recordId: string | number) => void  // navigate to a specific record
+    onRefresh?: () => void  // trigger parent data refresh
 }
 
-export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint, recordIds, onNavigate}: FormViewProps<T>) {
+export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint, recordIds, onNavigate, onRefresh}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -316,12 +317,28 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
         }
     }, [mode, entityId, recordIds, internalRecordIds, config.apiEndpoint])
 
+    // Central refresh handler — re-fetches current record and updates form state
+    const handleFormRefresh = useCallback(async () => {
+        if (!entityId) return
+        try {
+            const res = await fetch(`${config.apiEndpoint}/${entityId}`)
+            if (res.ok) {
+                const record = await res.json()
+                setData(record)
+                setOriginalData(record)
+                setHasChanges(false)
+            }
+        } catch {}
+        onRefresh?.()
+    }, [entityId, config.apiEndpoint, onRefresh])
+
     useEffect(() => {
         setActionContext(prev => ({
             ...prev,
-            record: data
+            record: data,
+            refresh: handleFormRefresh,
         }))
-    }, [data])
+    }, [data, handleFormRefresh])
 
     useEffect(() => {
         setMounted(true)
@@ -671,21 +688,36 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     }
 
     const performArchive = async (id: string | number, willArchive: boolean) => {
+        const newActive = !willArchive
+        console.log('[FormView] performArchive start:', { id, willArchive, newActive, activeField: data.active })
         try {
             const response = await fetch(`${config.apiEndpoint}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active: !willArchive })
+                body: JSON.stringify({ active: newActive })
             })
+            console.log('[FormView] performArchive PUT response:', { ok: response.ok, status: response.status })
             if (response.ok) {
                 showToast('success', willArchive ? 'Archived' : 'Unarchived', `${config.entityName} has been successfully ${willArchive ? 'archived' : 'unarchived'}`)
-                setData(prev => ({ ...prev, active: !willArchive }))
-                setOriginalData(prev => ({ ...prev, active: !willArchive }))
+                setData(prev => {
+                    console.log('[FormView] performArchive setData toggle:', { prevActive: prev.active, newActive })
+                    return { ...prev, active: newActive }
+                })
+                setOriginalData(prev => {
+                    const base = prev || {} as MutableEntity
+                    console.log('[FormView] performArchive setOriginalData toggle:', { prevActive: base.active, newActive })
+                    return { ...base, active: newActive }
+                })
                 setHasChanges(false)
+                console.log('[FormView] performArchive complete — hasChanges reset to false')
+                onRefresh?.()
             } else {
+                const err = await response.text()
+                console.error('[FormView] performArchive PUT failed:', err)
                 showToast('error', 'Error', `Failed to ${willArchive ? 'archive' : 'unarchive'} ${config.entityName.toLowerCase()}`)
             }
         } catch (error) {
+            console.error('[FormView] performArchive error:', error)
             showToast('error', 'Error', `An error occurred while ${willArchive ? 'archiving' : 'unarchiving'} ${config.entityName.toLowerCase()}`)
         }
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductAttributeValue } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -14,30 +14,37 @@ export default function AdminProductAttributeValuesPage() {
 
   const fetchedRef = useRef(false)
 
+  const loadValues = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/product-attribute-values')
+      const data = await response.json()
+      setValues(data)
+      setLoading(false)
+      if (data.length === 0) {
+        showToast(
+          'info',
+          'No values found',
+          'Your product attribute values table is empty. Create your first value.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching values:', error)
+      showToast('error', 'Error', 'Failed to load attribute values')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadValues()
+  }, [loadValues])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/product-attribute-values')
-        const data = await response.json()
-        setValues(data)
-        setLoading(false)
-        if (data.length === 0) {
-          showToast(
-            'info',
-            'No values found',
-            'Your product attribute values table is empty. Create your first value.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching values:', error)
-        showToast('error', 'Error', 'Failed to load attribute values')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadValues()
+  }, [loadValues])
 
   const openCreate = () => {
     router.push('/admin/product-attribute-values/new')
@@ -88,6 +95,7 @@ export default function AdminProductAttributeValuesPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }
