@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Order } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -14,30 +14,37 @@ export default function AdminOrdersPage() {
 
   const fetchedRef = useRef(false)
 
+  const loadOrders = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/orders')
+      const allOrders = await response.json()
+      setOrders(allOrders)
+      setLoading(false)
+      if (allOrders.length === 0) {
+        showToast(
+          'info',
+          'No orders found',
+          'Your orders table is empty. Create your first order.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error)
+      showToast('error', 'Error', 'Failed to load orders')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadOrders()
+  }, [loadOrders])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/orders')
-        const allOrders = await response.json()
-        setOrders(allOrders)
-        setLoading(false)
-        if (allOrders.length === 0) {
-          showToast(
-            'info',
-            'No orders found',
-            'Your orders table is empty. Create your first order.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-        showToast('error', 'Error', 'Failed to load orders')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadOrders()
+  }, [loadOrders])
 
   const openCreate = () => {
     router.push('/admin/orders/new')
@@ -88,7 +95,7 @@ export default function AdminOrdersPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }
-

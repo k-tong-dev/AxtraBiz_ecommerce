@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductCategory } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -14,26 +14,33 @@ export default function AdminCategoriesPage() {
 
   const fetchedRef = useRef(false)
 
+  const loadCategories = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/categories')
+      const all = await response.json()
+      setCategories(all)
+      setLoading(false)
+      if (all.length === 0) {
+        showToast('info', 'No categories found', 'Your categories table is empty. Create your first category.')
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+      showToast('error', 'Error', 'Failed to load categories')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadCategories()
+  }, [loadCategories])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/categories')
-        const all = await response.json()
-        setCategories(all)
-        setLoading(false)
-        if (all.length === 0) {
-          showToast('info', 'No categories found', 'Your categories table is empty. Create your first category.')
-        }
-      } catch (error) {
-        console.error('Error fetching categories:', error)
-        showToast('error', 'Error', 'Failed to load categories')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadCategories()
+  }, [loadCategories])
 
   const openCreate = () => router.push('/admin/categories/new')
 
@@ -77,6 +84,7 @@ export default function AdminCategoriesPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }

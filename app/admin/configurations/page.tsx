@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Configuration } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -14,30 +14,37 @@ export default function AdminConfigurationsPage() {
 
   const fetchedRef = useRef(false)
 
+  const loadConfigurations = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/configurations')
+      const allConfigurations = await response.json()
+      setConfigurations(allConfigurations)
+      setLoading(false)
+      if (allConfigurations.length === 0) {
+        showToast(
+          'info',
+          'No configurations found',
+          'Your configurations table is empty. Create your first configuration.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching configurations:', error)
+      showToast('error', 'Error', 'Failed to load configurations')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadConfigurations()
+  }, [loadConfigurations])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/configurations')
-        const allConfigurations = await response.json()
-        setConfigurations(allConfigurations)
-        setLoading(false)
-        if (allConfigurations.length === 0) {
-          showToast(
-            'info',
-            'No configurations found',
-            'Your configurations table is empty. Create your first configuration.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching configurations:', error)
-        showToast('error', 'Error', 'Failed to load configurations')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadConfigurations()
+  }, [loadConfigurations])
 
   const openCreate = () => {
     router.push('/admin/configurations/new')
@@ -88,7 +95,7 @@ export default function AdminConfigurationsPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }
-

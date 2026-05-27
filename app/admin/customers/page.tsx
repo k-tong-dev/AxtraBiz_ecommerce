@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { User } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -14,30 +14,37 @@ export default function AdminCustomersPage() {
 
   const fetchedRef = useRef(false)
 
+  const loadCustomers = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/users')
+      const allCustomers = await response.json()
+      setCustomers(allCustomers)
+      setLoading(false)
+      if (allCustomers.length === 0) {
+        showToast(
+          'info',
+          'No customers found',
+          'Your customers table is empty. Create your first customer.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching customers:', error)
+      showToast('error', 'Error', 'Failed to load customers')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadCustomers()
+  }, [loadCustomers])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/users')
-        const allCustomers = await response.json()
-        setCustomers(allCustomers)
-        setLoading(false)
-        if (allCustomers.length === 0) {
-          showToast(
-            'info',
-            'No customers found',
-            'Your customers table is empty. Create your first customer.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching customers:', error)
-        showToast('error', 'Error', 'Failed to load customers')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadCustomers()
+  }, [loadCustomers])
 
   const openCreate = () => {
     router.push('/admin/customers/new')
@@ -88,7 +95,7 @@ export default function AdminCustomersPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }
-

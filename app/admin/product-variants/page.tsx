@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import type { ProductVariant } from '@/lib/drizzle/server'
@@ -14,30 +14,37 @@ export default function AdminProductVariantsPage() {
   const [loading, setLoading] = useState(true)
   const fetchedRef = useRef(false)
 
+  const loadVariants = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/product-variants')
+      const allVariants = await response.json()
+      setVariants(allVariants)
+      setLoading(false)
+      if (allVariants.length === 0) {
+        showToast(
+          'info',
+          'No variants found',
+          'Your product variants table is empty. Create your first variant.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching variants:', error)
+      showToast('error', 'Error', 'Failed to load product variants')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadVariants()
+  }, [loadVariants])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/product-variants')
-        const allVariants = await response.json()
-        setVariants(allVariants)
-        setLoading(false)
-        if (allVariants.length === 0) {
-          showToast(
-            'info',
-            'No variants found',
-            'Your product variants table is empty. Create your first variant.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching variants:', error)
-        showToast('error', 'Error', 'Failed to load product variants')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadVariants()
+  }, [loadVariants])
 
   const openCreate = () => {
     router.push('/admin/product-variants/new')
@@ -88,6 +95,7 @@ export default function AdminProductVariantsPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }

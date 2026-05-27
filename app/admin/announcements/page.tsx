@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Announcement } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -14,30 +14,37 @@ export default function AdminAnnouncementsPage() {
 
   const fetchedRef = useRef(false)
 
+  const loadAnnouncements = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/announcements')
+      const allAnnouncements = await response.json()
+      setAnnouncements(allAnnouncements)
+      setLoading(false)
+      if (allAnnouncements.length === 0) {
+        showToast(
+          'info',
+          'No announcements found',
+          'Your announcements table is empty. Create your first announcement.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching announcements:', error)
+      showToast('error', 'Error', 'Failed to load announcements')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadAnnouncements()
+  }, [loadAnnouncements])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/announcements')
-        const allAnnouncements = await response.json()
-        setAnnouncements(allAnnouncements)
-        setLoading(false)
-        if (allAnnouncements.length === 0) {
-          showToast(
-            'info',
-            'No announcements found',
-            'Your announcements table is empty. Create your first announcement.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching announcements:', error)
-        showToast('error', 'Error', 'Failed to load announcements')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadAnnouncements()
+  }, [loadAnnouncements])
 
   const openCreate = () => {
     router.push('/admin/announcements/new')
@@ -88,7 +95,7 @@ export default function AdminAnnouncementsPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }
-

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Brand } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -13,26 +13,33 @@ export default function AdminBrandsPage() {
   const [loading, setLoading] = useState(true)
   const fetchedRef = useRef(false)
 
+  const loadBrands = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/brands')
+      const all = await response.json()
+      setBrands(all)
+      setLoading(false)
+      if (all.length === 0) {
+        showToast('info', 'No brands found', 'Your brands table is empty. Create your first brand.')
+      }
+    } catch (error) {
+      console.error('Error fetching brands:', error)
+      showToast('error', 'Error', 'Failed to load brands')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadBrands()
+  }, [loadBrands])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/brands')
-        const all = await response.json()
-        setBrands(all)
-        setLoading(false)
-        if (all.length === 0) {
-          showToast('info', 'No brands found', 'Your brands table is empty. Create your first brand.')
-        }
-      } catch (error) {
-        console.error('Error fetching brands:', error)
-        showToast('error', 'Error', 'Failed to load brands')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadBrands()
+  }, [loadBrands])
 
   const openCreate = () => router.push('/admin/brands/new')
 
@@ -76,6 +83,7 @@ export default function AdminBrandsPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import type { ProductTemplate } from '@/lib/drizzle/server'
@@ -14,30 +14,37 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true)
   const fetchedRef = useRef(false)
 
+  const loadProducts = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/products')
+      const allProducts = await response.json()
+      setProducts(allProducts)
+      setLoading(false)
+      if (allProducts.length === 0) {
+        showToast(
+          'info',
+          'No products found',
+          'Your products table is empty. Add some sample data or create your first product.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error)
+      showToast('error', 'Error', 'Failed to load products')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadProducts()
+  }, [loadProducts])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/products')
-        const allProducts = await response.json()
-        setProducts(allProducts)
-        setLoading(false)
-        if (allProducts.length === 0) {
-          showToast(
-            'info',
-            'No products found',
-            'Your products table is empty. Add some sample data or create your first product.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error)
-        showToast('error', 'Error', 'Failed to load products')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadProducts()
+  }, [loadProducts])
 
   const openCreate = () => {
     router.push('/admin/products/new')
@@ -93,7 +100,7 @@ export default function AdminProductsPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }
-

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Invoice } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
@@ -14,30 +14,37 @@ export default function AdminInvoicesPage() {
 
   const fetchedRef = useRef(false)
 
+  const loadInvoices = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/admin/invoices')
+      const allInvoices = await response.json()
+      setInvoices(allInvoices)
+      setLoading(false)
+      if (allInvoices.length === 0) {
+        showToast(
+          'info',
+          'No invoices found',
+          'Your invoices table is empty. Create your first invoice.',
+        )
+      }
+    } catch (error) {
+      console.error('Error fetching invoices:', error)
+      showToast('error', 'Error', 'Failed to load invoices')
+      setLoading(false)
+    }
+  }, [])
+
+  const refresh = useCallback(() => {
+    fetchedRef.current = false
+    loadInvoices()
+  }, [loadInvoices])
+
   useEffect(() => {
     if (fetchedRef.current) return
     fetchedRef.current = true
-
-    ;(async () => {
-      try {
-        const response = await fetch('/api/admin/invoices')
-        const allInvoices = await response.json()
-        setInvoices(allInvoices)
-        setLoading(false)
-        if (allInvoices.length === 0) {
-          showToast(
-            'info',
-            'No invoices found',
-            'Your invoices table is empty. Create your first invoice.',
-          )
-        }
-      } catch (error) {
-        console.error('Error fetching invoices:', error)
-        showToast('error', 'Error', 'Failed to load invoices')
-        setLoading(false)
-      }
-    })()
-  }, [])
+    loadInvoices()
+  }, [loadInvoices])
 
   const openCreate = () => {
     router.push('/admin/invoices/new')
@@ -88,7 +95,7 @@ export default function AdminInvoicesPage() {
       onDelete={(rowData) => remove(rowData.id)}
       onCreate={openCreate}
       loading={loading}
+      onRefresh={refresh}
     />
   )
 }
-
