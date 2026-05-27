@@ -671,35 +671,21 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     }
 
     const performArchive = async (id: string | number, willArchive: boolean) => {
-        const newActive = !willArchive
-        console.log('[FormView] performArchive start:', { id, willArchive, newActive, activeField: data.active })
         try {
             const response = await fetch(`${config.apiEndpoint}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active: newActive })
+                body: JSON.stringify({ active: !willArchive })
             })
-            console.log('[FormView] performArchive PUT response:', { ok: response.ok, status: response.status })
             if (response.ok) {
                 showToast('success', willArchive ? 'Archived' : 'Unarchived', `${config.entityName} has been successfully ${willArchive ? 'archived' : 'unarchived'}`)
-                setData(prev => {
-                    console.log('[FormView] performArchive setData toggle:', { prevActive: prev.active, newActive })
-                    return { ...prev, active: newActive }
-                })
-                setOriginalData(prev => {
-                    const base = prev || {} as MutableEntity
-                    console.log('[FormView] performArchive setOriginalData toggle:', { prevActive: base.active, newActive })
-                    return { ...base, active: newActive }
-                })
+                setData(prev => ({ ...prev, active: !willArchive }))
+                setOriginalData(prev => ({ ...prev, active: !willArchive }))
                 setHasChanges(false)
-                console.log('[FormView] performArchive complete — hasChanges reset to false')
             } else {
-                const err = await response.text()
-                console.error('[FormView] performArchive PUT failed:', err)
                 showToast('error', 'Error', `Failed to ${willArchive ? 'archive' : 'unarchive'} ${config.entityName.toLowerCase()}`)
             }
         } catch (error) {
-            console.error('[FormView] performArchive error:', error)
             showToast('error', 'Error', `An error occurred while ${willArchive ? 'archiving' : 'unarchiving'} ${config.entityName.toLowerCase()}`)
         }
     }
@@ -743,15 +729,15 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     }
 
     const handlePrevious = () => {
-        if (currentIndex > 0 && resolvedRecordIds) {
-            navigateTo(resolvedRecordIds[currentIndex - 1])
-        }
+        if (!resolvedRecordIds || resolvedRecordIds.length === 0) return
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : resolvedRecordIds.length - 1
+        navigateTo(resolvedRecordIds[prevIndex])
     }
 
     const handleNext = () => {
-        if (currentIndex >= 0 && resolvedRecordIds && currentIndex < resolvedRecordIds.length - 1) {
-            navigateTo(resolvedRecordIds[currentIndex + 1])
-        }
+        if (!resolvedRecordIds || resolvedRecordIds.length === 0) return
+        const nextIndex = currentIndex < resolvedRecordIds.length - 1 ? currentIndex + 1 : 0
+        navigateTo(resolvedRecordIds[nextIndex])
     }
 
     const handleBack = () => {
@@ -1329,7 +1315,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             <Button
                                 size="sm"
                                 onClick={handlePrevious}
-                                disabled={currentIndex <= 0}
                                 style={{
                                     backgroundColor: 'transparent',
                                     boxShadow: 'none',
@@ -1344,7 +1329,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                             <Button
                                 size="sm"
                                 onClick={handleNext}
-                                disabled={currentIndex >= resolvedRecordIds.length - 1}
                                 style={{
                                     backgroundColor: 'transparent',
                                     boxShadow: 'none',
@@ -1598,6 +1582,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         label: 'Discard Changes',
                         onClick: () => pendingUnsavedAction?.onDiscard(),
                         color: 'red',
+                        appearance:"primary"
                     },
                     {
                         label: 'Continue Editing',
