@@ -296,7 +296,24 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
     const [pendingUnsavedAction, setPendingUnsavedAction] = useState<{ onDiscard: () => void } | null>(null)
 
-    const currentIndex = recordIds && entityId ? recordIds.indexOf(entityId as never) : -1
+    const [internalRecordIds, setInternalRecordIds] = useState<(string | number)[] | null>(null)
+    const resolvedRecordIds = recordIds || internalRecordIds
+    const currentIndex = resolvedRecordIds && entityId ? resolvedRecordIds.indexOf(entityId as never) : -1
+
+    // Auto-fetch recordIds list when in edit mode if not provided via props
+    useEffect(() => {
+        if (mode === 'edit' && entityId && !recordIds && !internalRecordIds) {
+            fetch(config.apiEndpoint)
+                .then(res => res.json())
+                .then(result => {
+                    const list = result.data || result
+                    if (Array.isArray(list)) {
+                        setInternalRecordIds(list.map((r: any) => r.id))
+                    }
+                })
+                .catch(() => {})
+        }
+    }, [mode, entityId, recordIds, internalRecordIds, config.apiEndpoint])
 
     useEffect(() => {
         setActionContext(prev => ({
@@ -621,11 +638,11 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             })
             if (response.ok) {
                 showToast('success', `${config.entityName} Deleted`, `${config.entityName} has been successfully deleted`)
-                if (recordIds && recordIds.length > 1) {
-                    const idx = recordIds.indexOf(id as never)
-                    const nextIdx = idx < recordIds.length - 1 ? idx + 1 : idx - 1
-                    if (nextIdx >= 0 && nextIdx < recordIds.length) {
-                        const next = recordIds[nextIdx]
+                if (resolvedRecordIds && resolvedRecordIds.length > 1) {
+                    const idx = resolvedRecordIds.indexOf(id as never)
+                    const nextIdx = idx < resolvedRecordIds.length - 1 ? idx + 1 : idx - 1
+                    if (nextIdx >= 0 && nextIdx < resolvedRecordIds.length) {
+                        const next = resolvedRecordIds[nextIdx]
                         if (onNavigate) {
                             onNavigate(next)
                         } else {
@@ -661,13 +678,9 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             })
             if (response.ok) {
                 showToast('success', willArchive ? 'Archived' : 'Unarchived', `${config.entityName} has been successfully ${willArchive ? 'archived' : 'unarchived'}`)
-                const refreshed = await fetch(`${config.apiEndpoint}/${id}`)
-                if (refreshed.ok) {
-                    const newData = await refreshed.json()
-                    setData(newData)
-                    setOriginalData(newData)
-                    setHasChanges(false)
-                }
+                setData(prev => ({ ...prev, active: !willArchive }))
+                setOriginalData(prev => ({ ...prev, active: !willArchive }))
+                setHasChanges(false)
             } else {
                 showToast('error', 'Error', `Failed to ${willArchive ? 'archive' : 'unarchive'} ${config.entityName.toLowerCase()}`)
             }
@@ -715,14 +728,14 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
     }
 
     const handlePrevious = () => {
-        if (currentIndex > 0 && recordIds) {
-            navigateTo(recordIds[currentIndex - 1])
+        if (currentIndex > 0 && resolvedRecordIds) {
+            navigateTo(resolvedRecordIds[currentIndex - 1])
         }
     }
 
     const handleNext = () => {
-        if (currentIndex < recordIds!.length - 1 && recordIds) {
-            navigateTo(recordIds[currentIndex + 1])
+        if (currentIndex >= 0 && resolvedRecordIds && currentIndex < resolvedRecordIds.length - 1) {
+            navigateTo(resolvedRecordIds[currentIndex + 1])
         }
     }
 
@@ -1296,7 +1309,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         <IoMdArrowBack className="w-4 h-4" />
                         Back
                     </Button>
-                    {mode === 'edit' && recordIds && recordIds.length > 1 && (
+                    {mode === 'edit' && resolvedRecordIds && resolvedRecordIds.length > 1 && (
                         <div className="flex items-center gap-1 ml-2 border-l pl-2 border-border">
                             <Button
                                 size="sm"
@@ -1311,12 +1324,12 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
                             <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {currentIndex + 1} / {recordIds.length}
+                                {currentIndex + 1} / {resolvedRecordIds.length}
                             </span>
                             <Button
                                 size="sm"
                                 onClick={handleNext}
-                                disabled={currentIndex >= recordIds.length - 1}
+                                disabled={currentIndex >= resolvedRecordIds.length - 1}
                                 style={{
                                     backgroundColor: 'transparent',
                                     boxShadow: 'none',

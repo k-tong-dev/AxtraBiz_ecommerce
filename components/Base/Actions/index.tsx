@@ -157,6 +157,12 @@ export const getDefaultServerActions = (flags: {
             icon: createElement(Archive, {size: 16}),
             color: 'orange',
             mode: 'both',
+            confirm: (data, context) => {
+                if (context?.mode === 'bulk') {
+                    return `Archive ${context.selectedIds?.length || data.length} record(s)?`
+                }
+                return 'Archive this record?'
+            },
             helper: 'Archive this record',
             onClick: async (data, context) => {
                 const endpoint = apiEndpoint || context?.apiEndpoint
@@ -164,18 +170,36 @@ export const getDefaultServerActions = (flags: {
                     console.error('[Archive action] No apiEndpoint available')
                     return
                 }
-                const id = context?.record?.id || data[0]?.id
-                if (!id) return
-                const res = await fetch(`${endpoint}/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ active: false }),
-                })
-                if (res.ok) {
-                    showToast('success', 'Archived', 'Record archived successfully')
-                    context?.refresh?.()
+                if (context?.mode === 'bulk') {
+                    const ids = context?.selectedIds || data.map(d => d.id)
+                    const results = await Promise.allSettled(
+                        ids.map(id => fetch(`${endpoint}/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ active: false }),
+                        }))
+                    )
+                    const failed = results.filter(r => r.status === 'rejected')
+                    if (failed.length > 0) {
+                        showToast('error', 'Archive failed', `${failed.length} record(s) could not be archived`)
+                    } else {
+                        showToast('success', 'Archived', `${ids.length} record(s) archived successfully`)
+                        context?.refresh?.()
+                    }
                 } else {
-                    showToast('error', 'Archive failed', 'Failed to archive record')
+                    const id = context?.record?.id || data[0]?.id
+                    if (!id) return
+                    const res = await fetch(`${endpoint}/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ active: false }),
+                    })
+                    if (res.ok) {
+                        showToast('success', 'Archived', 'Record archived successfully')
+                        context?.refresh?.()
+                    } else {
+                        showToast('error', 'Archive failed', 'Failed to archive record')
+                    }
                 }
             }
         })
@@ -188,6 +212,12 @@ export const getDefaultServerActions = (flags: {
             icon: createElement(ArchiveRestore, {size: 16}),
             color: 'green',
             mode: 'both',
+            confirm: (data, context) => {
+                if (context?.mode === 'bulk') {
+                    return `Unarchive ${context.selectedIds?.length || data.length} record(s)?`
+                }
+                return 'Unarchive this record?'
+            },
             helper: 'Unarchive this record',
             onClick: async (data, context) => {
                 const endpoint = apiEndpoint || context?.apiEndpoint
@@ -195,18 +225,36 @@ export const getDefaultServerActions = (flags: {
                     console.error('[Unarchive action] No apiEndpoint available')
                     return
                 }
-                const id = context?.record?.id || data[0]?.id
-                if (!id) return
-                const res = await fetch(`${endpoint}/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ active: true }),
-                })
-                if (res.ok) {
-                    showToast('success', 'Unarchived', 'Record unarchived successfully')
-                    context?.refresh?.()
+                if (context?.mode === 'bulk') {
+                    const ids = context?.selectedIds || data.map(d => d.id)
+                    const results = await Promise.allSettled(
+                        ids.map(id => fetch(`${endpoint}/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ active: true }),
+                        }))
+                    )
+                    const failed = results.filter(r => r.status === 'rejected')
+                    if (failed.length > 0) {
+                        showToast('error', 'Unarchive failed', `${failed.length} record(s) could not be unarchived`)
+                    } else {
+                        showToast('success', 'Unarchived', `${ids.length} record(s) unarchived successfully`)
+                        context?.refresh?.()
+                    }
                 } else {
-                    showToast('error', 'Unarchive failed', 'Failed to unarchive record')
+                    const id = context?.record?.id || data[0]?.id
+                    if (!id) return
+                    const res = await fetch(`${endpoint}/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ active: true }),
+                    })
+                    if (res.ok) {
+                        showToast('success', 'Unarchived', 'Record unarchived successfully')
+                        context?.refresh?.()
+                    } else {
+                        showToast('error', 'Unarchive failed', 'Failed to unarchive record')
+                    }
                 }
             }
         })
