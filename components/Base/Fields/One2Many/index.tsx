@@ -28,7 +28,8 @@ export function One2ManyField({ config, value, onChange, error }: FieldProps) {
     if (!Array.isArray(value)) return []
     return value.map((v: any) => {
       if (typeof v === 'string') return v
-      return v.id || v.value_id || v.key
+      const id = v.id || v.value_id || v.key
+      return id != null ? String(id) : null
     }).filter(Boolean)
   }, [value])
 
