@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchSettingsFromDrizzle,
-  upsertSettingInDrizzle,
+  settingService,
   deleteSettingFromDrizzle
 } from '@/lib/drizzle/settings'
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await upsertSettingInDrizzle(body)
+    const result = await settingService.upsert(body)
     
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data })

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchInvoicesFromDrizzle,
-  upsertInvoiceInDrizzle,
+  invoiceService,
   deleteInvoiceFromDrizzle
 } from '@/lib/drizzle/invoices'
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await upsertInvoiceInDrizzle(body)
+    const result = await invoiceService.upsert(body)
     
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data })

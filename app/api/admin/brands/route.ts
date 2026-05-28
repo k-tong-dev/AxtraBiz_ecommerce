@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchBrandsFromDrizzle,
-  upsertBrandInDrizzle,
+  brandService,
   deleteBrandFromDrizzle
 } from '@/lib/drizzle/brands'
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       if (typeof item.image_id === 'string') {
         try { item.image_id = JSON.parse(item.image_id) } catch {}
       }
-      const r = await upsertBrandInDrizzle(item)
+      const r = await brandService.upsert(item)
       if (!r.success) {
         return NextResponse.json({ success: false, error: r.error, index: results.length }, { status: 400 })
       }

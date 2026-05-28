@@ -9,7 +9,8 @@ import {
 } from 'lucide-react'
 import { FileGrid } from './FileGrid'
 import type { StorageFile, StorageFolder } from './types'
-import {Modal, Input, Button, StatGroup, Stat, StatLabel, StatValue, StatHelpText} from 'rsuite'
+import {Modal, Input, Button, StatGroup, Stat, StatLabel, StatValue, StatHelpText, HStack} from 'rsuite'
+import {FaFolderPlus} from "react-icons/fa6";
 
 const STORAGE_POLICY = {
   maxSize: 50 * 1024 * 1024,
@@ -541,14 +542,18 @@ export function AssetManager() {
       </div>
 
       {/* Modals */}
-      <Modal open={showNewFolder} onClose={() => setShowNewFolder(false)} size="xs" backdrop={"static"}>
-        <Modal.Header><Modal.Title>New Folder</Modal.Title></Modal.Header>
+      <Modal open={showNewFolder} onClose={() => setShowNewFolder(false)} size="xs" backdrop={"static"} draggable>
+        <Modal.Header>
+          <Modal.Title>
+            <HStack><FaFolderPlus color={"purple"}/> New Folder</HStack>
+          </Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <Input placeholder="Folder name" value={newFolderName} onChange={setNewFolderName} onKeyDown={(e) => { if (e.key === 'Enter') handleCreateFolder() }} autoFocus />
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => setShowNewFolder(false)} appearance="subtle">Cancel</Button>
-          <Button onClick={handleCreateFolder} appearance="primary" disabled={!newFolderName.trim()}>Create</Button>
+          <Button onClick={handleCreateFolder} color={"violet"} appearance="primary" disabled={!newFolderName.trim()}>Create</Button>
         </Modal.Footer>
       </Modal>
 
@@ -588,7 +593,7 @@ export function AssetManager() {
         </Modal.Footer>
       </Modal>
 
-      <Modal open={showRename} onClose={() => setShowRename(false)} size="xs" backdrop={"static"}>
+      <Modal open={showRename} onClose={() => setShowRename(false)} size="xs" backdrop={"static"} draggable>
         <Modal.Header><Modal.Title>Rename Folder</Modal.Title></Modal.Header>
         <Modal.Body>
           <Input placeholder="Folder name" value={renameName} onChange={setRenameName} onKeyDown={(e) => { if (e.key === 'Enter') handleRenameFolder() }} autoFocus />

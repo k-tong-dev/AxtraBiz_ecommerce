@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 import {
   fetchProductAttributeValuesFromDrizzle,
-  upsertProductAttributeValueInDrizzle,
+  productAttributeValueService,
   deleteProductAttributeValueFromDrizzle,
 } from '@/lib/drizzle/product-attributes'
 import type { ProductAttributeValue } from '@/drizzle/schema'
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       }
 
       const dataToUpsert = raw.id ? { ...processed, id: Number(raw.id) } : processed
-      const result = await upsertProductAttributeValueInDrizzle(dataToUpsert as ProductAttributeValue, userId)
+      const result = await productAttributeValueService.upsert(dataToUpsert as ProductAttributeValue, userId)
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }

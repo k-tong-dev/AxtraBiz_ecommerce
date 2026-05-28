@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchUsersFromDrizzle,
-  upsertUserInDrizzle,
+  userService,
   deleteUserFromDrizzle
 } from '@/lib/drizzle/users'
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await upsertUserInDrizzle(body)
+    const result = await userService.upsert(body)
     
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data })

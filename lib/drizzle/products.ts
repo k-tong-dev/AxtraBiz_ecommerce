@@ -15,11 +15,6 @@ export async function fetchProductFromDrizzle(productId: string): Promise<Produc
   return productService.read(productId)
 }
 
-export async function upsertProductInDrizzle(product: ProductTemplate, userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
-  const result = await productService.upsert(product, userId)
-  return { success: result.success, data: result.data, error: result.error }
-}
-
 export async function deleteProductFromDrizzle(productId: string): Promise<boolean> {
   try {
     const result = await productService.unlink(productId)

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 import {
   fetchProductAttributeValueFromDrizzle,
-  upsertProductAttributeValueInDrizzle,
   deleteProductAttributeValueFromDrizzle,
   productAttributeValueService,
 } from '@/lib/drizzle/product-attributes'

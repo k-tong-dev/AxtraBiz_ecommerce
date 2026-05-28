@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import {
   fetchProductAttributesFromDrizzle,
   fetchProductAttributeFromDrizzle,
-  upsertProductAttributeInDrizzle,
+  productAttributeService,
   deleteProductAttributeFromDrizzle
 } from '@/lib/drizzle/product-attributes'
 // import type { ProductAttribute } from '../../../../lib/drizzle/server'
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       const processed = processAttributeFields(raw)
       if (raw.id) processed.id = raw.id
 
-      const result = await upsertProductAttributeInDrizzle(processed as any, userId)
+      const result = await productAttributeService.upsert(processed as any, userId)
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }

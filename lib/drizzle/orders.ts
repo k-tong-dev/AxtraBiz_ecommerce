@@ -16,11 +16,6 @@ export async function fetchOrderFromDrizzle(orderId: string): Promise<Order | nu
   return orderService.read(orderId)
 }
 
-export async function upsertOrderInDrizzle(order: Order, userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
-  const result = await orderService.upsert(order, userId)
-  return { success: result.success, data: result.data, error: result.error }
-}
-
 export async function deleteOrderFromDrizzle(orderId: string): Promise<boolean> {
   const result = await orderService.unlink(orderId)
   return result.success

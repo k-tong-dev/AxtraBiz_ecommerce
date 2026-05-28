@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchCategoriesFromDrizzle,
-  upsertCategoryInDrizzle,
+  categoryService,
   deleteCategoryFromDrizzle
 } from '@/lib/drizzle/categories'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     const results: any[] = []
     for (const item of items) {
-      const r = await upsertCategoryInDrizzle(item, userId)
+      const r = await categoryService.upsert(item, userId)
       if (!r.success) {
         return NextResponse.json({ success: false, error: r.error, index: results.length }, { status: 400 })
       }

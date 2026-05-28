@@ -16,11 +16,6 @@ export async function fetchSettingFromDrizzle(settingId: string): Promise<Settin
   return settingService.read(settingId)
 }
 
-export async function upsertSettingInDrizzle(setting: Setting, userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
-  const result = await settingService.upsert(setting, userId)
-  return { success: result.success, data: result.data, error: result.error }
-}
-
 export async function deleteSettingFromDrizzle(settingId: string): Promise<boolean> {
   const result = await settingService.unlink(settingId)
   return result.success

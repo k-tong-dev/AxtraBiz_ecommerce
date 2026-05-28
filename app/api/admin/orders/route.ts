@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchOrdersFromDrizzle,
-  upsertOrderInDrizzle,
+  orderService,
   deleteOrderFromDrizzle
 } from '@/lib/drizzle/orders'
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    const result = await upsertOrderInDrizzle(body)
+    const result = await orderService.upsert(body)
     
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data })

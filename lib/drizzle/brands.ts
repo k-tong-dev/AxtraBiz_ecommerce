@@ -14,11 +14,6 @@ export async function fetchBrandFromDrizzle(brandId: string): Promise<Brand | nu
   return brandService.read(brandId)
 }
 
-export async function upsertBrandInDrizzle(brand: any, userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
-  const result = await brandService.upsert(brand, userId)
-  return { success: result.success, data: result.data, error: result.error }
-}
-
 export async function deleteBrandFromDrizzle(brandId: string): Promise<boolean> {
   try {
     const result = await brandService.unlink(brandId)

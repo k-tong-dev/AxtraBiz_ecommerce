@@ -607,6 +607,7 @@ export function ConfirmationModal({
             onClose={onClose}
             size="sm"
             backdrop={"static"}
+            draggable
         >
             <Modal.Header>
                 <Modal.Title>Confirm Action</Modal.Title>

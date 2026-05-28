@@ -68,6 +68,7 @@ export function AdminTopNavbar() {
                 open={showLogoutModal}
                 onClose={() => setShowLogoutModal(false)}
                 size="sm"
+                draggable
             >
                 <Modal.Header>
                     <Modal.Title>Confirm Logout</Modal.Title>

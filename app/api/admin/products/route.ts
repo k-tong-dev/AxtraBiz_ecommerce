@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchProductsFromDrizzle,
-  upsertProductInDrizzle
+  productService
 } from '@/lib/drizzle/products'
 
 export async function GET() {
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const results: any[] = []
     for (const raw of items) {
       const processed = processProductFields(raw)
-      const result = await upsertProductInDrizzle(processed as any)
+      const result = await productService.upsert(processed as any)
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }

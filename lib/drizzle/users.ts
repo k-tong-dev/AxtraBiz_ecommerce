@@ -16,11 +16,6 @@ export async function fetchUserFromDrizzle(userId: string): Promise<User | null>
   return userService.read(userId)
 }
 
-export async function upsertUserInDrizzle(user: User, userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
-  const result = await userService.upsert(user, userId)
-  return { success: result.success, data: result.data, error: result.error }
-}
-
 export async function deleteUserFromDrizzle(userId: string): Promise<boolean> {
   const result = await userService.unlink(userId)
   return result.success

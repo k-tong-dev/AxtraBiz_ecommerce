@@ -22,11 +22,6 @@ export async function fetchProductAttributeFromDrizzle(attributeId: string | num
   return productAttributeService.read(attributeId)
 }
 
-export async function upsertProductAttributeInDrizzle(attribute: ProductAttribute, userId?: string): Promise<{ success: boolean; error?: string; data?: any }> {
-  const result = await productAttributeService.upsert(attribute, userId)
-  return { success: result.success, error: result.error, data: result.data }
-}
-
 export async function deleteProductAttributeFromDrizzle(attributeId: string | number): Promise<boolean> {
   const result = await productAttributeService.unlink(attributeId)
   return result.success
@@ -78,17 +73,6 @@ export interface ProductAttributeValueWithRelations extends ProductAttributeValu
 
 export async function fetchProductAttributeValueFromDrizzle(valueId: string | number): Promise<ProductAttributeValueWithRelations | null> {
   return await productAttributeValueService.read(valueId)
-}
-
-export async function upsertProductAttributeValueInDrizzle(
-  value: ProductAttributeValue & { attribute_ids?: unknown },
-  userId?: string
-): Promise<{ success: boolean; error?: string; data?: any }> {
-  const { attribute_ids: _attributeIds, ...valueFields } = value as ProductAttributeValue & {
-    attribute_ids?: unknown
-  }
-  const result = await productAttributeValueService.upsert(valueFields as ProductAttributeValue, userId)
-  return { success: result.success, error: result.error, data: result.data }
 }
 
 export async function deleteProductAttributeValueFromDrizzle(valueId: string | number): Promise<boolean> {
