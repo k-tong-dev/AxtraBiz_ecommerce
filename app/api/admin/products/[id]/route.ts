@@ -165,14 +165,6 @@ export async function PUT(
       )
     }
 
-    // Validate required fields
-    if (!body.name || body.name.trim() === '') {
-      return NextResponse.json(
-        { error: 'Product name is required' },
-        { status: 400 }
-      )
-    }
-
     // Convert date fields to ISO strings
     const formatDate = (dateValue: any): string | null => {
       if (!dateValue) return null
