@@ -327,10 +327,13 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                 setData(record)
                 setOriginalData(record)
                 setHasChanges(false)
+            } else if (res.status === 404) {
+                // Record was deleted — navigate to list
+                router.push(config.breadcrumbs.list)
             }
         } catch {}
         onRefresh?.()
-    }, [entityId, config.apiEndpoint, onRefresh])
+    }, [entityId, config.apiEndpoint, onRefresh, router, config.breadcrumbs.list])
 
     useEffect(() => {
         setActionContext(prev => ({
