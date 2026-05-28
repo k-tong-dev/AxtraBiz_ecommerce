@@ -34,12 +34,13 @@ import {
     DayField,
     FileField,
 } from '@/components/Base/Fields'
-import {Save, Printer, Settings, Copy, Trash2, Archive, X, Plus, ChevronLeft, ChevronRight} from 'lucide-react'
+import {Save, X, Plus, ChevronLeft, ChevronRight} from 'lucide-react'
 import { showToast } from '@/lib/ui/toast'
 import {IoMdCloudDone, IoMdSettings, IoMdArrowBack} from "react-icons/io";
 import {BsTools} from "react-icons/bs";
 
-import {ServerActions, ServerActionConfig, ActionContext} from '../../Actions'
+import type { ServerActionConfig } from '../../Actions'
+import {ServerActions, ActionContext} from '../../Actions'
 import { getWidget, registerWidget, fieldWidgets } from '../../Fields/Widgets'
 import { Many2ManyWidget } from '../../Fields/Widgets/Many2ManyWidget'
 import { One2ManyWidget } from '../../Fields/Widgets/One2ManyWidget'
@@ -54,116 +55,7 @@ registerWidget(One2ManyWidget as any)
 registerWidget(Many2OneWidget as any)
 registerWidget(TagSelectWidget as any)
 
-// Convert FormView customActions to ServerActionConfig
-function convertFormActionToServerAction(action: any, mode: 'create' | 'edit'): ServerActionConfig {
-    return {
-        key: action.key,
-        label: action.label,
-        icon: typeof action.icon === 'function' ? action.icon() : action.icon,
-        color: action.variant === 'danger' ? 'red' : 
-                action.variant === 'success' ? 'green' :
-                action.variant === 'warning' ? 'orange' :
-                action.variant === 'info' ? 'blue' : undefined,
-        variant: action.variant || 'default',
-        onClick: (data, context) => {
-            action.onClick(data[0]) // FormView passes single record
-        },
-        show: action.show ? (data, context) => action.show(data[0]) : undefined,
-        confirm: action.confirm,
-        helper: action.helper,
-        mode: action.mode || 'both',
-        readonly: action.readonly,
-        badge: action.badge,
-        className: action.className
-    }
-}
 
-// Convert FormView built-in actions to ServerActionConfig
-function convertBuiltInActionsToServerActions(config: FormConfig, mode: 'create' | 'edit', handlers: {
-    handlePrint: () => void
-    handleExport: () => void
-    handleDuplicate: () => void
-    handleCopy: () => void
-    handleDelete: () => void
-    handleArchive: () => void
-}): ServerActionConfig[] {
-    const actions: ServerActionConfig[] = []
-    
-    if (config.actions?.print) {
-        actions.push({
-            key: 'print',
-            label: 'Print',
-            icon: <Printer size={16} />,
-            color: 'blue',
-            mode: 'both',
-            helper: 'Print this record',
-            onClick: () => handlers.handlePrint()
-        })
-    }
-    
-    if (config.actions?.export) {
-        actions.push({
-            key: 'export',
-            label: 'Export',
-            icon: <Settings size={16} />,
-            color: 'blue',
-            mode: 'both',
-            helper: 'Export this record',
-            onClick: () => handlers.handleExport()
-        })
-    }
-    
-    if (mode === 'edit' && config.actions?.duplicate) {
-        actions.push({
-            key: 'duplicate',
-            label: 'Duplicate',
-            icon: <Copy size={16} />,
-            color: 'blue',
-            mode: 'edit',
-            helper: 'Create a copy of this record',
-            onClick: () => handlers.handleDuplicate()
-        })
-    }
-    
-    if (config.actions?.copy) {
-        actions.push({
-            key: 'copy',
-            label: 'Copy to Clipboard',
-            icon: <Copy size={16} />,
-            color: 'blue',
-            mode: 'both',
-            helper: 'Copy record data to clipboard',
-            onClick: () => handlers.handleCopy()
-        })
-    }
-    
-    if (mode === 'edit' && config.actions?.archive) {
-        actions.push({
-            key: 'archive',
-            label: 'Archive',
-            icon: <Archive size={16} />,
-            color: 'orange',
-            mode: 'edit',
-            helper: 'Archive this record',
-            onClick: () => handlers.handleArchive()
-        })
-    }
-    
-    if (mode === 'edit' && config.actions?.delete) {
-        actions.push({
-            key: 'delete',
-            label: 'Delete',
-            icon: <Trash2 size={16} />,
-            color: 'red',
-            mode: 'edit',
-            confirm: 'Delete this record? This action cannot be undone.',
-            helper: 'Permanently remove this record',
-            onClick: () => handlers.handleDelete()
-        })
-    }
-    
-    return actions
-}
 
 // Generic field types for the FormView
 export interface FormField {
@@ -620,129 +512,6 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             showToast('error', 'Error', `An error occurred while saving ${config.entityName.toLowerCase()}`)
         } finally {
             setSaving(false)
-        }
-    }
-
-    const handlePrint = () => {
-        const printContent = `
-      ${config.entityName} Details:
-      ================
-      ${config.fields.map(field => `${field.label}: ${data[field.key] || 'N/A'}`).join('\n')}
-      `
-        window.print()
-    }
-
-    const handleExport = () => {
-        const dataStr = JSON.stringify(data, null, 2)
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
-        const exportFileDefaultName = `${(data.name || config.entityName).replace(/\s+/g, '_')}_data.json`
-        const linkElement = document.createElement('a')
-        linkElement.setAttribute('href', dataUri)
-        linkElement.setAttribute('download', exportFileDefaultName)
-        linkElement.click()
-    }
-
-    const handleDuplicate = () => {
-        const duplicatedData = {
-            ...data,
-            id: undefined,
-            name: `${data.name || config.entityName} (Copy)`
-        }
-        // Navigate to create new entity with duplicated data
-        router.push(`${config.breadcrumbs.create}?duplicate=${encodeURIComponent(JSON.stringify(duplicatedData))}`)
-    }
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(JSON.stringify(data, null, 2))
-        showToast('success', `${config.entityName} Copied`, `${config.entityName} data copied to clipboard`)
-    }
-
-    const performDelete = async (id: string | number) => {
-        try {
-            const response = await fetch(`${config.apiEndpoint}/${id}`, {
-                method: 'DELETE'
-            })
-            if (response.ok) {
-                showToast('success', `${config.entityName} Deleted`, `${config.entityName} has been successfully deleted`)
-                if (resolvedRecordIds && resolvedRecordIds.length > 1) {
-                    const idx = resolvedRecordIds.indexOf(id as never)
-                    const nextIdx = idx < resolvedRecordIds.length - 1 ? idx + 1 : idx - 1
-                    if (nextIdx >= 0 && nextIdx < resolvedRecordIds.length) {
-                        const next = resolvedRecordIds[nextIdx]
-                        if (onNavigate) {
-                            onNavigate(next)
-                        } else {
-                            router.push(`${config.breadcrumbs.edit}/${next}/edit`)
-                        }
-                        return
-                    }
-                }
-                if (onNavigate) {
-                    onNavigate('')
-                } else {
-                    router.push(config.breadcrumbs.list)
-                }
-            } else {
-                showToast('error', 'Error', `Failed to delete ${config.entityName.toLowerCase()}`)
-            }
-        } catch (error) {
-            showToast('error', 'Error', `An error occurred while deleting ${config.entityName.toLowerCase()}`)
-        }
-    }
-
-    const handleDelete = () => {
-        if (!entityId) return
-        performDelete(entityId)
-    }
-
-    const performArchive = async (id: string | number, willArchive: boolean) => {
-        const newActive = !willArchive
-        console.log('[FormView] performArchive start:', { id, willArchive, newActive, activeField: data.active })
-        try {
-            const response = await fetch(`${config.apiEndpoint}/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active: newActive })
-            })
-            console.log('[FormView] performArchive PUT response:', { ok: response.ok, status: response.status })
-            if (response.ok) {
-                showToast('success', willArchive ? 'Archived' : 'Unarchived', `${config.entityName} has been successfully ${willArchive ? 'archived' : 'unarchived'}`)
-                setData(prev => {
-                    console.log('[FormView] performArchive setData toggle:', { prevActive: prev.active, newActive })
-                    return { ...prev, active: newActive }
-                })
-                setOriginalData(prev => {
-                    const base = prev || {} as MutableEntity
-                    console.log('[FormView] performArchive setOriginalData toggle:', { prevActive: base.active, newActive })
-                    return { ...base, active: newActive }
-                })
-                setHasChanges(false)
-                console.log('[FormView] performArchive complete — hasChanges reset to false')
-                onRefresh?.()
-            } else {
-                const err = await response.text()
-                console.error('[FormView] performArchive PUT failed:', err)
-                showToast('error', 'Error', `Failed to ${willArchive ? 'archive' : 'unarchive'} ${config.entityName.toLowerCase()}`)
-            }
-        } catch (error) {
-            console.error('[FormView] performArchive error:', error)
-            showToast('error', 'Error', `An error occurred while ${willArchive ? 'archiving' : 'unarchiving'} ${config.entityName.toLowerCase()}`)
-        }
-    }
-
-    const handleArchive = () => {
-        if (!entityId) return
-        const willArchive = data.active !== false
-        if (hasChanges) {
-            setPendingUnsavedAction({
-                onDiscard: async () => {
-                    setShowUnsavedWarning(false)
-                    await performArchive(entityId, willArchive)
-                }
-            })
-            setShowUnsavedWarning(true)
-        } else {
-            performArchive(entityId, willArchive)
         }
     }
 

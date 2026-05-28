@@ -110,7 +110,7 @@ export function Export({
     };
 
     return (
-        <Modal open={true} onClose={onClose} size="md" backdrop="static">
+        <Modal open={true} onClose={onClose} size="md" backdrop="static" draggable>
             <Modal.Header>
                 <div className="flex items-center gap-2">
                     <Download className="w-5 h-5"/>

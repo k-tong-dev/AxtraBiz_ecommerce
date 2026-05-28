@@ -604,7 +604,7 @@ export function AssetManager() {
         </Modal.Footer>
       </Modal>
 
-      <Modal open={showDeleteFolder} onClose={() => setShowDeleteFolder(false)} size="xs" backdrop={"static"}>
+      <Modal open={showDeleteFolder} onClose={() => setShowDeleteFolder(false)} size="xs" backdrop={"static"} draggable>
         <Modal.Header><Modal.Title>Delete Folder</Modal.Title></Modal.Header>
         <Modal.Body>
           <p className="text-sm text-muted-foreground">
@@ -617,7 +617,7 @@ export function AssetManager() {
         </Modal.Footer>
       </Modal>
 
-      <Modal open={showDeleteFiles} onClose={() => setShowDeleteFiles(false)} size="xs" backdrop={"static"}>
+      <Modal open={showDeleteFiles} onClose={() => setShowDeleteFiles(false)} size="xs" backdrop={"static"} draggable>
         <Modal.Header><Modal.Title>Delete Files</Modal.Title></Modal.Header>
         <Modal.Body>
           <p className="text-sm text-muted-foreground">
@@ -632,7 +632,7 @@ export function AssetManager() {
 
       {/* Detail Modal */}
       {detailFile && (
-        <Modal open={!!detailFile} onClose={() => setDetailFile(null)} size="md" backdrop={"static"}>
+        <Modal open={!!detailFile} onClose={() => setDetailFile(null)} size="md" backdrop={"static"} draggable>
           <Modal.Header><Modal.Title>{detailFile.name}</Modal.Title></Modal.Header>
           <Modal.Body>
             <div className="flex flex-col md:flex-row gap-6">

@@ -114,7 +114,7 @@ export function AssetPickerModal({ open, onClose, onSelect, maxFiles }: AssetPic
   }
 
   return (
-    <Modal open={open} onClose={onClose} size="lg" backdrop={"static"}>
+    <Modal open={open} onClose={onClose} size="lg" backdrop={"static"} draggable>
       <Modal.Header>
         <Modal.Title>
           <span className="text-base font-semibold tracking-tight">Select Asset</span>

@@ -131,6 +131,7 @@ export function PrintView({open, data, mode, title = 'Print', template: Template
                 full
                 backdrop="static"
                 size="full"
+                draggable
             >
                 <Modal.Header>
                     <div className="flex items-center justify-between w-full pr-5">

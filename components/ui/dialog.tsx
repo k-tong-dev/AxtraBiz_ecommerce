@@ -12,7 +12,7 @@ const Dialog = ({ open, onOpenChange, children, ...props }: {
   [key: string]: any
 }) => {
   return (
-    <Modal open={open} onClose={() => onOpenChange?.(false)} {...props}>
+    <Modal open={open} onClose={() => onOpenChange?.(false)} {...props} draggable>
       {children}
     </Modal>
   )

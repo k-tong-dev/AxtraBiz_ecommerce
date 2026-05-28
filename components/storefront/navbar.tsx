@@ -87,7 +87,7 @@ export function Navbar() {
                     <LogOut className="w-4 h-4" />
                     Logout
                   </button>
-                  <Modal open={logoutModalOpen} backdrop={"static"} onClose={() => setLogoutModalOpen(false)}>
+                  <Modal open={logoutModalOpen} backdrop={"static"} onClose={() => setLogoutModalOpen(false)} draggable>
                     <ModalHeader>
                       <ModalTitle>Sign Out</ModalTitle>
                     </ModalHeader>

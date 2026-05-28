@@ -50,7 +50,7 @@ export function Wizard({
   }
 
   return (
-    <Modal open={open} onClose={onClose} size={size} backdrop={backdrop} className={cn(className)}>
+    <Modal open={open} onClose={onClose} size={size} backdrop={backdrop} className={cn(className)} draggable>
       {title && (
         <Modal.Header>
           <Modal.Title className="text-base">
