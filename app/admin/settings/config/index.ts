@@ -4,8 +4,8 @@ export { settingListConfig, type SettingListConfig } from './listView'
 
 import { settingFormConfig } from './formView'
 import { settingListConfig } from './listView'
-import { ServerActionConfig } from '../../../../components/Base/Actions'
-import { Settings, Copy } from 'lucide-react'
+import { ServerActionConfig } from '@/components/Base/Actions'
+import { Copy } from 'lucide-react'
 import { createElement } from 'react'
 
 // Centralized setting config - Odoo-like architecture

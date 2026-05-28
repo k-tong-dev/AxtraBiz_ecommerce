@@ -4,7 +4,7 @@ export { invoiceListConfig, type InvoiceListConfig } from './listView'
 
 import { invoiceFormConfig } from './formView'
 import { invoiceListConfig } from './listView'
-import { ServerActionConfig } from '../../../../components/Base/Actions'
+import { ServerActionConfig } from '@/components/Base/Actions'
 import { FileText, Download, Printer } from 'lucide-react'
 import { createElement } from 'react'
 

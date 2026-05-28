@@ -4,7 +4,7 @@ export { announcementListConfig, type AnnouncementListConfig } from './listView'
 
 import { announcementFormConfig } from './formView'
 import { announcementListConfig } from './listView'
-import { ServerActionConfig } from '../../../../components/Base/Actions'
+import { ServerActionConfig } from '@/components/Base/Actions'
 import { Megaphone, Copy } from 'lucide-react'
 import { createElement } from 'react'
 

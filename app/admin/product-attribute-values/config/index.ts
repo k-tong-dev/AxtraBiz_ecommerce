@@ -4,10 +4,7 @@ export { getProductAttributeValueListConfig, type ProductAttributeValueListConfi
 
 import { productAttributeValueFormConfig } from './formView'
 import { getProductAttributeValueListConfig } from './listView'
-import { ServerActionConfig } from '../../../../components/Base/Actions'
-import { getDefaultServerActions } from '../../../../components/Base/Actions'
-import { Copy } from 'lucide-react'
-import { createElement } from 'react'
+import { ServerActionConfig } from '@/components/Base/Actions'
 
 // Centralized product attribute value config - Odoo-like architecture
 export const productAttributeValueConfig = {

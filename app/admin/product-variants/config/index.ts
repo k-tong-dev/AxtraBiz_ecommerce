@@ -4,8 +4,8 @@ export { productVariantListConfig, type ProductVariantListConfig } from './listV
 
 import { productVariantFormConfig } from './formView'
 import { productVariantListConfig } from './listView'
-import { ServerActionConfig } from '../../../../components/Base/Actions'
-import { Layers, Copy } from 'lucide-react'
+import { ServerActionConfig } from '@/components/Base/Actions'
+import { Copy } from 'lucide-react'
 import { createElement } from 'react'
 
 // Centralized product variant config - Odoo-like architecture

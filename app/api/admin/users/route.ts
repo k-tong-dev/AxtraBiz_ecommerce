@@ -3,8 +3,7 @@ import {
   fetchUsersFromDrizzle,
   upsertUserInDrizzle,
   deleteUserFromDrizzle
-} from '../../../../lib/drizzle/users'
-import type { User } from '../../../../lib/drizzle/server'
+} from '@/lib/drizzle/users'
 
 export async function GET() {
   try {

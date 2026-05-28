@@ -4,8 +4,8 @@ import {
   fetchProductAttributeValuesFromDrizzle,
   upsertProductAttributeValueInDrizzle,
   deleteProductAttributeValueFromDrizzle,
-} from '../../../../lib/drizzle/product-attributes'
-import type { ProductAttributeValue } from '../../../../lib/drizzle/server'
+} from '@/lib/drizzle/product-attributes'
+import type { ProductAttributeValue } from '@/drizzle/schema'
 
 export async function GET(request: Request) {
   try {

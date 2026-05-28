@@ -3,8 +3,7 @@ import {
   fetchAnnouncementsFromDrizzle,
   upsertAnnouncementInDrizzle,
   deleteAnnouncementFromDrizzle
-} from '../../../../lib/drizzle/announcements'
-import type { Announcement } from '../../../../lib/drizzle/server'
+} from '@/lib/drizzle/announcements'
 
 export async function GET() {
   try {

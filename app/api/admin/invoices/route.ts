@@ -3,8 +3,7 @@ import {
   fetchInvoicesFromDrizzle,
   upsertInvoiceInDrizzle,
   deleteInvoiceFromDrizzle
-} from '../../../../lib/drizzle/invoices'
-import type { Invoice } from '../../../../lib/drizzle/server'
+} from '@/lib/drizzle/invoices'
 
 export async function GET() {
   try {

@@ -3,8 +3,7 @@ import {
   fetchConfigurationsFromDrizzle,
   upsertConfigurationInDrizzle,
   deleteConfigurationFromDrizzle
-} from '../../../../lib/drizzle/configurations'
-import type { Configuration } from '../../../../lib/drizzle/server'
+} from '@/lib/drizzle/configurations'
 
 export async function GET() {
   try {

@@ -4,7 +4,7 @@ export { customerListConfig, type CustomerListConfig } from './listView'
 
 import { customerFormConfig } from './formView'
 import { customerListConfig } from './listView'
-import { ServerActionConfig } from '../../../../components/Base/Actions'
+import { ServerActionConfig } from '@/components/Base/Actions'
 import { User, Copy, Mail } from 'lucide-react'
 import { createElement } from 'react'
 
