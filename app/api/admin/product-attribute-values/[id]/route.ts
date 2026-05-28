@@ -4,7 +4,8 @@ import {
   fetchProductAttributeValueFromDrizzle,
   upsertProductAttributeValueInDrizzle,
   deleteProductAttributeValueFromDrizzle,
-} from '../../../../../lib/drizzle/product-attributes'
+  productAttributeValueService,
+} from '@/lib/drizzle/product-attributes'
 
 function processScalarFields(body: Record<string, unknown>, id: string) {
   const processedBody: Record<string, unknown> = { id }
@@ -60,12 +61,9 @@ export async function PUT(
       processedBody.attribute_id = body.attribute_id
     }
 
-    // Merge with existing record so partial updates (e.g. archive: { active: false })
-    // don't cause INSERT with null required fields
-    const existing = await fetchProductAttributeValueFromDrizzle(id)
-    const fullData = { ...existing, ...processedBody }
-
-    const result = await upsertProductAttributeValueInDrizzle(fullData as any, userId)
+    // Direct update — handles partial updates like archive: { active: false }
+    // without needing to fetch+merge existing record
+    const result = await productAttributeValueService.write(id, processedBody as any, userId)
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })
