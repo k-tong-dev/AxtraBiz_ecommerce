@@ -16,9 +16,9 @@ export async function fetchInvoiceFromDrizzle(invoiceId: string): Promise<Invoic
   return invoiceService.read(invoiceId)
 }
 
-export async function upsertInvoiceInDrizzle(invoice: Invoice, userId?: string): Promise<{ success: boolean; error?: string }> {
+export async function upsertInvoiceInDrizzle(invoice: Invoice, userId?: string): Promise<{ success: boolean; data?: any; error?: string }> {
   const result = await invoiceService.upsert(invoice, userId)
-  return { success: result.success, error: result.error }
+  return { success: result.success, data: result.data, error: result.error }
 }
 
 export async function deleteInvoiceFromDrizzle(invoiceId: string): Promise<boolean> {

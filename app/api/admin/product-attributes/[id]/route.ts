@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import {
   fetchProductAttributeWithValueIdsFromDrizzle,
-  upsertProductAttributeInDrizzle,
+  productAttributeService,
   deleteProductAttributeFromDrizzle,
   updateProductAttributeValueRelationsForAttribute,
 } from '@/lib/drizzle/product-attributes'
@@ -197,13 +197,11 @@ export async function PUT(
 
     console.log('[PUT] Processed body:', processedBody)
 
-    // Pass userId to base CRUD for automatic tracking
-    const result = await upsertProductAttributeInDrizzle(processedBody, userId)
+    const result = await productAttributeService.write(id, processedBody, userId)
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 })
     }
 
-    // Update value relations for this attribute
     if (valueIds !== undefined) {
       const relResult = await updateProductAttributeValueRelationsForAttribute(id, valueIds, userId)
       if (!relResult.success) {

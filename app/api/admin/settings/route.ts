@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     const result = await upsertSettingInDrizzle(body)
     
     if (result.success) {
-      return NextResponse.json({ success: true, data: body })
+      return NextResponse.json({ success: true, data: result.data })
     } else {
       return NextResponse.json({ 
         success: false, 

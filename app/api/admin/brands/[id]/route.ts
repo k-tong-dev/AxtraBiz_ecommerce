@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import {
   fetchBrandFromDrizzle,
-  upsertBrandInDrizzle,
+  brandService,
   deleteBrandFromDrizzle
 } from '@/lib/drizzle/brands'
-import type { Brand } from '@/lib/drizzle/server'
+import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(
   _request: Request,
@@ -29,15 +29,19 @@ export async function PUT(
   try {
     const { id } = await params
     const body = await request.json()
-    const brandData: any = { ...body, id } as any
-    if (!brandData.slug) brandData.slug = brandData.name?.toLowerCase().replace(/\s+/g, '-')
-    if (typeof brandData.image_id === 'string') {
-      try { brandData.image_id = JSON.parse(brandData.image_id) } catch {}
+    const userId = await getCurrentUserId()
+
+    const processedData: any = { ...body, id }
+    if (!processedData.slug) processedData.slug = processedData.name?.toLowerCase().replace(/\s+/g, '-')
+    if (typeof processedData.image_id === 'string') {
+      try { processedData.image_id = JSON.parse(processedData.image_id) } catch {}
     }
-    const result = await upsertBrandInDrizzle(brandData)
+
+    const result = await brandService.write(id, processedData, userId)
 
     if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
+      const updated = await fetchBrandFromDrizzle(id)
+      return NextResponse.json({ success: true, data: updated })
     } else {
       return NextResponse.json({
         success: false,

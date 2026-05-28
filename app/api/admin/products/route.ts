@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       if (!result.success) {
         return NextResponse.json({ error: result.error, index: results.length }, { status: 400 })
       }
-      results.push(processed)
+      results.push(result.data ?? processed)
     }
 
     return NextResponse.json(

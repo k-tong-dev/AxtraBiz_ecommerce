@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import {
   fetchCategoryFromDrizzle,
-  upsertCategoryInDrizzle,
+  categoryService,
   deleteCategoryFromDrizzle
 } from '@/lib/drizzle/categories'
-import type { ProductCategory } from '@/drizzle/schema'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(
@@ -29,14 +28,15 @@ export async function PUT(
 ) {
   try {
     const userId = await getCurrentUserId()
-
     const { id } = await params
     const body = await request.json()
-    const categoryData: ProductCategory = { ...body, id }
-    const result = await upsertCategoryInDrizzle(categoryData, userId)
+    const processedData: any = { ...body, id }
+
+    const result = await categoryService.write(id, processedData, userId)
 
     if (result.success) {
-      return NextResponse.json({ success: true, data: categoryData })
+      const updated = await fetchCategoryFromDrizzle(id)
+      return NextResponse.json({ success: true, data: updated })
     } else {
       return NextResponse.json({
         success: false,

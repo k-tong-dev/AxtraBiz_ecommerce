@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
   fetchProductFromDrizzle,
-  upsertProductInDrizzle,
+  productService,
   deleteProductFromDrizzle
 } from '@/lib/drizzle/products'
 import { eq } from 'drizzle-orm'
@@ -186,40 +186,31 @@ export async function PUT(
 
     // Dynamic field processing - automatically handle all fields
     const updateData: any = {
-      id: productId  // Always include the ID from URL params
+      id: productId
     }
     
-    // Process each field in the body dynamically
     for (const [key, value] of Object.entries(body)) {
-      // Skip internal fields and id (already set from URL params)
       if (key === 'id') continue
       
-      // Process field value
       let processedValue: any
-      // Handle date fields
       if (key.includes('date') || key.includes('published_at') || key.includes('created_at')) {
         processedValue = formatDate(value)
       }
-      // Handle numeric fields
       else if (['price', 'compare_price', 'cost_price', 'weight', 'rating'].includes(key)) {
         processedValue = typeof value === 'string' || typeof value === 'number' ? parseFloat(String(value)) : 0
       }
       else if (['stock', 'reviews', 'low_stock_threshold'].includes(key)) {
         processedValue = typeof value === 'string' || typeof value === 'number' ? parseInt(String(value)) : 0
       }
-      // Handle boolean fields
       else if (['active', 'track_inventory', 'allow_backorders'].includes(key)) {
         processedValue = value !== undefined ? (value === 'true' || value === true) : true
       }
-      // Handle array/json fields
       else if (['tags', 'features', 'image_ids'].includes(key)) {
         processedValue = Array.isArray(value) ? value : (typeof value === 'string' ? value.split(',').map((t: string) => t.trim()) : [])
       }
-      // Handle text fields with defaults
       else if (['barcode', 'slug', 'description', 'name'].includes(key)) {
         processedValue = value || ''
       }
-      // Handle other fields (FKs, status, type, etc.)
       else {
         processedValue = value !== undefined && value !== null ? value : null
       }
@@ -227,7 +218,7 @@ export async function PUT(
       updateData[key] = processedValue
     }
     
-    const result = await upsertProductInDrizzle(updateData)
+    const result = await productService.write(productId, updateData)
 
     if (result.success) {
       // Handle variant generation for variable products
