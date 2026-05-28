@@ -1,42 +1,15 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import type { ProductCategory } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { categoryConfig } from '../../config'
-import type { ProductCategory } from '@/lib/drizzle/server'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function EditCategoryPage() {
-  const router = useRouter()
   const params = useParams()
-  const categoryId = params.id as string
-  const fetchedRef = useRef(false)
-
-  const [loading, setLoading] = useState(true)
-  const [category, setCategory] = useState<ProductCategory | null>(null)
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-
-    const load = async () => {
-      try {
-        const response = await fetch(`/api/admin/categories/${categoryId}`)
-        if (response.ok) {
-          const data = await response.json()
-          setCategory(data)
-        } else {
-          router.push('/admin/categories')
-        }
-      } catch {
-        router.push('/admin/categories')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (categoryId) load()
-  }, [categoryId, router])
+  const id = params.id as string
+  const { data: category, loading } = useResource<ProductCategory>(`/api/admin/categories/${id}`)
 
   return (
     <ResourceView
@@ -48,7 +21,7 @@ export default function EditCategoryPage() {
         enableDefaultActions: true,
         defaultActions: categoryConfig.defaultActions,
       }}
-      entityId={categoryId}
+      entityId={id}
       initialData={category}
     />
   )

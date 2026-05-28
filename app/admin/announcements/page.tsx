@@ -1,74 +1,35 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Announcement } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/Base/Views'
 import { announcementConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function AdminAnnouncementsPage() {
   const router = useRouter()
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: announcements, loading, refresh } = useResource<Announcement[]>('/api/admin/announcements')
 
-  const fetchedRef = useRef(false)
+  const openCreate = () => router.push('/admin/announcements/new')
 
-  const loadAnnouncements = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/announcements')
-      const allAnnouncements = await response.json()
-      setAnnouncements(allAnnouncements)
-      setLoading(false)
-      if (allAnnouncements.length === 0) {
-        showToast(
-          'info',
-          'No announcements found',
-          'Your announcements table is empty. Create your first announcement.',
-        )
-      }
-    } catch (error) {
-      console.error('Error fetching announcements:', error)
-      showToast('error', 'Error', 'Failed to load announcements')
-      setLoading(false)
-    }
-  }, [])
-
-  const refresh = useCallback(() => {
-    fetchedRef.current = false
-    loadAnnouncements()
-  }, [loadAnnouncements])
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    loadAnnouncements()
-  }, [loadAnnouncements])
-
-  const openCreate = () => {
-    router.push('/admin/announcements/new')
-  }
-
-  const openEdit = (a: Announcement) => {
-    router.push(`/admin/announcements/${a.id}/edit`)
-  }
+  const openEdit = (a: Announcement) => router.push(`/admin/announcements/${a.id}/edit`)
 
   const remove = async (id: string) => {
     const ok = window.confirm('Delete this announcement?')
     if (!ok) return
 
     try {
-      setAnnouncements((prev) => prev.filter((a) => String(a.id) !== id))
       const response = await fetch(`/api/admin/announcements?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
+        refresh()
         showToast('success', 'Announcement deleted', 'The announcement was removed successfully.')
       } else {
-        showToast('error', 'Delete failed', 'The announcement was removed from the UI, but delete did not succeed.')
+        showToast('error', 'Delete failed', 'Failed to delete announcement.')
       }
     } catch (error) {
-      showToast('error', 'Delete failed', 'The announcement was removed from the UI, but delete did not succeed.')
+      showToast('error', 'Delete failed', 'An error occurred while deleting.')
       console.error('Delete error:', error)
     }
   }
@@ -77,7 +38,7 @@ export default function AdminAnnouncementsPage() {
     openEdit(rowData)
   }
 
-  const config = announcementConfig.listViewConfig(announcements)
+  const config = announcementConfig.listViewConfig(announcements ?? [])
 
   return (
     <ResourceView

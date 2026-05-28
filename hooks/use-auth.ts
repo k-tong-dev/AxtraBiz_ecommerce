@@ -5,62 +5,60 @@ import type { User } from '@/lib/types'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/client'
 
+function mapUser(authUser: { id: string; email?: string | null; user_metadata?: Record<string, unknown>; created_at?: string | null }): User {
+  return {
+    id: authUser.id,
+    email: authUser.email ?? '',
+    name:
+      (authUser.user_metadata?.full_name as string | undefined) ??
+      (authUser.user_metadata?.name as string | undefined) ??
+      authUser.email?.split('@')[0] ??
+      'User',
+    role: 'customer',
+    createdAt: authUser.created_at ?? new Date().toISOString(),
+  }
+}
+
+let sharedUser: User | null = null
+let sharedLoading = true
+let sharedInitialized = false
+const sharedListeners = new Set<() => void>()
+
+function notifyListeners() {
+  for (const fn of sharedListeners) fn()
+}
+
+function initSharedAuth() {
+  if (sharedInitialized) return
+  sharedInitialized = true
+
+  const supabase = createClient()
+
+  supabase.auth.getUser().then(({ data }) => {
+    sharedUser = data.user ? mapUser(data.user) : null
+    sharedLoading = false
+    notifyListeners()
+  })
+
+  supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
+    sharedUser = session?.user ? mapUser(session.user) : null
+    sharedLoading = false
+    notifyListeners()
+  })
+}
+
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [, forceRender] = useState(0)
 
   useEffect(() => {
-    const supabase = createClient()
-
-    let mounted = true
-
-    ;(async () => {
-      const { data } = await supabase.auth.getUser()
-      if (!mounted) return
-      const authUser = data.user
-      if (authUser) {
-        setUser({
-          id: authUser.id,
-          email: authUser.email ?? '',
-          name:
-            (authUser.user_metadata?.full_name as string | undefined) ??
-            (authUser.user_metadata?.name as string | undefined) ??
-            authUser.email?.split('@')[0] ??
-            'User',
-          role: 'customer',
-          createdAt: authUser.created_at ?? new Date().toISOString(),
-        })
-      } else {
-        setUser(null)
-      }
-      setIsLoading(false)
-    })()
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      const authUser = session?.user
-      if (authUser) {
-        setUser({
-          id: authUser.id,
-          email: authUser.email ?? '',
-          name:
-            (authUser.user_metadata?.full_name as string | undefined) ??
-            (authUser.user_metadata?.name as string | undefined) ??
-            authUser.email?.split('@')[0] ??
-            'User',
-          role: 'customer',
-          createdAt: authUser.created_at ?? new Date().toISOString(),
-        })
-      } else {
-        setUser(null)
-      }
-      setIsLoading(false)
-    })
-
+    initSharedAuth()
+    const listener = () => forceRender(n => n + 1)
+    sharedListeners.add(listener)
+    if (sharedInitialized && !sharedLoading) {
+      forceRender(n => n + 1)
+    }
     return () => {
-      mounted = false
-      subscription.unsubscribe()
+      sharedListeners.delete(listener)
     }
   }, [])
 
@@ -73,7 +71,6 @@ export function useAuth() {
   const logout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    setUser(null)
   }
 
   const signup = async (name: string, email: string, password: string) => {
@@ -87,8 +84,7 @@ export function useAuth() {
       },
     })
     if (error) return null
-    
-    // Return user info for successful signup (even if confirmation required)
+
     if (data.user) {
       return {
         id: data.user.id,
@@ -99,7 +95,7 @@ export function useAuth() {
         needsVerification: !data.user.email_confirmed_at,
       }
     }
-    
+
     return null
   }
 
@@ -129,10 +125,10 @@ export function useAuth() {
   }
 
   return {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin',
+    user: sharedUser,
+    isLoading: sharedLoading,
+    isAuthenticated: !!sharedUser,
+    isAdmin: sharedUser?.role === 'admin',
     login,
     logout,
     signup,

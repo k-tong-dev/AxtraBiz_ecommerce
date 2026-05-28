@@ -1,40 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import type { Order } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { orderConfig } from '../../config'
-import type { Order } from '@/lib/drizzle/server'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function EditOrderPage() {
-    const router = useRouter()
     const params = useParams()
-    const orderId = params.id as string
-
-    const [loading, setLoading] = useState(true)
-    const [order, setOrder] = useState<Order | null>(null)
-
-    useEffect(() => {
-        const loadOrder = async () => {
-            try {
-                const response = await fetch(`/api/admin/orders?id=${orderId}`)
-                if (response.ok) {
-                    const data = await response.json()
-                    setOrder(data)
-                } else {
-                    router.push('/admin/orders')
-                }
-            } catch (error) {
-                router.push('/admin/orders')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (orderId) {
-            loadOrder()
-        }
-    }, [orderId, router])
+    const id = params.id as string
+    const { data: order, loading } = useResource<Order>(`/api/admin/orders?id=${id}`)
 
     return (
         <ResourceView
@@ -47,7 +22,7 @@ export default function EditOrderPage() {
                 defaultActions: orderConfig.defaultActions,
                 serverActions: orderConfig.customServerActions,
             }}
-            entityId={orderId}
+            entityId={id}
             initialData={order}
         />
     )

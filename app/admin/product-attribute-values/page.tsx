@@ -1,74 +1,35 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductAttributeValue } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/Base/Views'
 import { productAttributeValueConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function AdminProductAttributeValuesPage() {
   const router = useRouter()
-  const [values, setValues] = useState<ProductAttributeValue[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: values, loading, refresh } = useResource<ProductAttributeValue[]>('/api/admin/product-attribute-values')
 
-  const fetchedRef = useRef(false)
+  const openCreate = () => router.push('/admin/product-attribute-values/new')
 
-  const loadValues = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/product-attribute-values')
-      const data = await response.json()
-      setValues(data)
-      setLoading(false)
-      if (data.length === 0) {
-        showToast(
-          'info',
-          'No values found',
-          'Your product attribute values table is empty. Create your first value.',
-        )
-      }
-    } catch (error) {
-      console.error('Error fetching values:', error)
-      showToast('error', 'Error', 'Failed to load attribute values')
-      setLoading(false)
-    }
-  }, [])
-
-  const refresh = useCallback(() => {
-    fetchedRef.current = false
-    loadValues()
-  }, [loadValues])
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    loadValues()
-  }, [loadValues])
-
-  const openCreate = () => {
-    router.push('/admin/product-attribute-values/new')
-  }
-
-  const openEdit = (val: ProductAttributeValue) => {
-    router.push(`/admin/product-attribute-values/${val.id}/edit`)
-  }
+  const openEdit = (val: ProductAttributeValue) => router.push(`/admin/product-attribute-values/${val.id}/edit`)
 
   const remove = async (id: string) => {
     const ok = window.confirm('Delete this attribute value?')
     if (!ok) return
 
     try {
-      setValues((prev) => prev.filter((v) => String(v.id) !== id))
       const response = await fetch(`/api/admin/product-attribute-values/${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
+        refresh()
         showToast('success', 'Value deleted', 'The attribute value was removed successfully.')
       } else {
-        showToast('error', 'Delete failed', 'The value was removed from the UI, but delete did not succeed.')
+        showToast('error', 'Delete failed', 'Failed to delete attribute value.')
       }
     } catch (error) {
-      showToast('error', 'Delete failed', 'The value was removed from the UI, but delete did not succeed.')
+      showToast('error', 'Delete failed', 'An error occurred while deleting.')
       console.error('Delete error:', error)
     }
   }
@@ -77,7 +38,7 @@ export default function AdminProductAttributeValuesPage() {
     openEdit(rowData)
   }
 
-  const config = productAttributeValueConfig.listViewConfig(values)
+  const config = productAttributeValueConfig.listViewConfig(values ?? [])
 
   return (
     <ResourceView

@@ -1,40 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import type { ProductVariant } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { productVariantConfig } from '../../config'
-import type { ProductVariant } from '@/lib/drizzle/server'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function EditProductVariantPage() {
-    const router = useRouter()
     const params = useParams()
-    const variantId = params.id as string
-
-    const [loading, setLoading] = useState(true)
-    const [variant, setVariant] = useState<ProductVariant | null>(null)
-
-    useEffect(() => {
-        const loadVariant = async () => {
-            try {
-                const response = await fetch(`/api/admin/product-variants/${variantId}`)
-                if (response.ok) {
-                    const data = await response.json()
-                    setVariant(data)
-                } else {
-                    router.push('/admin/product-variants')
-                }
-            } catch (error) {
-                router.push('/admin/product-variants')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (variantId) {
-            loadVariant()
-        }
-    }, [variantId, router])
+    const id = params.id as string
+    const { data: variant, loading } = useResource<ProductVariant>(`/api/admin/product-variants/${id}`)
 
     return (
         <ResourceView
@@ -47,7 +22,7 @@ export default function EditProductVariantPage() {
                 defaultActions: productVariantConfig.defaultActions,
                 serverActions: productVariantConfig.customServerActions,
             }}
-            entityId={variantId}
+            entityId={id}
             initialData={variant}
         />
     )

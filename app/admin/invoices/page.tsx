@@ -1,74 +1,35 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Invoice } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/Base/Views'
 import { invoiceConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function AdminInvoicesPage() {
   const router = useRouter()
-  const [invoices, setInvoices] = useState<Invoice[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: invoices, loading, refresh } = useResource<Invoice[]>('/api/admin/invoices')
 
-  const fetchedRef = useRef(false)
+  const openCreate = () => router.push('/admin/invoices/new')
 
-  const loadInvoices = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/invoices')
-      const allInvoices = await response.json()
-      setInvoices(allInvoices)
-      setLoading(false)
-      if (allInvoices.length === 0) {
-        showToast(
-          'info',
-          'No invoices found',
-          'Your invoices table is empty. Create your first invoice.',
-        )
-      }
-    } catch (error) {
-      console.error('Error fetching invoices:', error)
-      showToast('error', 'Error', 'Failed to load invoices')
-      setLoading(false)
-    }
-  }, [])
-
-  const refresh = useCallback(() => {
-    fetchedRef.current = false
-    loadInvoices()
-  }, [loadInvoices])
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    loadInvoices()
-  }, [loadInvoices])
-
-  const openCreate = () => {
-    router.push('/admin/invoices/new')
-  }
-
-  const openEdit = (inv: Invoice) => {
-    router.push(`/admin/invoices/${inv.id}/edit`)
-  }
+  const openEdit = (inv: Invoice) => router.push(`/admin/invoices/${inv.id}/edit`)
 
   const remove = async (id: string) => {
     const ok = window.confirm('Delete this invoice?')
     if (!ok) return
 
     try {
-      setInvoices((prev) => prev.filter((inv) => String(inv.id) !== id))
       const response = await fetch(`/api/admin/invoices?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
+        refresh()
         showToast('success', 'Invoice deleted', 'The invoice was removed successfully.')
       } else {
-        showToast('error', 'Delete failed', 'The invoice was removed from the UI, but delete did not succeed.')
+        showToast('error', 'Delete failed', 'Failed to delete invoice.')
       }
     } catch (error) {
-      showToast('error', 'Delete failed', 'The invoice was removed from the UI, but delete did not succeed.')
+      showToast('error', 'Delete failed', 'An error occurred while deleting.')
       console.error('Delete error:', error)
     }
   }
@@ -77,7 +38,7 @@ export default function AdminInvoicesPage() {
     openEdit(rowData)
   }
 
-  const config = invoiceConfig.listViewConfig(invoices)
+  const config = invoiceConfig.listViewConfig(invoices ?? [])
 
   return (
     <ResourceView

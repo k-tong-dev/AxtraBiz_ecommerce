@@ -1,44 +1,15 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import type { ProductAttribute } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { productAttributeConfig } from '../../config'
-import type { ProductAttribute } from '@/lib/drizzle/server'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function EditProductAttributePage() {
-    const router = useRouter()
     const params = useParams()
-    const attributeId = params.id as string
-    const fetchedRef = useRef(false)
-
-    const [loading, setLoading] = useState(true)
-    const [attribute, setAttribute] = useState<ProductAttribute | null>(null)
-
-    useEffect(() => {
-        if (fetchedRef.current) return
-        fetchedRef.current = true
-
-        const loadAttribute = async () => {
-            try {
-                const response = await fetch(`/api/admin/product-attributes/${attributeId}`)
-                if (response.ok) {
-                    const data = await response.json()
-                    setAttribute(data)
-                } else {
-                    router.push('/admin/product-attributes')
-                }
-            } catch (error) {
-                router.push('/admin/product-attributes')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (attributeId) {
-            loadAttribute()
-        }
-    }, [attributeId, router])
+    const id = params.id as string
+    const { data: attribute, loading } = useResource<ProductAttribute>(`/api/admin/product-attributes/${id}`)
 
     return (
         <ResourceView
@@ -51,7 +22,7 @@ export default function EditProductAttributePage() {
                 defaultActions: productAttributeConfig.defaultActions,
                 serverActions: productAttributeConfig.customServerActions,
             }}
-            entityId={attributeId}
+            entityId={id}
             initialData={attribute}
         />
     )

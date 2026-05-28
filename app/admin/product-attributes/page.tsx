@@ -1,84 +1,44 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductAttribute } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/Base/Views'
 import { productAttributeConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function AdminProductAttributesPage() {
   const router = useRouter()
-  const [attributes, setAttributes] = useState<ProductAttribute[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: attributes, loading, refresh } = useResource<ProductAttribute[]>('/api/admin/product-attributes')
 
-  const fetchedRef = useRef(false)
+  const openCreate = () => router.push('/admin/product-attributes/new')
 
-  const loadAttributes = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/product-attributes')
-      const data = await response.json()
-      setAttributes(data)
-      setLoading(false)
-      if (data.length === 0) {
-        showToast(
-          'info',
-          'No attributes found',
-          'Your product attributes table is empty. Create your first attribute.',
-        )
-      }
-    } catch (error) {
-      console.error('Error fetching attributes:', error)
-      showToast('error', 'Error', 'Failed to load product attributes')
-      setLoading(false)
-    }
-  }, [])
-
-  const refresh = useCallback(() => {
-    fetchedRef.current = false
-    loadAttributes()
-  }, [loadAttributes])
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    loadAttributes()
-  }, [loadAttributes])
-
-  const openCreate = () => {
-    router.push('/admin/product-attributes/new')
-  }
-
-  const openEdit = (attr: ProductAttribute) => {
-    router.push(`/admin/product-attributes/${attr.id}/edit`)
-  }
+  const openEdit = (attr: ProductAttribute) => router.push(`/admin/product-attributes/${attr.id}/edit`)
 
   const remove = async (id: string) => {
     const ok = window.confirm('Delete this attribute?')
     if (!ok) return
 
     try {
-      setAttributes((prev) => prev.filter((a) => String(a.id) !== id))
       const response = await fetch(`/api/admin/product-attributes/${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
+        refresh()
         showToast('success', 'Attribute deleted', 'The attribute was removed successfully.')
       } else {
-        showToast('error', 'Delete failed', 'The attribute was removed from the UI, but delete did not succeed.')
+        showToast('error', 'Delete failed', 'Failed to delete attribute.')
       }
     } catch (error) {
-      showToast('error', 'Delete failed', 'The attribute was removed from the UI, but delete did not succeed.')
+      showToast('error', 'Delete failed', 'An error occurred while deleting.')
       console.error('Delete error:', error)
     }
   }
 
   const handleRowClick = (rowData: ProductAttribute) => {
-    console.log('ProductAttributes handleRowClick:', rowData, 'ID:', rowData?.id)
     openEdit(rowData)
   }
 
-  const config = productAttributeConfig.listViewConfig(attributes)
+  const config = productAttributeConfig.listViewConfig(attributes ?? [])
 
   return (
     <ResourceView

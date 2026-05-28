@@ -1,74 +1,35 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { User } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/Base/Views'
 import { customerConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function AdminCustomersPage() {
   const router = useRouter()
-  const [customers, setCustomers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: customers, loading, refresh } = useResource<User[]>('/api/admin/users')
 
-  const fetchedRef = useRef(false)
+  const openCreate = () => router.push('/admin/customers/new')
 
-  const loadCustomers = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/users')
-      const allCustomers = await response.json()
-      setCustomers(allCustomers)
-      setLoading(false)
-      if (allCustomers.length === 0) {
-        showToast(
-          'info',
-          'No customers found',
-          'Your customers table is empty. Create your first customer.',
-        )
-      }
-    } catch (error) {
-      console.error('Error fetching customers:', error)
-      showToast('error', 'Error', 'Failed to load customers')
-      setLoading(false)
-    }
-  }, [])
-
-  const refresh = useCallback(() => {
-    fetchedRef.current = false
-    loadCustomers()
-  }, [loadCustomers])
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    loadCustomers()
-  }, [loadCustomers])
-
-  const openCreate = () => {
-    router.push('/admin/customers/new')
-  }
-
-  const openEdit = (u: User) => {
-    router.push(`/admin/customers/${u.id}/edit`)
-  }
+  const openEdit = (u: User) => router.push(`/admin/customers/${u.id}/edit`)
 
   const remove = async (id: string) => {
     const ok = window.confirm('Delete this customer?')
     if (!ok) return
 
     try {
-      setCustomers((prev) => prev.filter((u) => String(u.id) !== id))
       const response = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
+        refresh()
         showToast('success', 'Customer deleted', 'The customer was removed successfully.')
       } else {
-        showToast('error', 'Delete failed', 'The customer was removed from the UI, but delete did not succeed.')
+        showToast('error', 'Delete failed', 'Failed to delete customer.')
       }
     } catch (error) {
-      showToast('error', 'Delete failed', 'The customer was removed from the UI, but delete did not succeed.')
+      showToast('error', 'Delete failed', 'An error occurred while deleting.')
       console.error('Delete error:', error)
     }
   }
@@ -77,7 +38,7 @@ export default function AdminCustomersPage() {
     openEdit(rowData)
   }
 
-  const config = customerConfig.listViewConfig(customers)
+  const config = customerConfig.listViewConfig(customers ?? [])
 
   return (
     <ResourceView

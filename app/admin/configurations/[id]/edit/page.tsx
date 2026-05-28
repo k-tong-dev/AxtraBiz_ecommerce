@@ -1,40 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import type { Configuration } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { configurationConfig } from '../../config'
-import type { Configuration } from '@/lib/drizzle/server'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function EditConfigurationPage() {
-    const router = useRouter()
     const params = useParams()
-    const configurationId = params.id as string
-
-    const [loading, setLoading] = useState(true)
-    const [configuration, setConfiguration] = useState<Configuration | null>(null)
-
-    useEffect(() => {
-        const loadConfiguration = async () => {
-            try {
-                const response = await fetch(`/api/admin/configurations?id=${configurationId}`)
-                if (response.ok) {
-                    const data = await response.json()
-                    setConfiguration(data)
-                } else {
-                    router.push('/admin/configurations')
-                }
-            } catch (error) {
-                router.push('/admin/configurations')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (configurationId) {
-            loadConfiguration()
-        }
-    }, [configurationId, router])
+    const id = params.id as string
+    const { data: configuration, loading } = useResource<Configuration>(`/api/admin/configurations?id=${id}`)
 
     return (
         <ResourceView
@@ -47,7 +22,7 @@ export default function EditConfigurationPage() {
                 defaultActions: configurationConfig.defaultActions,
                 serverActions: configurationConfig.customServerActions,
             }}
-            entityId={configurationId}
+            entityId={id}
             initialData={configuration}
         />
     )

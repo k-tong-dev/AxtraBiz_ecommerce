@@ -1,45 +1,15 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Brand } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/Base/Views'
 import { brandConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function AdminBrandsPage() {
   const router = useRouter()
-  const [brands, setBrands] = useState<Brand[]>([])
-  const [loading, setLoading] = useState(true)
-  const fetchedRef = useRef(false)
-
-  const loadBrands = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/brands')
-      const all = await response.json()
-      setBrands(all)
-      setLoading(false)
-      if (all.length === 0) {
-        showToast('info', 'No brands found', 'Your brands table is empty. Create your first brand.')
-      }
-    } catch (error) {
-      console.error('Error fetching brands:', error)
-      showToast('error', 'Error', 'Failed to load brands')
-      setLoading(false)
-    }
-  }, [])
-
-  const refresh = useCallback(() => {
-    fetchedRef.current = false
-    loadBrands()
-  }, [loadBrands])
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    loadBrands()
-  }, [loadBrands])
+  const { data: brands, loading, refresh } = useResource<Brand[]>('/api/admin/brands')
 
   const openCreate = () => router.push('/admin/brands/new')
 
@@ -50,23 +20,23 @@ export default function AdminBrandsPage() {
     if (!ok) return
 
     try {
-      setBrands((prev) => prev.filter((b) => String(b.id) !== id))
       const response = await fetch(`/api/admin/brands?id=${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
+        refresh()
         showToast('success', 'Brand deleted', 'The brand was removed successfully.')
       } else {
-        showToast('error', 'Delete failed', 'The brand was removed from the UI, but delete did not succeed.')
+        showToast('error', 'Delete failed', 'Failed to delete brand.')
       }
     } catch (error) {
-      showToast('error', 'Delete failed', 'The brand was removed from the UI, but delete did not succeed.')
+      showToast('error', 'Delete failed', 'An error occurred while deleting.')
       console.error('Delete error:', error)
     }
   }
 
   const handleRowClick = (rowData: Brand) => openEdit(rowData)
 
-  const config = brandConfig.listViewConfig(brands)
+  const config = brandConfig.listViewConfig(brands ?? [])
 
   return (
     <ResourceView

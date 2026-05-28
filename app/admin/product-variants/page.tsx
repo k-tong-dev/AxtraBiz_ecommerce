@@ -1,74 +1,35 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card } from '@/components/ui/card'
 import type { ProductVariant } from '@/lib/drizzle/server'
 import { showToast } from '@/lib/ui/toast'
 import { ResourceView } from '@/components/Base/Views'
 import { productVariantConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function AdminProductVariantsPage() {
   const router = useRouter()
-  const [variants, setVariants] = useState<ProductVariant[]>([])
-  const [loading, setLoading] = useState(true)
-  const fetchedRef = useRef(false)
+  const { data: variants, loading, refresh } = useResource<ProductVariant[]>('/api/admin/product-variants')
 
-  const loadVariants = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/admin/product-variants')
-      const allVariants = await response.json()
-      setVariants(allVariants)
-      setLoading(false)
-      if (allVariants.length === 0) {
-        showToast(
-          'info',
-          'No variants found',
-          'Your product variants table is empty. Create your first variant.',
-        )
-      }
-    } catch (error) {
-      console.error('Error fetching variants:', error)
-      showToast('error', 'Error', 'Failed to load product variants')
-      setLoading(false)
-    }
-  }, [])
+  const openCreate = () => router.push('/admin/product-variants/new')
 
-  const refresh = useCallback(() => {
-    fetchedRef.current = false
-    loadVariants()
-  }, [loadVariants])
-
-  useEffect(() => {
-    if (fetchedRef.current) return
-    fetchedRef.current = true
-    loadVariants()
-  }, [loadVariants])
-
-  const openCreate = () => {
-    router.push('/admin/product-variants/new')
-  }
-
-  const openEdit = (v: ProductVariant) => {
-    router.push(`/admin/product-variants/${v.id}/edit`)
-  }
+  const openEdit = (v: ProductVariant) => router.push(`/admin/product-variants/${v.id}/edit`)
 
   const remove = async (id: string) => {
     const ok = window.confirm('Delete this product variant?')
     if (!ok) return
 
     try {
-      setVariants((prev) => prev.filter((v) => String(v.id) !== id))
       const response = await fetch(`/api/admin/product-variants/${id}`, { method: 'DELETE' })
       const result = await response.json()
       if (result.success) {
+        refresh()
         showToast('success', 'Variant deleted', 'The product variant was removed successfully.')
       } else {
-        showToast('error', 'Delete failed', 'The variant was removed from the UI, but delete did not succeed.')
+        showToast('error', 'Delete failed', 'Failed to delete variant.')
       }
     } catch (error) {
-      showToast('error', 'Delete failed', 'The variant was removed from the UI, but delete did not succeed.')
+      showToast('error', 'Delete failed', 'An error occurred while deleting.')
       console.error('Delete error:', error)
     }
   }
@@ -77,7 +38,7 @@ export default function AdminProductVariantsPage() {
     openEdit(rowData)
   }
 
-  const config = productVariantConfig.listViewConfig(variants)
+  const config = productVariantConfig.listViewConfig(variants ?? [])
 
   return (
     <ResourceView

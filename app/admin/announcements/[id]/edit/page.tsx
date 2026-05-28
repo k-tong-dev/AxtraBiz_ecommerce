@@ -1,40 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import type { Announcement } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { announcementConfig } from '../../config'
-import type { Announcement } from '@/lib/drizzle/server'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function EditAnnouncementPage() {
-    const router = useRouter()
     const params = useParams()
-    const announcementId = params.id as string
-
-    const [loading, setLoading] = useState(true)
-    const [announcement, setAnnouncement] = useState<Announcement | null>(null)
-
-    useEffect(() => {
-        const loadAnnouncement = async () => {
-            try {
-                const response = await fetch(`/api/admin/announcements?id=${announcementId}`)
-                if (response.ok) {
-                    const data = await response.json()
-                    setAnnouncement(data)
-                } else {
-                    router.push('/admin/announcements')
-                }
-            } catch (error) {
-                router.push('/admin/announcements')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (announcementId) {
-            loadAnnouncement()
-        }
-    }, [announcementId, router])
+    const id = params.id as string
+    const { data: announcement, loading } = useResource<Announcement>(`/api/admin/announcements?id=${id}`)
 
     return (
         <ResourceView
@@ -47,7 +22,7 @@ export default function EditAnnouncementPage() {
                 defaultActions: announcementConfig.defaultActions,
                 serverActions: announcementConfig.customServerActions,
             }}
-            entityId={announcementId}
+            entityId={id}
             initialData={announcement}
         />
     )

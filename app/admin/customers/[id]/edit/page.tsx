@@ -1,40 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import type { User } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { customerConfig } from '../../config'
-import type { User } from '@/lib/drizzle/server'
+import { useResource } from '@/lib/hooks/useResource'
 
 export default function EditCustomerPage() {
-    const router = useRouter()
     const params = useParams()
-    const customerId = params.id as string
-
-    const [loading, setLoading] = useState(true)
-    const [customer, setCustomer] = useState<User | null>(null)
-
-    useEffect(() => {
-        const loadCustomer = async () => {
-            try {
-                const response = await fetch(`/api/admin/users?id=${customerId}`)
-                if (response.ok) {
-                    const data = await response.json()
-                    setCustomer(data)
-                } else {
-                    router.push('/admin/customers')
-                }
-            } catch (error) {
-                router.push('/admin/customers')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        if (customerId) {
-            loadCustomer()
-        }
-    }, [customerId, router])
+    const id = params.id as string
+    const { data: customer, loading } = useResource<User>(`/api/admin/users?id=${id}`)
 
     return (
         <ResourceView
@@ -47,7 +22,7 @@ export default function EditCustomerPage() {
                 defaultActions: customerConfig.defaultActions,
                 serverActions: customerConfig.customServerActions,
             }}
-            entityId={customerId}
+            entityId={id}
             initialData={customer}
         />
     )
