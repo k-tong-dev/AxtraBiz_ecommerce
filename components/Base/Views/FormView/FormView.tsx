@@ -591,7 +591,12 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
             if (result.success) {
                 if (mode === 'create') {
                     showToast('success', `${config.entityName} Created`, `${config.entityName} has been successfully created`)
-                    router.push(config.breadcrumbs.list)
+                    const newId = result.data?.id
+                    if (newId) {
+                        router.push(`${config.breadcrumbs.edit}/${newId}/edit`)
+                    } else {
+                        router.push(config.breadcrumbs.list)
+                    }
                 } else {
                     showToast('success', `${config.entityName} Updated`, `${config.entityName} has been successfully updated`)
                     const serverData = result.data || data
