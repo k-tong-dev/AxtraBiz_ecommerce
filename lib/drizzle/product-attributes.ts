@@ -54,16 +54,11 @@ export async function fetchProductAttributeWithValueIdsFromDrizzle(attributeId: 
   const values = await productAttributeValueService.search(
     eq(product_attribute_values.attribute_id, Number(attributeId))
   )
-
   return {
     ...attribute,
     value_ids: values.map(v => ({
-      id: v.id,
-      attribute_id: v.attribute_id,
+      ...v,
       position: v.position ?? 0,
-      name: v.name,
-      value: v.value,
-      active: v.active,
     })),
   }
 }
@@ -82,8 +77,7 @@ export interface ProductAttributeValueWithRelations extends ProductAttributeValu
 }
 
 export async function fetchProductAttributeValueFromDrizzle(valueId: string | number): Promise<ProductAttributeValueWithRelations | null> {
-  const value = await productAttributeValueService.read(valueId)
-  return value
+  return await productAttributeValueService.read(valueId)
 }
 
 export async function upsertProductAttributeValueInDrizzle(
