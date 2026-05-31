@@ -47,6 +47,7 @@ export function ProductCard({ card, onCardClick, onCardEdit, onCardDelete, showD
               src={imageUrl}
               alt={card.data.name || 'Product'}
               fill
+              loading="eager"
               className="object-cover rounded"
               sizes="80px"
             />
