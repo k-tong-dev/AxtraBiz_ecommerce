@@ -47,7 +47,7 @@ export default function AdminProductsPage() {
   return (
     <ResourceView
       config={{
-        type: 'list',
+        type: 'kanban',
         title: 'Products',
         description: 'Create, edit, and manage your product catalog.',
         listViewConfig: config,

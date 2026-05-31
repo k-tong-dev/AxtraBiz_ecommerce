@@ -313,7 +313,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }
 
     return (
-        <Card className="mx-auto max-w-7xl border-border/50 gap-0">
+        <Card className="mx-auto max-w-7xl border-border/50 gap-0 rounded-none min-h-screen">
             {config.title && (
                 <div className="px-6 pt-1">
                     <h1 className="text-2xl font-bold">{config.title}</h1>

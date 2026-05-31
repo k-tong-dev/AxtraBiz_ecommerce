@@ -1,6 +1,5 @@
 import { db, product_template } from './server'
 import { createCrudService } from './base-crud'
-import { eq } from 'drizzle-orm'
 import type { ProductTemplate } from './server'
 
 export const productService = createCrudService<ProductTemplate, any, any>(
@@ -8,7 +7,7 @@ export const productService = createCrudService<ProductTemplate, any, any>(
 )
 
 export async function fetchProductsFromDrizzle(): Promise<ProductTemplate[]> {
-  return productService.search(eq(product_template.active, true))
+  return productService.search()
 }
 
 export async function fetchProductFromDrizzle(productId: string): Promise<ProductTemplate | null> {

@@ -3,6 +3,10 @@ import type { ProductAttribute } from '@/lib/drizzle/server'
 
 export const getProductAttributeListConfig = (data: any[] = []): ListViewConfig => ({
   title: 'Product Attributes',
+  defaultVisibleColumns: [
+      'name',
+      'type',
+  ],
   columns: [
     {
       key: 'name',
@@ -26,7 +30,7 @@ export const getProductAttributeListConfig = (data: any[] = []): ListViewConfig 
       key: 'created_at',
       title: 'Created At',
       width: 180,
-      sortable: true
+      sortable: true,
     },
     {
       key: 'updated_at',
