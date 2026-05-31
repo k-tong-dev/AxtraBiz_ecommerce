@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useMemo, useRef} from 'react'
 import {Button} from '@/components/ui/button'
-import {Card} from '@/components/ui/card'
 import {Switch} from '@/components/ui/switch'
 import {
     Table,
