@@ -41,10 +41,12 @@ export {
   shipping_methods,
   pages,
   menus,
+  currencies,
 } from '../../drizzle/schema'
 
 export type {
   User,
+  Currency,
   ProductTemplate,
   Order,
   Invoice,
