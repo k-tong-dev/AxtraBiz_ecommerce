@@ -15,6 +15,13 @@
       "when": 1779734537961,
       "tag": "0001_fix_users_id_type",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779734537962,
+      "tag": "0002_rename_sku_to_base_sku",
+      "breakpoints": true
     }
   ]
 }
