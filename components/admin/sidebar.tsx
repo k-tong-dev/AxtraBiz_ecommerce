@@ -132,8 +132,8 @@ export function AdminSidebar() {
                 <SidebarGroupLabel label="Commerce" />
                 <Nav.Menu eventKey="projects" title="Catalog" icon={<Package className="h-3.5 w-3.5 text-primary/70" />}>
                   <Nav.Item eventKey="/admin/inventory" icon={<Warehouse className="h-3.5 w-3.5 text-primary/50" />}>Inventory</Nav.Item>
-                  <Nav.Item eventKey="/admin/tax-rates" icon={<Percent className="h-3.5 w-3.5 text-primary/50" />}>Taxes</Nav.Item>
-                  <Nav.Item eventKey="/admin/shipping-zones" icon={<Truck className="h-3.5 w-3.5 text-primary/50" />}>Shipping Zones</Nav.Item>
+                  <Nav.Item eventKey="/admin/taxes" icon={<Percent className="h-3.5 w-3.5 text-primary/50" />}>Taxes</Nav.Item>
+                  <Nav.Item eventKey="/admin/shipping" icon={<Truck className="h-3.5 w-3.5 text-primary/50" />}>Shipping</Nav.Item>
                 </Nav.Menu>
                 <Nav.Menu eventKey="sales" title="Sales" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-600/70" />}>
                   <Nav.Item eventKey="/admin/orders" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-500/50" />}>Orders</Nav.Item>

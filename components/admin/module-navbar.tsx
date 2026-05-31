@@ -62,7 +62,7 @@ const sectionModules: SectionModules = {
       { label: 'Reports', href: '/admin?tab=reports', icon: LineChart },
     ],
   },
-  catalog: {
+  inventory: {
     entries: [
       { label: 'Dashboard', href: '/admin/inventory', icon: LayoutDashboard },
       {
@@ -83,7 +83,17 @@ const sectionModules: SectionModules = {
           { label: 'Attribute Values', href: '/admin/product-attribute-values', icon: SlidersHorizontal },
         ],
       },
+    ],
+  },
+  taxes: {
+    entries: [
+      { label: 'Dashboard', href: '/admin/taxes', icon: LayoutDashboard },
       { label: 'Tax Rates', href: '/admin/tax-rates', icon: Percent },
+    ],
+  },
+  shipping: {
+    entries: [
+      { label: 'Dashboard', href: '/admin/shipping', icon: LayoutDashboard },
       { label: 'Shipping Zones', href: '/admin/shipping-zones', icon: Globe },
       { label: 'Shipping Methods', href: '/admin/shipping-methods', icon: Truck },
     ],
@@ -128,7 +138,9 @@ const sectionModules: SectionModules = {
 
 function detectSection(pathname: string): string {
   if (pathname === '/admin' || pathname.startsWith('/admin?tab=')) return 'dashboard'
-  if (pathname.startsWith('/admin/inventory') || pathname.startsWith('/admin/products') || pathname.startsWith('/admin/product-variants') || pathname.startsWith('/admin/product-attributes') || pathname.startsWith('/admin/product-attribute-values') || pathname.startsWith('/admin/brands') || pathname.startsWith('/admin/categories') || pathname.startsWith('/admin/tax-rates') || pathname.startsWith('/admin/shipping-zones') || pathname.startsWith('/admin/shipping-methods')) return 'catalog'
+  if (pathname.startsWith('/admin/inventory') || pathname.startsWith('/admin/products') || pathname.startsWith('/admin/product-variants') || pathname.startsWith('/admin/product-attributes') || pathname.startsWith('/admin/product-attribute-values') || pathname.startsWith('/admin/brands') || pathname.startsWith('/admin/categories')) return 'inventory'
+  if (pathname.startsWith('/admin/taxes') || pathname.startsWith('/admin/tax-rates')) return 'taxes'
+  if (pathname.startsWith('/admin/shipping') || pathname.startsWith('/admin/shipping-zones') || pathname.startsWith('/admin/shipping-methods')) return 'shipping'
   if (pathname.startsWith('/admin/orders') || pathname.startsWith('/admin/order-lines') || pathname.startsWith('/admin/invoices') || pathname.startsWith('/admin/payment-transactions')) return 'sales'
   if (pathname.startsWith('/admin/customers') || pathname.startsWith('/admin/addresses') || pathname.startsWith('/admin/wishlist-items') || pathname.startsWith('/admin/cart-items') || pathname.startsWith('/admin/payment-methods')) return 'customers'
   if (pathname.startsWith('/admin/announcements') || pathname.startsWith('/admin/coupons') || pathname.startsWith('/admin/product-reviews')) return 'marketing'
@@ -139,7 +151,9 @@ function detectSection(pathname: string): string {
 
 const sectionLabels: Record<string, string> = {
   dashboard: 'Dashboard',
-  catalog: 'Catalog',
+  inventory: 'Catalog',
+  taxes: 'Taxes',
+  shipping: 'Shipping',
   sales: 'Sales',
   customers: 'Customers',
   marketing: 'Marketing',
