@@ -22,6 +22,6 @@ export const getProductKanbanConfig = (data: any[] = []): KanbanViewConfig => ({
   renderCard: (card) => createElement(ProductCard, { card }),
   cardWidth: 300,
   columnWidth: 350,
-  draggable: false,
+  draggable: true,
   showCardCount: true,
 })

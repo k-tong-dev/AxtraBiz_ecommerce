@@ -27,10 +27,22 @@ export {
   product_variants,
   product_categories,
   product_brand,
-
+  tax_rates,
+  shipping_zones,
+  shipping_zone_product,
+  addresses,
+  payment_methods,
+  order_lines,
+  payment_transactions,
+  coupons,
+  product_reviews,
+  wishlist_items,
+  cart_items,
+  shipping_methods,
+  pages,
+  menus,
 } from '../../drizzle/schema'
 
-// Export types
 export type {
   User,
   ProductTemplate,
@@ -44,5 +56,18 @@ export type {
   ProductVariant,
   ProductCategory,
   Brand,
-
+  TaxRate,
+  ShippingZone,
+  ShippingZoneProduct,
+  Address,
+  PaymentMethod,
+  OrderLine,
+  PaymentTransaction,
+  Coupon,
+  ProductReview,
+  WishlistItem,
+  CartItem,
+  ShippingMethod,
+  Page,
+  Menu,
 } from '../../drizzle/schema'
