@@ -31,7 +31,7 @@ export function ProductCard({ card, onCardClick, onCardEdit, onCardDelete, showD
   }
 
   return (
-    <Card className="p-3 hover:shadow-md transition-shadow cursor-pointer" onClick={handleCardClick}>
+    <Card className="p-3 hover:shadow-md transition-shadow cursor-pointer rounded-sm" onClick={handleCardClick}>
       <div className="flex gap-2">
         {/* Drag Handle - only show when in Kanban context */}
         {showDragHandle && (
