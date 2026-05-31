@@ -40,6 +40,17 @@ export const users = pgTable('users', {
   ...auditColumns,
 });
 
+// Currencies reference table
+export const currencies = pgTable('currencies', {
+  code: text('code').primaryKey(), // ISO 4217 (USD, EUR, GBP, etc.)
+  name: text('name').notNull(),
+  symbol: text('symbol').notNull(),
+  decimal_places: integer('decimal_places').notNull().default(2),
+  exchange_rate: numeric('exchange_rate', { precision: 14, scale: 6 }).notNull().default('1'),
+  active: boolean('active').default(true).notNull(),
+  ...auditColumns,
+});
+
 // Product template table
 export const product_template = pgTable('product_template', {
   id: serial('id').primaryKey(),
@@ -50,6 +61,7 @@ export const product_template = pgTable('product_template', {
   compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
   cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
   original_price: numeric('original_price', { precision: 12, scale: 2 }),
+  currency_code: text('currency_code').notNull().default('USD').references(() => currencies.code, { onDelete: 'set null' }),
   image_id: jsonb('image_id'),
   image_ids: jsonb('image_ids').notNull().default('[]'),
   base_sku: text('base_sku').default(''),
@@ -400,6 +412,7 @@ export const menus = pgTable('menus', {
 
 // Type exports
 export type User = typeof users.$inferSelect;
+export type Currency = typeof currencies.$inferSelect;
 export type ProductTemplate = typeof product_template.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;

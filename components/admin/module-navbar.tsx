@@ -82,6 +82,9 @@ const sectionModules: SectionModules = {
           { label: 'Attribute Values', href: '/admin/product-attribute-values', icon: SlidersHorizontal },
         ],
       },
+      { label: 'Tax Rates', href: '/admin/tax-rates', icon: Percent },
+      { label: 'Shipping Zones', href: '/admin/shipping-zones', icon: Globe },
+      { label: 'Shipping Methods', href: '/admin/shipping-methods', icon: Truck },
     ],
   },
   sales: {

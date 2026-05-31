@@ -15,6 +15,7 @@ export const db = drizzle(client, {schema})
 // Export all tables for easy access
 export {
     users,
+    currencies,
     product_template,
     orders,
     invoices,
@@ -45,6 +46,7 @@ export {
 
 export type {
     User,
+    Currency,
     ProductTemplate,
     Order,
     Invoice,
