@@ -1,6 +1,6 @@
 # ResourceView Component
 
-A unified parent component that manages ListView, KanbanView, FormView, and GanttView for seamless navigation between different view types.
+A unified parent component that manages ListView, KanbanView, FormView, GanttView, and CustomView for seamless navigation between different view types and rendering modes.
 
 ## ServerActions Component
 
@@ -505,23 +505,69 @@ ResourceView provides a loading state for form view when editing and data is not
       - If not provided: No confirmation dialog will be shown
     - `helper`: Optional helper text that appears on hover (Whisper tooltip with bottom placement)
 
-### Configuration
-ListView configuration is defined in `app/admin/[entity]/config/listView.ts`:
+### CustomView
+
+CustomView allows rendering arbitrary React components with access to the ResourceView context (search, filter, loading, refresh). Useful for dashboards, reports, or any view that doesn't fit List/Kanban/Gantt/Form.
+
+### Usage
+
+1. Set `type: 'custom'` in the ResourceView config.
+2. Provide a `customView` component that receives `CustomViewProps`.
+3. The view switcher and search/filter bars are hidden in custom mode.
+
 ```typescript
-export const listViewConfig: ListViewConfig = {
-  columns: [
-    {
-      key: 'price',
-      title: 'Price',
-      width: 100,
-      sortable: true,
-      filterable: true,
-      type: 'number',
-      summary: true,
-      summaryType: 'sum',
-      render: (value: any) => `$${parseFloat(value).toFixed(2)}`
-    }
-  ],
-  pageSize: 20
+// In your page config
+import { CustomDashboard } from './CustomDashboard'
+
+export const config: ResourceViewConfig = {
+  type: 'custom',
+  title: 'Dashboard',
+  customView: CustomDashboard,
 }
 ```
+
+```typescript
+// CustomDashboard.tsx
+import { CustomViewProps } from '@/components/Base/Views/types'
+
+export function CustomDashboard({ loading, onRefresh }: CustomViewProps) {
+  return <div>{/* your custom content */}</div>
+}
+```
+
+### CustomViewProps
+| Prop | Type | Description |
+|------|------|-------------|
+| `searchValues` | `any[]` | Current search values from ResourceView search bar |
+| `filterValues` | `any[]` | Current filter values from ResourceView filter bar |
+| `loading` | `boolean` | Loading state from parent |
+| `onRefresh` | `() => void` | Triggers parent data re-fetch |
+
+## View Switcher
+
+The view switcher is a segmented control with an animated sliding pill indicator showing available views (List, Kanban, Gantt). It renders in the ResourceView header when the current view is not `form` or `custom`.
+
+- Uses CSS `transition-all duration-200` for the pill indicator animation
+- Positions the pill via `useEffect` measuring button ref offsets
+- Only shows view types that have their config provided (e.g., if `kanbanViewConfig` is missing, the Kanban button is hidden)
+
+## ModuleNavBar
+
+The `ModuleNavBar` is a sticky horizontal navigation strip rendered below `AdminTopNavbar` in the admin layout. It provides context-sensitive navigation based on the current sidebar section.
+
+### Context Sections
+| Section | Detection | Modules Shown |
+|---------|-----------|---------------|
+| Dashboard | `/admin` or `/admin?tab=` | Overview, Revenue, Analytics, Reports |
+| Catalog | `/admin/inventory`, `/admin/products*`, `/admin/tax-rates`, etc. | Dashboard, Products (dropdown), Configuration (dropdown) |
+| Sales | `/admin/orders*`, `/admin/invoices*` | Orders, Order Lines, Invoices, Payment Trans. |
+| Customers | `/admin/customers*`, `/admin/addresses*` | Customers, Addresses, Wishlist, Cart Items, etc. |
+| Marketing | `/admin/announcements*`, `/admin/coupons*` | Announcements, Coupons, Reviews |
+| Content | `/admin/pages*`, `/admin/menus*` | Pages, Menus |
+| System | `/admin/settings*`, `/admin/configurations*` | Settings, Config. |
+
+### Dropdown Groups
+Some sections render dropdown groups (e.g., Catalog > Products and Configuration) using `@/components/ui/dropdown-menu` (Radix UI). These use portals to escape parent overflow clipping and support keyboard navigation.
+
+### Location
+`components/admin/module-navbar.tsx` — imported in `app/admin/layout.tsx`.

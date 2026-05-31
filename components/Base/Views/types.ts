@@ -6,7 +6,16 @@ import { GanttViewConfig } from './GanttView'
 import { FormConfig } from './FormView'
 import { ServerActionConfig } from '../Actions'
 
-export type ResourceType = 'list' | 'kanban' | 'gantt' | 'form'
+export type ResourceType = 'list' | 'kanban' | 'gantt' | 'form' | 'custom'
+
+export interface CustomViewProps {
+  searchValues?: any[]
+  filterValues?: any[]
+  loading?: boolean
+  onRefresh?: () => void
+}
+
+export type CustomViewComponent = React.ComponentType<CustomViewProps>
 
 export interface ResourceViewConfig {
   type: ResourceType
@@ -14,6 +23,7 @@ export interface ResourceViewConfig {
   kanbanViewConfig?: KanbanViewConfig
   ganttViewConfig?: GanttViewConfig
   formViewConfig?: FormConfig
+  customView?: CustomViewComponent
   serverActions?: ServerActionConfig[]  // Centralized ServerActions
   title?: string  // Page title
   description?: string  // Page description

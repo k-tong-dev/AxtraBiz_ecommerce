@@ -19,15 +19,14 @@ import {
   ShoppingCart,
   Users,
   TrendingUp,
-  Calendar,
   ArrowUpRight,
+  Calendar,
   Package,
   ReceiptText,
   Megaphone,
   Settings,
   SlidersHorizontal,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { StatCard } from '@/components/admin/stat-card'
 import { AdminModuleCard } from '@/components/admin/module-card'
 import type { Order, Product, User } from '@/lib/types'
@@ -175,38 +174,30 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex-1 min-h-screen bg-gradient-to-b from-background via-background to-background/50">
-      {/* Header Section */}
-      <div className="sticky top-0 z-40 border-b border-border/50 bg-gradient-to-b from-background/95 to-background/80 backdrop-blur-xl">
-        <div className="flex h-16 items-center justify-between px-8">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Dashboard
-            </h1>
-            <p className="text-sm text-foreground/50 mt-1">
-              {loading ? 'Loading your latest business data...' : 'Live business metrics from Supabase.'}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-card/50 border border-border/50 rounded-lg p-1">
-              {['7d', '30d', '90d'].map((range) => (
-                <Button
-                  key={range}
-                  appearance={dateRange === range ? 'default' : 'primary'}
-                  size="sm"
-                  onClick={() => setDateRange(range)}
-                  className="text-xs"
-                >
-                  {range === '7d' ? 'Last 7 days' : range === '30d' ? 'Last 30 days' : 'Last 90 days'}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="p-8 space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {loading ? 'Loading...' : 'Live business metrics from Supabase.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 bg-card/50 border border-border/50 rounded-lg p-1">
+            {['7d', '30d', '90d'].map((range) => (
+              <button
+                key={range}
+                onClick={() => setDateRange(range)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  dateRange === range ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {range === '7d' ? '7d' : range === '30d' ? '30d' : '90d'}
+              </button>
+            ))}
+          </div>
+        </div>
         {/* Management Shortcuts */}
         <div className="space-y-4">
           <div>

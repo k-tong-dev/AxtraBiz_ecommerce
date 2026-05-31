@@ -1,0 +1,39 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
+import type { ProductReview } from '@/lib/drizzle/server'
+import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
+import { ResourceView } from '@/components/Base/Views'
+import { productReviewConfig } from './config'
+import { useResource } from '@/lib/hooks/useResource'
+
+export default function AdminProductReviewsPage() {
+  const router = useRouter()
+  const { data: reviews, loading, refresh } = useResource<ProductReview[]>('/api/admin/product-reviews')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/product-reviews', entityName: 'product review', refresh, useQueryParam: true })
+
+  const openCreate = () => router.push('/admin/product-reviews/new')
+  const openEdit = (row: ProductReview) => router.push(`/admin/product-reviews/${row.id}/edit`)
+  const handleRowClick = (rowData: ProductReview) => openEdit(rowData)
+
+  const config = productReviewConfig.listViewConfig(reviews ?? [])
+
+  return (
+    <>{deleteModal}<ResourceView
+      config={{
+        type: 'list',
+        title: 'Product Reviews',
+        description: 'Manage customer product reviews.',
+        listViewConfig: config,
+        formViewConfig: productReviewConfig.formViewConfig,
+        enableDefaultActions: true,
+        defaultActions: productReviewConfig.defaultActions,
+      }}
+      onEdit={handleRowClick}
+      onDelete={(rowData) => confirmDelete(rowData.id)}
+      onCreate={openCreate}
+      loading={loading}
+      onRefresh={refresh}
+    /></>
+  )
+}

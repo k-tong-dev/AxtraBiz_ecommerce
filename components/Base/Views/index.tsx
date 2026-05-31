@@ -10,7 +10,7 @@ import {Button} from '@/components/ui/button'
 import {Card} from '@/components/ui/card'
 import {Loader} from 'rsuite'
 
-import { List, Grid3x3, Calendar, Info } from 'lucide-react'
+import { List, Grid3x3, Calendar, Info, Bookmark } from 'lucide-react'
 import {ResourceViewProps, ResourceType} from './types'
 import {MdAdd} from "react-icons/md";
 import {Search as SearchComponent, SearchValue} from '../Search'
@@ -18,6 +18,11 @@ import {Filter, FilterValue} from '../Filter'
 import {GroupBy} from '../GroupBy'
 import {ServerActions} from '../Actions'
 import {Tooltip, TooltipTrigger, TooltipContent} from '@/components/ui/tooltip'
+import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from '@/components/ui/dropdown-menu'
+import { useViewPresets } from '@/lib/hooks/useViewPresets'
+import { useAuth } from '@/hooks/use-auth'
+import { Modal } from '@/components/ui/modal'
+import { Input, InputGroup } from 'rsuite'
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData, recordIds, onNavigate, onRefresh}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
@@ -33,6 +38,10 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     const [currentFilteredData, setCurrentFilteredData] = useState<any[]>([])
     const [showPrintModal, setShowPrintModal] = useState(false)
     const [printConfig, setPrintConfig] = useState<{data: any[]; mode: 'single' | 'bulk'; title: string; template?: React.ComponentType<any>} | null>(null)
+    const { user } = useAuth()
+    const { presets, savePreset, deletePreset, loadPreset } = useViewPresets(String(user?.id ?? 'anonymous'), typeof window !== 'undefined' ? window.location.pathname : '')
+    const [showSavePreset, setShowSavePreset] = useState(false)
+    const [presetName, setPresetName] = useState('')
 
     // Set editingId after mount to avoid hydration mismatch
     useEffect(() => {
@@ -196,6 +205,20 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     />
                 )
 
+            case 'custom':
+                if (!config.customView) {
+                    return <div className="text-center py-8 text-muted-foreground">CustomView config not provided</div>
+                }
+                const CustomView = config.customView
+                return (
+                    <CustomView
+                        searchValues={searchValues}
+                        filterValues={filterValues}
+                        loading={loading}
+                        onRefresh={onRefresh}
+                    />
+                )
+
             default:
                 return <div className="text-center py-8 text-muted-foreground">Unknown view type</div>
         }
@@ -225,7 +248,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }, [viewType, viewButtons])
 
     const renderHeader = () => {
-        if (viewType === 'form') return null
+        if (viewType === 'form' || viewType === 'custom') return null
 
         return (
             <div className="flex items-center justify-between gap-4 px-6 pt-2">
@@ -286,6 +309,54 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                         value={groupByField}
                         onChange={setGroupByField}
                     />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors" title="View presets">
+                                <Bookmark size={16} color={"orange"} />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    setPresetName('')
+                                    setShowSavePreset(true)
+                                }}
+                                className="text-xs cursor-pointer font-medium hover:bg-muted/70 hover:text-foreground focus:bg-muted/70 focus:text-foreground"
+                            >
+                                <Bookmark className="w-3.5 h-3.5" color={"orange"} />
+                                Save current view
+                            </DropdownMenuItem>
+                            {presets.length > 0 && <div className="h-px bg-border/40 mx-2 my-1" />}
+                            {presets.map((preset) => (
+                                <div key={preset.id} className="flex items-center group">
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            const loaded = loadPreset(preset.id)
+                                            if (loaded) {
+                                                setViewType(loaded.viewType as ResourceType)
+                                                setSearchValues(loaded.searchValues)
+                                                setFilterValues(loaded.filterValues)
+                                                setGroupByField(loaded.groupByField)
+                                            }
+                                        }}
+                                        className="text-xs cursor-pointer flex-1 hover:bg-muted/70 hover:text-foreground focus:bg-muted/70 focus:text-foreground"
+                                    >
+                                        {preset.name}
+                                    </DropdownMenuItem>
+                                    <button
+                                        onClick={() => deletePreset(preset.id)}
+                                        className="shrink-0 px-2 py-1 text-muted-foreground/50 hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="Delete preset"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                            {presets.length === 0 && (
+                                <p className="px-2 py-2 text-xs text-muted-foreground text-center">No saved presets</p>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     {selectedIds.length > 0 && (
                         <ServerActions
                             actions={mergedServerActions}
@@ -330,7 +401,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }
 
     return (
-        <Card className="mx-auto max-w-7xl border-border/50 gap-0 rounded-none min-h-screen">
+        <Card className="border-border/50 rounded-none min-h-screen shadow-none pt-4">
             {config.title && (
                 <div className="px-6 pt-1 flex items-center gap-2">
                     <h1 className="text-2xl font-bold">{config.title}</h1>
@@ -362,6 +433,43 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     onClose={handlePrintClose}
                 />
             )}
+
+            <Modal open={showSavePreset} backdrop="static" onClose={() => setShowSavePreset(false)}>
+                <Modal.Header>
+                    <Modal.Title>Save View Preset</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p className="text-sm text-muted-foreground mb-3">Name your current view configuration so you can reload it later.</p>
+                    <Input
+                        placeholder="e.g. Default product list"
+                        value={presetName}
+                        onChange={(v) => setPresetName(v)}
+                        onPressEnter={() => {
+                            if (presetName.trim()) {
+                                savePreset(presetName.trim(), viewType, searchValues, filterValues, groupByField)
+                                setShowSavePreset(false)
+                            }
+                        }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={() => setShowSavePreset(false)} appearance="default">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            if (presetName.trim()) {
+                                savePreset(presetName.trim(), viewType, searchValues, filterValues, groupByField)
+                                setShowSavePreset(false)
+                            }
+                        }}
+                        appearance="primary"
+                        color="violet"
+                    >
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Card>
     )
 }

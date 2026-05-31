@@ -19,6 +19,7 @@ import {
   SlidersHorizontal,
   FileText,
   HelpCircle,
+  Warehouse,
 } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
 import { useAuth } from '@/hooks/use-auth'
@@ -130,13 +131,9 @@ export function AdminSidebar() {
 
                 <SidebarGroupLabel label="Commerce" />
                 <Nav.Menu eventKey="projects" title="Catalog" icon={<Package className="h-3.5 w-3.5 text-primary/70" />}>
-                  <Nav.Item eventKey="/admin/products" icon={<Package className="h-3.5 w-3.5 text-primary/50" />}>All Products</Nav.Item>
-                  <Nav.Item eventKey="/admin/brands" icon={<Tag className="h-3.5 w-3.5 text-primary/50" />}>Brands</Nav.Item>
+                  <Nav.Item eventKey="/admin/inventory" icon={<Warehouse className="h-3.5 w-3.5 text-primary/50" />}>Inventory</Nav.Item>
                   <Nav.Item eventKey="/admin/tax-rates" icon={<Percent className="h-3.5 w-3.5 text-primary/50" />}>Taxes</Nav.Item>
-                  <Nav.Item eventKey="/admin/categories" icon={<FolderTree className="h-3.5 w-3.5 text-primary/50" />}>Categories</Nav.Item>
                   <Nav.Item eventKey="/admin/shipping-zones" icon={<Truck className="h-3.5 w-3.5 text-primary/50" />}>Shipping Zones</Nav.Item>
-                  <Nav.Item eventKey="/admin/product-attributes" icon={<SlidersHorizontal className="h-3.5 w-3.5 text-primary/50" />}>Product Attributes</Nav.Item>
-                  <Nav.Item eventKey="/admin/product-attribute-values" icon={<SlidersHorizontal className="h-3.5 w-3.5 text-primary/50" />}>Attribute Values</Nav.Item>
                 </Nav.Menu>
                 <Nav.Menu eventKey="sales" title="Sales" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-600/70" />}>
                   <Nav.Item eventKey="/admin/orders" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-500/50" />}>Orders</Nav.Item>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { AdminSidebar } from '@/components/admin/sidebar'
 import { AdminTopNavbar } from '@/components/admin/top-navbar'
+import { ModuleNavBar } from '@/components/admin/module-navbar'
 import 'rsuite/dist/rsuite-no-reset.min.css';
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function AdminLayout({
       <AdminSidebar />
       <main className="flex-1 md:pl-60 transition-all">
         <AdminTopNavbar />
+        <ModuleNavBar />
         <div>{children}</div>
       </main>
     </div>

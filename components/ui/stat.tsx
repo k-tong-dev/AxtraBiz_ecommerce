@@ -7,12 +7,11 @@ import {
     StatHelpText
 } from "rsuite";
 
-
-export default {
+export {
     StatGroup,
     Stat,
-    StatValue,
-    StatHelpText,
     StatLabel,
     StatTrend,
+    StatValue,
+    StatHelpText,
 };
