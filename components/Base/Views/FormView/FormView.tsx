@@ -1399,6 +1399,7 @@ export function FormView<T extends Entity>({mode, config, initialData, entityId,
                         appearance: 'subtle',
                     },
                 ]}
+                backdrop={"static"}
             >
                 <p>You have unsaved changes. What would you like to do?</p>
             </Wizard>

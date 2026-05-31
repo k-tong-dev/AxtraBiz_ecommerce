@@ -49,7 +49,7 @@ import {Badge} from "@/components/ui/badge";
 const {Column, HeaderCell, Cell} = Table
 
 // Types
-export type FilterType = 'text' | 'number' | 'date' | 'options' | 'boolean'
+export type FilterType = 'text' | 'number' | 'date' | 'options' | 'boolean' | 'string'
 export type ViewType = 'list' | 'kanban' | 'grid' | 'gantt' | 'tree'
 
 export interface FilterValue {
@@ -195,6 +195,7 @@ export function ListView({
     const [sortType, setSortType] = useState<'asc' | 'desc'>()
     const [viewType, setViewType] = useState<ViewType>('list')
     const [currentPage, setCurrentPage] = useState(1)
+    const [limit, setLimit] = useState(pageSize)
     const [showColumnPicker, setShowColumnPicker] = useState(false)
     const [showFilterPanel, setShowFilterPanel] = useState(false)
     const [headerColumnPickerOpen, setHeaderColumnPickerOpen] = useState(false)
@@ -436,13 +437,13 @@ export function ListView({
     }, [filteredData, onDataChange])
 
     // Pagination
-    const totalPages = Math.ceil(filteredData.length / pageSize)
+    const totalPages = Math.ceil(filteredData.length / limit)
     const paginatedData = filteredData.slice(
-        (currentPage - 1) * pageSize,
-        currentPage * pageSize
+        (currentPage - 1) * limit,
+        currentPage * limit
     ).map((item, index) => ({
         ...item,
-        _index: (currentPage - 1) * pageSize + index + 1
+        _index: (currentPage - 1) * limit + index + 1
     }))
 
     // Transform data to tree structure when grouped
@@ -932,7 +933,7 @@ export function ListView({
         <div className="space-y-4">
             {/* Table content */}
             {loading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                <Loader backdrop content={"Loading..."} vertical />
             ) : (
                 renderListView()
             )}
@@ -952,12 +953,12 @@ export function ListView({
                         layout={['total', '-', 'limit', '|', 'pager', 'skip']}
                         total={filteredData.length}
                         limitOptions={[10, 20, 30, 50]}
-                        limit={pageSize}
+                        limit={limit}
                         activePage={currentPage}
                         onChangePage={setCurrentPage}
-                        onChangeLimit={(limit) => {
+                        onChangeLimit={(newLimit) => {
+                            setLimit(newLimit)
                             setCurrentPage(1)
-                            // Update pageSize in config or state if needed
                         }}
                     />
                 </div>
