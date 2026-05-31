@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import type { Announcement } from '@/lib/drizzle/server'
-import { showToast } from '@/lib/ui/toast'
+import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { announcementConfig } from './config'
 import { useResource } from '@/lib/hooks/useResource'
@@ -10,29 +10,11 @@ import { useResource } from '@/lib/hooks/useResource'
 export default function AdminAnnouncementsPage() {
   const router = useRouter()
   const { data: announcements, loading, refresh } = useResource<Announcement[]>('/api/admin/announcements')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/announcements', entityName: 'announcement', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/announcements/new')
 
   const openEdit = (a: Announcement) => router.push(`/admin/announcements/${a.id}/edit`)
-
-  const remove = async (id: string) => {
-    const ok = window.confirm('Delete this announcement?')
-    if (!ok) return
-
-    try {
-      const response = await fetch(`/api/admin/announcements?id=${id}`, { method: 'DELETE' })
-      const result = await response.json()
-      if (result.success) {
-        refresh()
-        showToast('success', 'Announcement deleted', 'The announcement was removed successfully.')
-      } else {
-        showToast('error', 'Delete failed', 'Failed to delete announcement.')
-      }
-    } catch (error) {
-      showToast('error', 'Delete failed', 'An error occurred while deleting.')
-      console.error('Delete error:', error)
-    }
-  }
 
   const handleRowClick = (rowData: Announcement) => {
     openEdit(rowData)
@@ -41,7 +23,7 @@ export default function AdminAnnouncementsPage() {
   const config = announcementConfig.listViewConfig(announcements ?? [])
 
   return (
-    <ResourceView
+    <>{deleteModal}<ResourceView
       config={{
         type: 'list',
         title: 'Announcements',
@@ -53,10 +35,10 @@ export default function AdminAnnouncementsPage() {
         serverActions: announcementConfig.customServerActions,
       }}
       onEdit={handleRowClick}
-      onDelete={(rowData) => remove(rowData.id)}
+      onDelete={(rowData) => confirmDelete(rowData.id)}
       onCreate={openCreate}
       loading={loading}
       onRefresh={refresh}
-    />
+    /></>
   )
 }

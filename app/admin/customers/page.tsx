@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import type { User } from '@/lib/drizzle/server'
-import { showToast } from '@/lib/ui/toast'
+import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { customerConfig } from './config'
 import { useResource } from '@/lib/hooks/useResource'
@@ -10,29 +10,11 @@ import { useResource } from '@/lib/hooks/useResource'
 export default function AdminCustomersPage() {
   const router = useRouter()
   const { data: customers, loading, refresh } = useResource<User[]>('/api/admin/users')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/users', entityName: 'customer', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/customers/new')
 
   const openEdit = (u: User) => router.push(`/admin/customers/${u.id}/edit`)
-
-  const remove = async (id: string) => {
-    const ok = window.confirm('Delete this customer?')
-    if (!ok) return
-
-    try {
-      const response = await fetch(`/api/admin/users?id=${id}`, { method: 'DELETE' })
-      const result = await response.json()
-      if (result.success) {
-        refresh()
-        showToast('success', 'Customer deleted', 'The customer was removed successfully.')
-      } else {
-        showToast('error', 'Delete failed', 'Failed to delete customer.')
-      }
-    } catch (error) {
-      showToast('error', 'Delete failed', 'An error occurred while deleting.')
-      console.error('Delete error:', error)
-    }
-  }
 
   const handleRowClick = (rowData: User) => {
     openEdit(rowData)
@@ -41,7 +23,7 @@ export default function AdminCustomersPage() {
   const config = customerConfig.listViewConfig(customers ?? [])
 
   return (
-    <ResourceView
+    <>{deleteModal}<ResourceView
       config={{
         type: 'list',
         title: 'Customers',
@@ -53,10 +35,10 @@ export default function AdminCustomersPage() {
         serverActions: customerConfig.customServerActions,
       }}
       onEdit={handleRowClick}
-      onDelete={(rowData) => remove(rowData.id)}
+      onDelete={(rowData) => confirmDelete(rowData.id)}
       onCreate={openCreate}
       loading={loading}
       onRefresh={refresh}
-    />
+    /></>
   )
 }

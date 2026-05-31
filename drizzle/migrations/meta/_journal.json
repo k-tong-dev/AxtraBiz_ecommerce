@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1779724803764,
-      "tag": "0000_initial_schema",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1779734537961,
-      "tag": "0001_fix_users_id_type",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1779734537962,
-      "tag": "0002_rename_sku_to_base_sku",
+      "when": 1780248495730,
+      "tag": "0000_easy_stepford_cuckoos",
       "breakpoints": true
     }
   ]

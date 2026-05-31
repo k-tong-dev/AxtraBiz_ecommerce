@@ -1,5 +1,5 @@
 {
-  "id": "b7740714-ae6f-4349-b05f-03dee2565af4",
+  "id": "f1775bc9-2324-4048-863c-0af0d2a8df65",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -190,7 +190,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -317,7 +317,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
@@ -914,8 +914,8 @@
           "notNull": true,
           "default": "'[]'"
         },
-        "sku": {
-          "name": "sku",
+        "base_sku": {
+          "name": "base_sku",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -1645,7 +1645,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },

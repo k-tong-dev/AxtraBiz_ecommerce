@@ -29,7 +29,7 @@ CREATE TABLE "invoices" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"order_id" integer NOT NULL,
 	"invoice_number" text NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" text NOT NULL,
 	"items" jsonb DEFAULT '[]' NOT NULL,
 	"subtotal" numeric(12, 2) DEFAULT '0' NOT NULL,
 	"tax" numeric(12, 2) DEFAULT '0' NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE "invoices" (
 --> statement-breakpoint
 CREATE TABLE "orders" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"user_id" text NOT NULL,
 	"items" jsonb DEFAULT '[]' NOT NULL,
 	"shipping_address" jsonb NOT NULL,
 	"total_price" numeric(12, 2) DEFAULT '0' NOT NULL,
@@ -133,7 +133,7 @@ CREATE TABLE "product_template" (
 	"original_price" numeric(12, 2),
 	"image_id" jsonb,
 	"image_ids" jsonb DEFAULT '[]' NOT NULL,
-	"sku" text DEFAULT '',
+	"base_sku" text DEFAULT '',
 	"barcode" text DEFAULT '',
 	"category_id" integer,
 	"brand_id" integer,
@@ -238,7 +238,7 @@ CREATE TABLE "tax_rates" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"email" text NOT NULL,
 	"name" text NOT NULL,
 	"role" text DEFAULT 'customer' NOT NULL,
