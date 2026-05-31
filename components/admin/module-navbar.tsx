@@ -28,6 +28,7 @@ import {
   BarChart3,
   LineChart,
   ChevronDown,
+  Globe,
 } from 'lucide-react'
 import {
   DropdownMenu,

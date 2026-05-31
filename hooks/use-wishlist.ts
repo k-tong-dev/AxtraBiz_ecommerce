@@ -2,23 +2,54 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { wishlistStorage } from '@/lib/storage'
+import { useAuth } from '@/hooks/use-auth'
 
 export function useWishlist() {
+  const { isAuthenticated } = useAuth()
   const [wishlist, setWishlist] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const saved = wishlistStorage.getWishlist()
-    setWishlist(saved)
-    setIsLoading(false)
-  }, [])
+  const fetchWishlist = useCallback(async () => {
+    if (!isAuthenticated) {
+      setWishlist(wishlistStorage.getWishlist())
+      setIsLoading(false)
+      return
+    }
 
-  const toggleWishlist = useCallback((productId: number) => {
-    setWishlist((prev) => {
-      const newWishlist = wishlistStorage.toggleWishlist(productId)
-      return newWishlist
-    })
-  }, [])
+    try {
+      const res = await fetch('/api/wishlist')
+      const data = await res.json()
+      setWishlist(data.isGuest ? wishlistStorage.getWishlist() : (data.items || []))
+    } catch {
+      setWishlist(wishlistStorage.getWishlist())
+    }
+    setIsLoading(false)
+  }, [isAuthenticated])
+
+  useEffect(() => {
+    fetchWishlist()
+  }, [fetchWishlist])
+
+  const toggleWishlist = useCallback(async (productId: number) => {
+    if (!isAuthenticated) {
+      setWishlist(wishlistStorage.toggleWishlist(productId))
+      return
+    }
+
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_id: productId }),
+      })
+      const data = await res.json()
+      setWishlist((prev) =>
+        data.inWishlist ? [...prev, productId] : prev.filter((id) => id !== productId)
+      )
+    } catch {
+      setWishlist(wishlistStorage.toggleWishlist(productId))
+    }
+  }, [isAuthenticated])
 
   const addToWishlist = useCallback((productId: number) => {
     if (!wishlist.includes(productId)) {
