@@ -57,7 +57,7 @@ export function ProductCard({ card, onCardClick, onCardEdit, onCardDelete, showD
         {/* Card Content */}
         <div className="flex-1 space-y-2">
           <div className="font-medium">{card.data.name || 'Untitled'}</div>
-          <div className="text-sm text-muted-foreground">SKU: {card.data.sku || '-'}</div>
+          <div className="text-sm text-muted-foreground">SKU: {card.data.base_sku || '-'}</div>
           <div className="text-sm font-medium">
             Price: ${card.data.price ? parseFloat(card.data.price).toFixed(2) : '0.00'}
           </div>

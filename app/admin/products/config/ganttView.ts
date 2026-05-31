@@ -5,7 +5,7 @@ export const getProductGanttConfig = (data: any[] = []): GanttViewConfig => ({
   columns: [
     { key: 'id', title: 'ID', width: 80 },
     { key: 'name', title: 'Product Name', flexGrow: 1, treeCol: true },
-    { key: 'sku', title: 'SKU', width: 120 },
+    { key: 'base_sku', title: 'Base SKU', width: 120 },
     { key: 'status', title: 'Status', width: 100 },
     { key: 'stock', title: 'Stock', width: 80 },
   ],

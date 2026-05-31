@@ -249,11 +249,11 @@ export const productFormConfig: FormConfig = {
 
     // Inventory Section
     {
-      key: 'sku',
-      label: 'SKU (Stock Keeping Unit)',
+      key: 'base_sku',
+      label: 'Base SKU (prefix for variant SKUs)',
       type: 'string',
       required: false,
-      placeholder: 'Enter SKU',
+      placeholder: 'Enter base SKU',
       validation: (value) => {
         if (value && !/^[A-Z0-9-]+$/.test(value)) return 'SKU can only contain uppercase letters and numbers'
         return null

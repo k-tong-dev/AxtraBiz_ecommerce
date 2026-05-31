@@ -52,7 +52,7 @@ export const product_template = pgTable('product_template', {
   original_price: numeric('original_price', { precision: 12, scale: 2 }),
   image_id: jsonb('image_id'),
   image_ids: jsonb('image_ids').notNull().default('[]'),
-  sku: text('sku').default(''),
+  base_sku: text('sku').default(''),
   barcode: text('barcode').default(''),
   category_id: integer('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
   brand_id: integer('brand_id').references(() => product_brand.id, { onDelete: 'set null' }),

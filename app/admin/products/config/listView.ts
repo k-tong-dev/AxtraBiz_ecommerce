@@ -13,7 +13,7 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
   showExport: false,        // Disabled when using ResourceView
   defaultVisibleColumns: [
     'name',
-    'sku',
+    'base_sku',
     'price',
     'stock',
     'product_type',
@@ -45,8 +45,8 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       align: 'left'
     },
     {
-      key: 'sku',
-      title: 'SKU',
+      key: 'base_sku',
+      title: 'Base SKU',
       width: 120,
       resizable: true,
       sortable: true,
