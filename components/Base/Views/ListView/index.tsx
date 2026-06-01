@@ -151,6 +151,7 @@ export interface ListViewProps {
     selectedIds?: string[]
     setSelectedIds?: (ids: string[]) => void
     onDataChange?: (data: any[]) => void  // Callback to notify parent of current filtered data
+    allowEdit?: boolean  // allow row click/edit (default: true)
 }
 
 export function ListView({
@@ -166,7 +167,8 @@ export function ListView({
                              selectedIds: externalSelectedIds,
                              setSelectedIds: externalSetSelectedIds,
                              availableFields = [],
-                             onDataChange
+                             onDataChange,
+                             allowEdit = true,
                          }: ListViewProps) {
     const {
         columns: allColumns,

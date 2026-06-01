@@ -165,6 +165,7 @@ interface FormViewProps<T extends Entity> {
     recordIds?: (string | number)[]  // ordered list for prev/next navigation
     onNavigate?: (recordId: string | number) => void  // navigate to a specific record
     onRefresh?: () => void  // trigger parent data refresh
+    readonly?: boolean  // make all fields read-only and hide save bar
 }
 
 export function FormView<T extends Entity>(props: FormViewProps<T>) {
@@ -175,7 +176,7 @@ export function FormView<T extends Entity>(props: FormViewProps<T>) {
   )
 }
 
-function FormViewContent<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint, recordIds, onNavigate, onRefresh}: FormViewProps<T>) {
+function FormViewContent<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint, recordIds, onNavigate, onRefresh, readonly: formReadonly = false}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -431,6 +432,8 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
     }, [data, originalData, uploadedFiles, config.fields])
 
     const handleSubmit = async () => {
+        if (formReadonly) return
+
         // Validate required fields
         for (const field of config.fields) {
             if (field.required && !data[field.key]) {
@@ -612,8 +615,10 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
             return null
         }
 
+        const readonly = formReadonly || field.readonly
         const value = data[field.key]
         const onChange = (newValue: any) => {
+            if (readonly) return
             setData({...data, [field.key]: newValue})
         }
 
@@ -653,8 +658,8 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                             onChange={onChange}
                             field={field}
                             data={data}
-                            disabled={field.readonly}
-                            readonly={field.readonly}
+                            disabled={readonly}
+                            readonly={readonly}
                         />
                         {errorMessage && (
                             <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
@@ -679,8 +684,8 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                             value={value}
                             onChange={onChange}
                             data={data}
-                            disabled={field.readonly}
-                            readonly={field.readonly}
+                            disabled={readonly}
+                            readonly={readonly}
                         />
                         {errorMessage && (
                             <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
@@ -698,10 +703,10 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                             value={value ?? null}
                             onChange={(val) => onChange(val ?? 0)}
                             placeholder={field.placeholder}
-                            disabled={field.readonly}
+                            disabled={readonly}
                             error={hasError}
                             fullWidth
-                            className={field.readonly ? 'opacity-60 cursor-not-allowed' : ''}
+                            className={readonly ? 'opacity-60 cursor-not-allowed' : ''}
                             min={0}
                             controls={false}
                         />
@@ -718,7 +723,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                         maxFiles={field.maxFiles}
                         uploadText={field.uploadText}
                         label={field.label}
-                        readonly={field.readonly}
+                        readonly={readonly}
                         error={errorMessage}
                         onRemove={removeFile}
                         onAssetSelected={(asset) => {
@@ -736,10 +741,12 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
                             <label className="text-sm font-medium">{field.label}</label>
-                            <Button onClick={() => addArrayItem(field.key)} size="sm" className="gap-2">
-                                <Plus className="w-4 h-4"/>
-                                Add Item
-                            </Button>
+                            {!readonly && (
+                                <Button onClick={() => addArrayItem(field.key)} size="sm" className="gap-2">
+                                    <Plus className="w-4 h-4"/>
+                                    Add Item
+                                </Button>
+                            )}
                         </div>
                         {(value || []).map((item: string, index: number) => (
                             <div key={index} className="flex items-center gap-2">
@@ -750,14 +757,17 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                                     variant="outlined"
                                     inputSize="sm"
                                     fullWidth
+                                    disabled={readonly}
                                 />
-                                <Button
-                                    onClick={() => removeArrayItem(field.key, index)}
-                                    size="sm"
-                                    className="p-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
-                                >
-                                    <X className="w-4 h-4"/>
-                                </Button>
+                                {!readonly && (
+                                    <Button
+                                        onClick={() => removeArrayItem(field.key, index)}
+                                        size="sm"
+                                        className="p-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                                    >
+                                        <X className="w-4 h-4"/>
+                                    </Button>
+                                )}
                             </div>
                         ))}
                         {(!value || value.length === 0) && (
@@ -774,6 +784,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                             id={field.key}
                             checked={value || false}
                             onChange={(e) => onChange(e.target.checked)}
+                            disabled={readonly}
                             className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
                         />
                         <label htmlFor={field.key} className="text-sm font-medium">
@@ -788,12 +799,10 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                     <div className="flex items-center gap-2">
                         <Switch checked={value || false}
                                 color={"violet"}
-                                // checkedChildren={`${value}`}
-                                // unCheckedChildren={`${value}`}
                                 checkedChildren={"ON"}
                                 unCheckedChildren={"OFF"}
-                                onClick={() => onChange(!value)}>
-
+                                disabled={readonly}
+                                onClick={() => !readonly && onChange(!value)}>
                         </Switch>
                     </div>
                 )
@@ -808,7 +817,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -829,7 +838,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -849,7 +858,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                                 type: 'time',
                                 placeholder: field.placeholder || 'HH:mm:ss',
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -870,7 +879,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder || 'yyyy',
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -891,7 +900,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder || 'yyyy-MM',
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -912,7 +921,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder || 'dd',
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -932,7 +941,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                                 type: 'one2many',
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 fetchUrl: field.fetchUrl,
                                 size: field.size,
@@ -953,7 +962,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                                 type: 'many2many',
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 fetchUrl: field.fetchUrl,
                                 size: field.size,
@@ -974,7 +983,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                                 type: 'many2one',
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 fetchUrl: field.fetchUrl,
                                 options: field.options?.map((o) => ({ id: o.value, name: o.label })),
@@ -1001,7 +1010,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 options: selOptions as any,
                                 fetchUrl: field.fetchUrl,
@@ -1029,7 +1038,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -1050,7 +1059,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
                                 placeholder: field.placeholder,
                                 required: field.required,
-                                readonly: field.readonly,
+                                readonly: readonly,
                                 helper: field.helper,
                                 size: field.size,
                             }}
@@ -1093,8 +1102,8 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
         return acc
     }, {} as Record<number, FormField[]>)
 
-    const formTitle = mode === 'create' ? `Create New ${config.entityName}` : `Edit: ${data.name || config.entityName}`
-    const formSubtitle = mode === 'create' ? `Add a new ${config.entityName.toLowerCase()} to your catalog` : `Modify ${config.entityName.toLowerCase()} details and settings`
+    const formTitle = mode === 'create' ? `Create New ${config.entityName}` : formReadonly ? `View: ${data.name || config.entityName}` : `Edit: ${data.name || config.entityName}`
+    const formSubtitle = mode === 'create' ? `Add a new ${config.entityName.toLowerCase()} to your catalog` : formReadonly ? `View ${config.entityName.toLowerCase()} details` : `Modify ${config.entityName.toLowerCase()} details and settings`
 
     return (
         <div className="relative">
@@ -1412,69 +1421,66 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                 <p>You have unsaved changes. What would you like to do?</p>
             </Wizard>
 
-            <ActionBar
-                key={hasChanges ? 'has-changes' : 'no-changes'}
-                open={hasChanges}
-                onOpenChange={(open) => {
-                    console.log('[FormView] ActionBar onOpenChange:', { open, hasChanges })
-                    if (!open) {
-                        // Only set hasChanges to false if manually closed (not via state)
-                        // This prevents interference with programmatic state changes
-                        if (hasChanges) {
-                            setHasChanges(false)
-                        }
-                    }
-                }}
-                side="bottom"
-                align="center"
-            >
-                <ActionBarSelection/>
-                <ActionBarSeparator/>
-                <ActionBarGroup>
-                    <ActionBarItem
-                        color="red"
-                        size="sm"
-                        onClick={() => {
-                            if (mode === 'edit' && originalData) {
-                                setData(originalData)
-                                // Revoke local blob URLs before resetting
-                                uploadedFiles.forEach(f => {
-                                    if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
-                                        URL.revokeObjectURL(f.url)
-                                    }
-                                })
-                                // Reset uploadedFiles to original file values from originalData
-                                const originalFiles = config.fields
-                                    .filter(f => f.type === 'file' && originalData[f.key])
-                                    .flatMap(f => Array.isArray(originalData[f.key]) ? originalData[f.key] : [originalData[f.key]])
-                                setUploadedFiles(originalFiles.filter((v: any) => v && v.url))
+            {!formReadonly && (
+                <ActionBar
+                    key={hasChanges ? 'has-changes' : 'no-changes'}
+                    open={hasChanges}
+                    onOpenChange={(open) => {
+                        console.log('[FormView] ActionBar onOpenChange:', { open, hasChanges })
+                        if (!open) {
+                            if (hasChanges) {
                                 setHasChanges(false)
-                            } else {
-                                // Revoke local blob URLs before navigating away
-                                uploadedFiles.forEach(f => {
-                                    if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
-                                        URL.revokeObjectURL(f.url)
-                                    }
-                                })
-                                router.push(config.breadcrumbs.list)
                             }
-                        }}
-                        disabled={saving}
-                    >
-                        Cancel
-                    </ActionBarItem>
-                    <ActionBarItem
-                        appearance="primary"
-                        color="green"
-                        onClick={handleSubmit}
-                        disabled={saving || !isFormValid()}
-                    >
-                        <IoMdCloudDone className="w-4 h-4 mr-2"/>
-                        {saving ? (mode === 'create' ? 'Creating...' : 'Saving...') : (mode === 'create' ? 'Create' : 'Save')}
-                    </ActionBarItem>
-                </ActionBarGroup>
-                <ActionBarClose/>
-            </ActionBar>
+                        }
+                    }}
+                    side="bottom"
+                    align="center"
+                >
+                    <ActionBarSelection/>
+                    <ActionBarSeparator/>
+                    <ActionBarGroup>
+                        <ActionBarItem
+                            color="red"
+                            size="sm"
+                            onClick={() => {
+                                if (mode === 'edit' && originalData) {
+                                    setData(originalData)
+                                    uploadedFiles.forEach(f => {
+                                        if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
+                                            URL.revokeObjectURL(f.url)
+                                        }
+                                    })
+                                    const originalFiles = config.fields
+                                        .filter(f => f.type === 'file' && originalData[f.key])
+                                        .flatMap(f => Array.isArray(originalData[f.key]) ? originalData[f.key] : [originalData[f.key]])
+                                    setUploadedFiles(originalFiles.filter((v: any) => v && v.url))
+                                    setHasChanges(false)
+                                } else {
+                                    uploadedFiles.forEach(f => {
+                                        if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
+                                            URL.revokeObjectURL(f.url)
+                                        }
+                                    })
+                                    router.push(config.breadcrumbs.list)
+                                }
+                            }}
+                            disabled={saving}
+                        >
+                            Cancel
+                        </ActionBarItem>
+                        <ActionBarItem
+                            appearance="primary"
+                            color="green"
+                            onClick={handleSubmit}
+                            disabled={saving || !isFormValid()}
+                        >
+                            <IoMdCloudDone className="w-4 h-4 mr-2"/>
+                            {saving ? (mode === 'create' ? 'Creating...' : 'Saving...') : (mode === 'create' ? 'Create' : 'Save')}
+                        </ActionBarItem>
+                    </ActionBarGroup>
+                    <ActionBarClose/>
+                </ActionBar>
+            )}
         </div>
     )
 }

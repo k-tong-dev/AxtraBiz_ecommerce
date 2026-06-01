@@ -81,6 +81,7 @@ function Input({
                         outlineColor: 'transparent',
                         ...style,
                     }}
+                    placeholder={placeholder}
                     className={cn(
                         'peer w-full ' +
                         'border-b-1 border-b-foreground ' +

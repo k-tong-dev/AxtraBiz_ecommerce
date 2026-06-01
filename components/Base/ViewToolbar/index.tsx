@@ -90,7 +90,14 @@ export function ViewToolbar({ toolbar, columns = [], currentViewType = 'list', c
           <DropdownMenuTrigger asChild>
             <Button
               size="md"
-              className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+              style={{
+                backgroundColor: 'transparent',
+                borderWidth: "0.5px",
+                boxShadow: 'none',
+              }}
+              className={"inline-flex items-center justify-center " +
+                  "rounded-sm " +
+                  "text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"}
               title="View presets"
             >
               <Bookmark size={16} color="orange" />

@@ -2,33 +2,13 @@
 
 import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  Megaphone,
-  Settings,
-  Menu,
-  X,
-  Image,
-  Tag,
-  Percent,
-  FolderTree,
-  Truck,
-  SlidersHorizontal,
-  FileText,
-  HelpCircle,
-  Warehouse,
-  Gift,
-  Star,
-  CircleDollarSign,
-  History,
-} from 'lucide-react'
+import { Menu, X, HelpCircle } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
 import { useAuth } from '@/hooks/use-auth'
+import { sidebarGroups } from './config/sections'
+import type { SidebarEntry } from './config/sections'
 
-function SidebarGroupLabel({ label }: { label: string }) {
+function GroupLabel({ label }: { label: string }) {
   return (
     <div className="px-3 pt-4 pb-1">
       <div className="flex items-center gap-2">
@@ -47,13 +27,11 @@ export function AdminSidebar() {
   const pathname = usePathname()
   const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
-  const [openKeys, setOpenKeys] = useState<string[]>([
-    'projects',
-    'sales',
-    'crm',
-    'marketing',
-    'preferences',
-  ])
+  const [openKeys, setOpenKeys] = useState<string[]>(
+    sidebarGroups.flatMap((g) =>
+      g.entries.filter((e): e is Extract<SidebarEntry, { type: 'menu' }> => e.type === 'menu').map((e) => e.eventKey)
+    )
+  )
 
   const close = () => setIsOpen(false)
   const toggle = () => setIsOpen((v) => !v)
@@ -125,53 +103,39 @@ export function AdminSidebar() {
                 }}
                 className="!bg-transparent"
               >
-                <SidebarGroupLabel label="Overview" />
-                <Nav.Item
-                  eventKey="/admin"
-                  icon={<LayoutDashboard className="h-3.5 w-3.5 text-primary/70" />}
-                >
-                  Dashboard
-                </Nav.Item>
-
-                <SidebarGroupLabel label="Commerce" />
-                <Nav.Menu eventKey="projects" title="Catalog" icon={<Package className="h-3.5 w-3.5 text-primary/70" />}>
-                  <Nav.Item eventKey="/admin/inventory" icon={<Warehouse className="h-3.5 w-3.5 text-primary/50" />}>Inventory</Nav.Item>
-                  <Nav.Item eventKey="/admin/taxes" icon={<Percent className="h-3.5 w-3.5 text-primary/50" />}>Taxes</Nav.Item>
-                  <Nav.Item eventKey="/admin/shipping" icon={<Truck className="h-3.5 w-3.5 text-primary/50" />}>Shipping</Nav.Item>
-                </Nav.Menu>
-                <Nav.Menu eventKey="sales" title="Sales" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-600/70" />}>
-                  <Nav.Item eventKey="/admin/orders" icon={<ShoppingCart className="h-3.5 w-3.5 text-emerald-500/50" />}>Orders</Nav.Item>
-                  <Nav.Item eventKey="/admin/invoices" icon={<FileText className="h-3.5 w-3.5 text-emerald-500/50" />}>Invoices</Nav.Item>
-                </Nav.Menu>
-                <Nav.Menu eventKey="crm" title="Customers" icon={<Users className="h-3.5 w-3.5 text-blue-600/70" />}>
-                  <Nav.Item eventKey="/admin/customers" icon={<Users className="h-3.5 w-3.5 text-blue-500/50" />}>Customer Directory</Nav.Item>
-                </Nav.Menu>
-
-                <SidebarGroupLabel label="Content" />
-                <Nav.Menu eventKey="content" title="Content" icon={<FileText className="h-3.5 w-3.5 text-cyan-600/70" />}>
-                  <Nav.Item eventKey="/admin/pages" icon={<FileText className="h-3.5 w-3.5 text-cyan-500/50" />}>Pages</Nav.Item>
-                  <Nav.Item eventKey="/admin/menus" icon={<Menu className="h-3.5 w-3.5 text-cyan-500/50" />}>Menus</Nav.Item>
-                </Nav.Menu>
-
-                <SidebarGroupLabel label="Marketing" />
-                <Nav.Menu eventKey="marketing" title="Marketing" icon={<Megaphone className="h-3.5 w-3.5 text-amber-600/70" />}>
-                  <Nav.Item eventKey="/admin/announcements" icon={<Megaphone className="h-3.5 w-3.5 text-amber-500/50" />}>Announcements</Nav.Item>
-                  <Nav.Item eventKey="/admin/coupons" icon={<Gift className="h-3.5 w-3.5 text-amber-500/50" />}>Coupons</Nav.Item>
-                  <Nav.Item eventKey="/admin/product-reviews" icon={<Star className="h-3.5 w-3.5 text-amber-500/50" />}>Reviews</Nav.Item>
-                </Nav.Menu>
-
-                <SidebarGroupLabel label="Media" />
-                <Nav.Item eventKey="/admin/assets" icon={<Image className="h-3.5 w-3.5 text-purple-600/70" />}>
-                  Asset Management
-                </Nav.Item>
-
-                <SidebarGroupLabel label="System" />
-                <Nav.Menu eventKey="preferences" title="Preferences" icon={<Settings className="h-3.5 w-3.5 text-muted-foreground/70" />}>
-                  <Nav.Item eventKey="/admin/settings" icon={<Settings className="h-3.5 w-3.5 text-muted-foreground/50" />}>Settings</Nav.Item>
-                  <Nav.Item eventKey="/admin/configurations" icon={<SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground/50" />}>Configurations</Nav.Item>
-                  <Nav.Item eventKey="/admin/currencies" icon={<CircleDollarSign className="h-3.5 w-3.5 text-muted-foreground/50" />}>Currencies</Nav.Item>
-                  <Nav.Item eventKey="/admin/audit-logs" icon={<History className="h-3.5 w-3.5 text-muted-foreground/50" />}>Audit Logs</Nav.Item>
-                </Nav.Menu>
+                {sidebarGroups.map((group) => (
+                  <div key={group.label}>
+                    <GroupLabel label={group.label} />
+                    {group.entries.map((entry) =>
+                      entry.type === 'link' ? (
+                        <Nav.Item
+                          key={entry.href}
+                          eventKey={entry.href}
+                          icon={<entry.icon className={`h-3.5 w-3.5 ${entry.iconColor || 'text-primary/70'}`} />}
+                        >
+                          {entry.label}
+                        </Nav.Item>
+                      ) : (
+                        <Nav.Menu
+                          key={entry.eventKey}
+                          eventKey={entry.eventKey}
+                          title={entry.label}
+                          icon={<entry.icon className={`h-3.5 w-3.5 ${entry.iconColor || 'text-primary/70'}`} />}
+                        >
+                          {entry.children.map((child) => (
+                            <Nav.Item
+                              key={child.href}
+                              eventKey={child.href}
+                              icon={<child.icon className={`h-3.5 w-3.5 ${child.iconColor || 'text-primary/50'}`} />}
+                            >
+                              {child.label}
+                            </Nav.Item>
+                          ))}
+                        </Nav.Menu>
+                      )
+                    )}
+                  </div>
+                ))}
               </Nav>
             </Sidenav.Body>
           </Sidenav>

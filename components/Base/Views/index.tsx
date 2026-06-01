@@ -19,7 +19,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useViewToolbar } from '@/components/Base/ViewToolbar/hooks/useViewToolbar'
 import { ViewToolbar } from '../ViewToolbar'
 
-export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData, recordIds, onNavigate, onRefresh}: ResourceViewProps) {
+export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData, recordIds, onNavigate, onRefresh, allowCreate, allowEdit}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
     const [editingId, setEditingId] = useState<string | undefined>(undefined)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -59,8 +59,13 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
             actions = [...defaultActions, ...actions]
         }
 
+        // Mark all actions as readonly when allowEdit is false
+        if (allowEdit === false) {
+            actions = actions.map(a => ({...a, readonly: true}))
+        }
+
         return actions
-    }, [config.serverActions, config.enableDefaultActions, config.defaultActions, config.formViewConfig?.apiEndpoint])
+    }, [config.serverActions, config.enableDefaultActions, config.defaultActions, config.formViewConfig?.apiEndpoint, allowEdit])
 
     const handleEdit = (rowData: any) => {
         setLastViewType(viewType)
@@ -70,9 +75,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     }
 
     const handleRowClick = (rowData: any) => {
-        // Just call the external callback without switching to inline form
-        // This allows navigation to separate edit page
-        console.log('ResourceView handleRowClick rowData:', rowData)
+        if (!(allowEdit ?? !!onEdit)) return
         onEdit?.(rowData)
     }
 
@@ -140,6 +143,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             type: col.type
                         })) || []}
                         onDataChange={setCurrentFilteredData}
+                        allowEdit={allowEdit}
                     />
                 )
 
@@ -183,6 +187,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                             recordIds={recordIds}
                             onNavigate={onNavigate}
                             onRefresh={onRefresh}
+                            readonly={allowEdit === false}
                         />
                     </div>
                 )
@@ -296,13 +301,15 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                                 })) || []}
                             />
                         )}
-                        <Button onClick={handleCreate}
-                                color="violet"
-                                startIcon={<MdAdd />}
-                                appearance={"primary"}
-                                size="sm">
-                            New
-                        </Button>
+                        {(allowCreate ?? !!onCreate) && (
+                            <Button onClick={handleCreate}
+                                    color="violet"
+                                    startIcon={<MdAdd />}
+                                    appearance={"primary"}
+                                    size="sm">
+                                New
+                            </Button>
+                        )}
                     </ViewToolbar>
                 </div>
             </div>

@@ -6,11 +6,11 @@ import { useAuth } from '@/hooks/use-auth'
 import { Modal } from 'rsuite'
 import { Button } from '@/components/ui/button'
 import { MdCancel, MdLogout } from 'react-icons/md'
-import { NotificationModal } from './notification-modal'
+import { NotificationModal } from '../notification-modal'
 
 const AUTO_HIDE_DELAY = 4000
 
-export function AdminTopNavbar() {
+export function AdminTopBar() {
   const { user, logout } = useAuth()
   const [open, setOpen] = useState(false)
   const [auto, setAuto] = useState(false)

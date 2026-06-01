@@ -51,4 +51,6 @@ export interface ResourceViewProps {
   recordIds?: (string | number)[]  // ordered list for prev/next form navigation
   onNavigate?: (recordId: string | number) => void  // navigate to a specific record
   onRefresh?: () => void  // trigger parent data re-fetch
+  allowCreate?: boolean  // show/hide New button (default: true when onCreate provided)
+  allowEdit?: boolean    // allow row click to edit (default: true when onEdit provided)
 }

@@ -535,6 +535,11 @@ export function ServerActions({
                     <IconButton
                         icon={<Settings className="w-4 h-4" />}
                         appearance="subtle"
+                        style={{
+                            backgroundColor: 'transparent',
+                            boxShadow: 'none',
+                            borderWidth: '0.5px',
+                        }}
                         className="bg-accent"
                     />
                 </Whisper>
