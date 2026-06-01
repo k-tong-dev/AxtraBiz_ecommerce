@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminPagesPage() {
   const router = useRouter()
-  const { data: pages, loading, refresh } = useResource<Page[]>('/api/admin/content/pages')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/content/pages', entityName: 'page', refresh, useQueryParam: true })
+  const { data: pages, loading, refresh } = useResource<Page[]>('/api/admin/pages')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/pages', entityName: 'page', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/content/pages/new')
   const openEdit = (row: Page) => router.push(`/admin/content/pages/${row.id}/edit`)

@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditProductAttributeValuePage() {
     const params = useParams()
     const id = params.id as string
-    const { data: attrValue, loading } = useResource<ProductAttributeValue>(`/api/admin/inventory/product-attribute-values/${id}`)
+    const { data: attrValue, loading } = useResource<ProductAttributeValue>(`/api/admin/product-attribute-values/${id}`)
 
     return (
         <ResourceView

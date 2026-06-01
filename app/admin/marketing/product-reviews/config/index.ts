@@ -7,7 +7,7 @@ import { productReviewListConfig } from './listView'
 export const productReviewConfig = {
   entityName: 'Product Review',
   entityNamePlural: 'Product Reviews',
-  apiEndpoint: '/api/admin/marketing/product-reviews',
+  apiEndpoint: '/api/admin/product-reviews',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

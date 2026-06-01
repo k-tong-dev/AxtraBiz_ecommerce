@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const cartItemFormConfig: FormConfig = {
   entityName: 'Cart Item',
   entityNamePlural: 'Cart Items',
-  apiEndpoint: '/api/admin/customers/cart-items',
+  apiEndpoint: '/api/admin/cart-items',
   fields: [
     { key: 'user_id', label: 'User ID', type: 'string', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'session_id', label: 'Session ID', type: 'string', columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

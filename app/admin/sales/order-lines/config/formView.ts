@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const orderLineFormConfig: FormConfig = {
   entityName: 'Order Line',
   entityNamePlural: 'Order Lines',
-  apiEndpoint: '/api/admin/sales/order-lines',
+  apiEndpoint: '/api/admin/order-lines',
   fields: [
     { key: 'order_id', label: 'Order ID', type: 'number', required: true, columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'product_id', label: 'Product ID', type: 'number', columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

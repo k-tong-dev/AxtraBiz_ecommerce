@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditOrderLinePage() {
     const params = useParams()
     const id = params.id as string
-    const { data: item, loading } = useResource<OrderLine>(`/api/admin/sales/order-lines?id=${id}`)
+    const { data: item, loading } = useResource<OrderLine>(`/api/admin/order-lines?id=${id}`)
 
     return (
         <ResourceView

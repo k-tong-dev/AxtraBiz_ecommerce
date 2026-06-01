@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const couponFormConfig: FormConfig = {
   entityName: 'Coupon',
   entityNamePlural: 'Coupons',
-  apiEndpoint: '/api/admin/marketing/coupons',
+  apiEndpoint: '/api/admin/coupons',
   fields: [
     { key: 'code', label: 'Code', type: 'string', required: true, placeholder: 'SUMMER25', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'type', label: 'Type', type: 'selection', required: true, options: [{ value: 'percentage', label: 'Percentage' }, { value: 'fixed_amount', label: 'Fixed Amount' }, { value: 'free_shipping', label: 'Free Shipping' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

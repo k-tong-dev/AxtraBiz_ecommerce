@@ -12,7 +12,7 @@ import { createElement } from 'react'
 export const productVariantConfig = {
   entityName: 'Product Variant',
   entityNamePlural: 'Product Variants',
-  apiEndpoint: '/api/admin/inventory/product-variants',
+  apiEndpoint: '/api/admin/product-variants',
 
   // Default action flags - built-in actions enabled by default
   defaultActions: {

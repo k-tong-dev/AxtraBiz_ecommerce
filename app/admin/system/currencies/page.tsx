@@ -8,8 +8,8 @@ import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete
 
 export default function AdminCurrenciesPage() {
   const router = useRouter()
-  const { data: currencies, loading, refresh } = useResource<any[]>('/api/admin/system/currencies')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/system/currencies', entityName: 'currency', refresh, useQueryParam: false })
+  const { data: currencies, loading, refresh } = useResource<any[]>('/api/admin/currencies')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/currencies', entityName: 'currency', refresh, useQueryParam: false })
 
   const openCreate = () => router.push('/admin/system/currencies/new')
   const openEdit = (row: any) => router.push(`/admin/system/currencies/${row.code}/edit`)

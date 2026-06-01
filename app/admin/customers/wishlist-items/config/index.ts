@@ -7,7 +7,7 @@ import { wishlistItemListConfig } from './listView'
 export const wishlistItemConfig = {
   entityName: 'Wishlist Item',
   entityNamePlural: 'Wishlist Items',
-  apiEndpoint: '/api/admin/customers/wishlist-items',
+  apiEndpoint: '/api/admin/wishlist-items',
   defaultActions: {
     print: true,
     exportExcel: true,

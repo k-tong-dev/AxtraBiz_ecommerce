@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditShippingMethodPage() {
   const params = useParams()
   const id = params.id as string
-  const { data: shippingMethod, loading } = useResource<ShippingMethod>(`/api/admin/shipping/shipping-methods/${id}`)
+  const { data: shippingMethod, loading } = useResource<ShippingMethod>(`/api/admin/shipping-methods/${id}`)
 
   return (
     <ResourceView

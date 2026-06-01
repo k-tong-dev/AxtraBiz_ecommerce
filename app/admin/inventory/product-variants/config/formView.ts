@@ -4,7 +4,7 @@ import type { ProductVariant } from '@/lib/drizzle/server'
 export const productVariantFormConfig: FormConfig = {
   entityName: 'Product Variant',
   entityNamePlural: 'Product Variants',
-  apiEndpoint: '/api/admin/inventory/product-variants',
+  apiEndpoint: '/api/admin/product-variants',
   fields: [
     {
       key: 'name',

@@ -7,7 +7,7 @@ import { cartItemListConfig } from './listView'
 export const cartItemConfig = {
   entityName: 'Cart Item',
   entityNamePlural: 'Cart Items',
-  apiEndpoint: '/api/admin/customers/cart-items',
+  apiEndpoint: '/api/admin/cart-items',
   defaultActions: {
     print: true,
     exportExcel: true,

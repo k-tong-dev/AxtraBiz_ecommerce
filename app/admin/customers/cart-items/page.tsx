@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminCartItemsPage() {
   const router = useRouter()
-  const { data: items, loading, refresh } = useResource<CartItem[]>('/api/admin/customers/cart-items')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/customers/cart-items', entityName: 'cart item', refresh, useQueryParam: true })
+  const { data: items, loading, refresh } = useResource<CartItem[]>('/api/admin/cart-items')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/cart-items', entityName: 'cart item', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/customers/cart-items/new')
 

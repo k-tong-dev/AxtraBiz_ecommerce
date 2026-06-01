@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditCouponPage() {
   const params = useParams()
   const id = params.id as string
-  const { data: coupon, loading } = useResource<Coupon>(`/api/admin/marketing/coupons/${id}`)
+  const { data: coupon, loading } = useResource<Coupon>(`/api/admin/coupons/${id}`)
 
   return (
     <ResourceView

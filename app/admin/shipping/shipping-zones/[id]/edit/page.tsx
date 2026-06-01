@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditShippingZonePage() {
   const params = useParams()
   const id = params.id as string
-  const { data: zone, loading } = useResource<ShippingZone>(`/api/admin/shipping/shipping-zones/${id}`)
+  const { data: zone, loading } = useResource<ShippingZone>(`/api/admin/shipping-zones/${id}`)
 
   return (
     <ResourceView

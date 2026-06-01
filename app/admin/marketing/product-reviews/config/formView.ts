@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const productReviewFormConfig: FormConfig = {
   entityName: 'Product Review',
   entityNamePlural: 'Product Reviews',
-  apiEndpoint: '/api/admin/marketing/product-reviews',
+  apiEndpoint: '/api/admin/product-reviews',
   fields: [
     { key: 'user_id', label: 'User ID', type: 'string', required: true, columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'product_id', label: 'Product ID', type: 'number', required: true, columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

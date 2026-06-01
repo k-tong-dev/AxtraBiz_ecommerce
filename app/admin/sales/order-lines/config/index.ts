@@ -7,7 +7,7 @@ import { orderLineListConfig } from './listView'
 export const orderLineConfig = {
   entityName: 'Order Line',
   entityNamePlural: 'Order Lines',
-  apiEndpoint: '/api/admin/sales/order-lines',
+  apiEndpoint: '/api/admin/order-lines',
   defaultActions: {
     print: true,
     exportExcel: true,

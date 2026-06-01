@@ -7,7 +7,7 @@ import { paymentMethodListConfig } from './listView'
 export const paymentMethodConfig = {
   entityName: 'Payment Method',
   entityNamePlural: 'Payment Methods',
-  apiEndpoint: '/api/admin/customers/payment-methods',
+  apiEndpoint: '/api/admin/payment-methods',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

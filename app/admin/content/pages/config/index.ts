@@ -7,7 +7,7 @@ import { pageListConfig } from './listView'
 export const pageConfig = {
   entityName: 'Page',
   entityNamePlural: 'Pages',
-  apiEndpoint: '/api/admin/content/pages',
+  apiEndpoint: '/api/admin/pages',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

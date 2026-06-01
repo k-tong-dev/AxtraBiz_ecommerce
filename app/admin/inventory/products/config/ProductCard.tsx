@@ -94,7 +94,7 @@ export function ProductCard({ card, onCardClick, onCardEdit, onCardDelete, showD
                 if (onCardDelete) {
                   onCardDelete({ id: card.id, data: card.data })
                 } else if (confirm('Delete this product?')) {
-                  await fetch(`/api/admin/inventory/products/${card.id}`, { method: 'DELETE' })
+                  await fetch(`/api/admin/products/${card.id}`, { method: 'DELETE' })
                   window.location.reload()
                 }
               }}

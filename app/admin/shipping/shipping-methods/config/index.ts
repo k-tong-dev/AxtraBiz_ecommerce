@@ -7,7 +7,7 @@ import { shippingMethodListConfig } from './listView'
 export const shippingMethodConfig = {
   entityName: 'Shipping Method',
   entityNamePlural: 'Shipping Methods',
-  apiEndpoint: '/api/admin/shipping/shipping-methods',
+  apiEndpoint: '/api/admin/shipping-methods',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

@@ -7,7 +7,7 @@ import { shippingZoneListConfig } from './listView'
 export const shippingZoneConfig = {
   entityName: 'Shipping Zone',
   entityNamePlural: 'Shipping Zones',
-  apiEndpoint: '/api/admin/shipping/shipping-zones',
+  apiEndpoint: '/api/admin/shipping-zones',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

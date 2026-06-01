@@ -7,7 +7,7 @@ import { couponListConfig } from './listView'
 export const couponConfig = {
   entityName: 'Coupon',
   entityNamePlural: 'Coupons',
-  apiEndpoint: '/api/admin/marketing/coupons',
+  apiEndpoint: '/api/admin/coupons',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

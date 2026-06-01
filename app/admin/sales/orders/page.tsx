@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminOrdersPage() {
   const router = useRouter()
-  const { data: orders, loading, refresh } = useResource<Order[]>('/api/admin/sales/orders')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/sales/orders', entityName: 'order', refresh, useQueryParam: true })
+  const { data: orders, loading, refresh } = useResource<Order[]>('/api/admin/orders')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/orders', entityName: 'order', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/sales/orders/new')
 

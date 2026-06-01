@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const auditLogFormConfig: FormConfig = {
   entityName: 'Audit Log',
   entityNamePlural: 'Audit Logs',
-  apiEndpoint: '/api/admin/audit/dashboard',
+  apiEndpoint: '/api/admin/audit-logs',
   fields: [
     { key: 'user_id', label: 'User', type: 'string', placeholder: 'User ID', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'action', label: 'Action', type: 'string', required: true, placeholder: 'create / update / delete', columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

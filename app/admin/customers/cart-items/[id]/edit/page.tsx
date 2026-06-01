@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditCartItemPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: item, loading } = useResource<CartItem>(`/api/admin/customers/cart-items?id=${id}`)
+    const { data: item, loading } = useResource<CartItem>(`/api/admin/cart-items?id=${id}`)
 
     return (
         <ResourceView

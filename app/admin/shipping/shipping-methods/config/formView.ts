@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const shippingMethodFormConfig: FormConfig = {
   entityName: 'Shipping Method',
   entityNamePlural: 'Shipping Methods',
-  apiEndpoint: '/api/admin/shipping/shipping-methods',
+  apiEndpoint: '/api/admin/shipping-methods',
   fields: [
     { key: 'name', label: 'Name', type: 'string', required: true, placeholder: 'Standard Shipping', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'carrier', label: 'Carrier', type: 'selection', placeholder: 'UPS / FedEx / USPS', options: [{ value: 'UPS', label: 'UPS' }, { value: 'FedEx', label: 'FedEx' }, { value: 'USPS', label: 'USPS' }, { value: 'DHL', label: 'DHL' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

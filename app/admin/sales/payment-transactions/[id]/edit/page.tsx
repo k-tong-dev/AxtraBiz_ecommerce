@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditPaymentTransactionPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: item, loading } = useResource<PaymentTransaction>(`/api/admin/sales/payment-transactions?id=${id}`)
+    const { data: item, loading } = useResource<PaymentTransaction>(`/api/admin/payment-transactions?id=${id}`)
 
     return (
         <ResourceView

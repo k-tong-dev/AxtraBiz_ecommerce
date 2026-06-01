@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminTaxRatesPage() {
   const router = useRouter()
-  const { data: taxRates, loading, refresh } = useResource<TaxRate[]>('/api/admin/taxes/tax-rates')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/taxes/tax-rates', entityName: 'tax rate', refresh, useQueryParam: true })
+  const { data: taxRates, loading, refresh } = useResource<TaxRate[]>('/api/admin/tax-rates')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/tax-rates', entityName: 'tax rate', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/taxes/tax-rates/new')
   const openEdit = (row: TaxRate) => router.push(`/admin/taxes/tax-rates/${row.id}/edit`)

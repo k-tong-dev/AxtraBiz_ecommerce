@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminProductAttributesPage() {
   const router = useRouter()
-  const { data: attributes, loading, refresh } = useResource<ProductAttribute[]>('/api/admin/inventory/product-attributes')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/inventory/product-attributes', entityName: 'attribute', refresh, useQueryParam: false })
+  const { data: attributes, loading, refresh } = useResource<ProductAttribute[]>('/api/admin/product-attributes')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/product-attributes', entityName: 'attribute', refresh, useQueryParam: false })
 
   const openCreate = () => router.push('/admin/inventory/product-attributes/new')
 

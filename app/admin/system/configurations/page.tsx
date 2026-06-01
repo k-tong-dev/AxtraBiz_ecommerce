@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminConfigurationsPage() {
   const router = useRouter()
-  const { data: configurations, loading, refresh } = useResource<Configuration[]>('/api/admin/system/configurations')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/system/configurations', entityName: 'configuration', refresh, useQueryParam: true })
+  const { data: configurations, loading, refresh } = useResource<Configuration[]>('/api/admin/configurations')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/configurations', entityName: 'configuration', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/system/configurations/new')
 

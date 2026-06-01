@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const menuFormConfig: FormConfig = {
   entityName: 'Menu',
   entityNamePlural: 'Menus',
-  apiEndpoint: '/api/admin/content/menus',
+  apiEndpoint: '/api/admin/menus',
   fields: [
     { key: 'name', label: 'Name', type: 'string', required: true, columnWidth: 2, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'slug', label: 'Slug', type: 'string', required: true, columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

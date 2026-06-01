@@ -2,7 +2,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const currencyFormConfig: FormConfig = {
   entityName: 'Currency',
   entityNamePlural: 'Currencies',
-  apiEndpoint: '/api/admin/system/currencies',
+  apiEndpoint: '/api/admin/currencies',
   fields: [
     { key: 'code', label: 'Code', type: 'string', required: true, placeholder: 'USD', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'name', label: 'Name', type: 'string', required: true, placeholder: 'US Dollar', columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

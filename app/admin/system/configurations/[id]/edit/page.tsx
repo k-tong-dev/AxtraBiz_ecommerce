@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditConfigurationPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: configuration, loading } = useResource<Configuration>(`/api/admin/system/configurations?id=${id}`)
+    const { data: configuration, loading } = useResource<Configuration>(`/api/admin/configurations?id=${id}`)
 
     return (
         <ResourceView

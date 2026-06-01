@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const addressFormConfig: FormConfig = {
   entityName: 'Address',
   entityNamePlural: 'Addresses',
-  apiEndpoint: '/api/admin/customers/addresses',
+  apiEndpoint: '/api/admin/addresses',
   fields: [
     { key: 'user_id', label: 'User ID', type: 'string', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'type', label: 'Type', type: 'selection', placeholder: 'billing, shipping', options: [{ value: 'billing', label: 'Billing' }, { value: 'shipping', label: 'Shipping' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

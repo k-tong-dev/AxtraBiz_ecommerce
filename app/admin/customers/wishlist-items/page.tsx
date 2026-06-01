@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminWishlistItemsPage() {
   const router = useRouter()
-  const { data: items, loading, refresh } = useResource<WishlistItem[]>('/api/admin/customers/wishlist-items')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/customers/wishlist-items', entityName: 'wishlist item', refresh, useQueryParam: true })
+  const { data: items, loading, refresh } = useResource<WishlistItem[]>('/api/admin/wishlist-items')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/wishlist-items', entityName: 'wishlist item', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/customers/wishlist-items/new')
 

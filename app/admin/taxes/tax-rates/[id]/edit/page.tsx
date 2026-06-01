@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditTaxRatePage() {
   const params = useParams()
   const id = params.id as string
-  const { data: taxRate, loading } = useResource<TaxRate>(`/api/admin/taxes/tax-rates/${id}`)
+  const { data: taxRate, loading } = useResource<TaxRate>(`/api/admin/tax-rates/${id}`)
 
   return (
     <ResourceView

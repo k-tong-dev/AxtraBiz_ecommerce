@@ -3,7 +3,7 @@ import { FormConfig } from '@/components/Base/Views/FormView'
 export const productAttributeValueFormConfig: FormConfig = {
   entityName: 'Product Attribute Value',
   entityNamePlural: 'Product Attribute Values',
-  apiEndpoint: '/api/admin/inventory/product-attribute-values',
+  apiEndpoint: '/api/admin/product-attribute-values',
   fields: [
     {
       key: 'name',
@@ -38,7 +38,7 @@ export const productAttributeValueFormConfig: FormConfig = {
       groupNumber: 1,
       groupColumn: 2,
       order: 3,
-      fetchUrl: '/api/admin/inventory/product-attributes',
+      fetchUrl: '/api/admin/product-attributes',
     },
     {
       key: 'position',

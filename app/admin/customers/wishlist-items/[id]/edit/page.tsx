@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditWishlistItemPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: item, loading } = useResource<WishlistItem>(`/api/admin/customers/wishlist-items?id=${id}`)
+    const { data: item, loading } = useResource<WishlistItem>(`/api/admin/wishlist-items?id=${id}`)
 
     return (
         <ResourceView

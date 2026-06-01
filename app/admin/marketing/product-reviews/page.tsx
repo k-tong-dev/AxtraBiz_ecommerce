@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminProductReviewsPage() {
   const router = useRouter()
-  const { data: reviews, loading, refresh } = useResource<ProductReview[]>('/api/admin/marketing/product-reviews')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/marketing/product-reviews', entityName: 'product review', refresh, useQueryParam: true })
+  const { data: reviews, loading, refresh } = useResource<ProductReview[]>('/api/admin/product-reviews')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/product-reviews', entityName: 'product review', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/marketing/product-reviews/new')
   const openEdit = (row: ProductReview) => router.push(`/admin/marketing/product-reviews/${row.id}/edit`)

@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const pageFormConfig: FormConfig = {
   entityName: 'Page',
   entityNamePlural: 'Pages',
-  apiEndpoint: '/api/admin/content/pages',
+  apiEndpoint: '/api/admin/pages',
   fields: [
     { key: 'title', label: 'Title', type: 'string', required: true, placeholder: 'About Us', columnWidth: 2, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'slug', label: 'Slug', type: 'string', required: true, placeholder: 'about-us', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 1 },

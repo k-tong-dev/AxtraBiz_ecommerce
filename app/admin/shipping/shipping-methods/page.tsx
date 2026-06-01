@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminShippingMethodsPage() {
   const router = useRouter()
-  const { data: shippingMethods, loading, refresh } = useResource<ShippingMethod[]>('/api/admin/shipping/shipping-methods')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/shipping/shipping-methods', entityName: 'shipping method', refresh, useQueryParam: true })
+  const { data: shippingMethods, loading, refresh } = useResource<ShippingMethod[]>('/api/admin/shipping-methods')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/shipping-methods', entityName: 'shipping method', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/shipping/shipping-methods/new')
   const openEdit = (row: ShippingMethod) => router.push(`/admin/shipping/shipping-methods/${row.id}/edit`)

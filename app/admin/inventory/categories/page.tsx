@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminCategoriesPage() {
   const router = useRouter()
-  const { data: categories, loading, refresh } = useResource<ProductCategory[]>('/api/admin/inventory/categories')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/inventory/categories', entityName: 'category', refresh, useQueryParam: true })
+  const { data: categories, loading, refresh } = useResource<ProductCategory[]>('/api/admin/categories')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/categories', entityName: 'category', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/inventory/categories/new')
 

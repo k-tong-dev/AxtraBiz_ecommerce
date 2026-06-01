@@ -20,8 +20,8 @@ import { Stat, StatGroup, StatLabel, StatValue, StatTrend, StatHelpText } from '
 import Link from 'next/link'
 
 export default function AdminShippingPage() {
-  const { data: zones, loading: zonesLoading } = useResource<ShippingZone[]>('/api/admin/shipping/dashboard/shipping-zones')
-  const { data: methods, loading: methodsLoading } = useResource<ShippingMethod[]>('/api/admin/shipping/dashboard/shipping-methods')
+  const { data: zones, loading: zonesLoading } = useResource<ShippingZone[]>('/api/admin/shipping-zones')
+  const { data: methods, loading: methodsLoading } = useResource<ShippingMethod[]>('/api/admin/shipping-methods')
 
   const loading = zonesLoading || methodsLoading
 
@@ -131,16 +131,17 @@ export default function AdminShippingPage() {
       </div>
 
       <div className="flex gap-3 pt-2">
-        <Link href="/admin/shipping/dashboard/shipping-zones/new" className="inline-flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors">
-          <Globe className="w-4 h-4" />
+        <Link href="/admin/shipping/shipping-zones/new" className="inline-flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors">
+          <Package className="w-4 h-4" />
           Add Shipping Zone
         </Link>
-        <Link href="/admin/shipping/dashboard/shipping-zones" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
+        <Link href="/admin/shipping/shipping-zones" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
           View All Zones
         </Link>
-        <Link href="/admin/shipping/dashboard/shipping-methods" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
+        <Link href="/admin/shipping/shipping-methods" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
           View All Methods
         </Link>
+
       </div>
     </div>
   )

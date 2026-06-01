@@ -7,7 +7,7 @@ import { auditLogConfig } from './config'
 
 export default function AdminAuditLogsPage() {
   const router = useRouter()
-  const { data: logs, loading, refresh } = useResource<any[]>('/api/admin/audit/dashboard')
+  const { data: logs, loading, refresh } = useResource<any[]>('/api/admin/audit-logs')
 
   const config = auditLogConfig.listViewConfig(logs ?? [])
 

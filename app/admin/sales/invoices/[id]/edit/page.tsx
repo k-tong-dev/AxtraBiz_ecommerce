@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditInvoicePage() {
     const params = useParams()
     const id = params.id as string
-    const { data: invoice, loading } = useResource<Invoice>(`/api/admin/sales/invoices?id=${id}`)
+    const { data: invoice, loading } = useResource<Invoice>(`/api/admin/invoices?id=${id}`)
 
     return (
         <ResourceView

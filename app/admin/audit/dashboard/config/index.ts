@@ -7,7 +7,7 @@ import { auditLogListConfig } from './listView'
 export const auditLogConfig = {
   entityName: 'Audit Log',
   entityNamePlural: 'Audit Logs',
-  apiEndpoint: '/api/admin/audit/dashboard',
+  apiEndpoint: '/api/admin/audit-logs',
   defaultActions: {
     print: true,
     exportExcel: true,

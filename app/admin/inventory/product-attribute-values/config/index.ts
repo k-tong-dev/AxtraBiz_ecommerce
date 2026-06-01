@@ -10,7 +10,7 @@ import { ServerActionConfig } from '@/components/Base/Actions'
 export const productAttributeValueConfig = {
   entityName: 'Product Attribute Value',
   entityNamePlural: 'Product Attribute Values',
-  apiEndpoint: '/api/admin/inventory/product-attribute-values',
+  apiEndpoint: '/api/admin/product-attribute-values',
   
   // Default action flags - built-in actions enabled by default
   defaultActions: {

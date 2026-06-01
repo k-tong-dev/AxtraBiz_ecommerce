@@ -7,7 +7,7 @@ import { currencyListConfig } from './listView'
 export const currencyConfig = {
   entityName: 'Currency',
   entityNamePlural: 'Currencies',
-  apiEndpoint: '/api/admin/system/currencies',
+  apiEndpoint: '/api/admin/currencies',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditMenuPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: menu, loading } = useResource<Menu>(`/api/admin/content/menus?id=${id}`)
+    const { data: menu, loading } = useResource<Menu>(`/api/admin/menus?id=${id}`)
 
     return (
         <ResourceView

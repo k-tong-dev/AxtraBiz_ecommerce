@@ -2,7 +2,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const shippingZoneFormConfig: FormConfig = {
   entityName: 'Shipping Zone',
   entityNamePlural: 'Shipping Zones',
-  apiEndpoint: '/api/admin/shipping/shipping-zones',
+  apiEndpoint: '/api/admin/shipping-zones',
   fields: [
     { key: 'name', label: 'Name', type: 'string', required: true, placeholder: 'North America', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'description', label: 'Description', type: 'string', placeholder: 'Zone covering US and Canada', columnWidth: 2, groupNumber: 1, groupColumn: 1, order: 1 },

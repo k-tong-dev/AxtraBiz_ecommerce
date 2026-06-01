@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminPaymentMethodsPage() {
   const router = useRouter()
-  const { data: paymentMethods, loading, refresh } = useResource<PaymentMethod[]>('/api/admin/customers/payment-methods')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/customers/payment-methods', entityName: 'payment method', refresh, useQueryParam: true })
+  const { data: paymentMethods, loading, refresh } = useResource<PaymentMethod[]>('/api/admin/payment-methods')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/payment-methods', entityName: 'payment method', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/customers/payment-methods/new')
   const openEdit = (row: PaymentMethod) => router.push(`/admin/customers/payment-methods/${row.id}/edit`)

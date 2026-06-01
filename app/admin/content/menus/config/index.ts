@@ -7,7 +7,7 @@ import { menuListConfig } from './listView'
 export const menuConfig = {
   entityName: 'Menu',
   entityNamePlural: 'Menus',
-  apiEndpoint: '/api/admin/content/menus',
+  apiEndpoint: '/api/admin/menus',
   defaultActions: {
     print: true,
     exportExcel: true,

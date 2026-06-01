@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminAnnouncementsPage() {
   const router = useRouter()
-  const { data: announcements, loading, refresh } = useResource<Announcement[]>('/api/admin/marketing/announcements')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/marketing/announcements', entityName: 'announcement', refresh, useQueryParam: true })
+  const { data: announcements, loading, refresh } = useResource<Announcement[]>('/api/admin/announcements')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/announcements', entityName: 'announcement', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/marketing/announcements/new')
 

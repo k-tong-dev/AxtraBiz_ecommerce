@@ -7,7 +7,7 @@ import { categoryListConfig } from './listView'
 export const categoryConfig = {
   entityName: 'Category',
   entityNamePlural: 'Categories',
-  apiEndpoint: '/api/admin/inventory/categories',
+  apiEndpoint: '/api/admin/categories',
   defaultActions: {
     print: true,
     exportExcel: true,

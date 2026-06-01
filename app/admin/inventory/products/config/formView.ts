@@ -6,7 +6,7 @@ import {MdDescription} from "react-icons/md";
 export const productFormConfig: FormConfig = {
   entityName: 'Product',
   entityNamePlural: 'Products',
-  apiEndpoint: '/api/admin/inventory/products',
+  apiEndpoint: '/api/admin/products',
   fields: [
     // Media & Files Section - Always first
     {
@@ -414,7 +414,7 @@ export const productFormConfig: FormConfig = {
           key: 'category_id',
           label: 'Category',
           type: 'many2one',
-          fetchUrl: '/api/admin/inventory/categories',
+          fetchUrl: '/api/admin/categories',
           required: false,
           placeholder: 'Select category',
           columnWidth: 1,
@@ -426,7 +426,7 @@ export const productFormConfig: FormConfig = {
           key: 'brand_id',
           label: 'Brand',
           type: 'many2one',
-          fetchUrl: '/api/admin/inventory/brands',
+          fetchUrl: '/api/admin/brands',
           required: false,
           placeholder: 'Select brand',
           columnWidth: 1,
@@ -473,11 +473,11 @@ export const productFormConfig: FormConfig = {
           order: 1,
           widgetConfig: {
             // Junction table configuration
-            junctionTable: '/api/admin/inventory/product-attributes-rel',
+            junctionTable: '/api/admin/product-attributes-rel',
             localField: 'product_id',
             remoteField: 'attribute_id',
             // Related records
-            relation: '/api/admin/inventory/product-attributes',
+            relation: '/api/admin/product-attributes',
             displayField: 'name',
             valueField: 'id',
             // Extra columns on junction table
@@ -507,7 +507,7 @@ export const productFormConfig: FormConfig = {
           groupColumn: 1,
           order: 1,
           widgetConfig: {
-            relation: '/api/admin/inventory/product-variants',
+            relation: '/api/admin/product-variants',
             inverseField: 'product_id',
             columns: [
               { key: 'sku', title: 'SKU', width: 150, type: 'string', editable: true },

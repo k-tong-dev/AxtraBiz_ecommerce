@@ -7,7 +7,7 @@ import { paymentTransactionListConfig } from './listView'
 export const paymentTransactionConfig = {
   entityName: 'Payment Transaction',
   entityNamePlural: 'Payment Transactions',
-  apiEndpoint: '/api/admin/sales/payment-transactions',
+  apiEndpoint: '/api/admin/payment-transactions',
   defaultActions: {
     print: true,
     exportExcel: true,

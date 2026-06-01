@@ -20,7 +20,7 @@ import { Stat, StatGroup, StatLabel, StatValue, StatTrend, StatHelpText } from '
 import Link from 'next/link'
 
 export default function AdminTaxesPage() {
-  const { data: taxRates, loading } = useResource<TaxRate[]>('/api/admin/taxes/dashboard/tax-rates')
+  const { data: taxRates, loading } = useResource<TaxRate[]>('/api/admin/tax-rates')
 
   const stats = useMemo(() => {
     const all = taxRates || []
@@ -123,11 +123,11 @@ export default function AdminTaxesPage() {
       </div>
 
       <div className="flex gap-3 pt-2">
-        <Link href="/admin/taxes/dashboard/tax-rates/new" className="inline-flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors">
-          <Percent className="w-4 h-4" />
+        <Link href="/admin/taxes/tax-rates/new" className="inline-flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors">
+          <Package className="w-4 h-4" />
           Add Tax Rate
         </Link>
-        <Link href="/admin/taxes/dashboard/tax-rates" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
+        <Link href="/admin/taxes/tax-rates" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
           View All Tax Rates
         </Link>
       </div>

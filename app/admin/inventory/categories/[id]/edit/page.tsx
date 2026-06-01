@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditCategoryPage() {
   const params = useParams()
   const id = params.id as string
-  const { data: category, loading } = useResource<ProductCategory>(`/api/admin/inventory/categories/${id}`)
+  const { data: category, loading } = useResource<ProductCategory>(`/api/admin/categories/${id}`)
 
   return (
     <ResourceView

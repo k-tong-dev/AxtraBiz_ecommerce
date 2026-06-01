@@ -20,7 +20,7 @@ import { Stat, StatGroup, StatLabel, StatValue, StatTrend, StatHelpText } from '
 import Link from 'next/link'
 
 export default function AdminInventoryPage() {
-  const { data: products, loading } = useResource<ProductTemplate[]>('/api/admin/inventory/dashboard/products')
+  const { data: products, loading } = useResource<ProductTemplate[]>('/api/admin/products')
 
   const stats = useMemo(() => {
     const all = products || []
@@ -139,14 +139,14 @@ export default function AdminInventoryPage() {
       </div>
 
       <div className="flex gap-3 pt-2">
-        <Link href="/admin/inventory/dashboard/products/new" className="inline-flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors">
+        <Link href="/admin/inventory/products/new" className="inline-flex items-center gap-2 rounded-lg bg-primary/10 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/20 transition-colors">
           <Package className="w-4 h-4" />
           Add Product
         </Link>
-        <Link href="/admin/inventory/dashboard/products" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
+        <Link href="/admin/inventory/products" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
           View All Products
         </Link>
-        <Link href="/admin/inventory/dashboard/product-variants" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
+        <Link href="/admin/inventory/product-variants" className="inline-flex items-center gap-2 rounded-lg bg-muted px-4 py-2 text-sm font-medium hover:bg-muted/80 transition-colors">
           Manage Variants
         </Link>
       </div>

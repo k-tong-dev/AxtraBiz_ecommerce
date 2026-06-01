@@ -12,7 +12,7 @@ import { createElement } from 'react'
 export const productAttributeConfig = {
   entityName: 'Product Attribute',
   entityNamePlural: 'Product Attributes',
-  apiEndpoint: '/api/admin/inventory/product-attributes',
+  apiEndpoint: '/api/admin/product-attributes',
   
   // Default action flags - built-in actions enabled by default
   defaultActions: {

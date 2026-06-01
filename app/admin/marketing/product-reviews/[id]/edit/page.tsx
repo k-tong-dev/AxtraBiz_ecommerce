@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditProductReviewPage() {
   const params = useParams()
   const id = params.id as string
-  const { data: review, loading } = useResource<ProductReview>(`/api/admin/marketing/product-reviews/${id}`)
+  const { data: review, loading } = useResource<ProductReview>(`/api/admin/product-reviews/${id}`)
 
   return (
     <ResourceView

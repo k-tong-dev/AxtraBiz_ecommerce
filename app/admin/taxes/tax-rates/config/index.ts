@@ -7,7 +7,7 @@ import { taxRateListConfig } from './listView'
 export const taxRateConfig = {
   entityName: 'Tax Rate',
   entityNamePlural: 'Tax Rates',
-  apiEndpoint: '/api/admin/taxes/tax-rates',
+  apiEndpoint: '/api/admin/tax-rates',
   defaultActions: {
     print: true, exportExcel: true, delete: true,
     duplicate: true, copyJson: true, archive: true, unarchive: true,

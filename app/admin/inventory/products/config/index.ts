@@ -16,7 +16,7 @@ import { createElement } from 'react'
 export const productConfig = {
   entityName: 'Product',
   entityNamePlural: 'Products',
-  apiEndpoint: '/api/admin/inventory/products',
+  apiEndpoint: '/api/admin/products',
   
   // Default action flags - built-in actions enabled by default
   defaultActions: {

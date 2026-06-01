@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const paymentTransactionFormConfig: FormConfig = {
   entityName: 'Payment Transaction',
   entityNamePlural: 'Payment Transactions',
-  apiEndpoint: '/api/admin/sales/payment-transactions',
+  apiEndpoint: '/api/admin/payment-transactions',
   fields: [
     { key: 'order_id', label: 'Order ID', type: 'number', required: true, columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'status', label: 'Status', type: 'selection', options: [{ value: 'pending', label: 'Pending' }, { value: 'completed', label: 'Completed' }, { value: 'failed', label: 'Failed' }, { value: 'refunded', label: 'Refunded' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

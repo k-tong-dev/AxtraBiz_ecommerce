@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditAddressPage() {
   const params = useParams()
   const id = params.id as string
-  const { data: address, loading } = useResource<Address>(`/api/admin/customers/addresses/${id}`)
+  const { data: address, loading } = useResource<Address>(`/api/admin/addresses/${id}`)
 
   return (
     <ResourceView

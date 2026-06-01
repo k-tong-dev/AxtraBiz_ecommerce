@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const paymentMethodFormConfig: FormConfig = {
   entityName: 'Payment Method',
   entityNamePlural: 'Payment Methods',
-  apiEndpoint: '/api/admin/customers/payment-methods',
+  apiEndpoint: '/api/admin/payment-methods',
   fields: [
     { key: 'user_id', label: 'User ID', type: 'string', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
     { key: 'type', label: 'Type', type: 'selection', required: true, options: [{ value: 'credit_card', label: 'Credit Card' }, { value: 'paypal', label: 'PayPal' }, { value: 'stripe', label: 'Stripe' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },

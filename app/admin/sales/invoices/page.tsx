@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminInvoicesPage() {
   const router = useRouter()
-  const { data: invoices, loading, refresh } = useResource<Invoice[]>('/api/admin/sales/invoices')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/sales/invoices', entityName: 'invoice', refresh, useQueryParam: true })
+  const { data: invoices, loading, refresh } = useResource<Invoice[]>('/api/admin/invoices')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/invoices', entityName: 'invoice', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/sales/invoices/new')
 

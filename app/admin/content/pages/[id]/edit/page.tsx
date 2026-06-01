@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditPagePage() {
   const params = useParams()
   const id = params.id as string
-  const { data: page, loading } = useResource<Page>(`/api/admin/content/pages/${id}`)
+  const { data: page, loading } = useResource<Page>(`/api/admin/pages/${id}`)
 
   return (
     <ResourceView

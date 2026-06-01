@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditAnnouncementPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: announcement, loading } = useResource<Announcement>(`/api/admin/marketing/announcements?id=${id}`)
+    const { data: announcement, loading } = useResource<Announcement>(`/api/admin/announcements?id=${id}`)
 
     return (
         <ResourceView

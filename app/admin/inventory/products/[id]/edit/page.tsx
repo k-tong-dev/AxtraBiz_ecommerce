@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditProductPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: product, loading } = useResource<ProductTemplate>(`/api/admin/inventory/products/${id}`)
+    const { data: product, loading } = useResource<ProductTemplate>(`/api/admin/products/${id}`)
 
     return (
         <ResourceView

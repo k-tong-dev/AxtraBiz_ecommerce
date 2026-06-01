@@ -1,13 +1,14 @@
-import { 
-  pgTable, 
-  serial, 
-  text, 
-  varchar, 
-  numeric, 
-  timestamp, 
+import {
+  pgTable,
+  serial,
+  text,
+  varchar,
+  numeric,
+  timestamp,
   integer,
   jsonb,
-  boolean
+  boolean,
+  pgEnum
 } from "drizzle-orm/pg-core";
 
 /**
@@ -52,7 +53,7 @@ export const currencies = pgTable('currencies', {
 });
 
 // Product template table
-export const product_template = pgTable('product_template', {
+ export const product_template = pgTable('product_template', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull(),
@@ -69,7 +70,8 @@ export const product_template = pgTable('product_template', {
   category_id: integer('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
   brand_id: integer('brand_id').references(() => product_brand.id, { onDelete: 'set null' }),
   tax_rate_id: integer('tax_rate_id').references(() => tax_rates.id, { onDelete: 'set null' }),
-  product_type: text('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
+  // product_type: text('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
+  product_type: pgEnum('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
   status: text('status').notNull().default('draft'), // draft, published, archived
   meta_title: text('meta_title'),
   meta_description: text('meta_description'),

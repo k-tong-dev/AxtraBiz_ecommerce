@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditProductVariantPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: variant, loading } = useResource<ProductVariant>(`/api/admin/inventory/product-variants/${id}`)
+    const { data: variant, loading } = useResource<ProductVariant>(`/api/admin/product-variants/${id}`)
 
     return (
         <ResourceView

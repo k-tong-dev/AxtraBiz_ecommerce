@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditBrandPage() {
   const params = useParams()
   const id = params.id as string
-  const { data: brand, loading } = useResource<Brand>(`/api/admin/inventory/brands/${id}`)
+  const { data: brand, loading } = useResource<Brand>(`/api/admin/brands/${id}`)
 
   // if (loading) return <div className="p-8 text-muted-foreground">Loading...</div>
   // if (!brand) return <div className="p-8 text-destructive">Brand not found</div>

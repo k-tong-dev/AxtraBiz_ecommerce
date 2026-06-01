@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminSettingsPage() {
   const router = useRouter()
-  const { data: settings, loading, refresh } = useResource<Setting[]>('/api/admin/system/settings')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/system/settings', entityName: 'setting', refresh, useQueryParam: true })
+  const { data: settings, loading, refresh } = useResource<Setting[]>('/api/admin/settings')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/settings', entityName: 'setting', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/system/settings/new')
 

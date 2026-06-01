@@ -9,9 +9,9 @@ import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete
 
 export default function AdminProductsPage() {
   const router = useRouter()
-  const { data: products, loading, refresh } = useResource<ProductTemplate[]>('/api/admin/inventory/products')
+  const { data: products, loading, refresh } = useResource<ProductTemplate[]>('/api/admin/products')
   const { confirmDelete, deleteModal } = useConfirmDelete({
-    apiEndpoint: '/api/admin/inventory/products',
+    apiEndpoint: '/api/admin/products',
     entityName: 'product',
     refresh,
   })

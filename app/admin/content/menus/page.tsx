@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminMenusPage() {
   const router = useRouter()
-  const { data: menus, loading, refresh } = useResource<Menu[]>('/api/admin/content/menus')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/content/menus', entityName: 'menu', refresh, useQueryParam: true })
+  const { data: menus, loading, refresh } = useResource<Menu[]>('/api/admin/menus')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/admin/menus', entityName: 'menu', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/admin/content/menus/new')
 

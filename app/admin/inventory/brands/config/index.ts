@@ -7,7 +7,7 @@ import { brandListConfig } from './listView'
 export const brandConfig = {
   entityName: 'Brand',
   entityNamePlural: 'Brands',
-  apiEndpoint: '/api/admin/inventory/brands',
+  apiEndpoint: '/api/admin/brands',
   defaultActions: {
     print: true,
     exportExcel: true,
