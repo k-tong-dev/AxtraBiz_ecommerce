@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import type { OrderLine } from '@/lib/drizzle/server'
-import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
+import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { orderLineConfig } from './config'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminOrderLinesPage() {
   const router = useRouter()

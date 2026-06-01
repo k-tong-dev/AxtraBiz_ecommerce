@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation'
 import type { ProductTemplate } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { productConfig } from './config'
-import { useResource } from '@/lib/hooks/useResource'
-import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
+import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 
 export default function AdminProductsPage() {
   const router = useRouter()

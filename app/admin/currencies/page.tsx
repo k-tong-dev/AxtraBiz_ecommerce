@@ -1,10 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 import { ResourceView } from '@/components/Base/Views'
 import { currencyConfig } from './config'
-import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
+import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 
 export default function AdminCurrenciesPage() {
   const router = useRouter()

@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation'
 import type { ProductTemplate } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { productConfig } from '../../config'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function EditProductPage() {
     const params = useParams()

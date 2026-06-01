@@ -43,7 +43,7 @@ export function StatusBadge({
 
   return (
     <Badge
-      variant="outline"
+      color="red"
       className={`capitalize font-medium ${getVariantClasses(resolved)}`}
     >
       {value}

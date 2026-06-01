@@ -410,7 +410,22 @@ export const menus = pgTable('menus', {
   ...auditColumns,
 });
 
+// Audit logs table (tracks all user actions across the system)
+export const audit_logs = pgTable('audit_logs', {
+  id: serial('id').primaryKey(),
+  user_id: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  action: text('action').notNull(), // create, update, delete, login, logout, export, etc.
+  entity_type: text('entity_type').notNull(), // product, order, user, configuration, etc.
+  entity_id: text('entity_id'),
+  details: jsonb('details').default('{}'),
+  ip_address: text('ip_address'),
+  user_agent: text('user_agent'),
+  severity: text('severity').notNull().default('info'), // info, warning, error, critical
+  ...timestamps,
+});
+
 // Type exports
+export type AuditLog = typeof audit_logs.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Currency = typeof currencies.$inferSelect;
 export type ProductTemplate = typeof product_template.$inferSelect;

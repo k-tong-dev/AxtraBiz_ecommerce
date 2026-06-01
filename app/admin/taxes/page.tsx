@@ -15,7 +15,7 @@ import {
 } from 'recharts'
 import { Percent, CheckCircle, XCircle, Globe, TrendingUp } from 'lucide-react'
 import type { TaxRate } from '@/lib/drizzle/server'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 import { Stat, StatGroup, StatLabel, StatValue, StatTrend, StatHelpText } from '@/components/ui/stat'
 import Link from 'next/link'
 

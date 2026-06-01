@@ -6,7 +6,7 @@ import {Filter as FilterIcon} from 'lucide-react'
 import {FieldFilterInput} from './FieldFilterInput'
 import {Button} from "@/components/ui/button";
 
-export type FilterType = 'text' | 'number' | 'date' | 'options' | 'boolean'
+export type FilterType = 'text' | 'number' | 'date' | 'options' | 'boolean' | 'string'
 export type FilterOperator = 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'gt' | 'lt' | 'gte' | 'lte' | 'between'
 
 export interface FilterField {
@@ -167,12 +167,17 @@ export function Filter({
                 }
             >
                 <Badge content={filterValues.length > 0 && filterValues.length} invisible={filterValues.length <= 0 }>
-                    <button
+                    <Button size={"md"}
                         onClick={() => whisperRef.current?.open()}
-                        className={`flex items-center gap-1 px-3 py-1.5 border rounded text-sm transition-colors border-gray-300 hover:bg-gray-50`}
+                            style={{
+                                backgroundColor: "transparent",
+                                borderWidth: "0.5px",
+                                boxShadow: "none",
+                            }}
+                        className={`flex items-center gap-1 border rounded text-sm transition-colors border-gray-300 hover:bg-gray-50`}
                     >
                         <FilterIcon size={14} />
-                </button>
+                </Button>
                 </Badge>
                 
             </Whisper>

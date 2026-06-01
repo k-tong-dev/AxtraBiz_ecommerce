@@ -20,6 +20,10 @@ import {
   FileText,
   HelpCircle,
   Warehouse,
+  Gift,
+  Star,
+  CircleDollarSign,
+  History,
 } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
 import { useAuth } from '@/hooks/use-auth'
@@ -144,8 +148,16 @@ export function AdminSidebar() {
                 </Nav.Menu>
 
                 <SidebarGroupLabel label="Content" />
+                <Nav.Menu eventKey="content" title="Content" icon={<FileText className="h-3.5 w-3.5 text-cyan-600/70" />}>
+                  <Nav.Item eventKey="/admin/pages" icon={<FileText className="h-3.5 w-3.5 text-cyan-500/50" />}>Pages</Nav.Item>
+                  <Nav.Item eventKey="/admin/menus" icon={<Menu className="h-3.5 w-3.5 text-cyan-500/50" />}>Menus</Nav.Item>
+                </Nav.Menu>
+
+                <SidebarGroupLabel label="Marketing" />
                 <Nav.Menu eventKey="marketing" title="Marketing" icon={<Megaphone className="h-3.5 w-3.5 text-amber-600/70" />}>
                   <Nav.Item eventKey="/admin/announcements" icon={<Megaphone className="h-3.5 w-3.5 text-amber-500/50" />}>Announcements</Nav.Item>
+                  <Nav.Item eventKey="/admin/coupons" icon={<Gift className="h-3.5 w-3.5 text-amber-500/50" />}>Coupons</Nav.Item>
+                  <Nav.Item eventKey="/admin/product-reviews" icon={<Star className="h-3.5 w-3.5 text-amber-500/50" />}>Reviews</Nav.Item>
                 </Nav.Menu>
 
                 <SidebarGroupLabel label="Media" />
@@ -157,6 +169,8 @@ export function AdminSidebar() {
                 <Nav.Menu eventKey="preferences" title="Preferences" icon={<Settings className="h-3.5 w-3.5 text-muted-foreground/70" />}>
                   <Nav.Item eventKey="/admin/settings" icon={<Settings className="h-3.5 w-3.5 text-muted-foreground/50" />}>Settings</Nav.Item>
                   <Nav.Item eventKey="/admin/configurations" icon={<SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground/50" />}>Configurations</Nav.Item>
+                  <Nav.Item eventKey="/admin/currencies" icon={<CircleDollarSign className="h-3.5 w-3.5 text-muted-foreground/50" />}>Currencies</Nav.Item>
+                  <Nav.Item eventKey="/admin/audit-logs" icon={<History className="h-3.5 w-3.5 text-muted-foreground/50" />}>Audit Logs</Nav.Item>
                 </Nav.Menu>
               </Nav>
             </Sidenav.Body>

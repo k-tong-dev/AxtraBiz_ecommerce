@@ -4,7 +4,7 @@ import React, {useState, useRef, useEffect} from 'react'
 import {ChevronDown, Plus} from 'lucide-react'
 import {DatePicker} from 'rsuite'
 
-export type FilterType = 'text' | 'number' | 'date' | 'options' | 'boolean'
+export type FilterType = 'text' | 'number' | 'date' | 'options' | 'boolean' | 'string'
 export type FilterOperator = 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'gt' | 'lt' | 'gte' | 'lte' | 'between'
 
 export interface FilterField {

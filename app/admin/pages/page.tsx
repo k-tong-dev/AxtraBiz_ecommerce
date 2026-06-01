@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import type { Page } from '@/lib/drizzle/server'
-import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
+import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { pageConfig } from './config'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminPagesPage() {
   const router = useRouter()

@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import type { Coupon } from '@/lib/drizzle/server'
-import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
+import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { couponConfig } from './config'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminCouponsPage() {
   const router = useRouter()

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, type ReactNode} from 'react'
+import { Suspense, useState, useEffect, useCallback, type ReactNode } from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
 import {Breadcrumb, Dropdown, Loader, Popover, Whisper, Drawer, Tabs, Tab} from 'rsuite'
 import type { StorageFile } from '@/components/Base/Asset/types'
@@ -167,7 +167,15 @@ interface FormViewProps<T extends Entity> {
     onRefresh?: () => void  // trigger parent data refresh
 }
 
-export function FormView<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint, recordIds, onNavigate, onRefresh}: FormViewProps<T>) {
+export function FormView<T extends Entity>(props: FormViewProps<T>) {
+  return (
+    <Suspense fallback={<div className="p-8"><Loader center /></div>}>
+      <FormViewContent {...props} />
+    </Suspense>
+  )
+}
+
+function FormViewContent<T extends Entity>({mode, config, initialData, entityId, serverActions, availableFields = [], onPrint, recordIds, onNavigate, onRefresh}: FormViewProps<T>) {
     const router = useRouter()
     const searchParams = useSearchParams()
 

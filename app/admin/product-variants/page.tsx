@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import type { ProductVariant } from '@/lib/drizzle/server'
-import { useConfirmDelete } from '@/lib/hooks/useConfirmDelete'
+import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { productVariantConfig } from './config'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminProductVariantsPage() {
   const router = useRouter()

@@ -204,7 +204,7 @@ export function VariantManager({
               <Input
                 placeholder="Add value..."
                 className="w-32 h-8"
-                onKeyDown={(e) => {
+                onKeyDown={(e:any) => {
                   if (e.key === 'Enter' && e.currentTarget.value) {
                     addAttributeValue(attribute.name, e.currentTarget.value)
                     e.currentTarget.value = ''

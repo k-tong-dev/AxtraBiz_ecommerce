@@ -20,6 +20,7 @@ export const menuListConfig: ListViewConfig = {
       key: 'active',
       title: 'Active',
       width: 80,
+      type: 'boolean',
       sortable: true,
       render: (value: boolean) => value ? 'Yes' : 'No'
     },

@@ -42,6 +42,7 @@ export {
   pages,
   menus,
   currencies,
+  audit_logs,
 } from '../../drizzle/schema'
 
 export type {
@@ -72,4 +73,5 @@ export type {
   ShippingMethod,
   Page,
   Menu,
+  AuditLog,
 } from '../../drizzle/schema'

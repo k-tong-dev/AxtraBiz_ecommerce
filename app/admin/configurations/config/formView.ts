@@ -46,9 +46,15 @@ export const configurationFormConfig: FormConfig = {
     {
       key: 'category',
       label: 'Category',
-      type: 'string',
+      type: 'selection',
       required: true,
-      placeholder: 'general',
+      options: [
+        { value: 'general', label: 'General' },
+        { value: 'payment', label: 'Payment' },
+        { value: 'shipping', label: 'Shipping' },
+        { value: 'tax', label: 'Tax' },
+        { value: 'email', label: 'Email' }
+      ],
       columnWidth: 1,
       groupNumber: 2,
       groupColumn: 2,

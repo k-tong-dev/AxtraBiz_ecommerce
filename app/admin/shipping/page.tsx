@@ -15,7 +15,7 @@ import {
 } from 'recharts'
 import { Truck, Globe, Package, CheckCircle, XCircle, TrendingUp, DollarSign } from 'lucide-react'
 import type { ShippingZone, ShippingMethod } from '@/lib/drizzle/server'
-import { useResource } from '@/lib/hooks/useResource'
+import { useResource } from '@/components/Base/Views/hooks/useResource'
 import { Stat, StatGroup, StatLabel, StatValue, StatTrend, StatHelpText } from '@/components/ui/stat'
 import Link from 'next/link'
 

@@ -37,14 +37,18 @@ export function AdminFormActionBar({
         </Button>
 
         {onCustomAction && (
-          <Button size="sm" variant="outline" onClick={onCustomAction} className="gap-2">
+          <Button size="sm"
+                  appearance="primary" color={"violet"}
+                  onClick={onCustomAction} className="gap-2">
             <Play className="h-4 w-4" />
             {customActionLabel}
           </Button>
         )}
 
         {onPrint && (
-          <Button size="sm" variant="outline" onClick={onPrint} className="gap-2">
+          <Button size="sm"
+                  appearance="primary" color={"violet"}
+                  onClick={onPrint} className="gap-2">
             <Printer className="h-4 w-4" />
             Print
           </Button>
@@ -53,7 +57,8 @@ export function AdminFormActionBar({
         {onDelete && (
           <Button
             size="sm"
-            variant="destructive"
+            color={"red"}
+            appearance="primary"
             onClick={onDelete}
             disabled={deleteDisabled}
             className="gap-2"

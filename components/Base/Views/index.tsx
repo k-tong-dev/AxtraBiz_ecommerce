@@ -10,27 +10,18 @@ import {Button} from '@/components/ui/button'
 import {Card} from '@/components/ui/card'
 import {Loader} from 'rsuite'
 
-import { List, Grid3x3, Calendar, Info, Bookmark } from 'lucide-react'
+import { List, Grid3x3, Calendar, Info } from 'lucide-react'
 import {ResourceViewProps, ResourceType} from './types'
 import {MdAdd} from "react-icons/md";
-import {Search as SearchComponent, SearchValue} from '../Search'
-import {Filter, FilterValue} from '../Filter'
-import {GroupBy} from '../GroupBy'
 import {ServerActions} from '../Actions'
 import {Tooltip, TooltipTrigger, TooltipContent} from '@/components/ui/tooltip'
-import {DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem} from '@/components/ui/dropdown-menu'
-import { useViewPresets } from '@/lib/hooks/useViewPresets'
 import { useAuth } from '@/hooks/use-auth'
-import { Modal } from '@/components/ui/modal'
-import { Input, InputGroup } from 'rsuite'
+import { useViewToolbar } from '@/components/Base/ViewToolbar/hooks/useViewToolbar'
+import { ViewToolbar } from '../ViewToolbar'
 
 export function ResourceView({config, onEdit, onCreate, onDelete, loading, entityId, initialData, recordIds, onNavigate, onRefresh}: ResourceViewProps) {
     const [viewType, setViewType] = useState<ResourceType>(config.type)
     const [editingId, setEditingId] = useState<string | undefined>(undefined)
-    const [searchValues, setSearchValues] = useState<SearchValue[]>([])
-    const [filterValues, setFilterValues] = useState<FilterValue[]>([])
-    const [groupByField, setGroupByField] = useState<string | null>(null)
-    const [showFilterPanel, setShowFilterPanel] = useState(false)
     const [selectedIds, setSelectedIds] = useState<string[]>([])
     const [formInitialData, setFormInitialData] = useState<any>(initialData)
     const [mounted, setMounted] = useState(false)
@@ -39,9 +30,11 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
     const [showPrintModal, setShowPrintModal] = useState(false)
     const [printConfig, setPrintConfig] = useState<{data: any[]; mode: 'single' | 'bulk'; title: string; template?: React.ComponentType<any>} | null>(null)
     const { user } = useAuth()
-    const { presets, savePreset, deletePreset, loadPreset } = useViewPresets(String(user?.id ?? 'anonymous'), typeof window !== 'undefined' ? window.location.pathname : '')
-    const [showSavePreset, setShowSavePreset] = useState(false)
-    const [presetName, setPresetName] = useState('')
+    const toolbar = useViewToolbar({
+      userId: String(user?.id ?? 'anonymous'),
+      pathname: typeof window !== 'undefined' ? window.location.pathname : '',
+    })
+    const { searchValues, filterValues, groupByField, setSearchValues, setFilterValues, setGroupByField, showFilterPanel, setShowFilterPanel } = toolbar
 
     // Set editingId after mount to avoid hydration mismatch
     useEffect(() => {
@@ -276,116 +269,41 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     })}
                 </div>
                 <div className="flex items-center gap-2">
-                    <SearchComponent
-                        fields={config.listViewConfig?.columns
-                            .map(col => ({
-                                key: col.key,
-                                label: col.title,
-                                type: 'text'
-                            })) || []}
-                        onSearchChange={setSearchValues}
-                        placeholder="Search..."
-                        width={400}
-                    />
-                    <Filter
-                        fields={config.listViewConfig?.columns
-                            .filter(col => col.filterable !== false)
-                            .map(col => ({
-                                key: col.key,
-                                label: col.title,
-                                type: col.type || 'text',
-                                options: col.filterOptions
-                            })) || []}
-                        value={filterValues}
-                        onChange={setFilterValues}
-                    />
-                    <GroupBy
-                        fields={config.listViewConfig?.columns
-                            .filter(col => col.groupable !== false)
-                            .map(col => ({
-                                key: col.key,
-                                label: col.title
-                            })) || []}
-                        value={groupByField}
-                        onChange={setGroupByField}
-                    />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <button className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors" title="View presets">
-                                <Bookmark size={16} color={"orange"} />
-                            </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem
-                                onClick={() => {
-                                    setPresetName('')
-                                    setShowSavePreset(true)
+                    <ViewToolbar
+                        toolbar={toolbar}
+                        columns={config.listViewConfig?.columns}
+                        currentViewType={viewType}
+                    >
+                        {selectedIds.length > 0 && (
+                            <ServerActions
+                                actions={mergedServerActions}
+                                data={currentFilteredData.filter(item => 
+                                    selectedIds.includes(item.id || item._id)
+                                ) || []}
+                                context={{
+                                    mode: 'bulk',
+                                    view: 'list',
+                                    selectedIds,
+                                    apiEndpoint: config.formViewConfig?.apiEndpoint,
+                                    refresh: onRefresh,
                                 }}
-                                className="text-xs cursor-pointer font-medium hover:bg-muted/70 hover:text-foreground focus:bg-muted/70 focus:text-foreground"
-                            >
-                                <Bookmark className="w-3.5 h-3.5" color={"orange"} />
-                                Save current view
-                            </DropdownMenuItem>
-                            {presets.length > 0 && <div className="h-px bg-border/40 mx-2 my-1" />}
-                            {presets.map((preset) => (
-                                <div key={preset.id} className="flex items-center group">
-                                    <DropdownMenuItem
-                                        onClick={() => {
-                                            const loaded = loadPreset(preset.id)
-                                            if (loaded) {
-                                                setViewType(loaded.viewType as ResourceType)
-                                                setSearchValues(loaded.searchValues)
-                                                setFilterValues(loaded.filterValues)
-                                                setGroupByField(loaded.groupByField)
-                                            }
-                                        }}
-                                        className="text-xs cursor-pointer flex-1 hover:bg-muted/70 hover:text-foreground focus:bg-muted/70 focus:text-foreground"
-                                    >
-                                        {preset.name}
-                                    </DropdownMenuItem>
-                                    <button
-                                        onClick={() => deletePreset(preset.id)}
-                                        className="shrink-0 px-2 py-1 text-muted-foreground/50 hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                                        title="Delete preset"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            ))}
-                            {presets.length === 0 && (
-                                <p className="px-2 py-2 text-xs text-muted-foreground text-center">No saved presets</p>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    {selectedIds.length > 0 && (
-                        <ServerActions
-                            actions={mergedServerActions}
-                            data={currentFilteredData.filter(item => 
-                                selectedIds.includes(item.id || item._id)
-                            ) || []}
-                            context={{
-                                mode: 'bulk',
-                                view: 'list',
-                                selectedIds,
-                                apiEndpoint: config.formViewConfig?.apiEndpoint,
-                                refresh: onRefresh,
-                            }}
-                            layout="dropdown"
-                            onPrint={handlePrint}
-                            availableFields={config.listViewConfig?.columns?.map(col => ({
-                                key: col.key,
-                                label: col.title,
-                                type: col.type
-                            })) || []}
-                        />
-                    )}
-                    <Button onClick={handleCreate}
-                            color="violet"
-                            startIcon={<MdAdd />}
-                            appearance={"primary"}
-                            size="sm">
-                        New
-                    </Button>
+                                layout="dropdown"
+                                onPrint={handlePrint}
+                                availableFields={config.listViewConfig?.columns?.map(col => ({
+                                    key: col.key,
+                                    label: col.title,
+                                    type: col.type
+                                })) || []}
+                            />
+                        )}
+                        <Button onClick={handleCreate}
+                                color="violet"
+                                startIcon={<MdAdd />}
+                                appearance={"primary"}
+                                size="sm">
+                            New
+                        </Button>
+                    </ViewToolbar>
                 </div>
             </div>
         )
@@ -433,43 +351,6 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                     onClose={handlePrintClose}
                 />
             )}
-
-            <Modal open={showSavePreset} backdrop="static" onClose={() => setShowSavePreset(false)}>
-                <Modal.Header>
-                    <Modal.Title>Save View Preset</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p className="text-sm text-muted-foreground mb-3">Name your current view configuration so you can reload it later.</p>
-                    <Input
-                        placeholder="e.g. Default product list"
-                        value={presetName}
-                        onChange={(v) => setPresetName(v)}
-                        onPressEnter={() => {
-                            if (presetName.trim()) {
-                                savePreset(presetName.trim(), viewType, searchValues, filterValues, groupByField)
-                                setShowSavePreset(false)
-                            }
-                        }}
-                    />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={() => setShowSavePreset(false)} appearance="default">
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            if (presetName.trim()) {
-                                savePreset(presetName.trim(), viewType, searchValues, filterValues, groupByField)
-                                setShowSavePreset(false)
-                            }
-                        }}
-                        appearance="primary"
-                        color="violet"
-                    >
-                        Save
-                    </Button>
-                </Modal.Footer>
-            </Modal>
         </Card>
     )
 }
