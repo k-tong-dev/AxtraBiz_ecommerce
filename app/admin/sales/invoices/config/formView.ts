@@ -56,9 +56,11 @@ export const invoiceFormConfig: FormConfig = {
       required: true,
       options: [
         { value: 'draft', label: 'Draft' },
-        { value: 'issued', label: 'Issued' },
+        { value: 'pending', label: 'Pending' },
         { value: 'paid', label: 'Paid' },
-        { value: 'void', label: 'Void' }
+        { value: 'overdue', label: 'Overdue' },
+        { value: 'cancelled', label: 'Cancelled' },
+        { value: 'refunded', label: 'Refunded' }
       ],
       columnWidth: 1,
       groupNumber: 3,

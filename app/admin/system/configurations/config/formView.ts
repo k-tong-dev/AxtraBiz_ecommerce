@@ -36,7 +36,8 @@ export const configurationFormConfig: FormConfig = {
         { value: 'string', label: 'String' },
         { value: 'number', label: 'Number' },
         { value: 'boolean', label: 'Boolean' },
-        { value: 'json', label: 'JSON' }
+        { value: 'json', label: 'JSON' },
+        { value: 'text', label: 'Text' }
       ],
       columnWidth: 1,
       groupNumber: 2,
@@ -50,10 +51,12 @@ export const configurationFormConfig: FormConfig = {
       required: true,
       options: [
         { value: 'general', label: 'General' },
+        { value: 'store', label: 'Store' },
+        { value: 'email', label: 'Email' },
         { value: 'payment', label: 'Payment' },
         { value: 'shipping', label: 'Shipping' },
-        { value: 'tax', label: 'Tax' },
-        { value: 'email', label: 'Email' }
+        { value: 'seo', label: 'SEO' },
+        { value: 'api', label: 'API' }
       ],
       columnWidth: 1,
       groupNumber: 2,

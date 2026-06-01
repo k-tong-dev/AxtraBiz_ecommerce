@@ -35,9 +35,12 @@ export const orderFormConfig: FormConfig = {
       options: [
         { value: 'pending', label: 'Pending' },
         { value: 'confirmed', label: 'Confirmed' },
+        { value: 'processing', label: 'Processing' },
         { value: 'shipped', label: 'Shipped' },
         { value: 'delivered', label: 'Delivered' },
-        { value: 'cancelled', label: 'Cancelled' }
+        { value: 'cancelled', label: 'Cancelled' },
+        { value: 'refunded', label: 'Refunded' },
+        { value: 'returned', label: 'Returned' }
       ],
       columnWidth: 1,
       groupNumber: 2,

@@ -6,7 +6,7 @@ export const addressFormConfig: FormConfig = {
   apiEndpoint: '/api/admin/addresses',
   fields: [
     { key: 'user_id', label: 'User ID', type: 'string', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
-    { key: 'type', label: 'Type', type: 'selection', placeholder: 'billing, shipping', options: [{ value: 'billing', label: 'Billing' }, { value: 'shipping', label: 'Shipping' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },
+    { key: 'type', label: 'Type', type: 'selection', placeholder: 'billing, shipping', options: [{ value: 'shipping', label: 'Shipping' }, { value: 'billing', label: 'Billing' }, { value: 'both', label: 'Both' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },
     { key: 'name', label: 'Name', type: 'string', required: true, placeholder: 'Home, Office, etc.', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 2 },
     { key: 'street', label: 'Street', type: 'string', required: true, placeholder: '123 Main St', columnWidth: 2, groupNumber: 2, groupColumn: 1, order: 0 },
     { key: 'street2', label: 'Street 2', type: 'string', placeholder: 'Apt, Suite, etc.', columnWidth: 2, groupNumber: 2, groupColumn: 1, order: 1 },

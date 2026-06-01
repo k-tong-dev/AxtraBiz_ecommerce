@@ -1,5 +1,6 @@
 import {
   pgTable,
+  pgEnum,
   serial,
   text,
   varchar,
@@ -8,13 +9,48 @@ import {
   integer,
   jsonb,
   boolean,
-  pgEnum
 } from "drizzle-orm/pg-core";
 
-/**
- * Reusable audit/tracking columns used across all models
- * These fields track creation, updates, and user actions
- */
+// ─── Enums ─────────────────────────────────────────────────────
+
+export const userRoleEnum = pgEnum('user_role', ['customer', 'admin', 'staff', 'manager'])
+
+export const productTypeEnum = pgEnum('product_type', [
+  'simple', 'variable', 'grouped', 'bundle', 'digital',
+  'subscription', 'virtual', 'dropship', 'gift_card',
+])
+export const productStatusEnum = pgEnum('product_status', ['draft', 'published', 'archived'])
+export const fulfillmentTypeEnum = pgEnum('fulfillment_type', ['self', 'dropship', 'digital', 'pickup', 'tpl'])
+
+export const attributeTypeEnum = pgEnum('attribute_type', ['select', 'radio', 'color', 'text', 'image'])
+
+export const orderStatusEnum = pgEnum('order_status', [
+  'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded', 'returned',
+])
+export const invoiceStatusEnum = pgEnum('invoice_status', ['draft', 'pending', 'paid', 'overdue', 'cancelled', 'refunded'])
+export const transactionStatusEnum = pgEnum('transaction_status', ['pending', 'completed', 'failed', 'refunded', 'cancelled'])
+export const paymentMethodEnum = pgEnum('payment_method', ['stripe', 'paypal', 'square', 'bank_transfer', 'cash', 'crypto'])
+
+export const announcementTypeEnum = pgEnum('announcement_type', ['info', 'success', 'warning', 'error', 'promo'])
+
+export const addressTypeEnum = pgEnum('address_type', ['shipping', 'billing', 'both'])
+export const paymentMethodTypeEnum = pgEnum('payment_method_type', ['credit_card', 'paypal', 'stripe', 'bank_transfer', 'crypto'])
+
+export const couponTypeEnum = pgEnum('coupon_type', ['percentage', 'fixed_amount', 'free_shipping', 'buy_x_get_y'])
+
+export const shippingRateTypeEnum = pgEnum('shipping_rate_type', ['flat', 'per_item', 'weight_based', 'free', 'tiered'])
+
+export const pageStatusEnum = pgEnum('page_status', ['draft', 'published', 'archived'])
+
+export const settingCategoryEnum = pgEnum('setting_category', ['general', 'store', 'email', 'payment', 'shipping', 'seo'])
+export const configTypeEnum = pgEnum('config_type', ['string', 'number', 'boolean', 'json', 'text'])
+export const configCategoryEnum = pgEnum('config_category', ['general', 'store', 'email', 'payment', 'shipping', 'seo', 'api'])
+
+export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete', 'login', 'logout', 'export', 'import', 'restore'])
+export const auditSeverityEnum = pgEnum('audit_severity', ['info', 'warning', 'error', 'critical'])
+
+// ─── Audit columns ─────────────────────────────────────────────
+
 export const auditColumns = {
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
@@ -22,28 +58,24 @@ export const auditColumns = {
   write_uid: text('write_uid'),
 };
 
-/**
- * Reusable timestamp columns (without audit UIDs)
- * Useful for simpler tables that don't need user tracking
- */
 export const timestamps = {
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 };
 
-// Users table — id stores Supabase Auth UUID, not auto-increment
+// ─── Tables ────────────────────────────────────────────────────
+
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   name: text('name').notNull(),
-  role: text('role').notNull().default('customer'),
+  role: userRoleEnum('role').notNull().default('customer'),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
 });
 
-// Currencies reference table
 export const currencies = pgTable('currencies', {
-  code: text('code').primaryKey(), // ISO 4217 (USD, EUR, GBP, etc.)
+  code: text('code').primaryKey(),
   name: text('name').notNull(),
   symbol: text('symbol').notNull(),
   decimal_places: integer('decimal_places').notNull().default(2),
@@ -52,11 +84,10 @@ export const currencies = pgTable('currencies', {
   ...auditColumns,
 });
 
-// Product template table
- export const product_template = pgTable('product_template', {
+export const product_template = pgTable('product_template', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
-  slug: text('slug').notNull(),
+  slug: text('slug').notNull().unique(),
   description: text('description').notNull().default(''),
   price: numeric('price', { precision: 12, scale: 2 }).notNull().default('0'),
   compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
@@ -70,9 +101,9 @@ export const currencies = pgTable('currencies', {
   category_id: integer('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
   brand_id: integer('brand_id').references(() => product_brand.id, { onDelete: 'set null' }),
   tax_rate_id: integer('tax_rate_id').references(() => tax_rates.id, { onDelete: 'set null' }),
-  // product_type: text('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
-  product_type: pgEnum('product_type').notNull().default('simple'), // simple, variable, grouped, bundle, digital
-  status: text('status').notNull().default('draft'), // draft, published, archived
+  product_type: productTypeEnum('product_type').notNull().default('simple'),
+  fulfillment_type: fulfillmentTypeEnum('fulfillment_type').notNull().default('self'),
+  status: productStatusEnum('status').notNull().default('draft'),
   meta_title: text('meta_title'),
   meta_description: text('meta_description'),
   meta_keywords: text('meta_keywords'),
@@ -85,6 +116,9 @@ export const currencies = pgTable('currencies', {
   allow_backorders: boolean('allow_backorders').default(false),
   weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
   dimensions: text('dimensions').default(''),
+  supplier_id: integer('supplier_id'),
+  supplier_sku: text('supplier_sku'),
+  supplier_url: text('supplier_url'),
   sale_start_date: timestamp('sale_start_date', { mode: 'string' }),
   sale_end_date: timestamp('sale_end_date', { mode: 'string' }),
   published_at: timestamp('published_at', { mode: 'string' }),
@@ -93,7 +127,6 @@ export const currencies = pgTable('currencies', {
   ...auditColumns,
 });
 
-// Brands table
 export const product_brand = pgTable('product_brand', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -105,7 +138,6 @@ export const product_brand = pgTable('product_brand', {
   ...auditColumns,
 });
 
-// Tax rates table
 export const tax_rates = pgTable('tax_rates', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -117,7 +149,6 @@ export const tax_rates = pgTable('tax_rates', {
   ...auditColumns,
 });
 
-// Product categories table
 export const product_categories = pgTable('product_categories', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -130,7 +161,6 @@ export const product_categories = pgTable('product_categories', {
   ...auditColumns,
 }) as any;
 
-// Shipping zones table
 export const shipping_zones = pgTable('shipping_zones', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -143,7 +173,6 @@ export const shipping_zones = pgTable('shipping_zones', {
   ...auditColumns,
 });
 
-// Shipping zone product relation table
 export const shipping_zone_product = pgTable('shipping_zone_product', {
   id: serial('id').primaryKey(),
   shipping_zone_id: integer('shipping_zone_id').notNull().references(() => shipping_zones.id, { onDelete: 'cascade' }),
@@ -153,28 +182,24 @@ export const shipping_zone_product = pgTable('shipping_zone_product', {
   ...timestamps,
 });
 
-// Product attributes table
 export const product_attributes = pgTable('product_attributes', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
-  type: text('type').notNull(), // select, radio, color, text
+  type: attributeTypeEnum('type').notNull().default('select'),
   position: integer('position').default(0),
   ...auditColumns,
 });
 
-// Product attribute values table
-// Each value belongs to exactly one attribute (one2many)
 export const product_attribute_values = pgTable('product_attribute_values', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
-  value: text('value').notNull(), // The actual value (e.g., 'red', 'M', 'XL')
+  value: text('value').notNull(),
   attribute_id: integer('attribute_id').references(() => product_attributes.id, { onDelete: 'set null' }),
   position: integer('position').default(0),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
 });
 
-// Product attributes relation table
 export const product_attributes_rel = pgTable('product_attributes_rel', {
   id: serial('id').primaryKey(),
   product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
@@ -183,7 +208,6 @@ export const product_attributes_rel = pgTable('product_attributes_rel', {
   ...timestamps,
 });
 
-// Product variants table
 export const product_variants = pgTable('product_variants', {
   id: serial('id').primaryKey(),
   product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
@@ -202,20 +226,18 @@ export const product_variants = pgTable('product_variants', {
   ...auditColumns,
 });
 
-// Orders table
 export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   items: jsonb('items').notNull().default('[]'),
   shipping_address: jsonb('shipping_address').notNull(),
   total_price: numeric('total_price', { precision: 12, scale: 2 }).notNull().default('0'),
-  status: text('status').notNull().default('pending'),
+  status: orderStatusEnum('status').notNull().default('pending'),
   tracking_number: text('tracking_number'),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
 });
 
-// Invoices table
 export const invoices = pgTable('invoices', {
   id: serial('id').primaryKey(),
   order_id: integer('order_id').notNull().references(() => orders.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
@@ -225,49 +247,43 @@ export const invoices = pgTable('invoices', {
   subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
   tax: numeric('tax', { precision: 12, scale: 2 }).notNull().default('0'),
   total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
-  status: text('status').notNull().default('pending'),
+  status: invoiceStatusEnum('status').notNull().default('draft'),
   due_date: timestamp('due_date', { mode: 'string' }),
   ...auditColumns,
 });
 
-// Announcements table
 export const announcements = pgTable('announcements', {
   id: serial('id').primaryKey(),
   title: text('title').notNull(),
   content: text('content').notNull(),
-  type: text('type').notNull().default('info'),
+  type: announcementTypeEnum('type').notNull().default('info'),
   active: boolean('active').notNull().default(true),
   start_date: timestamp('start_date', { mode: 'string' }),
   end_date: timestamp('end_date', { mode: 'string' }),
   ...auditColumns,
 });
 
-// Settings table
 export const settings = pgTable('settings', {
   id: serial('id').primaryKey(),
   key: text('key').notNull().unique(),
   value: text('value').notNull(),
-  category: text('category').notNull().default('general'),
+  category: settingCategoryEnum('category').notNull().default('general'),
   ...auditColumns,
 });
 
-// Configuration table
 export const configurations = pgTable('configurations', {
   id: serial('id').primaryKey(),
   name: text('name').notNull().unique(),
   value: text('value').notNull(),
-  type: text('type').notNull().default('string'),
-  category: text('category').notNull().default('general'),
+  type: configTypeEnum('type').notNull().default('string'),
+  category: configCategoryEnum('category').notNull().default('general'),
   ...auditColumns,
 });
 
-// ===== New tables for production e-commerce =====
-
-// Addresses table
 export const addresses = pgTable('addresses', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  type: text('type').notNull().default('shipping'), // billing, shipping
+  type: addressTypeEnum('type').notNull().default('shipping'),
   name: text('name').notNull(),
   street: text('street').notNull(),
   street2: text('street2'),
@@ -280,13 +296,12 @@ export const addresses = pgTable('addresses', {
   ...auditColumns,
 });
 
-// Payment methods table
 export const payment_methods = pgTable('payment_methods', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  type: text('type').notNull(), // credit_card, paypal, stripe
+  type: paymentMethodTypeEnum('type').notNull(),
   last4: text('last4'),
-  brand: text('brand'), // Visa, Mastercard, etc.
+  brand: text('brand'),
   expiry_month: integer('expiry_month'),
   expiry_year: integer('expiry_year'),
   is_default: boolean('is_default').default(false),
@@ -294,7 +309,6 @@ export const payment_methods = pgTable('payment_methods', {
   ...auditColumns,
 });
 
-// Order lines table (replaces JSON blob in orders.items)
 export const order_lines = pgTable('order_lines', {
   id: serial('id').primaryKey(),
   order_id: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
@@ -310,7 +324,6 @@ export const order_lines = pgTable('order_lines', {
   ...timestamps,
 });
 
-// Payment transactions table
 export const payment_transactions = pgTable('payment_transactions', {
   id: serial('id').primaryKey(),
   order_id: integer('order_id').notNull().references(() => orders.id, { onDelete: 'restrict' }),
@@ -318,19 +331,18 @@ export const payment_transactions = pgTable('payment_transactions', {
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
   amount: numeric('amount', { precision: 12, scale: 2 }).notNull().default('0'),
   currency: text('currency').notNull().default('USD'),
-  payment_method: text('payment_method').notNull(), // stripe, paypal, etc.
-  status: text('status').notNull().default('pending'), // pending, completed, failed, refunded
+  payment_method: paymentMethodEnum('payment_method').notNull().default('stripe'),
+  status: transactionStatusEnum('status').notNull().default('pending'),
   transaction_id: text('transaction_id'),
   paid_at: timestamp('paid_at', { mode: 'string' }),
   ...auditColumns,
 });
 
-// Coupons / discounts table
 export const coupons = pgTable('coupons', {
   id: serial('id').primaryKey(),
   code: text('code').notNull().unique(),
   description: text('description'),
-  type: text('type').notNull().default('percentage'), // percentage, fixed_amount, free_shipping
+  type: couponTypeEnum('type').notNull().default('percentage'),
   value: numeric('value', { precision: 12, scale: 2 }).notNull().default('0'),
   min_order_amount: numeric('min_order_amount', { precision: 12, scale: 2 }),
   max_uses: integer('max_uses'),
@@ -341,7 +353,6 @@ export const coupons = pgTable('coupons', {
   ...auditColumns,
 });
 
-// Product reviews table
 export const product_reviews = pgTable('product_reviews', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -354,7 +365,6 @@ export const product_reviews = pgTable('product_reviews', {
   ...auditColumns,
 });
 
-// Wishlist items table
 export const wishlist_items = pgTable('wishlist_items', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -363,7 +373,6 @@ export const wishlist_items = pgTable('wishlist_items', {
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-// Cart items table (server-side for abandoned cart recovery)
 export const cart_items = pgTable('cart_items', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
@@ -375,12 +384,11 @@ export const cart_items = pgTable('cart_items', {
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-// Shipping methods table
 export const shipping_methods = pgTable('shipping_methods', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
-  carrier: text('carrier'), // UPS, FedEx, USPS, etc.
-  rate_type: text('rate_type').notNull().default('flat'), // flat, per_item, weight_based, free
+  carrier: text('carrier'),
+  rate_type: shippingRateTypeEnum('rate_type').notNull().default('flat'),
   rate_amount: numeric('rate_amount', { precision: 12, scale: 2 }).notNull().default('0'),
   free_shipping_threshold: numeric('free_shipping_threshold', { precision: 12, scale: 2 }),
   estimated_days_min: integer('estimated_days_min'),
@@ -389,7 +397,6 @@ export const shipping_methods = pgTable('shipping_methods', {
   ...auditColumns,
 });
 
-// Pages table (CMS)
 export const pages = pgTable('pages', {
   id: serial('id').primaryKey(),
   slug: text('slug').notNull().unique(),
@@ -397,12 +404,11 @@ export const pages = pgTable('pages', {
   content: text('content'),
   meta_title: text('meta_title'),
   meta_description: text('meta_description'),
-  status: text('status').notNull().default('draft'), // draft, published
+  status: pageStatusEnum('status').notNull().default('draft'),
   published_at: timestamp('published_at', { mode: 'string' }),
   ...auditColumns,
 });
 
-// Menus table (CMS navigation)
 export const menus = pgTable('menus', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -412,21 +418,21 @@ export const menus = pgTable('menus', {
   ...auditColumns,
 });
 
-// Audit logs table (tracks all user actions across the system)
 export const audit_logs = pgTable('audit_logs', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').references(() => users.id, { onDelete: 'set null' }),
-  action: text('action').notNull(), // create, update, delete, login, logout, export, etc.
-  entity_type: text('entity_type').notNull(), // product, order, user, configuration, etc.
+  action: auditActionEnum('action').notNull().default('create'),
+  entity_type: text('entity_type').notNull(),
   entity_id: text('entity_id'),
   details: jsonb('details').default('{}'),
   ip_address: text('ip_address'),
   user_agent: text('user_agent'),
-  severity: text('severity').notNull().default('info'), // info, warning, error, critical
+  severity: auditSeverityEnum('severity').notNull().default('info'),
   ...timestamps,
 });
 
-// Type exports
+// ─── Type exports ──────────────────────────────────────────────
+
 export type AuditLog = typeof audit_logs.$inferSelect;
 export type User = typeof users.$inferSelect;
 export type Currency = typeof currencies.$inferSelect;

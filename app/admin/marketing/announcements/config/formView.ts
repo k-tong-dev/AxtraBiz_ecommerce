@@ -36,7 +36,8 @@ export const announcementFormConfig: FormConfig = {
         { value: 'info', label: 'Info' },
         { value: 'success', label: 'Success' },
         { value: 'warning', label: 'Warning' },
-        { value: 'error', label: 'Error' }
+        { value: 'error', label: 'Error' },
+        { value: 'promo', label: 'Promo' }
       ],
       columnWidth: 1,
       groupNumber: 2,

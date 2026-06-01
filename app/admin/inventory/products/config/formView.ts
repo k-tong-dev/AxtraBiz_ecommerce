@@ -111,7 +111,11 @@ export const productFormConfig: FormConfig = {
         { label: 'Variable', value: 'variable' },
         { label: 'Grouped', value: 'grouped' },
         { label: 'Bundle', value: 'bundle' },
-        { label: 'Digital', value: 'digital' }
+        { label: 'Digital', value: 'digital' },
+        { label: 'Subscription', value: 'subscription' },
+        { label: 'Virtual', value: 'virtual' },
+        { label: 'Dropship', value: 'dropship' },
+        { label: 'Gift Card', value: 'gift_card' }
       ],
       columnWidth: 1,
       groupNumber: 1,
@@ -133,6 +137,24 @@ export const productFormConfig: FormConfig = {
       groupNumber: 1,
       groupColumn: 2,
       order: 9
+    },
+    {
+      key: 'fulfillment_type',
+      label: 'Fulfillment Type',
+      type: 'selection',
+      required: true,
+      placeholder: 'Select fulfillment type',
+      options: [
+        { label: 'Self (Stock & Ship)', value: 'self' },
+        { label: 'Dropship', value: 'dropship' },
+        { label: 'Digital', value: 'digital' },
+        { label: 'Pickup', value: 'pickup' },
+        { label: 'Third-Party Logistics', value: 'tpl' }
+      ],
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
+      order: 10
     },
     // {
     //   key: 'description',

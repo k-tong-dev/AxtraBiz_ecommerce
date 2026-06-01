@@ -6,7 +6,7 @@ export const couponFormConfig: FormConfig = {
   apiEndpoint: '/api/admin/coupons',
   fields: [
     { key: 'code', label: 'Code', type: 'string', required: true, placeholder: 'SUMMER25', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 0 },
-    { key: 'type', label: 'Type', type: 'selection', required: true, options: [{ value: 'percentage', label: 'Percentage' }, { value: 'fixed_amount', label: 'Fixed Amount' }, { value: 'free_shipping', label: 'Free Shipping' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },
+    { key: 'type', label: 'Type', type: 'selection', required: true, options: [{ value: 'percentage', label: 'Percentage' }, { value: 'fixed_amount', label: 'Fixed Amount' }, { value: 'free_shipping', label: 'Free Shipping' }, { value: 'buy_x_get_y', label: 'Buy X Get Y' }], columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 1 },
     { key: 'value', label: 'Value', type: 'number', placeholder: '25.00', columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 2 },
     { key: 'min_order_amount', label: 'Min Order Amount', type: 'number', placeholder: '0.00', columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 3 },
     { key: 'max_uses', label: 'Max Uses', type: 'number', placeholder: '100', columnWidth: 1, groupNumber: 2, groupColumn: 1, order: 0 },

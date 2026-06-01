@@ -34,10 +34,11 @@ export const settingFormConfig: FormConfig = {
       required: true,
       options: [
         { value: 'general', label: 'General' },
+        { value: 'store', label: 'Store' },
+        { value: 'email', label: 'Email' },
         { value: 'payment', label: 'Payment' },
         { value: 'shipping', label: 'Shipping' },
-        { value: 'tax', label: 'Tax' },
-        { value: 'email', label: 'Email' }
+        { value: 'seo', label: 'SEO' }
       ],
       columnWidth: 1,
       groupNumber: 2,

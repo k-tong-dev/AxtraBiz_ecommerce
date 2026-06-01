@@ -45,7 +45,9 @@ export const customerFormConfig: FormConfig = {
       required: true,
       options: [
         { value: 'customer', label: 'Customer' },
-        { value: 'admin', label: 'Admin' }
+        { value: 'admin', label: 'Admin' },
+        { value: 'staff', label: 'Staff' },
+        { value: 'manager', label: 'Manager' }
       ],
       columnWidth: 1,
       groupNumber: 3,

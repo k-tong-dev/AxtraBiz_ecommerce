@@ -25,7 +25,8 @@ export const productAttributeFormConfig: FormConfig = {
         { label: 'Select Dropdown', value: 'select' },
         { label: 'Radio Buttons', value: 'radio' },
         { label: 'Color Swatches', value: 'color' },
-        { label: 'Text Input', value: 'text' }
+        { label: 'Text Input', value: 'text' },
+        { label: 'Image', value: 'image' }
       ],
       columnWidth: 1,
       groupNumber: 1,
