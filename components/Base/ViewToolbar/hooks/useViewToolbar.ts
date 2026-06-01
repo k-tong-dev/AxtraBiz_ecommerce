@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useViewPresets, type ViewPreset } from './useViewPresets'
-import type { FilterValue } from '@/components/Base/Filter'
+import type { FilterValue } from '@/components/Base/ViewToolbar/Filter'
 import type { SearchValue } from '@/components/Base/Search'
 
 export interface ViewToolbarOptions {

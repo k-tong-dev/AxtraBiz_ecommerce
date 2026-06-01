@@ -5,11 +5,10 @@ import { Bookmark } from 'lucide-react'
 import { IoMdTrash } from 'react-icons/io'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { Modal } from '@/components/ui/modal'
-import { Input } from 'rsuite'
 import { Search as SearchComponent, type SearchValue } from '../Search'
-import { Filter, type FilterValue } from '../Filter'
-import { GroupBy } from '../GroupBy'
+import { Filter, type FilterValue } from './Filter'
+import { GroupBy } from './GroupBy'
+import { SavePresetModal } from './SavePresetModal'
 import type { UseViewToolbarReturn } from '@/components/Base/ViewToolbar/hooks/useViewToolbar'
 
 interface ColumnField {
@@ -137,32 +136,13 @@ export function ViewToolbar({ toolbar, columns = [], currentViewType = 'list', c
         {children}
       </div>
 
-      <Modal open={showSavePreset} backdrop="static" onClose={() => setShowSavePreset(false)}>
-        <Modal.Header>
-          <Modal.Title>Save View Preset</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p className="text-sm text-muted-foreground mb-3">Name your current view configuration so you can reload it later.</p>
-          <Input
-            placeholder="e.g. Default product list"
-            value={presetName}
-            onChange={(v) => setPresetName(v)}
-            onPressEnter={() => handleSavePreset(currentViewType)}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={() => setShowSavePreset(false)} appearance="default">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => handleSavePreset(currentViewType)}
-            appearance="primary"
-            color="violet"
-          >
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <SavePresetModal
+        open={showSavePreset}
+        presetName={presetName}
+        onPresetNameChange={setPresetName}
+        onSave={() => handleSavePreset(currentViewType)}
+        onClose={() => setShowSavePreset(false)}
+      />
     </>
   )
 }
