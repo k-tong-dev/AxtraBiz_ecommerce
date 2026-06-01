@@ -3,7 +3,7 @@ import {
   Truck, SlidersHorizontal, FileText, Megaphone, Settings, Gift, Star,
   MapPin, Wallet, CreditCard, Heart, ListOrdered, Menu, Warehouse,
   DollarSign, BarChart3, LineChart, Globe, History, Clock,
-  Image, CircleDollarSign, HelpCircle,
+  Image, CircleDollarSign, Shield,
 } from 'lucide-react'
 
 // ── Module bar types ──
@@ -54,17 +54,17 @@ export const sectionModules: SectionModules = {
       },
     ],
   },
-  taxes: {
+  configuration: {
     entries: [
-      { label: 'Dashboard', href: '/admin/taxes/dashboard', icon: LayoutDashboard },
-      { label: 'Tax Rates', href: '/admin/taxes/tax-rates', icon: Percent },
-    ],
-  },
-  shipping: {
-    entries: [
-      { label: 'Dashboard', href: '/admin/shipping/dashboard', icon: LayoutDashboard },
-      { label: 'Shipping Zones', href: '/admin/shipping/shipping-zones', icon: Globe },
-      { label: 'Shipping Methods', href: '/admin/shipping/shipping-methods', icon: Truck },
+      { label: 'Shops', href: '/admin/configuration/shops', icon: Warehouse },
+      { label: 'Payment Methods', href: '/admin/configuration/payment-methods', icon: Wallet },
+      { label: 'Tax Rates', href: '/admin/configuration/tax-rates', icon: Percent },
+      { label: 'Shipping Zones', href: '/admin/configuration/shipping-zones', icon: Globe },
+      { label: 'Shipping Methods', href: '/admin/configuration/shipping-methods', icon: Truck },
+      { label: 'Currencies', href: '/admin/configuration/currencies', icon: CircleDollarSign },
+      { label: 'Audit Logs', href: '/admin/configuration/audit-logs', icon: History },
+      { label: 'Settings', href: '/admin/configuration/settings', icon: Settings },
+      { label: 'Users', href: '/admin/configuration/users', icon: Users },
     ],
   },
   sales: {
@@ -81,7 +81,6 @@ export const sectionModules: SectionModules = {
       { label: 'Addresses', href: '/admin/customers/addresses', icon: MapPin },
       { label: 'Wishlist', href: '/admin/customers/wishlist-items', icon: Heart },
       { label: 'Cart Items', href: '/admin/customers/cart-items', icon: ShoppingCart },
-      { label: 'Payment Methods', href: '/admin/customers/payment-methods', icon: Wallet },
     ],
   },
   marketing: {
@@ -99,15 +98,7 @@ export const sectionModules: SectionModules = {
   },
   system: {
     entries: [
-      { label: 'Settings', href: '/admin/system/settings', icon: Settings },
-      { label: 'Config.', href: '/admin/system/configurations', icon: SlidersHorizontal },
-    ],
-  },
-  audit: {
-    entries: [
-      { label: 'Dashboard', href: '/admin/audit/dashboard', icon: History },
-      { label: 'Cron', href: '/admin/audit/cron', icon: Clock },
-      { label: 'Configuration', href: '/admin/audit/config', icon: Settings },
+      { label: 'Policy', href: '/admin/system/policy', icon: Shield },
     ],
   },
 }
@@ -152,8 +143,6 @@ export const sidebarGroups: SidebarGroup[] = [
         type: 'menu', label: 'Catalog', eventKey: 'catalog', icon: Package, iconColor: 'text-primary/70',
         children: [
           { label: 'Inventory', href: '/admin/inventory/dashboard', icon: Warehouse, iconColor: 'text-primary/50' },
-          { label: 'Taxes', href: '/admin/taxes/dashboard', icon: Percent, iconColor: 'text-primary/50' },
-          { label: 'Shipping', href: '/admin/shipping/dashboard', icon: Truck, iconColor: 'text-primary/50' },
         ],
       },
       {
@@ -203,17 +192,34 @@ export const sidebarGroups: SidebarGroup[] = [
     ],
   },
   {
-    label: 'System',
+    label: 'Configuration',
     entries: [
+      { type: 'link', label: 'Shops', href: '/admin/configuration/shops', icon: Warehouse, iconColor: 'text-muted-foreground/70' },
+      { type: 'link', label: 'Payment Methods', href: '/admin/configuration/payment-methods', icon: Wallet, iconColor: 'text-muted-foreground/70' },
+      { type: 'link', label: 'Tax Rates', href: '/admin/configuration/tax-rates', icon: Percent, iconColor: 'text-muted-foreground/70' },
+      { type: 'link', label: 'Shipping Zones', href: '/admin/configuration/shipping-zones', icon: Globe, iconColor: 'text-muted-foreground/70' },
+      { type: 'link', label: 'Shipping Methods', href: '/admin/configuration/shipping-methods', icon: Truck, iconColor: 'text-muted-foreground/70' },
+      { type: 'link', label: 'Currencies', href: '/admin/configuration/currencies', icon: CircleDollarSign, iconColor: 'text-muted-foreground/70' },
+      { type: 'link', label: 'Audit Logs', href: '/admin/configuration/audit-logs', icon: History, iconColor: 'text-muted-foreground/70' },
       {
-        type: 'menu', label: 'Preferences', eventKey: 'preferences', icon: Settings, iconColor: 'text-muted-foreground/70',
+        type: 'menu', label: 'Settings', eventKey: 'settings', icon: Settings, iconColor: 'text-muted-foreground/70',
         children: [
-          { label: 'Settings', href: '/admin/system/settings', icon: Settings, iconColor: 'text-muted-foreground/50' },
-          { label: 'Configurations', href: '/admin/system/configurations', icon: SlidersHorizontal, iconColor: 'text-muted-foreground/50' },
-          { label: 'Currencies', href: '/admin/system/currencies', icon: CircleDollarSign, iconColor: 'text-muted-foreground/50' },
-          { label: 'Audit Logs', href: '/admin/audit/dashboard', icon: History, iconColor: 'text-muted-foreground/50' },
+          { label: 'General', href: '/admin/configuration/settings', icon: Settings, iconColor: 'text-muted-foreground/50' },
         ],
       },
+      {
+        type: 'menu', label: 'Users', eventKey: 'users', icon: Users, iconColor: 'text-muted-foreground/70',
+        children: [
+          { label: 'Staff Accounts', href: '/admin/configuration/users', icon: Users, iconColor: 'text-muted-foreground/50' },
+          { label: 'Groups', href: '/admin/configuration/users/groups', icon: Users, iconColor: 'text-muted-foreground/50' },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'System',
+    entries: [
+      { type: 'link', label: 'Policy', href: '/admin/system/policy', icon: Shield, iconColor: 'text-destructive/70' },
     ],
   },
 ]
@@ -223,38 +229,29 @@ export const sidebarGroups: SidebarGroup[] = [
 export const sectionLabels: Record<string, string> = {
   dashboard: 'Dashboard',
   inventory: 'Catalog',
-  taxes: 'Taxes',
-  shipping: 'Shipping',
+  configuration: 'Configuration',
   sales: 'Sales',
   customers: 'Customers',
   marketing: 'Marketing',
   content: 'Content',
   system: 'System',
-  audit: 'Audit Log',
 }
 
 export function detectSection(pathname: string): string {
   if (pathname === '/admin' || pathname.startsWith('/admin?tab=')) return 'dashboard'
   if (pathname.startsWith('/admin/inventory') || pathname.startsWith('/admin/media')) return 'inventory'
-  if (pathname.startsWith('/admin/taxes')) return 'taxes'
-  if (pathname.startsWith('/admin/shipping')) return 'shipping'
+  if (pathname.startsWith('/admin/configuration')) return 'configuration'
   if (pathname.startsWith('/admin/sales')) return 'sales'
   if (pathname.startsWith('/admin/customers')) return 'customers'
   if (pathname.startsWith('/admin/marketing')) return 'marketing'
   if (pathname.startsWith('/admin/content')) return 'content'
   if (pathname.startsWith('/admin/system')) return 'system'
-  if (pathname.startsWith('/admin/audit')) return 'audit'
-  // Fallback for legacy redirects to new paths
+  // Legacy redirects
   if (pathname.startsWith('/admin/products') || pathname.startsWith('/admin/product-variants') || pathname.startsWith('/admin/product-attributes') || pathname.startsWith('/admin/product-attribute-values') || pathname.startsWith('/admin/brands') || pathname.startsWith('/admin/categories') || pathname.startsWith('/admin/assets')) return 'inventory'
-  if (pathname.startsWith('/admin/tax-rates')) return 'taxes'
-  if (pathname.startsWith('/admin/shipping-zones') || pathname.startsWith('/admin/shipping-methods')) return 'shipping'
+  if (pathname.startsWith('/admin/settings') || pathname.startsWith('/admin/configurations') || pathname.startsWith('/admin/currencies') || pathname.startsWith('/admin/payment-methods') || pathname.startsWith('/admin/tax-rates') || pathname.startsWith('/admin/shipping-zones') || pathname.startsWith('/admin/shipping-methods') || pathname.startsWith('/admin/audit')) return 'configuration'
   if (pathname.startsWith('/admin/orders') || pathname.startsWith('/admin/order-lines') || pathname.startsWith('/admin/invoices') || pathname.startsWith('/admin/payment-transactions')) return 'sales'
-  if (pathname.startsWith('/admin/addresses') || pathname.startsWith('/admin/wishlist-items') || pathname.startsWith('/admin/cart-items') || pathname.startsWith('/admin/payment-methods')) return 'customers'
+  if (pathname.startsWith('/admin/addresses') || pathname.startsWith('/admin/wishlist-items') || pathname.startsWith('/admin/cart-items')) return 'customers'
   if (pathname.startsWith('/admin/announcements') || pathname.startsWith('/admin/coupons') || pathname.startsWith('/admin/product-reviews')) return 'marketing'
   if (pathname.startsWith('/admin/pages') || pathname.startsWith('/admin/menus')) return 'content'
-  if (pathname.startsWith('/admin/settings') || pathname.startsWith('/admin/configurations') || pathname.startsWith('/admin/currencies')) return 'system'
   return 'dashboard'
 }
-
-// ── Re-exports for Components ──
-export { HelpCircle }

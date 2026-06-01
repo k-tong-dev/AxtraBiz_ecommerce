@@ -43,6 +43,12 @@ export {
   menus,
   currencies,
   audit_logs,
+  shops,
+  staff_accounts,
+  roles,
+  permissions,
+  role_permissions,
+  staff_roles,
 } from '../../drizzle/schema'
 
 export type {
@@ -74,4 +80,10 @@ export type {
   Page,
   Menu,
   AuditLog,
+  Shop,
+  StaffAccount,
+  Role,
+  Permission,
+  RolePermission,
+  StaffRole,
 } from '../../drizzle/schema'

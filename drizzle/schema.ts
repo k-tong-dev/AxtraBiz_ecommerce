@@ -49,6 +49,10 @@ export const configCategoryEnum = pgEnum('config_category', ['general', 'store',
 export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete', 'login', 'logout', 'export', 'import', 'restore'])
 export const auditSeverityEnum = pgEnum('audit_severity', ['info', 'warning', 'error', 'critical'])
 
+export const staffStatusEnum = pgEnum('staff_status', ['active', 'invited', 'disabled'])
+export const roleTypeEnum = pgEnum('role_type', ['predefined', 'custom'])
+export const permissionActionEnum = pgEnum('permission_action', ['read', 'write', 'delete'])
+
 // ─── Audit columns ─────────────────────────────────────────────
 
 export const auditColumns = {
@@ -300,10 +304,18 @@ export const payment_methods = pgTable('payment_methods', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   type: paymentMethodTypeEnum('type').notNull(),
+  card_holder_name: text('card_holder_name'),
   last4: text('last4'),
   brand: text('brand'),
   expiry_month: integer('expiry_month'),
   expiry_year: integer('expiry_year'),
+  issuer: text('issuer'),
+  stripe_payment_method_id: text('stripe_payment_method_id'),
+  paypal_email: text('paypal_email'),
+  bank_name: text('bank_name'),
+  bank_account_last4: text('bank_account_last4'),
+  crypto_wallet_address: text('crypto_wallet_address'),
+  crypto_network: text('crypto_network'),
   is_default: boolean('is_default').default(false),
   active: boolean('active').default(true).notNull(),
   ...auditColumns,
@@ -431,6 +443,60 @@ export const audit_logs = pgTable('audit_logs', {
   ...timestamps,
 });
 
+// ─── New tables: Shops, Staff, Roles, Permissions ────────────
+
+export const shops = pgTable('shops', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  domain: text('domain'),
+  email: text('email'),
+  phone: text('phone'),
+  address: jsonb('address').default('{}'),
+  logo: jsonb('logo'),
+  active: boolean('active').default(true).notNull(),
+  ...auditColumns,
+});
+
+export const staff_accounts = pgTable('staff_accounts', {
+  id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').notNull().references(() => shops.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  full_name: text('full_name'),
+  is_owner: boolean('is_owner').notNull().default(false),
+  status: staffStatusEnum('status').notNull().default('invited'),
+  last_login_at: timestamp('last_login_at', { mode: 'string' }),
+  ...auditColumns,
+});
+
+export const roles = pgTable('roles', {
+  id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  role_type: roleTypeEnum('role_type').notNull().default('predefined'),
+  description: text('description'),
+  ...auditColumns,
+});
+
+export const permissions = pgTable('permissions', {
+  id: serial('id').primaryKey(),
+  resource: text('resource').notNull(),
+  action: permissionActionEnum('action').notNull(),
+  scope: text('scope').notNull().unique(),
+});
+
+export const role_permissions = pgTable('role_permissions', {
+  id: serial('id').primaryKey(),
+  role_id: integer('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
+  permission_id: integer('permission_id').notNull().references(() => permissions.id, { onDelete: 'cascade' }),
+});
+
+export const staff_roles = pgTable('staff_roles', {
+  id: serial('id').primaryKey(),
+  staff_id: integer('staff_id').notNull().references(() => staff_accounts.id, { onDelete: 'cascade' }),
+  role_id: integer('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
+});
+
 // ─── Type exports ──────────────────────────────────────────────
 
 export type AuditLog = typeof audit_logs.$inferSelect;
@@ -464,3 +530,10 @@ export type CartItem = typeof cart_items.$inferSelect;
 export type ShippingMethod = typeof shipping_methods.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type Menu = typeof menus.$inferSelect;
+
+export type Shop = typeof shops.$inferSelect;
+export type StaffAccount = typeof staff_accounts.$inferSelect;
+export type Role = typeof roles.$inferSelect;
+export type Permission = typeof permissions.$inferSelect;
+export type RolePermission = typeof role_permissions.$inferSelect;
+export type StaffRole = typeof staff_roles.$inferSelect;
