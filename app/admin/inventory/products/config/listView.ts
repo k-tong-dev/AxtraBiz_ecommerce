@@ -118,14 +118,26 @@ export const getProductListConfig = (data: any[] = [], onDelete?: (rowData: any)
       filterOptions: [
         { label: 'Simple', value: 'simple' },
         { label: 'Variable', value: 'variable' },
-        { label: 'Grouped', value: 'grouped' }
+        { label: 'Grouped', value: 'grouped' },
+        { label: 'Bundle', value: 'bundle' },
+        { label: 'Digital', value: 'digital' },
+        { label: 'Subscription', value: 'subscription' },
+        { label: 'Virtual', value: 'virtual' },
+        { label: 'Dropship', value: 'dropship' },
+        { label: 'Gift Card', value: 'gift_card' }
       ],
       align: 'center',
       render: (value: any) => {
         const typeMap: Record<string, string> = {
           simple: 'Simple',
           variable: 'Variable',
-          grouped: 'Grouped'
+          grouped: 'Grouped',
+          bundle: 'Bundle',
+          digital: 'Digital',
+          subscription: 'Subscription',
+          virtual: 'Virtual',
+          dropship: 'Dropship',
+          gift_card: 'Gift Card',
         }
         return typeMap[value] || value
       }
