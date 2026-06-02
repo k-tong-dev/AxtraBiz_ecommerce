@@ -8,4 +8,4 @@ export { AdminTopBar as AdminTopNavbar } from './top-bar'
 
 export { useActiveSection } from './hooks/use-navigation'
 export { detectSection, sectionLabels, sectionModules, sidebarGroups } from './config/sections'
-export type { LinkItem, GroupItem, NavEntry, SectionModules, SidebarLink, SidebarMenu, SidebarEntry, SidebarGroup } from './config/sections'
+export type { ModuleLink, ModuleGroup, ModuleEntry, ModuleSection, SectionModules, SidebarLeaf, SidebarMenu, SidebarEntry, SidebarGroup } from './config/sections'
