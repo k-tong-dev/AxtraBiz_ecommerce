@@ -90,6 +90,7 @@ export const currencies = pgTable('currencies', {
 
 export const product_template = pgTable('product_template', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description').notNull().default(''),
@@ -131,8 +132,13 @@ export const product_template = pgTable('product_template', {
   ...auditColumns,
 });
 
+/**
+ * Product Brand — e.g. Nike, Apple, Sony.
+ * Linked from product_template.brand_id.
+ */
 export const product_brand = pgTable('product_brand', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
@@ -142,8 +148,13 @@ export const product_brand = pgTable('product_brand', {
   ...auditColumns,
 });
 
+/**
+ * Tax Rates — per-country/region tax percentages.
+ * Linked from product_template.tax_rate_id for automatic tax calculation on checkout.
+ */
 export const tax_rates = pgTable('tax_rates', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   rate: numeric('rate', { precision: 5, scale: 2 }).notNull(),
   country: text('country').notNull(),
@@ -153,8 +164,13 @@ export const tax_rates = pgTable('tax_rates', {
   ...auditColumns,
 });
 
+/**
+ * Product Categories — hierarchical tree via parent_id self-reference.
+ * Used for browsing/navigation and product classification.
+ */
 export const product_categories = pgTable('product_categories', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
@@ -165,8 +181,13 @@ export const product_categories = pgTable('product_categories', {
   ...auditColumns,
 }) as any;
 
+/**
+ * Shipping Zones — geographical regions for rate calculation.
+ * Countries/regions stored as JSON arrays. Base rate applies as default.
+ */
 export const shipping_zones = pgTable('shipping_zones', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   description: text('description'),
   countries: jsonb('countries').notNull().default('[]'),
@@ -177,6 +198,10 @@ export const shipping_zones = pgTable('shipping_zones', {
   ...auditColumns,
 });
 
+/**
+ * Shipping Zone ↔ Product — many-to-many junction.
+ * Allows custom per-product shipping rates within a zone.
+ */
 export const shipping_zone_product = pgTable('shipping_zone_product', {
   id: serial('id').primaryKey(),
   shipping_zone_id: integer('shipping_zone_id').notNull().references(() => shipping_zones.id, { onDelete: 'cascade' }),
@@ -186,6 +211,10 @@ export const shipping_zone_product = pgTable('shipping_zone_product', {
   ...timestamps,
 });
 
+/**
+ * Product Attributes — defines attribute types (Size, Color, Material, etc.).
+ * Type determines UI widget: select dropdown, radio buttons, color swatches, text input, or image.
+ */
 export const product_attributes = pgTable('product_attributes', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -194,6 +223,10 @@ export const product_attributes = pgTable('product_attributes', {
   ...auditColumns,
 });
 
+/**
+ * Product Attribute Values — the actual values for each attribute (e.g. 'Red', 'M', 'XL').
+ * Linked to product_attributes via attribute_id.
+ */
 export const product_attribute_values = pgTable('product_attribute_values', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -204,6 +237,10 @@ export const product_attribute_values = pgTable('product_attribute_values', {
   ...auditColumns,
 });
 
+/**
+ * Product ↔ Attribute (many-to-many junction).
+ * Associates which attributes apply to a given product (e.g. Product #123 has Color + Size).
+ */
 export const product_attributes_rel = pgTable('product_attributes_rel', {
   id: serial('id').primaryKey(),
   product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
@@ -212,6 +249,11 @@ export const product_attributes_rel = pgTable('product_attributes_rel', {
   ...timestamps,
 });
 
+/**
+ * Product Variants — SKU-level stock keeping units for variable products.
+ * Each variant has its own price, stock, weight, and attribute combination (stored in JSON).
+ * e.g. Product "T-Shirt" → Variant "T-Shirt / Red / M" with own SKU.
+ */
 export const product_variants = pgTable('product_variants', {
   id: serial('id').primaryKey(),
   product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
@@ -230,8 +272,15 @@ export const product_variants = pgTable('product_variants', {
   ...auditColumns,
 });
 
+/**
+ * Orders — customer purchase orders.
+ * Each order belongs to a user and tracks line items, shipping, total, and status.
+ * Status lifecycle: pending → confirmed → processing → shipped → delivered.
+ * Cancelled/refunded/returned are terminal states.
+ */
 export const orders = pgTable('orders', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   user_id: text('user_id').notNull().references(() => users.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
   items: jsonb('items').notNull().default('[]'),
   shipping_address: jsonb('shipping_address').notNull(),
@@ -242,6 +291,10 @@ export const orders = pgTable('orders', {
   ...auditColumns,
 });
 
+/**
+ * Invoices — billing documents linked to orders.
+ * Tracks subtotal, tax, total, and payment status per user.
+ */
 export const invoices = pgTable('invoices', {
   id: serial('id').primaryKey(),
   order_id: integer('order_id').notNull().references(() => orders.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
@@ -256,8 +309,13 @@ export const invoices = pgTable('invoices', {
   ...auditColumns,
 });
 
+/**
+ * Announcements — site-wide notifications and promotional banners.
+ * Rendered on storefront based on type, active dates, and status.
+ */
 export const announcements = pgTable('announcements', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
   content: text('content').notNull(),
   type: announcementTypeEnum('type').notNull().default('info'),
@@ -267,14 +325,23 @@ export const announcements = pgTable('announcements', {
   ...auditColumns,
 });
 
+/**
+ * Settings — key-value store for system configuration.
+ * Categorized by domain (general, store, email, payment, shipping, seo).
+ */
 export const settings = pgTable('settings', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   key: text('key').notNull().unique(),
   value: text('value').notNull(),
   category: settingCategoryEnum('category').notNull().default('general'),
   ...auditColumns,
 });
 
+/**
+ * Configurations — typed key-value config store with JSON/text/number/boolean support.
+ * Broader than settings; used for API keys, feature flags, and integration configs.
+ */
 export const configurations = pgTable('configurations', {
   id: serial('id').primaryKey(),
   name: text('name').notNull().unique(),
@@ -284,6 +351,10 @@ export const configurations = pgTable('configurations', {
   ...auditColumns,
 });
 
+/**
+ * Addresses — user addresses for shipping and billing.
+ * Supports multiple types (shipping, billing, both) with a default flag.
+ */
 export const addresses = pgTable('addresses', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -300,6 +371,10 @@ export const addresses = pgTable('addresses', {
   ...auditColumns,
 });
 
+/**
+ * Payment Methods — user-stored payment instruments.
+ * Supports credit card, PayPal, bank transfer, and crypto wallets.
+ */
 export const payment_methods = pgTable('payment_methods', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -321,6 +396,10 @@ export const payment_methods = pgTable('payment_methods', {
   ...auditColumns,
 });
 
+/**
+ * Order Lines — individual line items within an order.
+ * Stores product/variant snapshots including price, discount, tax at time of order.
+ */
 export const order_lines = pgTable('order_lines', {
   id: serial('id').primaryKey(),
   order_id: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
@@ -336,6 +415,10 @@ export const order_lines = pgTable('order_lines', {
   ...timestamps,
 });
 
+/**
+ * Payment Transactions — payment attempts and settlements for orders.
+ * Tracks payment method, gateway transaction ID, status, and completion time.
+ */
 export const payment_transactions = pgTable('payment_transactions', {
   id: serial('id').primaryKey(),
   order_id: integer('order_id').notNull().references(() => orders.id, { onDelete: 'restrict' }),
@@ -350,8 +433,13 @@ export const payment_transactions = pgTable('payment_transactions', {
   ...auditColumns,
 });
 
+/**
+ * Coupons — discount codes applied at checkout.
+ * Supports percentage, fixed amount, free shipping, and BOGO types.
+ */
 export const coupons = pgTable('coupons', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   code: text('code').notNull().unique(),
   description: text('description'),
   type: couponTypeEnum('type').notNull().default('percentage'),
@@ -365,6 +453,10 @@ export const coupons = pgTable('coupons', {
   ...auditColumns,
 });
 
+/**
+ * Product Reviews — user-submitted ratings and reviews for products.
+ * Supports moderation via the `approved` flag before public display.
+ */
 export const product_reviews = pgTable('product_reviews', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -377,6 +469,10 @@ export const product_reviews = pgTable('product_reviews', {
   ...auditColumns,
 });
 
+/**
+ * Wishlist Items — products saved by users for later purchase.
+ * Each item links a user to a product (optionally with a specific variant).
+ */
 export const wishlist_items = pgTable('wishlist_items', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -385,6 +481,10 @@ export const wishlist_items = pgTable('wishlist_items', {
   created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
+/**
+ * Cart Items — products added to a user's shopping cart.
+ * Supports both authenticated (user_id) and anonymous (session_id) carts.
+ */
 export const cart_items = pgTable('cart_items', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
@@ -396,8 +496,13 @@ export const cart_items = pgTable('cart_items', {
   updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
+/**
+ * Shipping Methods — carrier-based shipping options with rate calculations.
+ * Supports flat, per-item, weight-based, free, and tiered rate types.
+ */
 export const shipping_methods = pgTable('shipping_methods', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
   carrier: text('carrier'),
   rate_type: shippingRateTypeEnum('rate_type').notNull().default('flat'),
@@ -409,8 +514,13 @@ export const shipping_methods = pgTable('shipping_methods', {
   ...auditColumns,
 });
 
+/**
+ * Pages — CMS pages with slug-based routing.
+ * Supports draft/published/archived status and SEO meta fields.
+ */
 export const pages = pgTable('pages', {
   id: serial('id').primaryKey(),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   slug: text('slug').notNull().unique(),
   title: text('title').notNull(),
   content: text('content'),
@@ -421,6 +531,10 @@ export const pages = pgTable('pages', {
   ...auditColumns,
 });
 
+/**
+ * Menus — navigation menus with JSON-structured items.
+ * Supports multi-level menu structures for storefront navigation.
+ */
 export const menus = pgTable('menus', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -430,6 +544,10 @@ export const menus = pgTable('menus', {
   ...auditColumns,
 });
 
+/**
+ * Audit Logs — immutable record of system actions.
+ * Tracks who did what, when, with optional severity for alerting.
+ */
 export const audit_logs = pgTable('audit_logs', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').references(() => users.id, { onDelete: 'set null' }),
@@ -445,6 +563,10 @@ export const audit_logs = pgTable('audit_logs', {
 
 // ─── New tables: Shops, Staff, Roles, Permissions ────────────
 
+/**
+ * Shops — multi-store tenant entities for data isolation.
+ * Each shop has its own domain, contact info, and configuration.
+ */
 export const shops = pgTable('shops', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -458,6 +580,10 @@ export const shops = pgTable('shops', {
   ...auditColumns,
 });
 
+/**
+ * Staff Accounts — admin panel user accounts linked to shops.
+ * Tracks login activity, ownership status, and invitation state.
+ */
 export const staff_accounts = pgTable('staff_accounts', {
   id: serial('id').primaryKey(),
   shop_id: integer('shop_id').notNull().references(() => shops.id, { onDelete: 'cascade' }),
@@ -469,6 +595,10 @@ export const staff_accounts = pgTable('staff_accounts', {
   ...auditColumns,
 });
 
+/**
+ * Roles — access control roles for staff accounts.
+ * Predefined roles are system-managed; custom roles allow flexible permission sets.
+ */
 export const roles = pgTable('roles', {
   id: serial('id').primaryKey(),
   shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
@@ -478,6 +608,10 @@ export const roles = pgTable('roles', {
   ...auditColumns,
 });
 
+/**
+ * Permissions — granular access rights defining resource+action combinations.
+ * Scopes must be unique (e.g. "products.read", "orders.write").
+ */
 export const permissions = pgTable('permissions', {
   id: serial('id').primaryKey(),
   resource: text('resource').notNull(),
@@ -485,12 +619,20 @@ export const permissions = pgTable('permissions', {
   scope: text('scope').notNull().unique(),
 });
 
+/**
+ * Role ↔ Permission — many-to-many junction linking roles to permissions.
+ * Determines what each role is allowed to do within the system.
+ */
 export const role_permissions = pgTable('role_permissions', {
   id: serial('id').primaryKey(),
   role_id: integer('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
   permission_id: integer('permission_id').notNull().references(() => permissions.id, { onDelete: 'cascade' }),
 });
 
+/**
+ * Staff ↔ Role — many-to-many junction assigning roles to staff accounts.
+ * A staff member can have multiple roles, aggregating their permissions.
+ */
 export const staff_roles = pgTable('staff_roles', {
   id: serial('id').primaryKey(),
   staff_id: integer('staff_id').notNull().references(() => staff_accounts.id, { onDelete: 'cascade' }),

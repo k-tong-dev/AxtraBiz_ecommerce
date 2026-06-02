@@ -7,7 +7,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function EditCurrencyPage() {
   const params = useParams()
-  const code = params.id as string
+  const code = params.code as string
   const { data: currency, loading } = useResource<any>(`/api/admin/currencies/${code}`)
 
   return (

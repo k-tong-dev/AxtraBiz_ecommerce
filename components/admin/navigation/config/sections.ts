@@ -257,14 +257,12 @@ export const sectionModules: SectionModules = {
   shipping_zones: {
     label: 'Shipping Zones',
     entries: [
-      { label: 'Dashboard', icon: 'LayoutDashboard', href: '/admin/configuration/shipping-zones' },
       { label: 'Shipping Zones', icon: 'Globe', href: '/admin/configuration/shipping-zones' },
     ],
   },
   shipping_methods: {
     label: 'Shipping Methods',
     entries: [
-      { label: 'Dashboard', icon: 'LayoutDashboard', href: '/admin/configuration/shipping-methods' },
       { label: 'Shipping Methods', icon: 'Truck', href: '/admin/configuration/shipping-methods' },
     ],
   },

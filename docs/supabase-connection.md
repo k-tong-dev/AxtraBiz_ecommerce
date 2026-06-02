@@ -56,5 +56,5 @@ For raw SQL tools (`psql`, migration clients), choose the connection mode from S
 Run schema:
 
 ```bash
-/Library/PostgreSQL/17/bin/psql "<YOUR_CONNECT_STRING>?sslmode=require" -f "/Users/tong/Documents/@Projects/eCommerce-Website/ecom_shop_p01/supabase/schema.sql"
+/Library/PostgreSQL/17/bin/psql "<YOUR_CONNECT_STRING>?sslmode=require" -f "/Users/tong/Documents/@Projects/eCommerce-Website/AxtraBiz_ecommerce/supabase/schema.sql"
 ```

@@ -28,6 +28,48 @@ export const updateSession = async (request: NextRequest) => {
   } = await supabase.auth.getUser()
 
   const { pathname, search } = request.nextUrl
+
+  // ── Legacy route redirects ──
+  const legacyMap: Record<string, string> = {
+    '/admin/settings': '/admin/configuration/settings',
+    '/admin/configurations': '/admin/configuration/configurations',
+    '/admin/currencies': '/admin/configuration/currencies',
+    '/admin/payment-methods': '/admin/configuration/payment-methods',
+    '/admin/tax-rates': '/admin/configuration/tax-rates',
+    '/admin/shipping-zones': '/admin/configuration/shipping-zones',
+    '/admin/shipping-methods': '/admin/configuration/shipping-methods',
+    '/admin/audit': '/admin/configuration/audit-logs',
+    '/admin/products': '/admin/inventory/products',
+    '/admin/product-variants': '/admin/inventory/product-variants',
+    '/admin/brands': '/admin/inventory/brands',
+    '/admin/categories': '/admin/inventory/categories',
+    '/admin/product-attributes': '/admin/inventory/product-attributes',
+    '/admin/product-attribute-values': '/admin/inventory/product-attribute-values',
+    '/admin/orders': '/admin/sales/orders',
+    '/admin/order-lines': '/admin/sales/order-lines',
+    '/admin/invoices': '/admin/sales/invoices',
+    '/admin/payment-transactions': '/admin/sales/payment-transactions',
+    '/admin/addresses': '/admin/customers/addresses',
+    '/admin/wishlist-items': '/admin/customers/wishlist-items',
+    '/admin/cart-items': '/admin/customers/cart-items',
+    '/admin/announcements': '/admin/marketing/announcements',
+    '/admin/coupons': '/admin/marketing/coupons',
+    '/admin/product-reviews': '/admin/marketing/product-reviews',
+    '/admin/pages': '/admin/content/pages',
+    '/admin/menus': '/admin/content/menus',
+    '/admin/assets': '/admin/media/assets',
+  }
+
+  for (const [oldPrefix, newPath] of Object.entries(legacyMap)) {
+    if (pathname === oldPrefix || pathname.startsWith(oldPrefix + '/')) {
+      const suffix = pathname.startsWith(oldPrefix + '/') ? pathname.slice(oldPrefix.length) : ''
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = `${newPath}${suffix}`
+      redirectUrl.search = search
+      return NextResponse.redirect(redirectUrl, { status: 301 })
+    }
+  }
+
   const isAdminRoute = pathname.startsWith('/admin')
   const isAdminApiRoute = pathname.startsWith('/api/admin')
   const isProtectedShopRoute =
