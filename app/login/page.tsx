@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Store, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +9,6 @@ import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
 
 export default function LoginPage() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || ''
   const { user, isLoading: authLoading, login } = useAuth()
@@ -22,20 +21,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      resolveRedirect(redirect)
+      window.location.href = redirect || '/admin'
     }
+  }, [authLoading, redirect, user])
   }, [authLoading, redirect, router, user])
-
-  async function resolveRedirect(fallback: string) {
-    try {
-      const res = await fetch('/api/auth/me')
-      if (!res.ok) { router.replace(fallback || '/'); return }
-      const data = await res.json()
-      router.replace(data.redirect || fallback || '/')
-    } catch {
-      router.replace(fallback || '/')
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,7 +34,8 @@ export default function LoginPage() {
     const success = await login(email, password)
     if (success) {
       showToast('success', 'Signed in', 'Welcome back.')
-      await resolveRedirect(redirect)
+      // Full page navigation ensures middleware reads the fresh session cookies
+      window.location.href = redirect || '/admin'
     } else {
       const message = 'Invalid email or password.'
       setError(message)

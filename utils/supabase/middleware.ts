@@ -78,15 +78,27 @@ export const updateSession = async (request: NextRequest) => {
     pathname.startsWith('/shop/checkout') ||
     pathname.startsWith('/shop/wishlist')
 
-  if (!user && isAdminApiRoute) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const isLoginPage = pathname === '/login'
+
+  // Authenticated user on /login → redirect to admin
+  if (user && isLoginPage) {
+    const dest = request.nextUrl.clone()
+    dest.pathname = '/admin'
+    return NextResponse.redirect(dest)
   }
 
-  if (!user && (isAdminRoute || isProtectedShopRoute) && pathname !== '/login') {
-    const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/login'
-    loginUrl.searchParams.set('redirect', `${pathname}${search}`)
-    return NextResponse.redirect(loginUrl)
+  // Unauthenticated → protect routes
+  if (!user) {
+    if (isAdminApiRoute) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if ((isAdminRoute || isProtectedShopRoute) && !isLoginPage) {
+      const loginUrl = request.nextUrl.clone()
+      loginUrl.pathname = '/login'
+      loginUrl.searchParams.set('redirect', `${pathname}${search}`)
+      return NextResponse.redirect(loginUrl)
+    }
   }
 
   return response
