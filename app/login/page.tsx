@@ -24,7 +24,6 @@ export default function LoginPage() {
       window.location.href = redirect || '/admin'
     }
   }, [authLoading, redirect, user])
-  }, [authLoading, redirect, router, user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
