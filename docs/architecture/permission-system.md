@@ -39,12 +39,12 @@ Request: staff writes a product
 
 ## Predefined Roles (Shopify-style seeds)
 
-| Role | Scopes |
-|---|---|
-| Admin | All scopes |
-| Order Manager | read_orders, write_orders, refund_orders, ... |
+| Role            | Scopes                                             |
+|-----------------|----------------------------------------------------|
+| Admin           | All scopes                                         |
+| Order Manager   | read_orders, write_orders, refund_orders, ...      |
 | Product Manager | read_products, write_products, read_inventory, ... |
-| Marketing | read_marketing, write_marketing, read_reports, ... |
-| Reports | read_reports, read_analytics, ... |
+| Marketing       | read_marketing, write_marketing, read_reports, ... |
+| Reports         | read_reports, read_analytics, ...                  |
 
 Custom roles (shop admin can create) are built by picking individual scopes from the global list — same permission check logic.

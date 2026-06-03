@@ -163,7 +163,6 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   ): Promise<T[]> {
     try {
       const query = db.select().from(this.table as any)
-
       if (where) {
         (query as any).where(where)
       }

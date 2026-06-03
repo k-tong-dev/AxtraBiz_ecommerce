@@ -25,11 +25,11 @@ Staff logs in
 
 ## States
 
-| Status | Meaning |
-|---|---|
-| `invited` | Created, email sent, waiting for acceptance |
-| `active` | Accepted invitation, can log in |
-| `disabled` | Revoked by shop admin — cannot log in |
+| Status     | Meaning                                     |
+|------------|---------------------------------------------|
+| `invited`  | Created, email sent, waiting for acceptance |
+| `active`   | Accepted invitation, can log in             |
+| `disabled` | Revoked by shop admin — cannot log in       |
 
 ## Re-invite
 

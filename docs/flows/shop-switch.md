@@ -16,14 +16,14 @@ User clicks "Switch to Shop B"
 
 ## What changes
 
-| Data | Behavior |
-|---|---|
-| Session | `shop_id` updated |
-| API queries | All filter by new shop_id |
-| Sidebar | Same navigation, different data |
-| Module-bar | Same sections, different content |
-| Staff list | Shows staff for shop B only |
-| Roles | Shows roles for shop B only |
+| Data        | Behavior                         |
+|-------------|----------------------------------|
+| Session     | `shop_id` updated                |
+| API queries | All filter by new shop_id        |
+| Sidebar     | Same navigation, different data  |
+| Module-bar  | Same sections, different content |
+| Staff list  | Shows staff for shop B only      |
+| Roles       | Shows roles for shop B only      |
 
 ## What stays the same
 

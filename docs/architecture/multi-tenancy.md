@@ -4,9 +4,9 @@ Every resource table has a `shop_id` column (foreign key to `shops.id`). This is
 
 ## Two Scoping Fields
 
-| Field | When |
-|---|---|
-| `shop_id` | The shop that **owns** this record. Used on every resource table. |
+| Field      | When                                                                                                 |
+|------------|------------------------------------------------------------------------------------------------------|
+| `shop_id`  | The shop that **owns** this record. Used on every resource table.                                    |
 | `shop_ids` | (Optional) For records shared across multiple shops. E.g., a staff member assigned to shops A and B. |
 
 ## Enforcement

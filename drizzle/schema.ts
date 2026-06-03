@@ -639,6 +639,18 @@ export const staff_roles = pgTable('staff_roles', {
   role_id: integer('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
 });
 
+/**
+ * Platform Admins — system-level operators outside the shop tenancy.
+ * NOT scoped by shop_id. Has full access across all shops.
+ */
+export const platform_admins = pgTable('platform_admins', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull(),
+  full_name: text('full_name'),
+  last_login_at: timestamp('last_login_at', { mode: 'string' }),
+  ...auditColumns,
+});
+
 // ─── Type exports ──────────────────────────────────────────────
 
 export type AuditLog = typeof audit_logs.$inferSelect;
@@ -672,6 +684,8 @@ export type CartItem = typeof cart_items.$inferSelect;
 export type ShippingMethod = typeof shipping_methods.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type Menu = typeof menus.$inferSelect;
+
+export type PlatformAdmin = typeof platform_admins.$inferSelect;
 
 export type Shop = typeof shops.$inferSelect;
 export type StaffAccount = typeof staff_accounts.$inferSelect;

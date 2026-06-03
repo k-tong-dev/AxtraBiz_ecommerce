@@ -3,19 +3,24 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowRight, Sparkles } from 'lucide-react'
 
 type Product = {
   id: string
   name: string
   themeColor: string
-  emoji: string
+  image: string
+  category: string
+  price: number
 }
 
 const PRODUCTS: Product[] = [
-  { id: 'laptop', name: 'Laptop', themeColor: '#6366F1', emoji: '💻' },
-  { id: 'speaker', name: 'Speaker', themeColor: '#14B8A6', emoji: '🔊' },
-  { id: 'keyboard', name: 'Keyboard', themeColor: '#8B5CF6', emoji: '⌨️' },
+  { id: '1', name: 'Premium Headphones', themeColor: '#6366F1', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80', category: 'Audio', price: 199.99 },
+  { id: '2', name: 'Luxury Smartwatch', themeColor: '#06B6D4', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80', category: 'Wearables', price: 349.99 },
+  { id: '3', name: 'Professional Camera', themeColor: '#F59E0B', image: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=500&q=80', category: 'Photography', price: 1299.99 },
+  { id: '4', name: 'Ultra-Light Laptop', themeColor: '#8B5CF6', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&q=80', category: 'Computers', price: 899.99 },
+  { id: '6', name: 'Gaming Keyboard', themeColor: '#EC4899', image: 'https://images.unsplash.com/photo-1587829191301-75371900bb80?w=500&q=80', category: 'Gaming', price: 149.99 },
 ]
 
 function mod(n: number, m: number) {
@@ -134,52 +139,48 @@ export function Hero() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Content */}
-          <div className="space-y-8">
+          <div className="space-y-8 animate-fade-in">
             <div className="space-y-6">
-              <div className="inline-block">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 animate-pulse" style={{ color: tintColor }} />
                 <p
-                  className="text-sm font-semibold px-4 py-2 rounded-full"
+                  className="text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full"
                   style={{
                     color: tintColor,
                     backgroundColor: hexToRgba(tintColor, 0.08),
                     transition: 'background-color 300ms ease, color 300ms ease',
                   }}
                 >
-                  Premium Collection
+                  Premium {activeProduct.category} Collection
                 </p>
               </div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-balance leading-tight">
-                Curated Quality for Modern Living
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-balance leading-[1.05] tracking-tight">
+                Elevate Your <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">Everyday</span> Space
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
-                Experience the finest selection of premium products, handpicked for quality and style. Fast delivery, exceptional service, 30-day guarantee.
+              <p className="text-base md:text-lg text-muted-foreground max-w-md leading-relaxed">
+                Explore handcrafted, premium {activeProduct.category.toLowerCase()} accessories that balance exceptional quality with state-of-the-art aesthetics.
               </p>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/shop/products">
+              <Link href={`/shop/products/${activeProduct.id}`}>
                 <span
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-md px-5 py-4 text-base font-medium text-white shadow-sm transition-[background-color,transform,opacity] duration-300"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl px-6 py-4 text-base font-semibold text-white shadow-xl hover:-translate-y-0.5 hover:opacity-95 transition-all duration-300 cursor-pointer"
                   style={{
                     backgroundColor: tintColor,
-                    boxShadow: `0 10px 30px ${hexToRgba(tintColor, 0.25)}`,
+                    boxShadow: `0 12px 30px ${hexToRgba(tintColor, 0.3)}`,
                   }}
                 >
-                  Browse Collection
-                  <ArrowRight className="w-5 h-5" />
+                  Explore Details
+                  <ArrowRight className="w-5 h-5 animate-pulse" />
                 </span>
               </Link>
-              <Link href="/shop/about">
+              <Link href="/shop/products">
                 <span
-                  className="inline-flex items-center justify-center w-full sm:w-auto rounded-md px-5 py-4 text-base font-medium border transition-colors duration-300"
-                  style={{
-                    borderColor: hexToRgba(tintColor, 0.35),
-                    color: '#111827',
-                    backgroundColor: 'rgba(255,255,255,0.8)',
-                  }}
+                  className="inline-flex items-center justify-center w-full sm:w-auto rounded-xl px-6 py-4 text-base font-semibold border border-border/80 transition-all duration-300 hover:bg-muted/40 cursor-pointer text-foreground"
                 >
-                  Our Story
+                  View Full Shop
                 </span>
               </Link>
             </div>
@@ -213,11 +214,10 @@ export function Hero() {
 
           {/* Right Hero Draggable Circular Selector */}
           <div className="relative flex items-center justify-center">
-            <div className="group relative rounded-3xl overflow-hidden bg-surface/75 backdrop-blur-xl border border-border/60">
-              {/* Requested shift: left: 0 -> -18px equivalent */}
-              <div className="absolute inset-y-0 left-[-18px] right-0 bg-gradient-to-tr from-primary/20 to-transparent opacity-0  pointer-events-none" />
+            <div className="group relative rounded-3xl overflow-hidden glass-panel shadow-2xl p-6">
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-40 pointer-events-none" />
 
-              <div className="relative lg:w-[592px] lg:h-[574px] w-full aspect-square flex items-center justify-center p-6">
+              <div className="relative lg:w-[540px] lg:h-[540px] w-full aspect-square flex items-center justify-center">
                 <div
                   className="relative w-full h-full"
                   role="application"
@@ -231,7 +231,6 @@ export function Hero() {
                     onPointerUp={onPointerUp}
                     onPointerCancel={onPointerUp}
                     onWheel={(e) => {
-                      // Wheel / scroll to rotate between products.
                       setRotation((r) => r + e.deltaY * 0.08)
                     }}
                     tabIndex={0}
@@ -243,7 +242,6 @@ export function Hero() {
                         type="button"
                         aria-label={`Select ${p.name}`}
                         onClick={() => {
-                          // Snap rotation so this item lands at the top.
                           setRotation(-i * step)
                         }}
                         className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-300"
@@ -253,72 +251,75 @@ export function Hero() {
                         }}
                       >
                         <div
-                          className={`flex items-center justify-center rounded-full shadow-lg border transition-all duration-300 ${
+                          className={`relative flex items-center justify-center rounded-2xl overflow-hidden shadow-xl border transition-all duration-300 ${
                             isActive
-                              ? 'scale-110 border-white/60'
-                              : 'scale-100 border-white/30 opacity-95'
+                              ? 'scale-115 border-white/80 ring-4 ring-offset-2 ring-offset-background'
+                              : 'scale-90 border-white/20 opacity-70 hover:opacity-100 hover:scale-100'
                           }`}
                           style={{
-                            width: isActive ? 92 : 72,
-                            height: isActive ? 92 : 72,
-                            backgroundColor: hexToRgba(p.themeColor, isActive ? 0.18 : 0.10),
-                            borderColor: hexToRgba(p.themeColor, isActive ? 0.55 : 0.35),
-                          }}
+                            width: isActive ? 88 : 68,
+                            height: isActive ? 88 : 68,
+                            borderColor: p.themeColor,
+                            '--tw-ring-color': p.themeColor,
+                          } as React.CSSProperties}
                         >
-                          <span className="text-3xl" aria-hidden="true">
-                            {p.emoji}
-                          </span>
+                          <Image
+                            src={p.image}
+                            alt={p.name}
+                            fill
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-colors" />
                         </div>
                       </button>
                     ))}
                   </div>
 
-                  {/* Center product highlight */}
-                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div
-                      className="w-48 h-48 rounded-full flex flex-col items-center justify-center shadow-xl border"
-                      style={{
-                        backgroundColor: hexToRgba(activeProduct.themeColor, 0.14),
-                        borderColor: hexToRgba(activeProduct.themeColor, 0.45),
-                        boxShadow: `0 30px 80px ${hexToRgba(activeProduct.themeColor, 0.18)}`,
-                        transition: 'background-color 300ms ease, border-color 300ms ease',
-                      }}
-                    >
+                  {/* Center product highlight - Clickable link to product */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-auto">
+                    <Link href={`/shop/products/${activeProduct.id}`}>
                       <div
-                        className="text-5xl"
+                        className="w-56 h-56 rounded-full flex flex-col items-center justify-center shadow-2xl border glass-panel transition-all duration-500 hover:scale-105 cursor-pointer"
                         style={{
-                          filter: `drop-shadow(0 10px 30px ${hexToRgba(activeProduct.themeColor, 0.25)})`,
+                          borderColor: hexToRgba(activeProduct.themeColor, 0.45),
+                          boxShadow: `0 25px 60px -12px ${hexToRgba(activeProduct.themeColor, 0.3)}`,
                         }}
                       >
-                        {activeProduct.emoji}
+                        <div className="relative w-28 h-28 rounded-full overflow-hidden border border-white/20 shadow-lg animate-float">
+                          <Image
+                            src={activeProduct.image}
+                            alt={activeProduct.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="mt-3 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                          {activeProduct.category}
+                        </div>
+                        <h3 className="text-sm font-bold text-foreground mt-0.5 text-center px-4 truncate max-w-full">
+                          {activeProduct.name}
+                        </h3>
+                        <div className="text-xs font-semibold text-primary mt-1 flex items-center gap-1 font-mono" style={{ color: activeProduct.themeColor }}>
+                          <span>${activeProduct.price}</span>
+                          <span>•</span>
+                          <span className="text-[10px] text-muted-foreground font-normal">View Product</span>
+                        </div>
                       </div>
-                      <div className="mt-4 text-lg font-semibold text-foreground" style={{ color: '#111827' }}>
-                        {activeProduct.name}
-                      </div>
-                      <div className="mt-1 text-sm text-foreground/60">
-                        Drag to explore
-                      </div>
-
-                      {/* Small indicator */}
-                      <div
-                        className="mt-5 w-20 h-1.5 rounded-full"
-                        style={{ backgroundColor: hexToRgba(activeProduct.themeColor, 0.65) }}
-                      />
-                    </div>
+                    </Link>
                   </div>
                 </div>
               </div>
 
               {/* A11y / hint row */}
-              <div className="absolute bottom-5 left-0 right-0 flex items-center justify-center gap-2 px-6 pointer-events-none">
+              <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-2 px-6 pointer-events-none">
                 {PRODUCTS.map((p, i) => (
                   <span
                     key={p.id}
-                    className="h-2 w-2 rounded-full transition-all duration-300"
+                    className="h-1.5 w-1.5 rounded-full transition-all duration-300"
                     style={{
                       backgroundColor: p.themeColor,
                       opacity: i === activeIndex ? 1 : 0.35,
-                      transform: i === activeIndex ? 'scale(1.2)' : 'scale(1)',
+                      transform: i === activeIndex ? 'scale(1.3)' : 'scale(1)',
                     }}
                   />
                 ))}

@@ -49,6 +49,7 @@ export {
   permissions,
   role_permissions,
   staff_roles,
+  platform_admins,
 } from '../../drizzle/schema'
 
 export type {
@@ -86,4 +87,5 @@ export type {
   Permission,
   RolePermission,
   StaffRole,
+  PlatformAdmin,
 } from '../../drizzle/schema'
