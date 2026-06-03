@@ -82,16 +82,9 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (!user && isAdminRoute && !pathname.startsWith('/admin/login')) {
+  if (!user && (isAdminRoute || isProtectedShopRoute) && pathname !== '/login') {
     const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/admin/login'
-    loginUrl.searchParams.set('redirect', `${pathname}${search}`)
-    return NextResponse.redirect(loginUrl)
-  }
-
-  if (!user && isProtectedShopRoute) {
-    const loginUrl = request.nextUrl.clone()
-    loginUrl.pathname = '/shop/login'
+    loginUrl.pathname = '/login'
     loginUrl.searchParams.set('redirect', `${pathname}${search}`)
     return NextResponse.redirect(loginUrl)
   }

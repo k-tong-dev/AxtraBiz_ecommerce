@@ -2,17 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { Store, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
 
-export default function AdminLoginPage() {
+export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/admin'
+  const redirect = searchParams.get('redirect') || ''
   const { user, isLoading: authLoading, login } = useAuth()
 
   const [email, setEmail] = useState('')
@@ -23,9 +22,20 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      router.replace(redirect)
+      resolveRedirect(redirect)
     }
   }, [authLoading, redirect, router, user])
+
+  async function resolveRedirect(fallback: string) {
+    try {
+      const res = await fetch('/api/auth/me')
+      if (!res.ok) { router.replace(fallback || '/'); return }
+      const data = await res.json()
+      router.replace(data.redirect || fallback || '/')
+    } catch {
+      router.replace(fallback || '/')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,8 +44,8 @@ export default function AdminLoginPage() {
 
     const success = await login(email, password)
     if (success) {
-      showToast('success', 'Signed in', 'Welcome to the admin dashboard.')
-      router.push(redirect)
+      showToast('success', 'Signed in', 'Welcome back.')
+      await resolveRedirect(redirect)
     } else {
       const message = 'Invalid email or password.'
       setError(message)
@@ -53,10 +63,9 @@ export default function AdminLoginPage() {
           <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
             <Store className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold mb-2">AxtraBiz Admin</h1>
+          <h1 className="text-2xl font-bold mb-2">AxtraBiz</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Manage your shops, staff, orders, products, and everything else
-            from a single dashboard.
+            Multi-tenant eCommerce platform. Sign in to manage your shops, products, orders, and team.
           </p>
         </div>
       </div>
@@ -66,12 +75,12 @@ export default function AdminLoginPage() {
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <Store className="w-5 h-5 text-primary" />
-            <span className="font-semibold text-sm">AxtraBiz Admin</span>
+            <span className="font-semibold text-sm">AxtraBiz</span>
           </div>
 
           <h2 className="text-xl font-semibold mb-1">Sign in</h2>
           <p className="text-sm text-muted-foreground mb-6">
-            Enter your credentials to access the admin dashboard.
+            Enter your credentials to continue.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,7 +90,7 @@ export default function AdminLoginPage() {
               </label>
               <Input
                 type="email"
-                placeholder="admin@example.com"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -126,13 +135,6 @@ export default function AdminLoginPage() {
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
           </form>
-
-          <p className="mt-6 text-xs text-center text-muted-foreground">
-            Only authorized staff can access this area.{' '}
-            <Link href="/shop/login" className="text-primary hover:underline">
-              Customer login
-            </Link>
-          </p>
         </div>
       </div>
     </div>
