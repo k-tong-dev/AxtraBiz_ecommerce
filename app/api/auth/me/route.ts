@@ -15,18 +15,22 @@ export async function GET() {
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
-    // 1. Check platform admin
-    const [platformAdmin] = await db.select().from(platform_admins)
-      .where(eq(platform_admins.email, user.email))
-      .limit(1)
+    // 1. Check platform admin (wrap in try-catch in case table doesn't exist)
+    try {
+      const [platformAdmin] = await db.select().from(platform_admins)
+        .where(eq(platform_admins.email, user.email))
+        .limit(1)
 
-    if (platformAdmin) {
-      return NextResponse.json({
-        authenticated: true,
-        role: 'platform_admin',
-        redirect: '/admin',
-        user: { id: platformAdmin.id, email: user.email, name: platformAdmin.full_name },
-      })
+      if (platformAdmin) {
+        return NextResponse.json({
+          authenticated: true,
+          role: 'platform_admin',
+          redirect: '/admin',
+          user: { id: platformAdmin.id, email: user.email, name: platformAdmin.full_name },
+        })
+      }
+    } catch (e) {
+      console.log('[auth/me] platform_admins table not available, skipping:', (e as Error).message)
     }
 
     // 2. Check staff account
