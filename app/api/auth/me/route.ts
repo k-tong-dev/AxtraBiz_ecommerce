@@ -91,6 +91,7 @@ export async function GET() {
       user: { email: user.email },
     })
   } catch (error) {
+    console.error('[auth/me] UNCAUGHT ERROR:', error instanceof Error ? error.message : error, error instanceof Error ? error.stack : '')
     return NextResponse.json({ authenticated: false, error: 'Internal error' }, { status: 500 })
   }
 }
