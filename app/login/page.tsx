@@ -21,9 +21,17 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      window.location.href = '/admin'
+      // Already logged in — fetch /api/auth/me for correct redirect
+      fetch('/api/auth/me')
+        .then(r => r.json())
+        .then(me => {
+          window.location.href = redirectParam || me.redirect || '/admin'
+        })
+        .catch(() => {
+          window.location.href = redirectParam || '/admin'
+        })
     }
-  }, [authLoading, user])
+  }, [authLoading, user, redirectParam])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
