@@ -21,13 +21,16 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && user) {
+      console.log('[login] useEffect: user already authenticated, fetching /api/auth/me')
       // Already logged in — fetch /api/auth/me for correct redirect
       fetch('/api/auth/me')
         .then(r => r.json())
         .then(me => {
+          console.log('[login] useEffect /api/auth/me:', JSON.stringify(me, null, 2))
           window.location.href = redirectParam || me.redirect || '/admin'
         })
-        .catch(() => {
+        .catch((err) => {
+          console.log('[login] useEffect fetch error:', err)
           window.location.href = redirectParam || '/admin'
         })
     }
@@ -41,16 +44,23 @@ export default function LoginPage() {
     const success = await login(email, password)
     if (success) {
       showToast('success', 'Signed in', 'Welcome back.')
+      // Small delay to ensure Supabase cookies are set on the browser
+      await new Promise(r => setTimeout(r, 500))
       // Fetch /api/auth/me to determine role-based redirect
       try {
         const meRes = await fetch('/api/auth/me')
         const me = await meRes.json()
+        console.log('[login] /api/auth/me response:', JSON.stringify(me, null, 2))
         if (me.authenticated) {
-          window.location.href = redirectParam || me.redirect || '/admin'
+          const target = redirectParam || me.redirect || '/admin'
+          console.log('[login] redirect target:', target)
+          window.location.href = target
         } else {
+          console.log('[login] not authenticated in /api/auth/me, going to /admin')
           window.location.href = '/admin'
         }
-      } catch {
+      } catch (err) {
+        console.log('[login] fetch error:', err)
         window.location.href = redirectParam || '/admin'
       }
     } else {
