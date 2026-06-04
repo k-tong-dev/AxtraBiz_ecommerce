@@ -36,6 +36,13 @@
       "when": 1780310898549,
       "tag": "0004_nervous_bloodstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1780581976162,
+      "tag": "0005_ordinary_bastion",
+      "breakpoints": true
     }
   ]
 }
