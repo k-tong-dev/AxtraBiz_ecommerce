@@ -63,12 +63,12 @@ export async function GET() {
       const needsShop = primary.is_owner && !primary.shop_id
       const hasMultipleShops = userShops.length > 1
 
-      console.log('[auth/me] needsShop:', needsShop, 'hasMultipleShops:', hasMultipleShops, 'redirect:', needsShop ? '/admin/configuration/shops/new' : hasMultipleShops ? '/admin/configuration/shops/select' : '/admin')
+      console.log('[auth/me] needsShop:', needsShop, 'hasMultipleShops:', hasMultipleShops, 'redirect:', needsShop || hasMultipleShops ? '/auth/setup' : '/admin')
 
       return NextResponse.json({
         authenticated: true,
         role: 'staff',
-        redirect: needsShop ? '/admin/configuration/shops/new' : hasMultipleShops ? '/admin/configuration/shops/select' : '/admin',
+        redirect: needsShop || hasMultipleShops ? '/auth/setup' : '/admin',
           user: { id: primary.id, email: primary.email, name: primary.full_name },
           shopId: primary.shop_id,
           isOwner: primary.is_owner,

@@ -57,7 +57,7 @@ export default function RegisterPage() {
             <Button
               size="lg"
               className="mt-4 w-full"
-              onClick={() => { window.location.href = '/admin/configuration/shops/new' }}
+              onClick={() => { window.location.href = '/auth/setup' }}
             >
               Create your shop
               <ArrowRight className="ml-2 h-4 w-4" />

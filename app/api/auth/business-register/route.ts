@@ -57,6 +57,8 @@ export async function POST(request: Request) {
         full_name: name,
         is_owner: true,
         status: 'active',
+        create_uid: email,
+        write_uid: email,
       })
       .returning()
 

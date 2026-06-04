@@ -1,14 +1,16 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 export function AuthRedirectGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const checked = useRef(false)
 
   useEffect(() => {
     if (checked.current) return
+    if (pathname === '/auth/setup') return
     checked.current = true
 
     fetch('/api/auth/me')
@@ -19,18 +21,18 @@ export function AuthRedirectGuard({ children }: { children: React.ReactNode }) {
           return
         }
         if (data.role === 'staff' && data.isOwner && data.needsShop) {
-          router.push('/admin/configuration/shops/new')
+          window.location.href = '/auth/setup'
           return
         }
         if (data.role === 'staff' && data.isOwner && data.shops?.length > 1) {
           const activeShopId = localStorage.getItem('active_shop_id')
           if (!activeShopId) {
-            router.push('/admin/configuration/shops/select')
+            window.location.href = '/auth/setup'
           }
         }
       })
       .catch(() => {})
-  }, [router])
+  }, [router, pathname])
 
   return <>{children}</>
 }
