@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { VariantManager } from '@/components/admin/VariantManager'
+import { VariantManager } from '@/components/dashboard/VariantManager'
 
 // Wrapper component for VariantManager to match FormPage interface
 export function ProductVariantsPage({data, onDataChange}: {data: any; onDataChange: (data: any) => void}) {

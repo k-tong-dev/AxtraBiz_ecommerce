@@ -1,18 +1,19 @@
-import { db, staff_roles } from './server'
-import { createCrudService } from './base-crud'
-import type { StaffRole } from './server'
+import { db } from './client'
+import { m2m_staff_accounts_roles } from '@/drizzle/schema'
+import { syncStaffRoles } from './m2m/staff-roles'
 
-export const staffRoleService = createCrudService<StaffRole, any, any>(staff_roles)
-
-export async function fetchStaffRolesFromDrizzle(): Promise<StaffRole[]> {
-  return staffRoleService.search()
-}
-
-export async function deleteStaffRoleFromDrizzle(id: string): Promise<boolean> {
+export async function fetchStaffRolesFromDrizzle() {
   try {
-    const result = await staffRoleService.unlink(id)
-    return result.success
+    return await db.select().from(m2m_staff_accounts_roles)
   } catch {
-    return false
+    return []
   }
 }
+
+export async function deleteStaffRoleFromDrizzle(id: string) {
+  // id here is not used — junction records use composite key
+  // For batch operations, use the m2m helper functions
+  return false
+}
+
+export { syncStaffRoles }

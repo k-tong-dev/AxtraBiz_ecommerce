@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
-import {
-  fetchStaffRolesFromDrizzle,
-  staffRoleService,
-  deleteStaffRoleFromDrizzle,
-} from '@/lib/drizzle/staff-roles'
+import { fetchStaffRolesFromDrizzle, deleteStaffRoleFromDrizzle } from '@/lib/drizzle/staff-roles'
+import { assignStaffRole, removeStaffRole } from '@/lib/drizzle/m2m/staff-roles'
 
 export async function GET() {
   try {
@@ -21,9 +18,9 @@ export async function POST(request: Request) {
     const results: any[] = []
 
     for (const item of items) {
-      const r = await staffRoleService.upsert(item)
+      const r = await assignStaffRole({ staffId: item.staff_id, roleId: item.role_id })
       if (!r.success) return NextResponse.json({ success: false, error: r.error }, { status: 400 })
-      results.push(r.data ?? item)
+      results.push({ staff_id: item.staff_id, role_id: item.role_id })
     }
 
     return NextResponse.json(
@@ -40,13 +37,17 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const id = new URL(request.url).searchParams.get('id')
-    if (!id) return NextResponse.json({ error: 'Staff role ID is required' }, { status: 400 })
+    const staffId = new URL(request.url).searchParams.get('staff_id')
+    const roleId = new URL(request.url).searchParams.get('role_id')
 
-    const result = await deleteStaffRoleFromDrizzle(id)
-    return result
+    if (!staffId || !roleId) {
+      return NextResponse.json({ error: 'staff_id and role_id are required' }, { status: 400 })
+    }
+
+    const result = await removeStaffRole(Number(staffId), Number(roleId))
+    return result.success
       ? NextResponse.json({ success: true })
-      : NextResponse.json({ success: false, error: 'Failed to delete staff role' }, { status: 400 })
+      : NextResponse.json({ success: false, error: result.error }, { status: 400 })
   } catch (error) {
     return NextResponse.json({
       success: false,

@@ -1,5 +1,5 @@
 import { db } from './client'
-import { permissions, roles, role_permissions } from '@/drizzle/schema'
+import { permissions, roles, m2m_roles_permissions } from '@/drizzle/schema'
 import { sql } from 'drizzle-orm'
 
 // ─── Default permission seeds ─────────────────────────────────
@@ -201,7 +201,7 @@ export async function seedDefaultPermissions() {
       .where(sql`${permissions.scope} = ANY(${roleDef.scopes})`)
 
     for (const perm of matchedPerms) {
-      await db.insert(role_permissions)
+      await db.insert(m2m_roles_permissions)
         .values({ role_id: role.id, permission_id: perm.id })
         .onConflictDoNothing()
     }

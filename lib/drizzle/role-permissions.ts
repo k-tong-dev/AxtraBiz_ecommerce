@@ -1,18 +1,17 @@
-import { db, role_permissions } from './server'
-import { createCrudService } from './base-crud'
-import type { RolePermission } from './server'
+import { db } from './client'
+import { m2m_roles_permissions } from '@/drizzle/schema'
+import { syncRolePermissions } from './m2m/roles-permissions'
 
-export const rolePermissionService = createCrudService<RolePermission, any, any>(role_permissions)
-
-export async function fetchRolePermissionsFromDrizzle(): Promise<RolePermission[]> {
-  return rolePermissionService.search()
-}
-
-export async function deleteRolePermissionFromDrizzle(id: string): Promise<boolean> {
+export async function fetchRolePermissionsFromDrizzle() {
   try {
-    const result = await rolePermissionService.unlink(id)
-    return result.success
+    return await db.select().from(m2m_roles_permissions)
   } catch {
-    return false
+    return []
   }
 }
+
+export async function deleteRolePermissionFromDrizzle(id: string) {
+  return false
+}
+
+export { syncRolePermissions }

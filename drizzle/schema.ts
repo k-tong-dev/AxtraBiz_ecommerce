@@ -9,7 +9,9 @@ import {
   integer,
   jsonb,
   boolean,
+  primaryKey,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 // ─── Enums ─────────────────────────────────────────────────────
 
@@ -621,23 +623,83 @@ export const permissions = pgTable('permissions', {
 
 /**
  * Role ↔ Permission — many-to-many junction linking roles to permissions.
- * Determines what each role is allowed to do within the system.
+ * Uses composite PK (role_id, permission_id) and tracks grant metadata.
  */
-export const role_permissions = pgTable('role_permissions', {
-  id: serial('id').primaryKey(),
+export const m2m_roles_permissions = pgTable('m2m_roles_permissions', {
   role_id: integer('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
   permission_id: integer('permission_id').notNull().references(() => permissions.id, { onDelete: 'cascade' }),
-});
+  granted_at: timestamp('granted_at', { mode: 'string' }).defaultNow(),
+  granted_by: text('granted_by'),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.role_id, t.permission_id] }),
+}));
+
+export const m2mRolesPermissionsRelations = relations(m2m_roles_permissions, ({ one }) => ({
+  role: one(roles, { fields: [m2m_roles_permissions.role_id], references: [roles.id] }),
+  permission: one(permissions, { fields: [m2m_roles_permissions.permission_id], references: [permissions.id] }),
+}));
+
+export const rolesPermissionsRelations = relations(roles, ({ many }) => ({
+  m2mPermissions: many(m2m_roles_permissions),
+}));
+
+export const permissionsRolesRelations = relations(permissions, ({ many }) => ({
+  m2mRoles: many(m2m_roles_permissions),
+}));
 
 /**
  * Staff ↔ Role — many-to-many junction assigning roles to staff accounts.
- * A staff member can have multiple roles, aggregating their permissions.
+ * Uses composite PK (staff_id, role_id) and tracks assignment metadata.
  */
-export const staff_roles = pgTable('staff_roles', {
-  id: serial('id').primaryKey(),
+export const m2m_staff_accounts_roles = pgTable('m2m_staff_accounts_roles', {
   staff_id: integer('staff_id').notNull().references(() => staff_accounts.id, { onDelete: 'cascade' }),
   role_id: integer('role_id').notNull().references(() => roles.id, { onDelete: 'cascade' }),
-});
+  assigned_at: timestamp('assigned_at', { mode: 'string' }).defaultNow(),
+  assigned_by: text('assigned_by'),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.staff_id, t.role_id] }),
+}));
+
+export const m2mStaffAccountsRolesRelations = relations(m2m_staff_accounts_roles, ({ one }) => ({
+  staff: one(staff_accounts, { fields: [m2m_staff_accounts_roles.staff_id], references: [staff_accounts.id] }),
+  role: one(roles, { fields: [m2m_staff_accounts_roles.role_id], references: [roles.id] }),
+}));
+
+export const staffAccountsRolesRelations = relations(staff_accounts, ({ many }) => ({
+  m2mRoles: many(m2m_staff_accounts_roles),
+}));
+
+export const rolesStaffRelations = relations(roles, ({ many }) => ({
+  m2mStaff: many(m2m_staff_accounts_roles),
+}));
+
+/**
+ * Staff ↔ Shop — many-to-many junction for multi-shop staff assignment.
+ * A staff member can be assigned to multiple shops beyond their owning shop.
+ * is_default indicates their active/primary shop context.
+ */
+export const m2m_staff_accounts_shops = pgTable('m2m_staff_accounts_shops', {
+  staff_id: integer('staff_id').notNull().references(() => staff_accounts.id, { onDelete: 'cascade' }),
+  shop_id: integer('shop_id').notNull().references(() => shops.id, { onDelete: 'cascade' }),
+  is_default: boolean('is_default').default(false),
+  assigned_at: timestamp('assigned_at', { mode: 'string' }).defaultNow(),
+  assigned_by: text('assigned_by'),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.staff_id, t.shop_id] }),
+}));
+
+export const m2mStaffAccountsShopsRelations = relations(m2m_staff_accounts_shops, ({ one }) => ({
+  staff: one(staff_accounts, { fields: [m2m_staff_accounts_shops.staff_id], references: [staff_accounts.id] }),
+  shop: one(shops, { fields: [m2m_staff_accounts_shops.shop_id], references: [shops.id] }),
+}));
+
+export const staffAccountsShopsRelations = relations(staff_accounts, ({ many }) => ({
+  m2mShops: many(m2m_staff_accounts_shops),
+}));
+
+export const shopsStaffRelations = relations(shops, ({ many }) => ({
+  m2mStaff: many(m2m_staff_accounts_shops),
+}));
 
 /**
  * Platform Admins — system-level operators outside the shop tenancy.
@@ -691,5 +753,6 @@ export type Shop = typeof shops.$inferSelect;
 export type StaffAccount = typeof staff_accounts.$inferSelect;
 export type Role = typeof roles.$inferSelect;
 export type Permission = typeof permissions.$inferSelect;
-export type RolePermission = typeof role_permissions.$inferSelect;
-export type StaffRole = typeof staff_roles.$inferSelect;
+export type M2mRolesPermission = typeof m2m_roles_permissions.$inferSelect;
+export type M2mStaffAccountsRole = typeof m2m_staff_accounts_roles.$inferSelect;
+export type M2mStaffAccountsShop = typeof m2m_staff_accounts_shops.$inferSelect;

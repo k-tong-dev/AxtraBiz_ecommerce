@@ -47,8 +47,9 @@ export {
   staff_accounts,
   roles,
   permissions,
-  role_permissions,
-  staff_roles,
+  m2m_roles_permissions,
+  m2m_staff_accounts_roles,
+  m2m_staff_accounts_shops,
   platform_admins,
 } from '../../drizzle/schema'
 
@@ -85,7 +86,8 @@ export type {
   StaffAccount,
   Role,
   Permission,
-  RolePermission,
-  StaffRole,
+  M2mRolesPermission,
+  M2mStaffAccountsRole,
+  M2mStaffAccountsShop,
   PlatformAdmin,
 } from '../../drizzle/schema'

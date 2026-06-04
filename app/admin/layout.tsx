@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { AdminSidebar, AdminTopBar, ModuleBar } from '@/components/admin/navigation'
-import { AuthRedirectGuard } from '@/components/admin/auth-redirect-guard'
+import { AdminSidebar, AdminTopBar, ModuleBar } from '@/components/dashboard/navigation'
+import { AuthRedirectGuard } from '@/components/dashboard/auth-redirect-guard'
 import 'rsuite/dist/rsuite-no-reset.min.css';
 
 export const metadata: Metadata = {

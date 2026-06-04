@@ -27,8 +27,8 @@ import {
   Settings,
   SlidersHorizontal,
 } from 'lucide-react'
-import { StatCard } from '@/components/admin/stat-card'
-import { AdminModuleCard } from '@/components/admin/module-card'
+import { StatCard } from '@/components/dashboard/stat-card'
+import { AdminModuleCard } from '@/components/dashboard/module-card'
 import type { Order, Product, User } from '@/lib/types'
 
 const CHART_COLORS = ['#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b', '#3b82f6', '#10b981']

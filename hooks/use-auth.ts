@@ -34,7 +34,7 @@ function initSharedAuth() {
 
   const supabase = createClient()
 
-  supabase.auth.getUser().then(({ data }) => {
+  supabase.auth.getUser().then(({ data } : { data : any}) => {
     sharedUser = data.user ? mapUser(data.user) : null
     sharedLoading = false
     notifyListeners()

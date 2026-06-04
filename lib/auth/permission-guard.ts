@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/drizzle/client'
-import { staff_accounts, staff_roles, role_permissions, permissions, platform_admins } from '@/drizzle/schema'
+import { staff_accounts, m2m_staff_accounts_roles, m2m_roles_permissions, permissions, platform_admins } from '@/drizzle/schema'
 import { eq, sql, and } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 
@@ -92,10 +92,10 @@ export async function getStaffAuthContext(shopId: number): Promise<ShopAccess | 
   // 4. Load permissions from assigned roles
   const staffScopes = await db
     .select({ scope: permissions.scope })
-    .from(staff_roles)
-    .innerJoin(role_permissions, eq(role_permissions.role_id, staff_roles.role_id))
-    .innerJoin(permissions, eq(permissions.id, role_permissions.permission_id))
-    .where(eq(staff_roles.staff_id, staff.id))
+    .from(m2m_staff_accounts_roles)
+    .innerJoin(m2m_roles_permissions, eq(m2m_roles_permissions.role_id, m2m_staff_accounts_roles.role_id))
+    .innerJoin(permissions, eq(permissions.id, m2m_roles_permissions.permission_id))
+    .where(eq(m2m_staff_accounts_roles.staff_id, staff.id))
 
   const scopeSet = new Set(staffScopes.map((s) => s.scope))
 

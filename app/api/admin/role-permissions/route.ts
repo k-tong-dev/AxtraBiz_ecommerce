@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { fetchRolePermissionsFromDrizzle, rolePermissionService, deleteRolePermissionFromDrizzle } from '@/lib/drizzle/role-permissions'
+import { fetchRolePermissionsFromDrizzle } from '@/lib/drizzle/role-permissions'
+import { assignRolePermission, removeRolePermission } from '@/lib/drizzle/m2m/roles-permissions'
 
 export async function GET() {
   try {
@@ -17,9 +18,9 @@ export async function POST(request: Request) {
     const results: any[] = []
 
     for (const item of items) {
-      const r = await rolePermissionService.upsert(item)
+      const r = await assignRolePermission({ roleId: item.role_id, permissionId: item.permission_id })
       if (!r.success) return NextResponse.json({ success: false, error: r.error }, { status: 400 })
-      results.push(r.data ?? item)
+      results.push({ role_id: item.role_id, permission_id: item.permission_id })
     }
 
     return NextResponse.json(
@@ -36,13 +37,17 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const id = new URL(request.url).searchParams.get('id')
-    if (!id) return NextResponse.json({ error: 'RolePermission ID is required' }, { status: 400 })
+    const roleId = new URL(request.url).searchParams.get('role_id')
+    const permissionId = new URL(request.url).searchParams.get('permission_id')
 
-    const result = await deleteRolePermissionFromDrizzle(id)
-    return result
+    if (!roleId || !permissionId) {
+      return NextResponse.json({ error: 'role_id and permission_id are required' }, { status: 400 })
+    }
+
+    const result = await removeRolePermission(Number(roleId), Number(permissionId))
+    return result.success
       ? NextResponse.json({ success: true })
-      : NextResponse.json({ success: false, error: 'Failed to delete role permission' }, { status: 400 })
+      : NextResponse.json({ success: false, error: result.error }, { status: 400 })
   } catch (error) {
     return NextResponse.json({
       success: false,
