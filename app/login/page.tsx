@@ -10,7 +10,7 @@ import { showToast } from '@/lib/ui/toast'
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || ''
+  const redirectParam = searchParams.get('redirect') || ''
   const { user, isLoading: authLoading, login } = useAuth()
 
   const [email, setEmail] = useState('')
@@ -21,9 +21,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      window.location.href = redirect || '/admin'
+      window.location.href = '/admin'
     }
-  }, [authLoading, redirect, user])
+  }, [authLoading, user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,8 +33,18 @@ export default function LoginPage() {
     const success = await login(email, password)
     if (success) {
       showToast('success', 'Signed in', 'Welcome back.')
-      // Full page navigation ensures middleware reads the fresh session cookies
-      window.location.href = redirect || '/admin'
+      // Fetch /api/auth/me to determine role-based redirect
+      try {
+        const meRes = await fetch('/api/auth/me')
+        const me = await meRes.json()
+        if (me.authenticated) {
+          window.location.href = redirectParam || me.redirect || '/admin'
+        } else {
+          window.location.href = '/admin'
+        }
+      } catch {
+        window.location.href = redirectParam || '/admin'
+      }
     } else {
       const message = 'Invalid email or password.'
       setError(message)
@@ -124,6 +134,12 @@ export default function LoginPage() {
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
           </form>
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Don't have an account?{' '}
+            <a href="/register" className="font-medium text-primary hover:underline">
+              Register your business
+            </a>
+          </p>
         </div>
       </div>
     </div>

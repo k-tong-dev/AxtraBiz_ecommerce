@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { AdminSidebar, AdminTopBar, ModuleBar } from '@/components/admin/navigation'
+import { AuthRedirectGuard } from '@/components/admin/auth-redirect-guard'
 import 'rsuite/dist/rsuite-no-reset.min.css';
 
 export const metadata: Metadata = {
@@ -13,13 +14,15 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen overflow-x-hidden">
-      <AdminSidebar />
-      <main className="flex-1 md:pl-60 transition-all">
-        <AdminTopBar />
-        <ModuleBar />
-        <div>{children}</div>
-      </main>
-    </div>
+    <AuthRedirectGuard>
+      <div className="flex min-h-screen overflow-x-hidden">
+        <AdminSidebar />
+        <main className="flex-1 md:pl-60 transition-all">
+          <AdminTopBar />
+          <ModuleBar />
+          <div>{children}</div>
+        </main>
+      </div>
+    </AuthRedirectGuard>
   )
 }

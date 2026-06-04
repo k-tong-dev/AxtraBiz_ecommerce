@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/drizzle/client'
-import { platform_admins, staff_accounts, users } from '@/drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { platform_admins, staff_accounts, users, shops } from '@/drizzle/schema'
+import { eq, inArray } from 'drizzle-orm'
 
 export async function GET() {
   try {
@@ -30,17 +30,35 @@ export async function GET() {
     // 2. Check staff account
     const staffAccounts = await db.select().from(staff_accounts)
       .where(eq(staff_accounts.email, user.email))
-      .limit(1)
 
     if (staffAccounts.length > 0) {
-      const staff = staffAccounts[0]
+      const primary = staffAccounts.find(s => s.shop_id !== null) || staffAccounts[0]
+
+      // If owner, fetch all their shops
+      let userShops: { id: number; name: string }[] = []
+      if (primary.is_owner) {
+        const ownerAccounts = staffAccounts.filter(s => s.is_owner)
+        const shopIds = ownerAccounts.map(s => s.shop_id).filter((id): id is number => id !== null)
+        if (shopIds.length > 0) {
+          const shopRows = await db.select({ id: shops.id, name: shops.name })
+            .from(shops)
+            .where(inArray(shops.id, shopIds))
+          userShops = shopRows
+        }
+      }
+
+      const needsShop = primary.is_owner && !primary.shop_id
+      const hasMultipleShops = userShops.length > 1
+
       return NextResponse.json({
         authenticated: true,
         role: 'staff',
-        redirect: '/admin',
-        user: { id: staff.id, email: staff.email, name: staff.full_name },
-        shopId: staff.shop_id,
-        isOwner: staff.is_owner,
+        redirect: needsShop ? '/admin/shops/new' : hasMultipleShops ? '/admin/shops/select' : '/admin',
+        user: { id: primary.id, email: primary.email, name: primary.full_name },
+        shopId: primary.shop_id,
+        isOwner: primary.is_owner,
+        needsShop,
+        shops: userShops,
       })
     }
 
@@ -62,7 +80,7 @@ export async function GET() {
     return NextResponse.json({
       authenticated: true,
       role: 'unknown',
-      redirect: '/',
+      redirect: '/login',
       user: { email: user.email },
     })
   } catch (error) {

@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server'
 import { fetchStaffAccountsFromDrizzle, staffAccountService, deleteStaffAccountFromDrizzle } from '@/lib/drizzle/staff-accounts'
+import { createServiceRoleClient } from '@/utils/supabase/service-role'
+import { db } from '@/lib/drizzle/client'
+import { staff_accounts } from '@/drizzle/schema'
+import { eq } from 'drizzle-orm'
 
 export async function GET() {
   try {
@@ -17,9 +21,38 @@ export async function POST(request: Request) {
     const results: any[] = []
 
     for (const item of items) {
-      const r = await staffAccountService.upsert(item)
+      const { password, ...staffData } = item
+      const r = await staffAccountService.upsert(staffData)
       if (!r.success) return NextResponse.json({ success: false, error: r.error }, { status: 400 })
-      results.push(r.data ?? item)
+      const created = r.data
+
+      if (password && created?.id) {
+        const email = staffData.email
+        // Create Supabase auth user for this staff member
+        const supabase = createServiceRoleClient()
+        const { error: authError } = await supabase.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: {
+            name: staffData.full_name,
+            full_name: staffData.full_name,
+          },
+        })
+
+        if (authError) {
+          // Cleanup: delete the staff account if auth user creation fails
+          await db.delete(staff_accounts).where(eq(staff_accounts.id, created.id))
+          return NextResponse.json({ success: false, error: `Failed to create auth user: ${authError.message}` }, { status: 400 })
+        }
+
+        // Mark staff as active since they have login credentials
+        await db.update(staff_accounts)
+          .set({ status: 'active' })
+          .where(eq(staff_accounts.id, created.id))
+      }
+
+      results.push(created ?? { ...staffData })
     }
 
     return NextResponse.json(

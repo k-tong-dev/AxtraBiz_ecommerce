@@ -586,7 +586,7 @@ export const shops = pgTable('shops', {
  */
 export const staff_accounts = pgTable('staff_accounts', {
   id: serial('id').primaryKey(),
-  shop_id: integer('shop_id').notNull().references(() => shops.id, { onDelete: 'cascade' }),
+  shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   email: text('email').notNull(),
   full_name: text('full_name'),
   is_owner: boolean('is_owner').notNull().default(false),

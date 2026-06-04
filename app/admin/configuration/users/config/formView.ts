@@ -58,10 +58,14 @@ export const staffFormConfig: FormConfig = {
       key: 'is_owner',
       label: 'Is Owner',
       type: 'boolean',
-      columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 1,
-      order: 4
+      columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 4
+    },
+    {
+      key: 'password',
+      label: 'Initial Password',
+      type: 'string',
+      placeholder: 'Set password to allow login (create only)',
+      columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 5
     },
   ],
   breadcrumbs: {
