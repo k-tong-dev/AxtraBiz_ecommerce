@@ -30,7 +30,7 @@ export default function ShopSelectPage() {
           return
         }
         if (data.needsShop) {
-          router.push('/admin/shops/new')
+          router.push('/admin/configuration/shops/new')
           return
         }
         if (data.shops?.length === 1) {
@@ -97,7 +97,7 @@ export default function ShopSelectPage() {
         <div className="mt-6 text-center">
           <Button
             appearance="ghost"
-            onClick={() => router.push('/admin/shops/new')}
+            onClick={() => router.push('/admin/configuration/shops/new')}
           >
             <Plus className="mr-2 h-4 w-4" />
             Create new shop

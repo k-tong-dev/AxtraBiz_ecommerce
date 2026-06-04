@@ -19,13 +19,13 @@ export function AuthRedirectGuard({ children }: { children: React.ReactNode }) {
           return
         }
         if (data.role === 'staff' && data.isOwner && data.needsShop) {
-          router.push('/admin/shops/new')
+          router.push('/admin/configuration/shops/new')
           return
         }
         if (data.role === 'staff' && data.isOwner && data.shops?.length > 1) {
           const activeShopId = localStorage.getItem('active_shop_id')
           if (!activeShopId) {
-            router.push('/admin/shops/select')
+            router.push('/admin/configuration/shops/select')
           }
         }
       })
