@@ -1,36 +1,46 @@
 import { db } from './client'
-import { platform_admins } from '@/drizzle/schema'
+import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
-import type { PlatformAdmin } from '@/drizzle/schema'
+import type { ResUser } from '@/lib/drizzle/schema'
 
-export async function fetchPlatformAdminsFromDrizzle(): Promise<PlatformAdmin[]> {
-  return db.select().from(platform_admins).orderBy(platform_admins.email)
+export async function fetchPlatformAdminsFromDrizzle(): Promise<ResUser[]> {
+  return db.select().from(resUsers)
+    .where(eq(resUsers.userRole, '_admin_system_'))
+    .orderBy(resUsers.email)
 }
 
-export async function fetchPlatformAdminFromDrizzle(id: number): Promise<PlatformAdmin | null> {
-  const [result] = await db.select().from(platform_admins).where(eq(platform_admins.id, id)).limit(1)
+export async function fetchPlatformAdminFromDrizzle(id: string): Promise<ResUser | null> {
+  const [result] = await db.select().from(resUsers)
+    .where(eq(resUsers.id, id))
+    .limit(1)
   return result || null
 }
 
 export async function createPlatformAdminFromDrizzle(
-  data: Pick<PlatformAdmin, 'email' | 'full_name'>,
-): Promise<PlatformAdmin> {
-  const [result] = await db.insert(platform_admins).values(data).returning()
-  return result
+  data: Pick<ResUser, 'email' | 'displayName'>,
+): Promise<ResUser | null> {
+  const username = data.email.split('@')[0]
+  const [result] = await db.insert(resUsers).values({
+    ...data,
+    authUserId: '',
+    username,
+    userRole: '_admin_system_',
+  }).returning()
+  return result || null
 }
 
 export async function updatePlatformAdminFromDrizzle(
-  id: number,
-  data: Partial<Pick<PlatformAdmin, 'email' | 'full_name' | 'last_login_at'>>,
-): Promise<PlatformAdmin | null> {
-  const [result] = await db.update(platform_admins)
-    .set({ ...data, updated_at: new Date().toISOString() })
-    .where(eq(platform_admins.id, id))
+  id: string,
+  data: Partial<Pick<ResUser, 'email' | 'displayName'>>,
+): Promise<ResUser | null> {
+  const [result] = await db.update(resUsers)
+    .set({ ...data, updatedAt: new Date().toISOString() })
+    .where(eq(resUsers.id, id))
     .returning()
   return result || null
 }
 
-export async function deletePlatformAdminFromDrizzle(id: number): Promise<boolean> {
-  const [result] = await db.delete(platform_admins).where(eq(platform_admins.id, id)).returning()
+export async function deletePlatformAdminFromDrizzle(id: string): Promise<boolean> {
+  const [result] = await db.delete(resUsers).where(eq(resUsers.id, id)).returning()
   return !!result
 }

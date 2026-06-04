@@ -1,18 +1,14 @@
-import { db, users } from '../drizzle/server'
+import { db, resUsers } from '../drizzle/server'
 import { createCrudService } from './base-crud'
-import type { User } from '../drizzle/server'
+import type { ResUser } from '../drizzle/server'
 
-// Create CRUD service for users
-export const userService = createCrudService<User, any, any>(
-  users
-)
+export const userService = createCrudService<ResUser, any, any>(resUsers)
 
-// Convenience functions that match the old API
-export async function fetchUsersFromDrizzle(): Promise<User[]> {
+export async function fetchUsersFromDrizzle(): Promise<ResUser[]> {
   return userService.search()
 }
 
-export async function fetchUserFromDrizzle(userId: string): Promise<User | null> {
+export async function fetchUserFromDrizzle(userId: string): Promise<ResUser | null> {
   return userService.read(userId)
 }
 

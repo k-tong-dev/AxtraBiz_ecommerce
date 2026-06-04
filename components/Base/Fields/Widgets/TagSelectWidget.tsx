@@ -26,12 +26,12 @@ export const TagSelectWidget: React.FC<FieldWidgetProps> = ({
     if (!widgetConfig) {
       showWizardError(
         '[TagSelectWidget] Missing widgetConfig',
-        'You must provide a widgetConfig with at least "relation" and "displayField". Example: { relation: "/api/admin/related-records", displayField: "name" }'
+        'You must provide a widgetConfig with at least "relation" and "displayField". Example: { relation: "/api/dashboard/related-records", displayField: "name" }'
       )
     } else if (!widgetConfig.relation || !widgetConfig.displayField) {
       showWizardError(
         '[TagSelectWidget] Missing required config',
-        `Missing: ${!widgetConfig.relation ? 'relation ' : ''}${!widgetConfig.displayField ? 'displayField' : ''}. Example: { relation: "/api/admin/related-records", displayField: "name" }`
+        `Missing: ${!widgetConfig.relation ? 'relation ' : ''}${!widgetConfig.displayField ? 'displayField' : ''}. Example: { relation: "/api/dashboard/related-records", displayField: "name" }`
       )
     }
   }

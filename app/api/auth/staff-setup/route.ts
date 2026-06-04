@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/utils/supabase/service-role'
 import { db } from '@/lib/drizzle/client'
-import { staff_accounts } from '@/drizzle/schema'
+import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 
 export async function POST(request: Request) {
@@ -12,16 +12,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
     }
 
-    // Check staff account exists and is invited/active
-    const [staff] = await db.select().from(staff_accounts)
-      .where(eq(staff_accounts.email, email))
+    // Check staff user exists
+    const [user] = await db.select().from(resUsers)
+      .where(eq(resUsers.email, email))
       .limit(1)
 
-    if (!staff) {
+    if (!user) {
       return NextResponse.json({ error: 'Staff account not found' }, { status: 404 })
     }
 
-    if (staff.status === 'disabled') {
+    if (!user.active) {
       return NextResponse.json({ error: 'Staff account is disabled' }, { status: 403 })
     }
 
@@ -32,8 +32,8 @@ export async function POST(request: Request) {
       password,
       email_confirm: true,
       user_metadata: {
-        name: staff.full_name,
-        full_name: staff.full_name,
+        name: user.displayName,
+        full_name: user.displayName,
       },
     })
 
@@ -46,10 +46,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    // Update staff account status to active
-    await db.update(staff_accounts)
-      .set({ status: 'active' })
-      .where(eq(staff_accounts.id, staff.id))
+    // Update user status to active
+    await db.update(resUsers)
+      .set({ active: true })
+      .where(eq(resUsers.id, user.id))
 
     return NextResponse.json({
       success: true,

@@ -37,21 +37,21 @@ export function Navbar() {
             <Link href="/shop" className="text-foreground hover:text-primary transition">
               Home
             </Link>
-            <Link href="/shop/products" className="text-foreground hover:text-primary transition">
+            <Link href="/website/products" className="text-foreground hover:text-primary transition">
               Products
             </Link>
-            <Link href="/shop/about" className="text-foreground hover:text-primary transition">
+            <Link href="/website/about" className="text-foreground hover:text-primary transition">
               About
             </Link>
           </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            <Link href="/shop/wishlist" className="relative p-2 hover:bg-secondary rounded-lg transition">
+            <Link href="/website/wishlist" className="relative p-2 hover:bg-secondary rounded-lg transition">
               <Heart className="w-5 h-5" />
             </Link>
 
-            <Link href="/shop/cart" className="relative p-2 hover:bg-secondary rounded-lg transition">
+            <Link href="/website/cart" className="relative p-2 hover:bg-secondary rounded-lg transition">
               <ShoppingCart className="w-5 h-5" />
               {totalItems > 0 && (
                 <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -74,10 +74,10 @@ export function Navbar() {
                     <p className="font-medium text-sm">{user.name || 'User'}</p>
                     <p className="text-xs text-muted-foreground">{user.email}</p>
                   </div>
-                  <Link href="/shop/profile" className="block px-4 py-2 hover:bg-secondary text-sm">
+                  <Link href="/website/profile" className="block px-4 py-2 hover:bg-secondary text-sm">
                     Profile
                   </Link>
-                  <Link href="/shop/orders" className="block px-4 py-2 hover:bg-secondary text-sm">
+                  <Link href="/website/orders" className="block px-4 py-2 hover:bg-secondary text-sm">
                     Orders
                   </Link>
                   <button 
@@ -112,7 +112,7 @@ export function Navbar() {
                 </div>
               </div>
             ) : (
-              <Link href="/shop/login">
+              <Link href="/auth/signin">
                 <Button size="sm">
                   Sign In
                 </Button>
@@ -135,10 +135,10 @@ export function Navbar() {
             <Link href="/shop" className="block px-4 py-2 hover:bg-secondary rounded">
               Home
             </Link>
-            <Link href="/shop/products" className="block px-4 py-2 hover:bg-secondary rounded">
+            <Link href="/website/products" className="block px-4 py-2 hover:bg-secondary rounded">
               Products
             </Link>
-            <Link href="/shop/about" className="block px-4 py-2 hover:bg-secondary rounded">
+            <Link href="/website/about" className="block px-4 py-2 hover:bg-secondary rounded">
               About
             </Link>
           </div>

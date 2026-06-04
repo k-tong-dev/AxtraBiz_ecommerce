@@ -32,7 +32,7 @@ function collectHrefs(entries: ModuleEntry[]): string[] {
 function bestMatchHref(hrefs: string[], pathname: string): string | null {
   let best: string | null = null
   for (const href of hrefs) {
-    if (pathname === href || (href !== '/admin' && pathname.startsWith(href + '/'))) {
+    if (pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/'))) {
       if (!best || href.length > best.length) best = href
     }
   }

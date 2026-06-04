@@ -11,7 +11,7 @@ import { showWizardError } from '../../Wizard'
  * Similar to Odoo's Many2One field
  */
 export interface Many2OneWidgetConfig {
-  relation: string           // API endpoint (e.g., '/api/admin/product-categories')
+  relation: string           // API endpoint (e.g., '/api/dashboard/product-categories')
   displayField?: string      // Field to display (default: 'name')
   valueField?: string        // Field to use as value (default: 'id')
   searchField?: string       // Field to search (default: displayField)
@@ -49,12 +49,12 @@ export const Many2OneWidget: React.FC<FieldWidgetProps> = ({
     if (!config) {
       showWizardError(
         '[Many2OneWidget] Missing widgetConfig',
-        'You must provide a widgetConfig with at least "relation". Example: { relation: "/api/admin/related-records", displayField: "name" }'
+        'You must provide a widgetConfig with at least "relation". Example: { relation: "/api/dashboard/related-records", displayField: "name" }'
       )
     } else if (!config.relation) {
       showWizardError(
         '[Many2OneWidget] Missing "relation" in widgetConfig',
-        'Example: { relation: "/api/admin/product-categories" }'
+        'Example: { relation: "/api/dashboard/product-categories" }'
       )
     }
   }

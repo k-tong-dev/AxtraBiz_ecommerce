@@ -23,7 +23,7 @@ const styles = `
  * Similar to Odoo's One2Many field
  */
 export interface One2ManyWidgetConfig {
-  relation: string           // API endpoint for child records (e.g., '/api/admin/product-variants')
+  relation: string           // API endpoint for child records (e.g., '/api/dashboard/product-variants')
   inverseField: string       // FK field in child that references parent (e.g., 'product_id')
   domain?: any               // Optional domain filter for records
   context?: Record<string, any>  // Context passed to child operations
@@ -64,7 +64,7 @@ export const One2ManyWidget: React.FC<FieldWidgetProps> = ({
     if (!config) {
       showWizardError(
         '[One2ManyWidget] Missing widgetConfig',
-        'You must provide a widgetConfig with at least "relation" and "columns". Example: { relation: "/api/admin/child-records", inverseField: "parent_id", columns: [...] }'
+        'You must provide a widgetConfig with at least "relation" and "columns". Example: { relation: "/api/dashboard/child-records", inverseField: "parent_id", columns: [...] }'
       )
     } else if (!config.columns || !Array.isArray(config.columns)) {
       showWizardError(

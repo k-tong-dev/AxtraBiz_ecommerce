@@ -128,7 +128,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Name and description snippet */}
         <div className="flex flex-col gap-1.5 flex-grow">
-          <Link href={`/shop/products/${product.id}`}>
+          <Link href={`/website/products/${product.id}`}>
             <h3 className="font-bold text-base text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-300">
               {product.name}
             </h3>

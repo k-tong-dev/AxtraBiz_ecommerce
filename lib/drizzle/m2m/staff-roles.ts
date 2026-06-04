@@ -1,26 +1,26 @@
 import { db } from '@/lib/drizzle/client'
-import { m2m_staff_accounts_roles } from '@/drizzle/schema'
+import { m2mUsersGroups } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 
 export interface AssignStaffRoleInput {
-  staffId: number
-  roleId: number
+  userId: string
+  groupId: string
   assignedBy?: string
 }
 
 export interface SyncStaffRolesInput {
-  staffId: number
-  roleIds: number[]
+  userId: string
+  groupIds: string[]
   assignedBy?: string
 }
 
 export async function assignStaffRole(input: AssignStaffRoleInput) {
   try {
-    await db.insert(m2m_staff_accounts_roles)
+    await db.insert(m2mUsersGroups)
       .values({
-        staff_id: input.staffId,
-        role_id: input.roleId,
-        assigned_by: input.assignedBy,
+        userId: input.userId,
+        groupId: input.groupId,
+        assignedBy: input.assignedBy,
       })
       .onConflictDoNothing()
     return { success: true }
@@ -29,12 +29,12 @@ export async function assignStaffRole(input: AssignStaffRoleInput) {
   }
 }
 
-export async function removeStaffRole(staffId: number, roleId: number) {
+export async function removeStaffRole(userId: string, groupId: string) {
   try {
-    await db.delete(m2m_staff_accounts_roles)
+    await db.delete(m2mUsersGroups)
       .where(and(
-        eq(m2m_staff_accounts_roles.staff_id, staffId),
-        eq(m2m_staff_accounts_roles.role_id, roleId),
+        eq(m2mUsersGroups.userId, userId),
+        eq(m2mUsersGroups.groupId, groupId),
       ))
     return { success: true }
   } catch (error) {
@@ -44,15 +44,15 @@ export async function removeStaffRole(staffId: number, roleId: number) {
 
 export async function syncStaffRoles(input: SyncStaffRolesInput) {
   try {
-    await db.delete(m2m_staff_accounts_roles)
-      .where(eq(m2m_staff_accounts_roles.staff_id, input.staffId))
+    await db.delete(m2mUsersGroups)
+      .where(eq(m2mUsersGroups.userId, input.userId))
 
-    if (input.roleIds.length > 0) {
-      await db.insert(m2m_staff_accounts_roles)
-        .values(input.roleIds.map(roleId => ({
-          staff_id: input.staffId,
-          role_id: roleId,
-          assigned_by: input.assignedBy,
+    if (input.groupIds.length > 0) {
+      await db.insert(m2mUsersGroups)
+        .values(input.groupIds.map(groupId => ({
+          userId: input.userId,
+          groupId,
+          assignedBy: input.assignedBy,
         })))
     }
 
@@ -62,11 +62,11 @@ export async function syncStaffRoles(input: SyncStaffRolesInput) {
   }
 }
 
-export async function getStaffRoles(staffId: number) {
+export async function getStaffRoles(userId: string) {
   try {
     return await db.select()
-      .from(m2m_staff_accounts_roles)
-      .where(eq(m2m_staff_accounts_roles.staff_id, staffId))
+      .from(m2mUsersGroups)
+      .where(eq(m2mUsersGroups.userId, userId))
   } catch {
     return []
   }

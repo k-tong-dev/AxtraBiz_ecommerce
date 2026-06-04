@@ -1,14 +1,14 @@
-import { db, permissions } from './server'
+import { db, resPermissions } from './server'
 import { createCrudService } from './base-crud'
-import type { Permission } from './server'
+import type { ResPermission } from './server'
 
-export const permissionService = createCrudService<Permission, any, any>(permissions)
+export const permissionService = createCrudService<ResPermission, any, any>(resPermissions)
 
-export async function fetchPermissionsFromDrizzle(): Promise<Permission[]> {
+export async function fetchPermissionsFromDrizzle(): Promise<ResPermission[]> {
   return permissionService.search()
 }
 
-export async function fetchPermissionFromDrizzle(id: string): Promise<Permission | null> {
+export async function fetchPermissionFromDrizzle(id: string): Promise<ResPermission | null> {
   return permissionService.read(id)
 }
 

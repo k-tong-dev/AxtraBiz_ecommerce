@@ -1,11 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/drizzle/client'
-import { staff_accounts, m2m_staff_accounts_roles, m2m_roles_permissions, permissions, platform_admins } from '@/drizzle/schema'
-import { eq, sql, and } from 'drizzle-orm'
+import { resUsers, m2mUsersGroups, m2mGroupsPermissions, m2mUsersShops, resPermissions } from '@/lib/drizzle/schema'
+import { eq, and } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 
 export type ShopAccess = {
-  userId: number
+  userId: string
   email: string
   shopId: number
   isOwner: boolean
@@ -15,21 +15,22 @@ export type ShopAccess = {
 
 /**
  * Extract the current user's auth context.
- * Returns null if not authenticated.
+ * Returns null if not authenticated or not a platform admin.
  */
 export async function getAuthContext(): Promise<ShopAccess | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) return null
 
-  // 1. Check if platform admin
-  const [platformAdmin] = await db.select().from(platform_admins)
-    .where(eq(platform_admins.email, user.email))
+  const [resUser] = await db.select().from(resUsers)
+    .where(eq(resUsers.email, user.email))
     .limit(1)
 
-  if (platformAdmin) {
+  if (!resUser) return null
+
+  if (resUser.userRole === '_admin_system_') {
     return {
-      userId: platformAdmin.id,
+      userId: resUser.id,
       email: user.email,
       shopId: 0,
       isOwner: true,
@@ -51,14 +52,17 @@ export async function getStaffAuthContext(shopId: number): Promise<ShopAccess | 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) return null
 
-  // 1. Check if platform admin (bypasses shop scope)
-  const [platformAdmin] = await db.select().from(platform_admins)
-    .where(eq(platform_admins.email, user.email))
+  // Find user by email
+  const [resUser] = await db.select().from(resUsers)
+    .where(eq(resUsers.email, user.email))
     .limit(1)
 
-  if (platformAdmin) {
+  if (!resUser) return null
+
+  // Platform admin bypasses shop scope
+  if (resUser.userRole === '_admin_system_') {
     return {
-      userId: platformAdmin.id,
+      userId: resUser.id,
       email: user.email,
       shopId: 0,
       isOwner: true,
@@ -67,42 +71,43 @@ export async function getStaffAuthContext(shopId: number): Promise<ShopAccess | 
     }
   }
 
-  // 2. Find staff account for this shop
-  const [staff] = await db.select().from(staff_accounts)
+  // Check user has access to this shop via m2mUsersShops
+  const [shopAccess] = await db.select({ id: m2mUsersShops.userId })
+    .from(m2mUsersShops)
     .where(and(
-      eq(staff_accounts.email, user.email),
-      eq(staff_accounts.shop_id, shopId),
+      eq(m2mUsersShops.userId, resUser.id),
+      eq(m2mUsersShops.shopId, shopId),
     ))
     .limit(1)
 
-  if (!staff || staff.status !== 'active') return null
+  if (!shopAccess) return null
 
-  // 3. If owner, skip permission loading
-  if (staff.is_owner) {
+  // If owner, skip permission loading
+  if (resUser.isShopOwner) {
     return {
-      userId: staff.id,
-      email: staff.email,
-      shopId: staff.shop_id,
+      userId: resUser.id,
+      email: resUser.email,
+      shopId,
       isOwner: true,
       scopes: [],
       isPlatformAdmin: false,
     }
   }
 
-  // 4. Load permissions from assigned roles
-  const staffScopes = await db
-    .select({ scope: permissions.scope })
-    .from(m2m_staff_accounts_roles)
-    .innerJoin(m2m_roles_permissions, eq(m2m_roles_permissions.role_id, m2m_staff_accounts_roles.role_id))
-    .innerJoin(permissions, eq(permissions.id, m2m_roles_permissions.permission_id))
-    .where(eq(m2m_staff_accounts_roles.staff_id, staff.id))
+  // Load permissions from assigned groups
+  const userScopes = await db
+    .select({ key: resPermissions.key })
+    .from(m2mUsersGroups)
+    .innerJoin(m2mGroupsPermissions, eq(m2mGroupsPermissions.groupId, m2mUsersGroups.groupId))
+    .innerJoin(resPermissions, eq(resPermissions.id, m2mGroupsPermissions.permissionId))
+    .where(eq(m2mUsersGroups.userId, resUser.id))
 
-  const scopeSet = new Set(staffScopes.map((s) => s.scope))
+  const scopeSet = new Set(userScopes.map((s) => s.key))
 
   return {
-    userId: staff.id,
-    email: staff.email,
-    shopId: staff.shop_id,
+    userId: resUser.id,
+    email: resUser.email,
+    shopId,
     isOwner: false,
     scopes: [...scopeSet],
     isPlatformAdmin: false,

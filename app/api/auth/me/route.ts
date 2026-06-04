@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/drizzle/client'
-import { platform_admins, staff_accounts, users, shops } from '@/drizzle/schema'
+import { resUsers, m2mUsersShops, resShops } from '@/lib/drizzle/schema'
 import { eq, inArray } from 'drizzle-orm'
 
 export async function GET() {
@@ -15,94 +15,103 @@ export async function GET() {
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
-    // 1. Check platform admin (wrap in try-catch in case table doesn't exist)
+    // Query resUsers by email
     try {
-      const [platformAdmin] = await db.select().from(platform_admins)
-        .where(eq(platform_admins.email, user.email))
+      const [resUser] = await db.select().from(resUsers)
+        .where(eq(resUsers.email, user.email))
         .limit(1)
 
-      if (platformAdmin) {
-        return NextResponse.json({
-          authenticated: true,
-          role: 'platform_admin',
-          redirect: '/admin',
-          user: { id: platformAdmin.id, email: user.email, name: platformAdmin.full_name },
-        })
-      }
-    } catch (e) {
-      console.log('[auth/me] platform_admins query failed, skipping:', (e as Error).message)
-    }
-
-    // 2. Check staff account (wrap in try-catch in case table doesn't exist)
-    try {
-      const staffAccounts = await db.select().from(staff_accounts)
-        .where(eq(staff_accounts.email, user.email))
-
-      console.log('[auth/me] staffAccounts count:', staffAccounts.length, 'for email:', user.email)
-      if (staffAccounts.length > 0) {
-        staffAccounts.forEach(s => console.log('[auth/me] staff:', { id: s.id, shop_id: s.shop_id, is_owner: s.is_owner }))
-
-        const primary = staffAccounts.find(s => s.shop_id !== null) || staffAccounts[0]
-
-        let userShops: { id: number; name: string }[] = []
-        if (primary.is_owner) {
-          const ownerAccounts = staffAccounts.filter(s => s.is_owner)
-          const shopIds = ownerAccounts.map(s => s.shop_id).filter((id): id is number => id !== null)
-          if (shopIds.length > 0) {
-            try {
-              const shopRows = await db.select({ id: shops.id, name: shops.name })
-                .from(shops)
-                .where(inArray(shops.id, shopIds))
-              userShops = shopRows
-            } catch (e) {
-              console.log('[auth/me] shops query failed:', (e as Error).message)
-            }
-          }
+      if (resUser) {
+        // Role: _admin_system_ → platform admin
+        if (resUser.userRole === '_admin_system_') {
+          return NextResponse.json({
+            authenticated: true,
+            role: 'platform_admin',
+            redirect: '/dashboard',
+            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
+            shopId: null,
+            isOwner: false,
+            needsShop: false,
+            shops: [],
+          })
         }
 
-      const needsShop = primary.is_owner && !primary.shop_id
-      const hasMultipleShops = userShops.length > 1
+        // Role: new → needs business registration
+        if (resUser.userRole === 'new') {
+          return NextResponse.json({
+            authenticated: true,
+            role: 'new',
+            redirect: '/business-register',
+            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
+            shopId: null,
+            isOwner: false,
+            needsShop: true,
+            shops: [],
+          })
+        }
 
-      console.log('[auth/me] needsShop:', needsShop, 'hasMultipleShops:', hasMultipleShops, 'redirect:', needsShop || hasMultipleShops ? '/auth/setup' : '/admin')
+        // Fetch shops from m2mUsersShops
+        let userShops: { id: number; name: string }[] = []
+        try {
+          const shopRows = await db.select({ id: resShops.id, name: resShops.name })
+            .from(m2mUsersShops)
+            .innerJoin(resShops, eq(m2mUsersShops.shopId, resShops.id))
+            .where(eq(m2mUsersShops.userId, resUser.id))
+          userShops = shopRows
+        } catch (e) {
+          console.log('[auth/me] m2mUsersShops query failed:', (e as Error).message)
+        }
 
-      return NextResponse.json({
-        authenticated: true,
-        role: 'staff',
-        redirect: needsShop || hasMultipleShops ? '/auth/setup' : '/admin',
-          user: { id: primary.id, email: primary.email, name: primary.full_name },
-          shopId: primary.shop_id,
-          isOwner: primary.is_owner,
-          needsShop,
+        // isShopOwner → business owner (with or without shop)
+        if (resUser.isShopOwner) {
+          const needsShop = !resUser.shopId
+          return NextResponse.json({
+            authenticated: true,
+            role: 'business_owner',
+            redirect: needsShop ? '/auth/setup' : '/dashboard',
+            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
+            shopId: resUser.shopId,
+            isOwner: true,
+            needsShop,
+            shops: userShops,
+          })
+        }
+
+        // Employee
+        if (resUser.userRole === 'employee') {
+          return NextResponse.json({
+            authenticated: true,
+            role: 'employee',
+            redirect: '/dashboard',
+            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
+            shopId: resUser.shopId,
+            isOwner: false,
+            needsShop: false,
+            shops: userShops,
+          })
+        }
+
+        // Fallback for other roles
+        return NextResponse.json({
+          authenticated: true,
+          role: resUser.userRole,
+          redirect: resUser.shopId ? '/dashboard' : '/auth/setup',
+          user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
+          shopId: resUser.shopId,
+          isOwner: resUser.isShopOwner,
+          needsShop: !resUser.shopId,
           shops: userShops,
         })
       }
     } catch (e) {
-      console.log('[auth/me] staff_accounts query failed, skipping:', (e as Error).message)
-    }
-
-    // 3. Check customer (wrap in try-catch in case table doesn't exist)
-    try {
-      const [customer] = await db.select().from(users)
-        .where(eq(users.email, user.email))
-        .limit(1)
-
-      if (customer) {
-        return NextResponse.json({
-          authenticated: true,
-          role: 'customer',
-          redirect: '/shop',
-          user: { id: customer.id, email: user.email, name: customer.name },
-        })
-      }
-    } catch (e) {
-      console.log('[auth/me] users query failed, skipping:', (e as Error).message)
+      console.log('[auth/me] resUsers query failed:', (e as Error).message)
     }
 
     // Authenticated but no profile found
     return NextResponse.json({
       authenticated: true,
       role: 'unknown',
-      redirect: '/login',
+      redirect: '/auth/signin',
       user: { email: user.email },
     })
   } catch (error) {

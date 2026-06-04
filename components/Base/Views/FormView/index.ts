@@ -3,8 +3,8 @@ export { FormView } from './FormView'
 export type { FormConfig, FormField, Entity, MutableEntity } from './FormView'
 
 // Note: Form configurations are now model-specific
-// - productFormConfig: app/admin/products/config/formView.ts
-// - customerFormConfig: Should be moved to app/admin/customers/config/formView.ts
+// - productFormConfig: app/dashboard/products/config/formView.ts
+// - customerFormConfig: Should be moved to app/dashboard/customers/config/formView.ts
 // FormView component is generic and doesn't include specific model configs
 
 // Export utilities

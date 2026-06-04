@@ -42,7 +42,7 @@ function FolderNode({
   const loadChildren = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/admin/storage/folders?path=${encodeURIComponent(path)}`)
+      const res = await fetch(`/api/dashboard/storage/folders?path=${encodeURIComponent(path)}`)
       if (res.ok) {
         const folders = await res.json()
         setChildren(folders.map((f: StorageFolder) => ({ name: f.name, path: f.path })))
@@ -143,7 +143,7 @@ export function FolderTree({
   const loadRootFolders = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/admin/storage/folders')
+      const res = await fetch('/api/dashboard/storage/folders')
       if (res.ok) setRootFolders(await res.json())
     } catch (e) {
       console.error('Failed to load folders', e)

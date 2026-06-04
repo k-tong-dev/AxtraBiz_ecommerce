@@ -112,7 +112,7 @@ export function AssetManager() {
   const loadFiles = useCallback(async (path: string | null) => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/admin/storage/files?path=${encodeURIComponent(path || '')}`)
+      const res = await fetch(`/api/dashboard/storage/files?path=${encodeURIComponent(path || '')}`)
       if (res.ok) {
         const data = await res.json()
         setFolders(data.folders || [])
@@ -127,8 +127,8 @@ export function AssetManager() {
   const loadStats = useCallback(async () => {
     try {
       const [filesRes, foldersRes] = await Promise.all([
-        fetch('/api/admin/storage/files?path=&recursive=true'),
-        fetch('/api/admin/storage/folders'),
+        fetch('/api/dashboard/storage/files?path=&recursive=true'),
+        fetch('/api/dashboard/storage/folders'),
       ])
       const [allFiles, rootFolders] = await Promise.all([filesRes.json(), foldersRes.json()])
       setStats(computeStats(allFiles, rootFolders))
@@ -191,7 +191,7 @@ export function AssetManager() {
         formData.append('file', fileList[i])
         if (currentPath) formData.append('path', currentPath)
         try {
-          const res = await fetch('/api/admin/storage/upload', { method: 'POST', body: formData })
+          const res = await fetch('/api/dashboard/storage/upload', { method: 'POST', body: formData })
           setUploading(prev => prev.map((u, idx) =>
             idx === i ? { ...u, status: res.ok ? 'done' as const : 'error' as const } : u
           ))
@@ -237,7 +237,7 @@ export function AssetManager() {
     setUploading([{ name: url.split('/').pop() || url, status: 'uploading' }])
 
     try {
-      const res = await fetch('/api/admin/storage/upload-url', {
+      const res = await fetch('/api/dashboard/storage/upload-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, path: currentPath || '' }),
@@ -265,7 +265,7 @@ export function AssetManager() {
     const parentPath = newFolderParent || ''
     const fullPath = parentPath ? `${parentPath}/${newFolderName.trim()}` : newFolderName.trim()
     try {
-      const res = await fetch('/api/admin/storage/folders', {
+      const res = await fetch('/api/dashboard/storage/folders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: fullPath }),
@@ -286,7 +286,7 @@ export function AssetManager() {
     const parentPath = renameTarget.path.substring(0, renameTarget.path.lastIndexOf('/'))
     const newPath = parentPath ? `${parentPath}/${renameName.trim()}` : renameName.trim()
     try {
-      const res = await fetch('/api/admin/storage/folders', {
+      const res = await fetch('/api/dashboard/storage/folders', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: renameTarget.path, newPath }),
@@ -305,7 +305,7 @@ export function AssetManager() {
   const handleDeleteFolder = async () => {
     if (!deleteFolderTarget) return
     try {
-      const res = await fetch(`/api/admin/storage/folders?path=${encodeURIComponent(deleteFolderTarget.path)}`, { method: 'DELETE' })
+      const res = await fetch(`/api/dashboard/storage/folders?path=${encodeURIComponent(deleteFolderTarget.path)}`, { method: 'DELETE' })
       if (res.ok) {
         setShowDeleteFolder(false)
         setDeleteFolderTarget(null)
@@ -321,7 +321,7 @@ export function AssetManager() {
   const handleDeleteFiles = async (targets: StorageFile[]) => {
     try {
       for (const file of targets) {
-        await fetch(`/api/admin/storage/files?path=${encodeURIComponent(file.path)}`, { method: 'DELETE' })
+        await fetch(`/api/dashboard/storage/files?path=${encodeURIComponent(file.path)}`, { method: 'DELETE' })
       }
       setShowDeleteFiles(false)
       setDeleteFilesTargets([])
@@ -335,7 +335,7 @@ export function AssetManager() {
 
   const handleMoveFiles = async (paths: string[], targetPath: string | null) => {
     try {
-      const res = await fetch('/api/admin/storage/move', {
+      const res = await fetch('/api/dashboard/storage/move', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paths, targetPath: targetPath || '' }),

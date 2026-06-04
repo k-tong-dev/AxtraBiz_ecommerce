@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import { createServiceRoleClient } from '@/utils/supabase/service-role'
 import { db } from '@/lib/drizzle/client'
-import { staff_accounts } from '@/drizzle/schema'
+import { resUsers, resShops, m2mUsersShops } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 
 export async function POST(request: Request) {
@@ -13,13 +12,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    // Check if email already registered as a business owner
-    const existingStaff = await db.select()
-      .from(staff_accounts)
-      .where(eq(staff_accounts.email, email))
+    // Check if email already registered
+    const existingUser = await db.select()
+      .from(resUsers)
+      .where(eq(resUsers.email, email))
       .limit(1)
 
-    if (existingStaff.length > 0) {
+    if (existingUser.length > 0) {
       return NextResponse.json(
         { error: 'An account with this email already exists. Please sign in.' },
         { status: 409 },
@@ -29,20 +28,17 @@ export async function POST(request: Request) {
     const supabase = await createClient()
 
     // Try to create Supabase auth user
-    // If the user already exists (from customer signup), that's OK
     let authUser = null
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password: password || crypto.randomUUID(),
       options: {
         data: { name, full_name: name },
-        emailRedirectTo: `${request.headers.get('origin') || ''}/login`,
+        emailRedirectTo: `${request.headers.get('origin') || ''}/auth/signin`,
       },
     })
 
     if (signUpError && signUpError.message?.includes('already registered')) {
-      // User already has a Supabase auth account (e.g. from customer signup)
-      // That's fine — we just create the staff_account entry
       console.log('[business-register] auth user already exists for', email)
     } else if (signUpError) {
       return NextResponse.json({ error: signUpError.message }, { status: 400 })
@@ -50,24 +46,57 @@ export async function POST(request: Request) {
       authUser = signUpData.user
     }
 
-    // Create staff_account as shop owner
-    const [staff] = await db.insert(staff_accounts)
+    // Get authUserId from session if not returned by signUp
+    let authUserId = authUser?.id
+    if (!authUserId) {
+      const { data: { user } } = await supabase.auth.getUser()
+      authUserId = user?.id
+    }
+
+    // Create the shop
+    const slug = (name || email.split('@')[0])
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    const [shop] = await db.insert(resShops)
       .values({
+        name: name || email.split('@')[0],
+        slug,
         email,
-        full_name: name,
-        is_owner: true,
-        status: 'active',
-        create_uid: email,
-        write_uid: email,
       })
       .returning()
+
+    // Create resUsers entry as business owner
+    const username = email.split('@')[0]
+    if (!authUserId) {
+      return NextResponse.json({ error: 'Authentication failed' }, { status: 500 })
+    }
+    const [resUser] = await db.insert(resUsers)
+      .values({
+        authUserId,
+        username,
+        email,
+        displayName: name,
+        userRole: 'business',
+        isShopOwner: true,
+        shopId: shop.id,
+      })
+      .returning()
+
+    // Link user to shop in m2m
+    await db.insert(m2mUsersShops)
+      .values({
+        userId: resUser.id,
+        shopId: shop.id,
+        isDefault: true,
+      })
+      .onConflictDoNothing()
 
     return NextResponse.json({
       success: true,
       data: {
-        id: staff.id,
-        email: staff.email,
-        name: staff.full_name,
+        id: resUser.id,
+        email: resUser.email,
+        name: resUser.displayName,
+        shopId: shop.id,
         needsVerification: authUser ? !authUser.email_confirmed_at : false,
       },
     })

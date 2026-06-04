@@ -1,0 +1,30 @@
+import { pgTable, uuid, integer, boolean, timestamp, primaryKey } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
+import { resUsers } from './res_users'
+import { resShops } from './res_shops'
+
+export const m2mUsersShops = pgTable('m2m_users_shops', {
+  userId:     uuid('user_id').notNull().references(() => resUsers.id, { onDelete: 'cascade' }),
+  shopId:     integer('shop_id').notNull().references(() => resShops.id, { onDelete: 'cascade' }),
+  isDefault:  boolean('is_default').default(false),
+  assignedAt: timestamp('assigned_at', { mode: 'string' }).defaultNow(),
+  assignedBy: uuid('assigned_by').references(() => resUsers.id, { onDelete: 'set null' }),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.userId, t.shopId] }),
+}))
+
+export const m2mUsersShopsRelations = relations(m2mUsersShops, ({ one }) => ({
+  user: one(resUsers, { fields: [m2mUsersShops.userId], references: [resUsers.id] }),
+  shop: one(resShops, { fields: [m2mUsersShops.shopId], references: [resShops.id] }),
+}))
+
+export const resUsersM2mShopsRelations = relations(resUsers, ({ many }) => ({
+  m2mShops: many(m2mUsersShops),
+}))
+
+export const resShopsM2mUsersRelations = relations(resShops, ({ many }) => ({
+  m2mUsers: many(m2mUsersShops),
+}))
+
+export type M2mUsersShop = typeof m2mUsersShops.$inferSelect
+export type NewM2mUsersShop = typeof m2mUsersShops.$inferInsert

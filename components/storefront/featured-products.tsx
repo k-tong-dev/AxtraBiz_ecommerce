@@ -28,7 +28,7 @@ export function FeaturedProducts() {
               Discover our handpicked collection of premium items, designed to enhance your modern lifestyle with style and quality.
             </p>
           </div>
-          <Link href="/shop/products" className="hidden md:block">
+          <Link href="/website/products" className="hidden md:block">
             <Button className="rounded-xl gap-2 shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 font-semibold px-5 py-5 h-11 bg-primary hover:bg-primary/95 text-white">
               View All Products
               <ArrowRight className="w-4 h-4" />
@@ -56,7 +56,7 @@ export function FeaturedProducts() {
 
         {/* Mobile CTA */}
         <div className="flex justify-center mt-12 md:hidden">
-          <Link href="/shop/products">
+          <Link href="/website/products">
             <Button className="rounded-xl gap-2 font-semibold px-6 py-5 h-11">
               View All Products
               <ArrowRight className="w-4 h-4" />

@@ -31,33 +31,33 @@ export const updateSession = async (request: NextRequest) => {
 
   // ── Legacy route redirects ──
   const legacyMap: Record<string, string> = {
-    '/admin/settings': '/admin/configuration/settings',
-    '/admin/configurations': '/admin/configuration/configurations',
-    '/admin/currencies': '/admin/configuration/currencies',
-    '/admin/payment-methods': '/admin/configuration/payment-methods',
-    '/admin/tax-rates': '/admin/configuration/tax-rates',
-    '/admin/shipping-zones': '/admin/configuration/shipping-zones',
-    '/admin/shipping-methods': '/admin/configuration/shipping-methods',
-    '/admin/audit': '/admin/configuration/audit-logs',
-    '/admin/products': '/admin/inventory/products',
-    '/admin/product-variants': '/admin/inventory/product-variants',
-    '/admin/brands': '/admin/inventory/brands',
-    '/admin/categories': '/admin/inventory/categories',
-    '/admin/product-attributes': '/admin/inventory/product-attributes',
-    '/admin/product-attribute-values': '/admin/inventory/product-attribute-values',
-    '/admin/orders': '/admin/sales/orders',
-    '/admin/order-lines': '/admin/sales/order-lines',
-    '/admin/invoices': '/admin/sales/invoices',
-    '/admin/payment-transactions': '/admin/sales/payment-transactions',
-    '/admin/addresses': '/admin/customers/addresses',
-    '/admin/wishlist-items': '/admin/customers/wishlist-items',
-    '/admin/cart-items': '/admin/customers/cart-items',
-    '/admin/announcements': '/admin/marketing/announcements',
-    '/admin/coupons': '/admin/marketing/coupons',
-    '/admin/product-reviews': '/admin/marketing/product-reviews',
-    '/admin/pages': '/admin/content/pages',
-    '/admin/menus': '/admin/content/menus',
-    '/admin/assets': '/admin/media/assets',
+    '/dashboard/settings': '/dashboard/configuration/settings',
+    '/dashboard/configurations': '/dashboard/configuration/configurations',
+    '/dashboard/currencies': '/dashboard/configuration/currencies',
+    '/dashboard/payment-methods': '/dashboard/configuration/payment-methods',
+    '/dashboard/tax-rates': '/dashboard/configuration/tax-rates',
+    '/dashboard/shipping-zones': '/dashboard/configuration/shipping-zones',
+    '/dashboard/shipping-methods': '/dashboard/configuration/shipping-methods',
+    '/dashboard/audit': '/dashboard/configuration/audit-logs',
+    '/dashboard/products': '/dashboard/inventory/products',
+    '/dashboard/product-variants': '/dashboard/inventory/product-variants',
+    '/dashboard/brands': '/dashboard/inventory/brands',
+    '/dashboard/categories': '/dashboard/inventory/categories',
+    '/dashboard/product-attributes': '/dashboard/inventory/product-attributes',
+    '/dashboard/product-attribute-values': '/dashboard/inventory/product-attribute-values',
+    '/dashboard/orders': '/dashboard/sales/orders',
+    '/dashboard/order-lines': '/dashboard/sales/order-lines',
+    '/dashboard/invoices': '/dashboard/sales/invoices',
+    '/dashboard/payment-transactions': '/dashboard/sales/payment-transactions',
+    '/dashboard/addresses': '/dashboard/customers/addresses',
+    '/dashboard/wishlist-items': '/dashboard/customers/wishlist-items',
+    '/dashboard/cart-items': '/dashboard/customers/cart-items',
+    '/dashboard/announcements': '/dashboard/marketing/announcements',
+    '/dashboard/coupons': '/dashboard/marketing/coupons',
+    '/dashboard/product-reviews': '/dashboard/marketing/product-reviews',
+    '/dashboard/pages': '/dashboard/content/pages',
+    '/dashboard/menus': '/dashboard/content/menus',
+    '/dashboard/assets': '/dashboard/media/assets',
   }
 
   for (const [oldPrefix, newPath] of Object.entries(legacyMap)) {
@@ -70,20 +70,20 @@ export const updateSession = async (request: NextRequest) => {
     }
   }
 
-  const isAdminRoute = pathname.startsWith('/admin')
-  const isAdminApiRoute = pathname.startsWith('/api/admin')
+  const isAdminRoute = pathname.startsWith('/dashboard')
+  const isAdminApiRoute = pathname.startsWith('/api/dashboard')
   const isProtectedShopRoute =
-    pathname.startsWith('/shop/profile') ||
-    pathname.startsWith('/shop/orders') ||
-    pathname.startsWith('/shop/checkout') ||
-    pathname.startsWith('/shop/wishlist')
+    pathname.startsWith('/website/profile') ||
+    pathname.startsWith('/website/orders') ||
+    pathname.startsWith('/website/checkout') ||
+    pathname.startsWith('/website/wishlist')
 
-  const isLoginPage = pathname === '/login'
+  const isLoginPage = pathname === '/auth/signin'
 
-  // Authenticated user on /login → redirect to admin
+  // Authenticated user on /auth/signin → redirect to dashboard
   if (user && isLoginPage) {
     const dest = request.nextUrl.clone()
-    dest.pathname = '/admin'
+    dest.pathname = '/dashboard'
     return NextResponse.redirect(dest)
   }
 
@@ -95,7 +95,7 @@ export const updateSession = async (request: NextRequest) => {
 
     if ((isAdminRoute || isProtectedShopRoute) && !isLoginPage) {
       const loginUrl = request.nextUrl.clone()
-      loginUrl.pathname = '/login'
+      loginUrl.pathname = '/auth/signin'
       loginUrl.searchParams.set('redirect', `${pathname}${search}`)
       return NextResponse.redirect(loginUrl)
     }

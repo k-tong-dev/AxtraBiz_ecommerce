@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/drizzle/server'
-import { users } from '@/drizzle/schema'
+import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 
 export async function GET(request: Request) {
@@ -15,22 +15,23 @@ export async function GET(request: Request) {
 
     if (!error && data.user) {
       try {
-        await db.insert(users).values({
-          id: data.user.id,
-          email: data.user.email!,
-          name: data.user.user_metadata?.full_name ||
-                data.user.user_metadata?.name ||
-                data.user.email?.split('@')[0] || 'User',
-          role: 'customer',
-        }).onConflictDoUpdate({
-          target: users.id,
-          set: {
+        const [existing] = await db.select({ id: resUsers.id })
+          .from(resUsers)
+          .where(eq(resUsers.authUserId, data.user.id))
+          .limit(1)
+
+        if (!existing) {
+          const username = data.user.email?.split('@')[0] || 'user'
+          await db.insert(resUsers).values({
+            authUserId: data.user.id,
+            username,
             email: data.user.email!,
-            name: data.user.user_metadata?.full_name ||
-                  data.user.user_metadata?.name ||
-                  data.user.email?.split('@')[0] || 'User',
-          },
-        })
+            displayName: data.user.user_metadata?.full_name ||
+                        data.user.user_metadata?.name ||
+                        username,
+            userRole: 'new',
+          })
+        }
       } catch (profileError) {
         console.error('Profile creation error in callback:', profileError)
       }
@@ -39,4 +40,3 @@ export async function GET(request: Request) {
 
   return NextResponse.redirect(`${origin}${next}`)
 }
-

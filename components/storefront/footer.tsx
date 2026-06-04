@@ -31,17 +31,17 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/shop/products" className="hover:text-primary transition">
+                <Link href="/website/products" className="hover:text-primary transition">
                   Products
                 </Link>
               </li>
               <li>
-                <Link href="/shop/about" className="hover:text-primary transition">
+                <Link href="/website/about" className="hover:text-primary transition">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/shop/cart" className="hover:text-primary transition">
+                <Link href="/website/cart" className="hover:text-primary transition">
                   Cart
                 </Link>
               </li>
@@ -55,22 +55,22 @@ export function Footer() {
             </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/shop/about" className="hover:text-primary transition">
+                <Link href="/website/about" className="hover:text-primary transition">
                   Shipping Info
                 </Link>
               </li>
               <li>
-                <Link href="/shop/about" className="hover:text-primary transition">
+                <Link href="/website/about" className="hover:text-primary transition">
                   Returns
                 </Link>
               </li>
               <li>
-                <Link href="/shop/about" className="hover:text-primary transition">
+                <Link href="/website/about" className="hover:text-primary transition">
                   FAQs
                 </Link>
               </li>
               <li>
-                <Link href="/shop/about" className="hover:text-primary transition">
+                <Link href="/website/about" className="hover:text-primary transition">
                   Privacy
                 </Link>
               </li>

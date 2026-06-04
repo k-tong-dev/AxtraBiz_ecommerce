@@ -53,6 +53,29 @@ export {
   platform_admins,
 } from '../../drizzle/schema'
 
+// New schema tables (lib/drizzle/schema/)
+export {
+  resUsers, userRoleEnum,
+  resGroups,
+  resPermissions,
+  resShops,
+  resPartner, partnerTypeEnum,
+  m2mUsersGroups,
+  m2mGroupsPermissions,
+  m2mUsersShops,
+} from './schema'
+
+export type {
+  ResUser, NewResUser,
+  ResGroup, NewResGroup,
+  ResPermission, NewResPermission,
+  ResShop, NewResShop,
+  ResPartner, NewResPartner,
+  M2mUsersGroup, NewM2mUsersGroup,
+  M2mGroupsPermission, NewM2mGroupsPermission,
+  M2mUsersShop, NewM2mUsersShop,
+} from './schema'
+
 export type {
   User,
   Currency,

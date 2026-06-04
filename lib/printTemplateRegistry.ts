@@ -12,7 +12,7 @@ export const printTemplateRegistry: PrintTemplateRegistry = {
         import('@/components/dashboard/reports/products/ProductBarcodeContinuousTemplate').then(m => ({ default: m.ProductBarcodeContinuousTemplate })),
     // Add more templates here as needed
     // Example:
-    // InvoiceTemplate: () => import('@/components/admin/invoices/InvoiceTemplate').then(m => ({ default: m.InvoiceTemplate })),
+    // InvoiceTemplate: () => import('@/components/dashboard/invoices/InvoiceTemplate').then(m => ({ default: m.InvoiceTemplate })),
 }
 
 export async function loadTemplate(templateName: string): Promise<React.ComponentType<any> | null> {

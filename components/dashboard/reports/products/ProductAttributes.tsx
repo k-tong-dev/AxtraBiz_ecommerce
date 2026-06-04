@@ -37,7 +37,7 @@ export const ProductAttributes: React.FC<ProductAttributesProps> = ({
   useEffect(() => {
     if (fetchedAttrsRef.current) return
     fetchedAttrsRef.current = true
-    fetch('/api/admin/product-attributes')
+    fetch('/api/dashboard/product-attributes')
       .then(res => res.json())
       .then(data => {
         const options = data.map((attr: any) => ({
@@ -53,7 +53,7 @@ export const ProductAttributes: React.FC<ProductAttributesProps> = ({
   useEffect(() => {
     if (fetchedValuesRef.current) return
     fetchedValuesRef.current = true
-    fetch('/api/admin/product-attribute-values')
+    fetch('/api/dashboard/product-attribute-values')
       .then(res => res.json())
       .then(data => {
         const valuesMap: Record<string, any[]> = {}

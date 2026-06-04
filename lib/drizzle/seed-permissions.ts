@@ -1,92 +1,92 @@
 import { db } from './client'
-import { permissions, roles, m2m_roles_permissions } from '@/drizzle/schema'
-import { sql } from 'drizzle-orm'
+import { resPermissions, resGroups, m2mGroupsPermissions } from '@/lib/drizzle/schema'
+import { sql, inArray } from 'drizzle-orm'
 
 // ─── Default permission seeds ─────────────────────────────────
 
 export interface PermissionSeed {
   resource: string
-  action: 'read' | 'write' | 'delete'
-  scope: string
+  action: string
+  key: string
 }
 
 export const defaultPermissions: PermissionSeed[] = [
   // Products
-  { resource: 'products', action: 'read', scope: 'read_products' },
-  { resource: 'products', action: 'write', scope: 'write_products' },
-  { resource: 'products', action: 'delete', scope: 'delete_products' },
-  { resource: 'inventory', action: 'read', scope: 'read_inventory' },
-  { resource: 'inventory', action: 'write', scope: 'write_inventory' },
-  { resource: 'product_cost', action: 'read', scope: 'read_product_cost' },
-  { resource: 'product_cost', action: 'write', scope: 'edit_product_cost' },
-  { resource: 'product_price', action: 'read', scope: 'read_product_price' },
-  { resource: 'product_price', action: 'write', scope: 'edit_product_price' },
+  { resource: 'products', action: 'read', key: 'read_products' },
+  { resource: 'products', action: 'write', key: 'write_products' },
+  { resource: 'products', action: 'delete', key: 'delete_products' },
+  { resource: 'inventory', action: 'read', key: 'read_inventory' },
+  { resource: 'inventory', action: 'write', key: 'write_inventory' },
+  { resource: 'product_cost', action: 'read', key: 'read_product_cost' },
+  { resource: 'product_cost', action: 'write', key: 'edit_product_cost' },
+  { resource: 'product_price', action: 'read', key: 'read_product_price' },
+  { resource: 'product_price', action: 'write', key: 'edit_product_price' },
 
   // Orders
-  { resource: 'orders', action: 'read', scope: 'read_orders' },
-  { resource: 'orders', action: 'write', scope: 'write_orders' },
-  { resource: 'orders', action: 'delete', scope: 'delete_orders' },
-  { resource: 'draft_orders', action: 'read', scope: 'read_draft_orders' },
-  { resource: 'draft_orders', action: 'write', scope: 'write_draft_orders' },
-  { resource: 'draft_orders', action: 'delete', scope: 'delete_draft_orders' },
-  { resource: 'fulfillment', action: 'write', scope: 'fulfill_orders' },
-  { resource: 'returns', action: 'write', scope: 'return_orders' },
-  { resource: 'payments', action: 'write', scope: 'capture_payments' },
-  { resource: 'refunds', action: 'write', scope: 'refund_orders' },
-  { resource: 'cancellations', action: 'write', scope: 'cancel_orders' },
+  { resource: 'orders', action: 'read', key: 'read_orders' },
+  { resource: 'orders', action: 'write', key: 'write_orders' },
+  { resource: 'orders', action: 'delete', key: 'delete_orders' },
+  { resource: 'draft_orders', action: 'read', key: 'read_draft_orders' },
+  { resource: 'draft_orders', action: 'write', key: 'write_draft_orders' },
+  { resource: 'draft_orders', action: 'delete', key: 'delete_draft_orders' },
+  { resource: 'fulfillment', action: 'write', key: 'fulfill_orders' },
+  { resource: 'returns', action: 'write', key: 'return_orders' },
+  { resource: 'payments', action: 'write', key: 'capture_payments' },
+  { resource: 'refunds', action: 'write', key: 'refund_orders' },
+  { resource: 'cancellations', action: 'write', key: 'cancel_orders' },
 
   // Customers
-  { resource: 'customers', action: 'read', scope: 'read_customers' },
-  { resource: 'customers', action: 'write', scope: 'write_customers' },
-  { resource: 'customers', action: 'delete', scope: 'delete_customers' },
-  { resource: 'customers', action: 'write', scope: 'export_customers' },
+  { resource: 'customers', action: 'read', key: 'read_customers' },
+  { resource: 'customers', action: 'write', key: 'write_customers' },
+  { resource: 'customers', action: 'delete', key: 'delete_customers' },
+  { resource: 'customers', action: 'write', key: 'export_customers' },
 
   // Marketing
-  { resource: 'marketing', action: 'read', scope: 'read_marketing' },
-  { resource: 'marketing', action: 'write', scope: 'write_marketing' },
-  { resource: 'marketing', action: 'delete', scope: 'delete_marketing' },
-  { resource: 'coupons', action: 'read', scope: 'read_coupons' },
-  { resource: 'coupons', action: 'write', scope: 'write_coupons' },
-  { resource: 'coupons', action: 'delete', scope: 'delete_coupons' },
-  { resource: 'reviews', action: 'read', scope: 'read_reviews' },
-  { resource: 'reviews', action: 'write', scope: 'write_reviews' },
-  { resource: 'reviews', action: 'delete', scope: 'delete_reviews' },
+  { resource: 'marketing', action: 'read', key: 'read_marketing' },
+  { resource: 'marketing', action: 'write', key: 'write_marketing' },
+  { resource: 'marketing', action: 'delete', key: 'delete_marketing' },
+  { resource: 'coupons', action: 'read', key: 'read_coupons' },
+  { resource: 'coupons', action: 'write', key: 'write_coupons' },
+  { resource: 'coupons', action: 'delete', key: 'delete_coupons' },
+  { resource: 'reviews', action: 'read', key: 'read_reviews' },
+  { resource: 'reviews', action: 'write', key: 'write_reviews' },
+  { resource: 'reviews', action: 'delete', key: 'delete_reviews' },
 
   // Content
-  { resource: 'pages', action: 'read', scope: 'read_pages' },
-  { resource: 'pages', action: 'write', scope: 'write_pages' },
-  { resource: 'pages', action: 'delete', scope: 'delete_pages' },
-  { resource: 'menus', action: 'read', scope: 'read_menus' },
-  { resource: 'menus', action: 'write', scope: 'write_menus' },
-  { resource: 'menus', action: 'delete', scope: 'delete_menus' },
+  { resource: 'pages', action: 'read', key: 'read_pages' },
+  { resource: 'pages', action: 'write', key: 'write_pages' },
+  { resource: 'pages', action: 'delete', key: 'delete_pages' },
+  { resource: 'menus', action: 'read', key: 'read_menus' },
+  { resource: 'menus', action: 'write', key: 'write_menus' },
+  { resource: 'menus', action: 'delete', key: 'delete_menus' },
 
   // Settings & Configuration
-  { resource: 'settings', action: 'read', scope: 'read_settings' },
-  { resource: 'settings', action: 'write', scope: 'write_settings' },
-  { resource: 'shipping', action: 'read', scope: 'read_shipping' },
-  { resource: 'shipping', action: 'write', scope: 'write_shipping' },
-  { resource: 'taxes', action: 'read', scope: 'read_taxes' },
-  { resource: 'taxes', action: 'write', scope: 'write_taxes' },
-  { resource: 'payments_config', action: 'read', scope: 'read_payments_config' },
-  { resource: 'payments_config', action: 'write', scope: 'write_payments_config' },
-  { resource: 'currencies', action: 'read', scope: 'read_currencies' },
-  { resource: 'currencies', action: 'write', scope: 'write_currencies' },
+  { resource: 'settings', action: 'read', key: 'read_settings' },
+  { resource: 'settings', action: 'write', key: 'write_settings' },
+  { resource: 'shipping', action: 'read', key: 'read_shipping' },
+  { resource: 'shipping', action: 'write', key: 'write_shipping' },
+  { resource: 'taxes', action: 'read', key: 'read_taxes' },
+  { resource: 'taxes', action: 'write', key: 'write_taxes' },
+  { resource: 'payments_config', action: 'read', key: 'read_payments_config' },
+  { resource: 'payments_config', action: 'write', key: 'write_payments_config' },
+  { resource: 'currencies', action: 'read', key: 'read_currencies' },
+  { resource: 'currencies', action: 'write', key: 'write_currencies' },
 
   // Analytics & Reports
-  { resource: 'reports', action: 'read', scope: 'read_reports' },
-  { resource: 'analytics', action: 'read', scope: 'read_analytics' },
-  { resource: 'dashboard', action: 'read', scope: 'read_dashboard' },
+  { resource: 'reports', action: 'read', key: 'read_reports' },
+  { resource: 'analytics', action: 'read', key: 'read_analytics' },
+  { resource: 'dashboard', action: 'read', key: 'read_dashboard' },
 
   // Staff & Roles
-  { resource: 'staff', action: 'read', scope: 'read_staff' },
-  { resource: 'staff', action: 'write', scope: 'write_staff' },
-  { resource: 'staff', action: 'delete', scope: 'delete_staff' },
-  { resource: 'roles', action: 'read', scope: 'read_roles' },
-  { resource: 'roles', action: 'write', scope: 'write_roles' },
-  { resource: 'roles', action: 'delete', scope: 'delete_roles' },
+  { resource: 'staff', action: 'read', key: 'read_staff' },
+  { resource: 'staff', action: 'write', key: 'write_staff' },
+  { resource: 'staff', action: 'delete', key: 'delete_staff' },
+  { resource: 'roles', action: 'read', key: 'read_roles' },
+  { resource: 'roles', action: 'write', key: 'write_roles' },
+  { resource: 'roles', action: 'delete', key: 'delete_roles' },
 
   // Audit
-  { resource: 'audit_logs', action: 'read', scope: 'read_audit_logs' },
+  { resource: 'audit_logs', action: 'read', key: 'read_audit_logs' },
 ]
 
 // ─── Predefined role definitions ──────────────────────────────
@@ -101,7 +101,7 @@ export const predefinedRoles: RoleSeed[] = [
   {
     name: 'Admin',
     description: 'Full access to all shop features.',
-    scopes: defaultPermissions.map((p) => p.scope),
+    scopes: defaultPermissions.map((p) => p.key),
   },
   {
     name: 'Order Manager',
@@ -174,9 +174,9 @@ export async function seedDefaultPermissions() {
   console.log('Seeding default permissions...')
 
   for (const perm of defaultPermissions) {
-    await db.insert(permissions)
+    await db.insert(resPermissions)
       .values(perm)
-      .onConflictDoNothing({ target: permissions.scope })
+      .onConflictDoNothing({ target: resPermissions.key })
   }
 
   console.log(`Seeded ${defaultPermissions.length} permissions.`)
@@ -184,25 +184,24 @@ export async function seedDefaultPermissions() {
   console.log('Seeding predefined roles...')
 
   for (const roleDef of predefinedRoles) {
-    const existing = await db.select().from(roles)
-      .where(sql`${roles.name} = ${roleDef.name} AND ${roles.shop_id} IS NULL`)
+    const existing = await db.select().from(resGroups)
+      .where(sql`${resGroups.name} = ${roleDef.name}`)
 
     if (existing.length > 0) continue
 
-    const [role] = await db.insert(roles)
+    const [role] = await db.insert(resGroups)
       .values({
         name: roleDef.name,
-        role_type: 'predefined',
         description: roleDef.description,
       })
       .returning()
 
-    const matchedPerms = await db.select().from(permissions)
-      .where(sql`${permissions.scope} = ANY(${roleDef.scopes})`)
+    const matchedPerms = await db.select().from(resPermissions)
+      .where(inArray(resPermissions.key, roleDef.scopes))
 
     for (const perm of matchedPerms) {
-      await db.insert(m2m_roles_permissions)
-        .values({ role_id: role.id, permission_id: perm.id })
+      await db.insert(m2mGroupsPermissions)
+        .values({ groupId: role.id, permissionId: perm.id })
         .onConflictDoNothing()
     }
 

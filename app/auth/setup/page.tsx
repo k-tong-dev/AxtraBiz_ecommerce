@@ -18,16 +18,16 @@ export default function AuthSetupPage() {
       .then(r => r.json())
       .then(me => {
         if (!me.authenticated) {
-          window.location.href = '/login'
+          window.location.href = '/auth/signin'
           return
         }
         if (!me.needsShop && me.shops?.length === 0) {
           // Has shop_id already — should go straight to admin
-          window.location.href = '/admin'
+          window.location.href = '/dashboard'
           return
         }
         if (!me.needsShop && me.shops?.length === 1) {
-          window.location.href = '/admin'
+          window.location.href = '/dashboard'
           return
         }
         if (me.shops?.length > 1) {
@@ -39,7 +39,7 @@ export default function AuthSetupPage() {
         setStep('create')
       })
       .catch(() => {
-        window.location.href = '/login'
+        window.location.href = '/auth/signin'
       })
   }, [])
 
@@ -60,7 +60,7 @@ export default function AuthSetupPage() {
     setSaving(true)
 
     try {
-      const res = await fetch('/api/admin/shops', {
+      const res = await fetch('/api/dashboard/shops', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: name.trim(), slug: slug.trim() || undefined }),
@@ -80,7 +80,7 @@ export default function AuthSetupPage() {
       const meRes = await fetch('/api/auth/me')
       const me = await meRes.json()
       if (me.authenticated && me.user?.id) {
-        await fetch(`/api/admin/staff-accounts/${me.user.id}`, {
+        await fetch(`/api/dashboard/staff-accounts/${me.user.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ shop_id: shopId }),
@@ -125,7 +125,7 @@ export default function AuthSetupPage() {
                 onClick={() => {
                   localStorage.setItem('active_shop_id', String(shop.id))
                   localStorage.setItem('active_shop_name', shop.name)
-                  window.location.href = '/admin'
+                  window.location.href = '/dashboard'
                 }}
                 className="flex w-full items-center gap-4 rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-primary/50 hover:shadow-md"
               >
@@ -167,7 +167,7 @@ export default function AuthSetupPage() {
           <Button
             size="lg"
             className="mt-6 w-full"
-            onClick={() => { window.location.href = '/admin' }}
+            onClick={() => { window.location.href = '/dashboard' }}
           >
             Go to dashboard
             <ArrowRight className="ml-2 h-4 w-4" />

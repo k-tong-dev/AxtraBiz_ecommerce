@@ -1,28 +1,28 @@
 import { db } from '@/lib/drizzle/client'
-import { m2m_staff_accounts_shops } from '@/drizzle/schema'
+import { m2mUsersShops } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 
 export interface AssignStaffShopInput {
-  staffId: number
+  userId: string
   shopId: number
   isDefault?: boolean
   assignedBy?: string
 }
 
 export interface SyncStaffShopsInput {
-  staffId: number
+  userId: string
   shopIds: number[]
   assignedBy?: string
 }
 
 export async function assignStaffShop(input: AssignStaffShopInput) {
   try {
-    await db.insert(m2m_staff_accounts_shops)
+    await db.insert(m2mUsersShops)
       .values({
-        staff_id: input.staffId,
-        shop_id: input.shopId,
-        is_default: input.isDefault ?? false,
-        assigned_by: input.assignedBy,
+        userId: input.userId,
+        shopId: input.shopId,
+        isDefault: input.isDefault ?? false,
+        assignedBy: input.assignedBy,
       })
       .onConflictDoNothing()
     return { success: true }
@@ -31,12 +31,12 @@ export async function assignStaffShop(input: AssignStaffShopInput) {
   }
 }
 
-export async function removeStaffShop(staffId: number, shopId: number) {
+export async function removeStaffShop(userId: string, shopId: number) {
   try {
-    await db.delete(m2m_staff_accounts_shops)
+    await db.delete(m2mUsersShops)
       .where(and(
-        eq(m2m_staff_accounts_shops.staff_id, staffId),
-        eq(m2m_staff_accounts_shops.shop_id, shopId),
+        eq(m2mUsersShops.userId, userId),
+        eq(m2mUsersShops.shopId, shopId),
       ))
     return { success: true }
   } catch (error) {
@@ -46,16 +46,16 @@ export async function removeStaffShop(staffId: number, shopId: number) {
 
 export async function syncStaffShops(input: SyncStaffShopsInput) {
   try {
-    await db.delete(m2m_staff_accounts_shops)
-      .where(eq(m2m_staff_accounts_shops.staff_id, input.staffId))
+    await db.delete(m2mUsersShops)
+      .where(eq(m2mUsersShops.userId, input.userId))
 
     if (input.shopIds.length > 0) {
-      await db.insert(m2m_staff_accounts_shops)
+      await db.insert(m2mUsersShops)
         .values(input.shopIds.map((shopId, i) => ({
-          staff_id: input.staffId,
-          shop_id: shopId,
-          is_default: i === 0,
-          assigned_by: input.assignedBy,
+          userId: input.userId,
+          shopId,
+          isDefault: i === 0,
+          assignedBy: input.assignedBy,
         })))
     }
 
@@ -65,11 +65,11 @@ export async function syncStaffShops(input: SyncStaffShopsInput) {
   }
 }
 
-export async function getStaffShops(staffId: number) {
+export async function getStaffShops(userId: string) {
   try {
     return await db.select()
-      .from(m2m_staff_accounts_shops)
-      .where(eq(m2m_staff_accounts_shops.staff_id, staffId))
+      .from(m2mUsersShops)
+      .where(eq(m2mUsersShops.userId, userId))
   } catch {
     return []
   }

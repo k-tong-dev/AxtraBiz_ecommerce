@@ -17,7 +17,7 @@ export function AuthRedirectGuard({ children }: { children: React.ReactNode }) {
       .then((res) => res.json())
       .then((data) => {
         if (!data.authenticated) {
-          router.push('/login')
+          router.push('/auth/signin')
           return
         }
         if (data.role === 'staff' && data.isOwner && data.needsShop) {

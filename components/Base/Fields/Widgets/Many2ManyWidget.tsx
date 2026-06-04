@@ -34,12 +34,12 @@ const styles = `
  */
 export interface Many2ManyWidgetConfig {
   // Junction table configuration (required for many2many)
-  junctionTable?: string; // API endpoint for junction records (e.g., '/api/admin/product-attributes-rel')
+  junctionTable?: string; // API endpoint for junction records (e.g., '/api/dashboard/product-attributes-rel')
   localField: string; // FK to parent in junction (e.g., 'product_id')
   remoteField: string; // FK to related in junction (e.g., 'attribute_id')
 
   // Related record configuration
-  relation: string; // API endpoint for related records (e.g., '/api/admin/product-attributes')
+  relation: string; // API endpoint for related records (e.g., '/api/dashboard/product-attributes')
   displayField?: string; // Field to display from related record (default: 'name')
   valueField?: string; // Field to use as value (default: 'id')
   searchField?: string; // Field to search on server (default: displayField)
@@ -123,12 +123,12 @@ export const Many2ManyWidget: React.FC<FieldWidgetProps> = ({
     if (!config) {
       showWizardError(
         '[Many2ManyWidget] Missing widgetConfig',
-        'You must provide a widgetConfig with at least "relation", "localField", and "remoteField". Example: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }'
+        'You must provide a widgetConfig with at least "relation", "localField", and "remoteField". Example: { relation: "/api/dashboard/related-records", localField: "parent_id", remoteField: "related_id" }'
       )
     } else if (!config.relation || !config.localField || !config.remoteField) {
       showWizardError(
         '[Many2ManyWidget] Missing required config',
-        `Missing: ${!config.relation ? 'relation ' : ''}${!config.localField ? 'localField ' : ''}${!config.remoteField ? 'remoteField' : ''}. Example: { relation: "/api/admin/related-records", localField: "parent_id", remoteField: "related_id" }`
+        `Missing: ${!config.relation ? 'relation ' : ''}${!config.localField ? 'localField ' : ''}${!config.remoteField ? 'remoteField' : ''}. Example: { relation: "/api/dashboard/related-records", localField: "parent_id", remoteField: "related_id" }`
       )
     }
   }

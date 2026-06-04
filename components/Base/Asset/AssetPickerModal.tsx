@@ -50,7 +50,7 @@ export function AssetPickerModal({ open, onClose, onSelect, maxFiles }: AssetPic
   const loadFiles = useCallback(async (path: string | null) => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/admin/storage/files?path=${encodeURIComponent(path || '')}`)
+      const res = await fetch(`/api/dashboard/storage/files?path=${encodeURIComponent(path || '')}`)
       if (res.ok) {
         const data = await res.json()
         setFolders(data.folders || [])

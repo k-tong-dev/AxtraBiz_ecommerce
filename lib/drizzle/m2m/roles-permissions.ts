@@ -1,26 +1,26 @@
 import { db } from '@/lib/drizzle/client'
-import { m2m_roles_permissions } from '@/drizzle/schema'
-import { eq, and, inArray } from 'drizzle-orm'
+import { m2mGroupsPermissions } from '@/lib/drizzle/schema'
+import { eq, and } from 'drizzle-orm'
 
 export interface AssignRolePermissionInput {
-  roleId: number
-  permissionId: number
+  groupId: string
+  permissionId: string
   grantedBy?: string
 }
 
 export interface SyncRolePermissionsInput {
-  roleId: number
-  permissionIds: number[]
+  groupId: string
+  permissionIds: string[]
   grantedBy?: string
 }
 
 export async function assignRolePermission(input: AssignRolePermissionInput) {
   try {
-    await db.insert(m2m_roles_permissions)
+    await db.insert(m2mGroupsPermissions)
       .values({
-        role_id: input.roleId,
-        permission_id: input.permissionId,
-        granted_by: input.grantedBy,
+        groupId: input.groupId,
+        permissionId: input.permissionId,
+        grantedBy: input.grantedBy,
       })
       .onConflictDoNothing()
     return { success: true }
@@ -29,12 +29,12 @@ export async function assignRolePermission(input: AssignRolePermissionInput) {
   }
 }
 
-export async function removeRolePermission(roleId: number, permissionId: number) {
+export async function removeRolePermission(groupId: string, permissionId: string) {
   try {
-    await db.delete(m2m_roles_permissions)
+    await db.delete(m2mGroupsPermissions)
       .where(and(
-        eq(m2m_roles_permissions.role_id, roleId),
-        eq(m2m_roles_permissions.permission_id, permissionId),
+        eq(m2mGroupsPermissions.groupId, groupId),
+        eq(m2mGroupsPermissions.permissionId, permissionId),
       ))
     return { success: true }
   } catch (error) {
@@ -44,15 +44,15 @@ export async function removeRolePermission(roleId: number, permissionId: number)
 
 export async function syncRolePermissions(input: SyncRolePermissionsInput) {
   try {
-    await db.delete(m2m_roles_permissions)
-      .where(eq(m2m_roles_permissions.role_id, input.roleId))
+    await db.delete(m2mGroupsPermissions)
+      .where(eq(m2mGroupsPermissions.groupId, input.groupId))
 
     if (input.permissionIds.length > 0) {
-      await db.insert(m2m_roles_permissions)
+      await db.insert(m2mGroupsPermissions)
         .values(input.permissionIds.map(permissionId => ({
-          role_id: input.roleId,
-          permission_id: permissionId,
-          granted_by: input.grantedBy,
+          groupId: input.groupId,
+          permissionId,
+          grantedBy: input.grantedBy,
         })))
     }
 
@@ -62,11 +62,11 @@ export async function syncRolePermissions(input: SyncRolePermissionsInput) {
   }
 }
 
-export async function getRolePermissions(roleId: number) {
+export async function getRolePermissions(groupId: string) {
   try {
     return await db.select()
-      .from(m2m_roles_permissions)
-      .where(eq(m2m_roles_permissions.role_id, roleId))
+      .from(m2mGroupsPermissions)
+      .where(eq(m2mGroupsPermissions.groupId, groupId))
   } catch {
     return []
   }

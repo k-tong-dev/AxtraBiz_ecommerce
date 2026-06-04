@@ -164,7 +164,7 @@ export function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href={`/shop/products/${activeProduct.id}`}>
+              <Link href={`/website/products/${activeProduct.id}`}>
                 <span
                   className="inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl px-6 py-4 text-base font-semibold text-white shadow-xl hover:-translate-y-0.5 hover:opacity-95 transition-all duration-300 cursor-pointer"
                   style={{
@@ -176,7 +176,7 @@ export function Hero() {
                   <ArrowRight className="w-5 h-5 animate-pulse" />
                 </span>
               </Link>
-              <Link href="/shop/products">
+              <Link href="/website/products">
                 <span
                   className="inline-flex items-center justify-center w-full sm:w-auto rounded-xl px-6 py-4 text-base font-semibold border border-border/80 transition-all duration-300 hover:bg-muted/40 cursor-pointer text-foreground"
                 >
@@ -277,7 +277,7 @@ export function Hero() {
 
                   {/* Center product highlight - Clickable link to product */}
                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-auto">
-                    <Link href={`/shop/products/${activeProduct.id}`}>
+                    <Link href={`/website/products/${activeProduct.id}`}>
                       <div
                         className="w-56 h-56 rounded-full flex flex-col items-center justify-center shadow-2xl border glass-panel transition-all duration-500 hover:scale-105 cursor-pointer"
                         style={{
