@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { createServiceRoleClient } from '@/utils/supabase/service-role'
 import { db } from '@/lib/drizzle/client'
 import { staff_accounts } from '@/drizzle/schema'
 import { eq } from 'drizzle-orm'
@@ -8,15 +9,11 @@ export async function POST(request: Request) {
   try {
     const { name, email, password } = await request.json()
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    // 1. Check if email already exists as Supabase auth user
-    // We do this by trying to create the user — Supabase will reject duplicates
-    const supabase = await createClient()
-
-    // 1b. Check if email already registered as a business owner
+    // Check if email already registered as a business owner
     const existingStaff = await db.select()
       .from(staff_accounts)
       .where(eq(staff_accounts.email, email))
@@ -29,25 +26,31 @@ export async function POST(request: Request) {
       )
     }
 
-    // 2. Create Supabase auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    const supabase = await createClient()
+
+    // Try to create Supabase auth user
+    // If the user already exists (from customer signup), that's OK
+    let authUser = null
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
-      password,
+      password: password || crypto.randomUUID(),
       options: {
         data: { name, full_name: name },
         emailRedirectTo: `${request.headers.get('origin') || ''}/login`,
       },
     })
 
-    if (authError) {
-      return NextResponse.json({ error: authError.message }, { status: 400 })
+    if (signUpError && signUpError.message?.includes('already registered')) {
+      // User already has a Supabase auth account (e.g. from customer signup)
+      // That's fine — we just create the staff_account entry
+      console.log('[business-register] auth user already exists for', email)
+    } else if (signUpError) {
+      return NextResponse.json({ error: signUpError.message }, { status: 400 })
+    } else {
+      authUser = signUpData.user
     }
 
-    if (!authData.user) {
-      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
-    }
-
-    // 3. Create staff_account as shop owner (no shop_id yet — will be set after shop creation)
+    // Create staff_account as shop owner
     const [staff] = await db.insert(staff_accounts)
       .values({
         email,
@@ -63,7 +66,7 @@ export async function POST(request: Request) {
         id: staff.id,
         email: staff.email,
         name: staff.full_name,
-        needsVerification: !authData.user.email_confirmed_at,
+        needsVerification: authUser ? !authUser.email_confirmed_at : false,
       },
     })
   } catch (error) {
