@@ -1,30 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { Schema } from 'rsuite'
 import { Lock, Loader2, CheckCircle2, AlertCircle, ArrowLeft, KeyRound, ShieldCheck, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import { Form, FormField } from '@/components/ui/form'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
 
-type ResetForm = {
-  password: string
-  confirmPassword: string
-}
+const model = Schema.Model({
+  password: Schema.Types.StringType()
+    .isRequired('Password is required')
+    .minLength(6, 'At least 6 characters'),
+  confirmPassword: Schema.Types.StringType()
+    .isRequired('Please confirm your password')
+    .addRule((value: string, data: any) => value === data.password, 'Passwords do not match'),
+})
 
 export default function ResetPasswordPage() {
   const router = useRouter()
   const { user, isLoading: authLoading, updatePassword } = useAuth()
+  const formRef = useRef<any>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [isDone, setIsDone] = useState(false)
   const [tokenError, setTokenError] = useState(false)
-
-  const form = useForm<ResetForm>({
-    defaultValues: { password: '', confirmPassword: '' },
-  })
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -34,12 +35,13 @@ export default function ResetPasswordPage() {
     }
   }, [authLoading, user])
 
-  const onSubmit = async (data: ResetForm) => {
-    if (data.password !== data.confirmPassword) {
-      showToast('error', 'Passwords do not match', 'Please make sure both passwords match.')
-      return
-    }
-    const ok = await updatePassword(data.password)
+  const onSubmit = async () => {
+    if (!formRef.current?.check()) return
+    const { password } = formRef.current.value
+    setSubmitting(true)
+    const ok = await updatePassword(password)
+    setSubmitting(false)
+
     if (ok) {
       setIsDone(true)
       showToast('success', 'Password updated', 'Redirecting to sign in...')
@@ -52,7 +54,7 @@ export default function ResetPasswordPage() {
   const guidelines = [
     { icon: KeyRound, text: 'At least 6 characters long' },
     { icon: ShieldCheck, text: 'Mix of letters and numbers recommended' },
-    { icon: RefreshCw, text: 'Don&apos;t reuse passwords from other sites' },
+    { icon: RefreshCw, text: 'Avoid reusing passwords from other sites' },
   ]
 
   if (tokenError) {
@@ -130,7 +132,7 @@ export default function ResetPasswordPage() {
                     <g.icon className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex items-center min-h-[36px]">
-                    <p className="text-sm" dangerouslySetInnerHTML={{ __html: g.text }} />
+                    <p className="text-sm">{g.text}</p>
                   </div>
                 </div>
               </div>
@@ -150,50 +152,24 @@ export default function ResetPasswordPage() {
                 <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
               </div>
             ) : (
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    rules={{
-                      required: 'Password is required',
-                      minLength: { value: 6, message: 'At least 6 characters' },
-                    }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>New password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="Min. 6 characters" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <Form
+                ref={formRef}
+                model={model}
+                onSubmit={onSubmit}
+                fluid
+                formDefaultValue={{ password: '', confirmPassword: '' }}
+              >
+                <FormField name="password" label="New password" type="password" placeholder="Min. 6 characters" />
+                <FormField name="confirmPassword" label="Confirm password" type="password" placeholder="Re-enter your password" />
 
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    rules={{ required: 'Please confirm your password' }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="Re-enter your password" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button
-                    type="submit"
-                    className="w-full h-11"
-                    appearance="primary"
-                    loading={form.formState.isSubmitting}
-                  >
-                    {form.formState.isSubmitting ? 'Updating...' : 'Update password'}
-                  </Button>
-                </form>
+                <Button
+                  type="submit"
+                  className="w-full h-11 mt-5"
+                  appearance="primary"
+                  loading={submitting}
+                >
+                  {submitting ? 'Updating...' : 'Update password'}
+                </Button>
               </Form>
             )}
           </div>

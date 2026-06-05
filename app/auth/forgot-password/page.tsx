@@ -1,26 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
+import { Schema } from 'rsuite'
 import { Mail, ArrowLeft, CheckCircle2, Lock, RefreshCw, Quote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import { Form, FormField } from '@/components/ui/form'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
 
+const model = Schema.Model({
+  email: Schema.Types.StringType()
+    .isRequired('Email is required')
+    .isEmail('Invalid email address'),
+})
+
 export default function ForgotPasswordPage() {
   const { sendPasswordReset } = useAuth()
+  const formRef = useRef<any>(null)
+  const [submitting, setSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [sentEmail, setSentEmail] = useState('')
 
-  const form = useForm<{ email: string }>({
-    defaultValues: { email: '' },
-  })
+  const onSubmit = async () => {
+    if (!formRef.current?.check()) return
+    const { email } = formRef.current.value
+    if (!email?.trim()) return
 
-  const onSubmit = async (data: { email: string }) => {
-    const ok = await sendPasswordReset(data.email.trim())
+    setSubmitting(true)
+    const ok = await sendPasswordReset(email.trim())
+    setSubmitting(false)
+
     if (ok) {
+      setSentEmail(email)
       setIsSuccess(true)
       showToast('success', 'Email sent', 'Check your inbox.')
     } else {
@@ -36,34 +48,29 @@ export default function ForgotPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 p-4">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
           <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
         </div>
-        <div className="relative z-10 w-full max-w-md mx-auto px-4">
-          <div className="rounded-3xl border border-border/40 bg-card/70 p-8 shadow-2xl shadow-black/5 backdrop-blur-2xl text-center space-y-5">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center ring-1 ring-primary/10">
-                <CheckCircle2 className="w-8 h-8 text-primary" />
-              </div>
+        <div className="relative z-10 w-full max-w-md rounded-3xl border border-border/40 bg-card/70 p-8 shadow-2xl shadow-black/5 backdrop-blur-2xl text-center space-y-5">
+          <div className="flex justify-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center ring-1 ring-primary/10">
+              <CheckCircle2 className="w-8 h-8 text-primary" />
             </div>
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold">Check your email</h1>
-              <p className="text-sm text-muted-foreground">
-                We sent a reset link to{' '}
-                <span className="font-medium text-foreground">{form.getValues('email')}</span>
-              </p>
-            </div>
-            <Button className="w-full h-11" appearance="primary" onClick={() => { setIsSuccess(false); form.reset() }}>
-              <Mail className="w-4 h-4 mr-1.5" />
-              Resend email
-            </Button>
-            <Link href="/auth/signin" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-primary transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Back to sign in
-            </Link>
           </div>
+          <h1 className="text-2xl font-bold">Check your email</h1>
+          <p className="text-sm text-muted-foreground">
+            We sent a reset link to <span className="font-medium text-foreground">{sentEmail}</span>
+          </p>
+          <Button className="w-full h-11" appearance="primary" onClick={() => { setIsSuccess(false); formRef.current?.reset() }}>
+            <Mail className="w-4 h-4 mr-1.5" />
+            Resend email
+          </Button>
+          <Link href="/auth/signin" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-primary transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to sign in
+          </Link>
         </div>
       </div>
     )
@@ -71,7 +78,6 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 -right-20 w-[400px] h-[400px] rounded-full bg-primary/5 blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
         <div className="absolute -bottom-20 -left-20 w-[350px] h-[350px] rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{ animationDuration: '9s' }} />
@@ -138,36 +144,24 @@ export default function ForgotPasswordPage() {
               <p className="text-sm text-muted-foreground">Enter your email for a reset link.</p>
             </div>
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  rules={{
-                    required: 'Email is required',
-                    pattern: { value: /^[^\s@]+@[^\s@]+$/, message: 'Invalid email' },
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email address</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="you@example.com" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Form
+              ref={formRef}
+              model={model}
+              onSubmit={onSubmit}
+              fluid
+              formDefaultValue={{ email: '' }}
+            >
+              <FormField name="email" label="Email address" type="email" placeholder="you@example.com" />
 
-                <Button
-                  type="submit"
-                  className="w-full h-11"
-                  appearance="primary"
-                  loading={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? 'Sending...' : 'Send reset link'}
-                  <Mail className="w-4 h-4 ml-1.5" />
-                </Button>
-              </form>
+              <Button
+                type="submit"
+                className="w-full h-11 mt-5"
+                appearance="primary"
+                loading={submitting}
+              >
+                {submitting ? 'Sending...' : 'Send reset link'}
+                <Mail className="w-4 h-4 ml-1.5" />
+              </Button>
             </Form>
 
             <div className="hidden lg:flex mt-6 justify-center">

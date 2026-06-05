@@ -1,47 +1,54 @@
 'use client'
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useState, useRef } from 'react'
+import { Schema } from 'rsuite'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import { Form, FormField } from '@/components/ui/form'
 import Link from 'next/link'
 import {
   Store, ArrowRight, CheckCircle2, AlertCircle, Eye, EyeOff, Globe, TrendingUp, Users, Quote,
 } from 'lucide-react'
 
-type RegisterForm = {
-  name: string
-  email: string
-  password: string
-}
+const model = Schema.Model({
+  name: Schema.Types.StringType().isRequired('Name is required'),
+  email: Schema.Types.StringType()
+    .isRequired('Email is required')
+    .isEmail('Invalid email address'),
+  password: Schema.Types.StringType()
+    .isRequired('Password is required')
+    .minLength(8, 'At least 8 characters'),
+})
 
 export default function RegisterPage() {
+  const formRef = useRef<any>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const [step, setStep] = useState<'form' | 'success'>('form')
 
-  const form = useForm<RegisterForm>({
-    defaultValues: { name: '', email: '', password: '' },
-  })
-
-  const onSubmit = async (data: RegisterForm) => {
+  const onSubmit = async () => {
+    if (!formRef.current?.check()) return
+    const values = formRef.current.value
     setError('')
+    setSubmitting(true)
+
     try {
       const res = await fetch('/api/auth/business-register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(values),
       })
-      const resData = await res.json()
+      const data = await res.json()
       if (!res.ok) {
-        setError(resData.error || 'Registration failed')
+        setError(data.error || 'Registration failed')
+        setSubmitting(false)
         return
       }
       setStep('success')
     } catch {
       setError('Network error. Please try again.')
     }
+    setSubmitting(false)
   }
 
   const benefits = [
@@ -74,7 +81,6 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
@@ -116,9 +122,7 @@ export default function RegisterPage() {
 
           <div className="relative rounded-2xl border border-border/30 bg-gradient-to-br from-primary/[0.03] to-blue-500/[0.03] p-5">
             <Quote className="h-6 w-6 text-primary/30 absolute top-3 right-3" />
-            <p className="text-sm text-muted-foreground/90 italic leading-relaxed">
-              &ldquo;AxtraBiz helped us scale from a single shop to 5 locations in under 6 months. Game changer.&rdquo;
-            </p>
+            <p className="text-sm text-muted-foreground/90 italic leading-relaxed">&ldquo;AxtraBiz helped us scale from a single shop to 5 locations in under 6 months. Game changer.&rdquo;</p>
             <div className="mt-3 flex items-center gap-2">
               <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center text-[10px] font-bold text-white">ER</div>
               <div>
@@ -143,70 +147,42 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  rules={{ required: 'Name is required' }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John Doe" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Form
+              ref={formRef}
+              model={model}
+              onSubmit={onSubmit}
+              fluid
+              formDefaultValue={{ name: '', email: '', password: '' }}
+            >
+              <FormField name="name" label="Full name" placeholder="John Doe" />
+              <FormField name="email" label="Email address" type="email" placeholder="you@example.com" />
 
+              <div>
                 <FormField
-                  control={form.control}
-                  name="email"
-                  rules={{
-                    required: 'Email is required',
-                    pattern: { value: /^[^\s@]+@[^\s@]+$/, message: 'Invalid email' },
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email address</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="you@example.com" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="password"
-                  rules={{
-                    required: 'Password is required',
-                    minLength: { value: 8, message: 'At least 8 characters' },
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input type={showPassword ? 'text' : 'password'} placeholder="Min. 8 characters" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
-                          <button type="button" onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors p-1" tabIndex={-1}>
-                            {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                          </button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Min. 8 characters"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="mt-1 text-xs text-muted-foreground/60 hover:text-foreground flex items-center gap-1 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  {showPassword ? 'Hide' : 'Show'} password
+                </button>
+              </div>
 
-                <Button type="submit" className="w-full h-11" appearance="primary" loading={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Creating...' : 'Create account'}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </form>
+              <Button
+                type="submit"
+                className="w-full h-11 mt-5"
+                appearance="primary"
+                loading={submitting}
+              >
+                {submitting ? 'Creating...' : 'Create account'}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </Form>
 
             <p className="mt-6 text-center text-xs text-muted-foreground/70">

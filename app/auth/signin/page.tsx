@@ -1,31 +1,31 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
+import { Schema } from 'rsuite'
 import { Store, ArrowRight, Eye, EyeOff, Shield, Zap, Globe, Quote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
+import { Form, FormField } from '@/components/ui/form'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
 
-type SigninForm = {
-  email: string
-  password: string
-}
+const model = Schema.Model({
+  email: Schema.Types.StringType()
+    .isRequired('Email is required')
+    .isEmail('Invalid email address'),
+  password: Schema.Types.StringType()
+    .isRequired('Password is required'),
+})
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
   const redirectParam = searchParams.get('redirect') || ''
   const { user, isLoading: authLoading, login, loginWithGoogle } = useAuth()
+  const formRef = useRef<any>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
-
-  const form = useForm<SigninForm>({
-    defaultValues: { email: '', password: '' },
-  })
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -36,18 +36,28 @@ export default function LoginPage() {
     }
   }, [authLoading, user, redirectParam])
 
-  const onSubmit = async (data: SigninForm) => {
-    const success = await login(data.email, data.password)
+  const handleSubmit = async () => {
+    if (!formRef.current?.check()) return
+    const values = formRef.current.value
+    if (!values?.email || !values?.password) return
+
+    setSubmitting(true)
+    const success = await login(values.email, values.password)
     if (success) {
       showToast('success', 'Signed in', 'Welcome back.')
       await new Promise(r => setTimeout(r, 500))
       try {
         const me = await (await fetch('/api/auth/me')).json()
-        window.location.href = me.authenticated ? (redirectParam || me.redirect || '/dashboard') : '/dashboard'
-      } catch { window.location.href = redirectParam || '/dashboard' }
+        window.location.href = me.authenticated
+          ? (redirectParam || me.redirect || '/dashboard')
+          : '/dashboard'
+      } catch {
+        window.location.href = redirectParam || '/dashboard'
+      }
     } else {
       showToast('error', 'Sign-in failed', 'Invalid email or password.')
     }
+    setSubmitting(false)
   }
 
   const handleGoogleLogin = async () => {
@@ -65,7 +75,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Animated decorative orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
         <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
@@ -73,7 +82,6 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 flex w-full max-w-6xl mx-auto px-4 lg:px-8 gap-8 xl:gap-16 items-center">
-        {/* Visual panel */}
         <div className="hidden lg:flex lg:w-[45%] flex-col gap-8">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.08] px-4 py-1.5 text-xs font-semibold text-primary tracking-wide uppercase">
@@ -110,7 +118,6 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* Testimonial */}
           <div className="relative rounded-2xl border border-border/30 bg-gradient-to-br from-primary/[0.03] to-blue-500/[0.03] p-5">
             <Quote className="h-6 w-6 text-primary/30 absolute top-3 right-3" />
             <p className="text-sm text-muted-foreground/90 italic leading-relaxed">
@@ -126,7 +133,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Form card */}
         <div className="w-full lg:w-[55%] max-w-md mx-auto lg:mx-0">
           <div className="rounded-3xl border border-border/40 bg-card/70 p-6 sm:p-8 shadow-2xl shadow-black/5 backdrop-blur-2xl">
             <div className="mb-7 lg:hidden">
@@ -165,81 +171,56 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    rules={{
-                      required: 'Email is required',
-                      pattern: { value: /^[^\s@]+@[^\s@]+$/, message: 'Invalid email address' },
-                    }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="you@example.com"
-                            value={field.value}
-                            onChange={(e) => field.onChange(e.target.value)}
-                            fullWidth
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <Form
+                ref={formRef}
+                model={model}
+                onSubmit={handleSubmit}
+                fluid
+                formDefaultValue={{ email: '', password: '' }}
+              >
+                <FormField
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="you@example.com"
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    rules={{ required: 'Password is required' }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Password</FormLabel>
-                          <Link
-                            href="/auth/forgot-password"
-                            className="text-[11px] text-muted-foreground/60 hover:text-primary transition-colors"
-                          >
-                            Forgot?
-                          </Link>
-                        </div>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type={showPassword ? 'text' : 'password'}
-                              placeholder="Enter your password"
-                              value={field.value}
-                              onChange={(e) => field.onChange(e.target.value)}
-                              fullWidth
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors p-1"
-                              tabIndex={-1}
-                            >
-                              {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                            </button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-sm font-medium text-foreground">Password</label>
+                    <Link
+                      href="/auth/forgot-password"
+                      className="text-[11px] text-muted-foreground/60 hover:text-primary transition-colors"
+                    >
+                      Forgot?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <FormField
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 top-2 text-muted-foreground/50 hover:text-foreground transition-colors p-1 z-10"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
+                  </div>
+                </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full h-11"
-                    appearance="primary"
-                    loading={form.formState.isSubmitting}
-                  >
-                    {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
-                    <ArrowRight className="w-4 h-4 ml-1.5" />
-                  </Button>
-                </form>
+                <Button
+                  type="submit"
+                  className="w-full h-11 mt-5"
+                  appearance="primary"
+                  loading={submitting}
+                >
+                  {submitting ? 'Signing in...' : 'Sign in'}
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Button>
               </Form>
             </div>
 
