@@ -23,7 +23,9 @@ export default function ResetPasswordPage() {
   const router = useRouter()
   const { updatePassword } = useAuth()
   const formRef = useRef<any>(null)
+  const [formData, setFormData] = useState({ password: '', confirm: '' })
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
   const [hasToken, setHasToken] = useState<boolean | null>(null)
@@ -36,15 +38,19 @@ export default function ResetPasswordPage() {
   }, [])
 
   const handleSubmit = async () => {
-    if (!formRef.current?.check()) return
-    const { password } = formRef.current.value
-    setSubmitting(true)
-    const success = await updatePassword(password)
-    if (success) {
-      setDone(true)
-      setTimeout(() => router.push('/auth/signin'), 2000)
-    } else {
-      showToast('error', 'Update failed', 'Please try again.')
+    try {
+      if (!formRef.current?.check()) return
+      setSubmitting(true)
+      const success = await updatePassword(formData.password)
+      if (success) {
+        setDone(true)
+        setTimeout(() => router.push('/auth/signin'), 2000)
+      } else {
+        showToast('error', 'Update failed', 'Please try again.')
+      }
+    } catch (e) {
+      console.error('[ResetPassword] Unexpected error:', e)
+      showToast('error', 'Update failed', 'An unexpected error occurred.')
     }
     setSubmitting(false)
   }
@@ -149,7 +155,7 @@ export default function ResetPasswordPage() {
                     <p className="text-sm text-muted-foreground/80 mt-1">At least 8 characters</p>
                   </div>
 
-                  <Form ref={formRef} model={model} onSubmit={handleSubmit} fluid formDefaultValue={{ password: '', confirm: '' }}>
+                  <Form ref={formRef} model={model} onChange={(v: any) => setFormData(v)} onSubmit={handleSubmit} fluid formDefaultValue={{ password: '', confirm: '' }}>
                     <div className="space-y-3.5 auth-page-form">
                       <FormField
                         name="password"

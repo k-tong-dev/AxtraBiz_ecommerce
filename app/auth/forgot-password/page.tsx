@@ -18,18 +18,23 @@ const model = Schema.Model({
 export default function ForgotPasswordPage() {
   const { sendPasswordReset } = useAuth()
   const formRef = useRef<any>(null)
+  const [formData, setFormData] = useState({ email: '' })
   const [submitting, setSubmitting] = useState(false)
   const [sent, setSent] = useState(false)
 
   const handleSubmit = async () => {
-    if (!formRef.current?.check()) return
-    const { email } = formRef.current.value
-    setSubmitting(true)
-    const success = await sendPasswordReset(email)
-    if (success) {
-      setSent(true)
-    } else {
-      showToast('error', 'Something went wrong', 'Please try again.')
+    try {
+      if (!formRef.current?.check()) return
+      setSubmitting(true)
+      const success = await sendPasswordReset(formData.email)
+      if (success) {
+        setSent(true)
+      } else {
+        showToast('error', 'Something went wrong', 'Please try again.')
+      }
+    } catch (e) {
+      console.error('[ForgotPassword] Unexpected error:', e)
+      showToast('error', 'Something went wrong', 'An unexpected error occurred.')
     }
     setSubmitting(false)
   }
@@ -128,7 +133,7 @@ export default function ForgotPasswordPage() {
                     <p className="text-sm text-muted-foreground/80 mt-1">We&apos;ll email you reset instructions</p>
                   </div>
 
-                  <Form ref={formRef} model={model} onSubmit={handleSubmit} fluid formDefaultValue={{ email: '' }}>
+                  <Form ref={formRef} model={model} onChange={(v: any) => setFormData(v)} onSubmit={handleSubmit} fluid formDefaultValue={{ email: '' }}>
                     <FormField name="email" type="email" placeholder="Email address" variant="bordered" icon={<Mail className="h-4 w-4" />} />
 
                     <Button type="submit" className="w-full h-11 mt-4 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-amber-500/25 transition-all duration-300" appearance="primary" loading={submitting}>

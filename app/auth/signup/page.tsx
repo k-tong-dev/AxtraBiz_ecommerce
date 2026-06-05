@@ -22,6 +22,7 @@ const model = Schema.Model({
 export default function SignupPage() {
   const { signup } = useAuth()
   const formRef = useRef<any>(null)
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
@@ -29,15 +30,19 @@ export default function SignupPage() {
   const [resending, setResending] = useState(false)
 
   const handleSubmit = async () => {
-    if (!formRef.current?.check()) return
-    const values = formRef.current.value
-    setSubmitting(true)
-    const result = await signup(values.name, values.email, values.password)
-    if (result?.success) {
-      setEmail(values.email)
-      setDone(true)
-    } else {
-      showToast('error', 'Signup failed', result?.error || 'Please try again.')
+    try {
+      if (!formRef.current?.check()) return
+      setSubmitting(true)
+      const result = await signup(formData.name, formData.email, formData.password)
+      if (result?.success) {
+        setEmail(formData.email)
+        setDone(true)
+      } else {
+        showToast('error', 'Signup failed', result?.error || 'Please try again.')
+      }
+    } catch (e) {
+      console.error('[Signup] Unexpected error:', e)
+      showToast('error', 'Signup failed', 'An unexpected error occurred.')
     }
     setSubmitting(false)
   }
@@ -187,7 +192,7 @@ export default function SignupPage() {
                 <p className="text-sm text-muted-foreground/80 mt-1">Get started in seconds</p>
               </div>
 
-              <Form ref={formRef} model={model} onSubmit={handleSubmit} fluid formDefaultValue={{ name: '', email: '', password: '' }}>
+              <Form ref={formRef} model={model} onChange={(v: any) => setFormData(v)} onSubmit={handleSubmit} fluid formDefaultValue={{ name: '', email: '', password: '' }}>
                 <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 

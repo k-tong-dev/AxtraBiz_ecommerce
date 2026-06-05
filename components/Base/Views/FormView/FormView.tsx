@@ -46,8 +46,10 @@ import { Many2ManyWidget } from '../../Fields/Widgets/Many2ManyWidget'
 import { One2ManyWidget } from '../../Fields/Widgets/One2ManyWidget'
 import { Many2OneWidget } from '../../Fields/Widgets/Many2OneWidget'
 import { TagSelectWidget } from '@/components/Base/Fields/Widgets/TagSelectWidget'
-import {Switch} from "@/components/ui/switch";
+
 import { showWizardWarning, showWizardError, Wizard } from '../../Wizard'
+import {GiCardDiscard} from "react-icons/gi";
+import {MdEdit} from "react-icons/md";
 
 // Register widgets on module load
 registerWidget(Many2ManyWidget as any)
@@ -91,7 +93,7 @@ export interface FormField {
     groupBy?: string
     tree?: boolean
     searchable?: boolean
-    size?: 'sm' | 'md' | 'lg'
+    size?: 'sm' | 'md' | 'lg' | 'xs' | 'xl'
     selectOptions?: Array<{ id: string | number; name: string; avatar?: string; group?: string; children?: any[] }>
 }
 
@@ -794,15 +796,18 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
             case 'boolean':
             case 'toggle':
                 return (
-                    <div className="flex items-center gap-2">
-                        <Switch checked={value || false}
-                                color={"violet"}
-                                checkedChildren={"ON"}
-                                unCheckedChildren={"OFF"}
-                                disabled={readonly}
-                                onClick={() => !readonly && onChange(!value)}>
-                        </Switch>
-                    </div>
+                    <BooleanField
+                        config={{
+                            name: field.key,
+                            label: field.label,
+                            size: field.size,
+                            type: 'boolean',
+                            readonly: readonly,
+                        }}
+                        value={value || false}
+                        onChange={(val) => onChange(val)}
+                        error={errorMessage}
+                    />
                 )
 
             case 'date':
@@ -1403,15 +1408,18 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                 variant="warning"
                 buttons={[
                     {
-                        label: 'Discard Changes',
+                        label: 'Discard',
                         onClick: () => pendingUnsavedAction?.onDiscard(),
                         color: 'red',
-                        appearance:"primary"
+                        appearance:"primary",
+                        className: "!bg-black",
+                        startIcon: <GiCardDiscard />
                     },
                     {
-                        label: 'Continue Editing',
+                        label: 'Continue',
                         onClick: () => setShowUnsavedWarning(false),
-                        appearance: 'subtle',
+                        appearance: 'default',
+                        startIcon: <MdEdit />
                     },
                 ]}
                 backdrop={"static"}
@@ -1444,7 +1452,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                                 if (mode === 'edit' && originalData) {
                                     setData(originalData)
                                     uploadedFiles.forEach(f => {
-                                        if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
+                                        if (f.url.startsWith('blob:')) {
                                             URL.revokeObjectURL(f.url)
                                         }
                                     })
@@ -1455,7 +1463,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                                     setHasChanges(false)
                                 } else {
                                     uploadedFiles.forEach(f => {
-                                        if (typeof f.url === 'string' && f.url.startsWith('blob:')) {
+                                        if (f.url.startsWith('blob:')) {
                                             URL.revokeObjectURL(f.url)
                                         }
                                     })

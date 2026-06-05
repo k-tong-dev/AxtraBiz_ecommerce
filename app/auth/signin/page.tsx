@@ -23,6 +23,7 @@ export default function LoginPage() {
   const redirectParam = searchParams.get('redirect') || ''
   const { user, isLoading: authLoading, login, loginWithGoogle } = useAuth()
   const formRef = useRef<any>(null)
+  const [formData, setFormData] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
@@ -37,23 +38,27 @@ export default function LoginPage() {
   }, [authLoading, user, redirectParam])
 
   const handleSubmit = async () => {
-    if (!formRef.current?.check()) return
-    const values = formRef.current.value
-    setSubmitting(true)
-    const success = await login(values.email, values.password)
-    if (success) {
-      showToast('success', 'Signed in', 'Welcome back.')
-      await new Promise(r => setTimeout(r, 500))
-      try {
-        const me = await (await fetch('/api/auth/me')).json()
-        window.location.href = me.authenticated
-          ? (redirectParam || me.redirect || '/dashboard')
-          : '/dashboard'
-      } catch {
-        window.location.href = redirectParam || '/dashboard'
+    try {
+      if (!formRef.current?.check()) return
+      setSubmitting(true)
+      const success = await login(formData.email, formData.password)
+      if (success) {
+        showToast('success', 'Signed in', 'Welcome back.')
+        await new Promise(r => setTimeout(r, 500))
+        try {
+          const me = await (await fetch('/api/auth/me')).json()
+          window.location.href = me.authenticated
+            ? (redirectParam || me.redirect || '/dashboard')
+            : '/dashboard'
+        } catch {
+          window.location.href = redirectParam || '/dashboard'
+        }
+      } else {
+        showToast('error', 'Sign-in failed', 'Invalid email or password.')
       }
-    } else {
-      showToast('error', 'Sign-in failed', 'Invalid email or password.')
+    } catch (e) {
+      console.error('[SignIn] Unexpected error:', e)
+      showToast('error', 'Sign-in failed', `An unexpected error occurred. ${e}`)
     }
     setSubmitting(false)
   }
@@ -163,7 +168,7 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <Form ref={formRef} model={model} onSubmit={handleSubmit} fluid formDefaultValue={{ email: '', password: '' }}>
+                <Form ref={formRef} model={model} onChange={(v: any) => setFormData(v)} onSubmit={handleSubmit} fluid formDefaultValue={{ email: '', password: '' }}>
                   <div className="space-y-3.5 auth-page-form">
                     <FormField name="email" type="email" placeholder="Email address" variant="bordered" icon={<Mail className="h-4 w-4" />} />
 

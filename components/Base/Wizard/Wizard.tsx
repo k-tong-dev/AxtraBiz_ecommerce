@@ -14,6 +14,9 @@ export interface WizardButton {
   color?: 'red' | 'green' | 'blue' | 'violet' | 'orange' | 'yellow'
   loading?: boolean
   disabled?: boolean
+  className?: string
+  style?: React.CSSProperties
+  [key: string]: any
 }
 
 export type WizardVariant = 'default' | 'info' | 'warning' | 'error'
@@ -64,16 +67,19 @@ export function Wizard({
       <Modal.Body>{children}</Modal.Body>
       {buttons && buttons.length > 0 && (
         <Modal.Footer>
-          {buttons.map((btn, i) => (
+          {buttons.map(({ label, onClick, appearance, color, loading, disabled, className, style, ...rest }, i) => (
             <Button
               key={i}
-              appearance={btn.appearance || 'default'}
-              color={btn.color}
-              onClick={btn.onClick}
-              loading={btn.loading}
-              disabled={btn.disabled}
+              appearance={appearance || 'default'}
+              color={color}
+              onClick={onClick}
+              loading={loading}
+              disabled={disabled}
+              className={className}
+              style={style}
+              {...rest}
             >
-              {btn.label}
+              {label}
             </Button>
           ))}
         </Modal.Footer>
