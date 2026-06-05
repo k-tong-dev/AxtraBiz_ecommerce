@@ -1,7 +1,7 @@
 import { pgTable, uuid, timestamp, primaryKey } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { resGroups } from './res_groups'
-import { resPermissions } from './res_permissions'
+import { resGroups } from '../schema/res_groups'
+import { resPermissions } from '@/lib/drizzle/schema'
 
 export const m2mGroupsPermissions = pgTable('m2m_groups_permissions', {
   groupId:      uuid('group_id').notNull().references(() => resGroups.id,      { onDelete: 'cascade' }),

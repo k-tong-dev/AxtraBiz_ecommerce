@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import type { Setting } from '@/lib/drizzle/server'
+import type { IrUserConfig } from '@/lib/drizzle/server'
 import { ResourceView } from '@/components/Base/Views'
 import { settingConfig } from '../../config'
 import { useResource } from '@/components/Base/Views/hooks/useResource'
@@ -9,7 +9,7 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 export default function EditSettingPage() {
     const params = useParams()
     const id = params.id as string
-    const { data: setting, loading } = useResource<Setting>(`/api/dashboard/settings?id=${id}`)
+    const { data: setting, loading } = useResource<IrUserConfig>(`/api/dashboard/settings?id=${id}`)
 
     return (
         <ResourceView

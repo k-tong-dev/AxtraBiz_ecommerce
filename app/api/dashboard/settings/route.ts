@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 import {
-  fetchSettingsFromDrizzle,
-  settingService,
-  deleteSettingFromDrizzle
-} from '@/lib/drizzle/settings'
+  fetchIrUserConfigsFromDrizzle,
+  irUserConfigService,
+  deleteIrUserConfigFromDrizzle
+} from '@/lib/drizzle/ir-user-config'
 
 export async function GET() {
   try {
-    const allSettings = await fetchSettingsFromDrizzle()
+    const allSettings = await fetchIrUserConfigsFromDrizzle()
     return NextResponse.json(allSettings)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 })
@@ -17,21 +17,19 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    
-    const result = await settingService.upsert(body)
-    
+    const result = await irUserConfigService.upsert(body)
     if (result.success) {
       return NextResponse.json({ success: true, data: result.data })
     } else {
-      return NextResponse.json({ 
-        success: false, 
-        error: result.error 
+      return NextResponse.json({
+        success: false,
+        error: result.error
       }, { status: 400 })
     }
   } catch (error) {
-    return NextResponse.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }
@@ -40,25 +38,22 @@ export async function DELETE(request: Request) {
   try {
     const url = new URL(request.url)
     const id = url.searchParams.get('id')
-    
     if (!id) {
       return NextResponse.json({ error: 'Setting ID is required' }, { status: 400 })
     }
-    
-    const result = await deleteSettingFromDrizzle(id)
-    
+    const result = await deleteIrUserConfigFromDrizzle(id)
     if (result) {
       return NextResponse.json({ success: true })
     } else {
-      return NextResponse.json({ 
-        success: false, 
+      return NextResponse.json({
+        success: false,
         error: 'Failed to delete setting'
       }, { status: 400 })
     }
   } catch (error) {
-    return NextResponse.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }

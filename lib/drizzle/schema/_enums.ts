@@ -27,9 +27,7 @@ export const shippingRateTypeEnum = pgEnum('shipping_rate_type', ['flat', 'per_i
 
 export const pageStatusEnum = pgEnum('page_status', ['draft', 'published', 'archived'])
 
-export const settingCategoryEnum = pgEnum('setting_category', ['general', 'store', 'email', 'payment', 'shipping', 'seo'])
-export const configTypeEnum = pgEnum('config_type', ['string', 'number', 'boolean', 'json', 'text'])
-export const configCategoryEnum = pgEnum('config_category', ['general', 'store', 'email', 'payment', 'shipping', 'seo', 'api'])
+
 
 export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete', 'login', 'logout', 'export', 'import', 'restore'])
 export const auditSeverityEnum = pgEnum('audit_severity', ['info', 'warning', 'error', 'critical'])

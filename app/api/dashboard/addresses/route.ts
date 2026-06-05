@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 import {
-  fetchAddressesFromDrizzle,
-  addressService,
-  deleteAddressFromDrizzle
-} from '@/lib/drizzle/addresses'
+  fetchResUserAddressesFromDrizzle,
+  resUserAddressService,
+  deleteResUserAddressFromDrizzle
+} from '@/lib/drizzle/res-user-addresses'
 
 export async function GET() {
   try {
-    const all = await fetchAddressesFromDrizzle()
+    const all = await fetchResUserAddressesFromDrizzle()
     return NextResponse.json(all)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch addresses' }, { status: 500 })
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     const results: any[] = []
     for (const item of items) {
-      const r = await addressService.upsert(item)
+      const r = await resUserAddressService.upsert(item)
       if (!r.success) {
         return NextResponse.json({ success: false, error: r.error, index: results.length }, { status: 400 })
       }
@@ -49,7 +49,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Address ID is required' }, { status: 400 })
     }
 
-    const result = await deleteAddressFromDrizzle(id)
+    const result = await deleteResUserAddressFromDrizzle(id)
 
     if (result) {
       return NextResponse.json({ success: true })

@@ -1,50 +1,6 @@
 import { relations } from "drizzle-orm";
 
-// ─── Import everything from lib/drizzle/schema/ ───
-
-import {
-  userRoleEnum,
-  resUsers,
-  resGroups,
-  resPermissions,
-  resShops,
-  partnerTypeEnum,
-  resPartner,
-  m2mUsersGroups,
-  m2mUsersGroupsRelations,
-  m2mGroupsPermissions,
-  m2mGroupsPermissionsRelations,
-  m2mUsersShops,
-  m2mUsersShopsRelations,
-  currencies,
-  product_template,
-  product_brand,
-  tax_rates,
-  product_categories,
-  shipping_zones,
-  shipping_zone_product,
-  product_attributes,
-  product_attribute_values,
-  product_attributes_rel,
-  product_variants,
-  orders,
-  invoices,
-  announcements,
-  settings,
-  configurations,
-  addresses,
-  payment_methods,
-  order_lines,
-  payment_transactions,
-  coupons,
-  product_reviews,
-  wishlist_items,
-  cart_items,
-  shipping_methods,
-  pages,
-  menus,
-  audit_logs,
-} from '../lib/drizzle/schema'
+// ─── Re-export all values (single statement) ───
 
 export {
   userRoleEnum,
@@ -74,9 +30,8 @@ export {
   orders,
   invoices,
   announcements,
-  settings,
-  configurations,
-  addresses,
+  irUserConfig,
+  resUserAddresses,
   payment_methods,
   order_lines,
   payment_transactions,
@@ -88,7 +43,7 @@ export {
   pages,
   menus,
   audit_logs,
-}
+} from '@/lib/drizzle/schema'
 
 export type {
   ResUser, NewResUser,
@@ -99,15 +54,46 @@ export type {
   M2mUsersGroup, NewM2mUsersGroup,
   M2mGroupsPermission, NewM2mGroupsPermission,
   M2mUsersShop, NewM2mUsersShop,
-} from '../lib/drizzle/schema'
+} from '@/lib/drizzle/schema'
 
-// ─── Legacy alias: shops ───
+// ─── Local bindings (for relations & type exports) ───
+// These are also exported via the export-from block above
 
-export const shops = resShops
+import {
+  resShops,
+  m2mUsersShops,
+  audit_logs,
+  currencies,
+  product_template,
+  product_brand,
+  tax_rates,
+  product_categories,
+  shipping_zones,
+  shipping_zone_product,
+  product_attributes,
+  product_attribute_values,
+  product_attributes_rel,
+  product_variants,
+  orders,
+  invoices,
+  announcements,
+  irUserConfig,
+  resUserAddresses,
+  payment_methods,
+  order_lines,
+  payment_transactions,
+  coupons,
+  product_reviews,
+  wishlist_items,
+  cart_items,
+  shipping_methods,
+  pages,
+  menus,
+} from '@/lib/drizzle/schema'
 
 // ─── Relations ───
 
-export const shopsStaffRelations = relations(shops, ({ many }) => ({
+export const shopsStaffRelations = relations(resShops, ({ many }) => ({
   m2mStaff: many(m2mUsersShops),
 }))
 
@@ -119,8 +105,7 @@ export type ProductTemplate = typeof product_template.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
 export type Announcement = typeof announcements.$inferSelect;
-export type Setting = typeof settings.$inferSelect;
-export type Configuration = typeof configurations.$inferSelect;
+export type IrUserConfig = typeof irUserConfig.$inferSelect;
 
 export type Brand = typeof product_brand.$inferSelect;
 export type TaxRate = typeof tax_rates.$inferSelect;
@@ -132,7 +117,7 @@ export type ProductAttributeValue = typeof product_attribute_values.$inferSelect
 export type ProductAttributesRel = typeof product_attributes_rel.$inferSelect;
 export type ProductVariant = typeof product_variants.$inferSelect;
 
-export type Address = typeof addresses.$inferSelect;
+export type ResUserAddress = typeof resUserAddresses.$inferSelect;
 export type PaymentMethod = typeof payment_methods.$inferSelect;
 export type OrderLine = typeof order_lines.$inferSelect;
 export type PaymentTransaction = typeof payment_transactions.$inferSelect;
@@ -144,4 +129,4 @@ export type ShippingMethod = typeof shipping_methods.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type Menu = typeof menus.$inferSelect;
 
-export type Shop = typeof shops.$inferSelect;
+export type Shop = typeof resShops.$inferSelect;

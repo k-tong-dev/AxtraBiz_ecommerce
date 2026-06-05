@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import {
-  fetchAddressFromDrizzle,
-  addressService,
-  deleteAddressFromDrizzle
-} from '@/lib/drizzle/addresses'
+  fetchResUserAddressFromDrizzle,
+  resUserAddressService,
+  deleteResUserAddressFromDrizzle
+} from '@/lib/drizzle/res-user-addresses'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(
@@ -12,7 +12,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const address = await fetchAddressFromDrizzle(id)
+    const address = await fetchResUserAddressFromDrizzle(id)
     if (!address) {
       return NextResponse.json({ error: 'Address not found' }, { status: 404 })
     }
@@ -33,10 +33,10 @@ export async function PUT(
 
     const processedData: any = { ...body, id }
 
-    const result = await addressService.write(id, processedData, userId)
+    const result = await resUserAddressService.write(id, processedData, userId)
 
     if (result.success) {
-      const updated = await fetchAddressFromDrizzle(id)
+      const updated = await fetchResUserAddressFromDrizzle(id)
       return NextResponse.json({ success: true, data: updated })
     } else {
       return NextResponse.json({
@@ -58,7 +58,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const result = await deleteAddressFromDrizzle(id)
+    const result = await deleteResUserAddressFromDrizzle(id)
 
     if (result) {
       return NextResponse.json({ success: true })

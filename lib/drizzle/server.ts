@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import * as schema from '../../drizzle/schema'
+import * as schema from '@/drizzle/schema'
 
 const connectionString = process.env.DATABASE_URL
 if (!connectionString) {
@@ -25,8 +25,7 @@ export {
   orders,
   invoices,
   announcements,
-  settings,
-  configurations,
+  irUserConfig,
   product_attributes,
   product_attribute_values,
   product_attributes_rel,
@@ -36,7 +35,7 @@ export {
   tax_rates,
   shipping_zones,
   shipping_zone_product,
-  addresses,
+  resUserAddresses,
   payment_methods,
   order_lines,
   payment_transactions,
@@ -49,8 +48,7 @@ export {
   menus,
   currencies,
   audit_logs,
-  shops,
-} from '../../drizzle/schema'
+} from '@/drizzle/schema'
 
 import type {
   ResUser,
@@ -61,7 +59,7 @@ import type {
   M2mUsersGroup,
   M2mGroupsPermission,
   M2mUsersShop,
-} from '../../drizzle/schema'
+} from '@/drizzle/schema'
 
 export type {
   ResUser, NewResUser,
@@ -78,8 +76,7 @@ export type {
   Order,
   Invoice,
   Announcement,
-  Setting,
-  Configuration,
+  IrUserConfig,
   ProductAttribute,
   ProductAttributeValue,
   ProductVariant,
@@ -88,7 +85,7 @@ export type {
   TaxRate,
   ShippingZone,
   ShippingZoneProduct,
-  Address,
+  ResUserAddress,
   PaymentMethod,
   OrderLine,
   PaymentTransaction,
@@ -101,7 +98,7 @@ export type {
   Menu,
   AuditLog,
   Shop,
-} from '../../drizzle/schema'
+} from '@/drizzle/schema'
 
 // Backward-compat aliases (old tables merged into new schema)
 export type User = ResUser

@@ -1,7 +1,7 @@
 import { pgTable, uuid, timestamp, primaryKey } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { resUsers } from './res_users'
-import { resGroups } from './res_groups'
+import { resUsers } from '../schema/res_users'
+import { resGroups } from '../schema/res_groups'
 
 export const m2mUsersGroups = pgTable('m2m_users_groups', {
   userId:     uuid('user_id').notNull().references(() => resUsers.id, { onDelete: 'cascade' }),

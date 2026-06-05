@@ -1,6 +1,6 @@
-import { Product, Order, Invoice, Announcement, Setting } from "@/drizzle"
+import { Product, Order, Invoice, Announcement } from "@/drizzle"
 import { User } from "@supabase/supabase-js"
-import type { Announcement, Invoice, Order, Product, Setting, User } from '@/drizzle'
+import type { Announcement, Invoice, Order, Product, User } from '@/drizzle'
 
 export type AdminResource =
   | 'products'
@@ -8,8 +8,6 @@ export type AdminResource =
   | 'customers'
   | 'invoices'
   | 'announcements'
-  | 'settings'
-  | 'configurations'
 
 export type AdminRecord =
   | Product
@@ -17,7 +15,6 @@ export type AdminRecord =
   | User
   | Invoice
   | Announcement
-  | Setting
 
 export function getAdminResourceTitle(resource: AdminResource) {
   switch (resource) {
@@ -31,10 +28,6 @@ export function getAdminResourceTitle(resource: AdminResource) {
       return 'Invoice'
     case 'announcements':
       return 'Announcement'
-    case 'settings':
-      return 'Setting'
-    case 'configurations':
-      return 'Configuration'
     default:
       return 'Record'
   }
@@ -109,20 +102,6 @@ export function createDefaultRecord(resource: AdminResource): AdminRecord {
         publishedAt: new Date().toISOString(),
         active: true,
       } as unknown as Announcement
-    case 'settings':
-      return {
-        id: `set-${now}`,
-        key: '',
-        value: '',
-        updatedAt: new Date().toISOString(),
-      } as unknown as Setting
-    case 'configurations':
-      return {
-        id: `conf-${now}`,
-        key: '',
-        value: '',
-        updatedAt: new Date().toISOString(),
-      } as unknown as Setting
     default:
       return { id: `record-${now}` } as any
   }

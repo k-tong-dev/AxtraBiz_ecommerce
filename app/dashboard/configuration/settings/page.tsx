@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import type { Setting } from '@/lib/drizzle/server'
+import type { IrUserConfig } from '@/lib/drizzle/server'
 import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { settingConfig } from './config'
@@ -9,14 +9,14 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminSettingsPage() {
   const router = useRouter()
-  const { data: settings, loading, refresh } = useResource<Setting[]>('/api/dashboard/settings')
+  const { data: settings, loading, refresh } = useResource<IrUserConfig[]>('/api/dashboard/settings')
   const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/dashboard/settings', entityName: 'setting', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/dashboard/configuration/settings/new')
 
-  const openEdit = (s: Setting) => router.push(`/dashboard/configuration/settings/${s.id}/edit`)
+  const openEdit = (s: IrUserConfig) => router.push(`/dashboard/configuration/settings/${s.userId}/edit`)
 
-  const handleRowClick = (rowData: Setting) => {
+  const handleRowClick = (rowData: IrUserConfig) => {
     openEdit(rowData)
   }
 
