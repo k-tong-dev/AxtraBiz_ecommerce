@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
-import { Eye, EyeOff, Store, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Store, ArrowRight, CheckCircle2, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -44,107 +44,119 @@ export default function RegisterPage() {
 
   if (step === 'success') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4">
-        <div className="w-full max-w-md rounded-2xl border border-border/50 bg-card p-8 shadow-sm text-center">
-          <div className="flex flex-col items-center gap-4 py-8">
-            <div className="rounded-full bg-green-100 p-4">
-              <CheckCircle2 className="h-12 w-12 text-green-600" />
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-card border border-border rounded-xl p-8 text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle2 className="w-7 h-7 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold">Account created!</h1>
-            <p className="text-muted-foreground">
-              Your business account is ready. Now let's set up your first shop.
-            </p>
-            <Button
-              size="lg"
-              className="mt-4 w-full"
-              onClick={() => { window.location.href = '/auth/setup' }}
-            >
-              Create your shop
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
+          <h1 className="text-2xl font-bold">Account created!</h1>
+          <p className="text-sm text-muted-foreground">
+            Your business account is ready. Now let's set up your first shop.
+          </p>
+          <Button
+            className="w-full"
+            onClick={() => { window.location.href = '/auth/setup' }}
+          >
+            Create your shop
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+          <Link
+            href="/auth/signin"
+            className="block text-xs text-muted-foreground hover:text-primary"
+          >
+            Sign in instead
+          </Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-border/50 bg-card p-8 shadow-sm">
-        <div className="flex flex-col items-center gap-2 pb-6">
-          <div className="rounded-full bg-primary/10 p-3">
-            <Store className="h-8 w-8 text-primary" />
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
+            <Store className="w-6 h-6 text-primary" />
           </div>
           <h1 className="text-2xl font-bold">Register your business</h1>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-1">
             Create an account to start selling online
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              {error}
-            </div>
-          )}
+        <div className="bg-card border border-border rounded-xl p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Full name</label>
             <Input
-              type="text"
+              label="Full name"
               placeholder="John Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              fullWidth
               required
             />
-          </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Email address</label>
             <Input
+              label="Email address"
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              fullWidth
               required
             />
-          </div>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Password</label>
-            <div className="relative">
+            <div>
               <Input
+                label="Password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Min. 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                fullWidth
                 required
                 minLength={8}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
+                className="mt-1 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                {showPassword ? 'Hide' : 'Show'} password
               </button>
             </div>
-          </div>
 
-          <Button type="submit" size="lg" className="w-full" loading={isLoading}>
-            Create account
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  Create account
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </form>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{' '}
-          <Link href="/auth/signin" className="font-medium text-primary hover:underline">
-            Sign in
-          </Link>
-        </p>
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Already have an account?{' '}
+            <Link href="/auth/signin" className="font-medium text-primary hover:underline">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Store, ArrowRight, Eye, EyeOff } from 'lucide-react'
+import Link from 'next/link'
+import { Store, ArrowRight, Eye, EyeOff, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/hooks/use-auth'
@@ -11,26 +12,23 @@ import { showToast } from '@/lib/ui/toast'
 export default function LoginPage() {
   const searchParams = useSearchParams()
   const redirectParam = searchParams.get('redirect') || ''
-  const { user, isLoading: authLoading, login } = useAuth()
+  const { user, isLoading: authLoading, login, loginWithGoogle } = useAuth()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   useEffect(() => {
     if (!authLoading && user) {
-      console.log('[login] useEffect: user already authenticated, fetching /api/auth/me')
-      // Already logged in — fetch /api/auth/me for correct redirect
       fetch('/api/auth/me')
         .then(r => r.json())
         .then(me => {
-          console.log('[login] useEffect /api/auth/me:', JSON.stringify(me, null, 2))
           window.location.href = redirectParam || me.redirect || '/dashboard'
         })
-        .catch((err) => {
-          console.log('[login] useEffect fetch error:', err)
+        .catch(() => {
           window.location.href = redirectParam || '/dashboard'
         })
     }
@@ -44,98 +42,119 @@ export default function LoginPage() {
     const success = await login(email, password)
     if (success) {
       showToast('success', 'Signed in', 'Welcome back.')
-      // Small delay to ensure Supabase cookies are set on the browser
       await new Promise(r => setTimeout(r, 500))
-      // Fetch /api/auth/me to determine role-based redirect
       try {
         const meRes = await fetch('/api/auth/me')
         const me = await meRes.json()
-        console.log('[login] /api/auth/me response:', JSON.stringify(me, null, 2))
         if (me.authenticated) {
-          const target = redirectParam || me.redirect || '/dashboard'
-          console.log('[login] redirect target:', target)
-          window.location.href = target
+          window.location.href = redirectParam || me.redirect || '/dashboard'
         } else {
-          console.log('[login] not authenticated in /api/auth/me, going to /dashboard')
           window.location.href = '/dashboard'
         }
-      } catch (err) {
-        console.log('[login] fetch error:', err)
+      } catch {
         window.location.href = redirectParam || '/dashboard'
       }
     } else {
-      const message = 'Invalid email or password.'
-      setError(message)
-      showToast('error', 'Sign-in failed', message)
+      setError('Invalid email or password.')
+      showToast('error', 'Sign-in failed', 'Invalid email or password.')
     }
 
     setIsLoading(false)
   }
 
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true)
+    const ok = await loginWithGoogle()
+    if (!ok) {
+      showToast('error', 'Google sign-in failed', 'Please try again.')
+      setGoogleLoading(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Left — brand panel */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-primary/5 via-background to-accent/5 items-center justify-center p-12">
-        <div className="max-w-md text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Store className="w-8 h-8 text-primary" />
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
+            <Store className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold mb-2">AxtraBiz</h1>
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            Multi-tenant eCommerce platform. Sign in to manage your shops, products, orders, and team.
+          <h1 className="text-2xl font-bold">Welcome back</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Sign in to your account to continue
           </p>
         </div>
-      </div>
 
-      {/* Right — login form */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <Store className="w-5 h-5 text-primary" />
-            <span className="font-semibold text-sm">AxtraBiz</span>
+        {/* Card */}
+        <div className="bg-card border border-border rounded-xl p-6 space-y-5">
+          {/* Google button */}
+          <Button
+            className="w-full"
+            onClick={handleGoogleLogin}
+            disabled={googleLoading}
+          >
+            {googleLoading ? (
+              'Connecting...'
+            ) : (
+              <>
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                  <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+              </>
+            )}
+          </Button>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">or</span>
+            </div>
           </div>
 
-          <h2 className="text-xl font-semibold mb-1">Sign in</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Enter your credentials to continue.
-          </p>
-
+          {/* Email form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                Email
-              </label>
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              required
+            />
 
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                Password
-              </label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  className="pr-10"
-                />
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                fullWidth
+                required
+              />
+              <div className="flex items-center justify-between mt-1.5">
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  {showPassword ? 'Hide' : 'Show'}
                 </button>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
               </div>
             </div>
 
@@ -143,22 +162,20 @@ export default function LoginPage() {
               <p className="text-xs text-destructive font-medium">{error}</p>
             )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign in'}
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Button>
           </form>
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            Don't have an account?{' '}
-            <a href="/business-register" className="font-medium text-primary hover:underline">
-              Register your business
-            </a>
-          </p>
         </div>
+
+        {/* Footer */}
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Don&apos;t have an account?{' '}
+          <Link href="/business-register" className="font-medium text-primary hover:underline">
+            Register your business
+          </Link>
+        </p>
       </div>
     </div>
   )
