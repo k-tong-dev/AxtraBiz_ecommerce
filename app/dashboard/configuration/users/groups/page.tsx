@@ -27,9 +27,8 @@ interface Permission {
 }
 
 interface RolePermission {
-  id: number
-  role_id: number
-  permission_id: number
+  groupId: number
+  permissionId: number
 }
 
 function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
@@ -117,21 +116,21 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
   }
 
   const rolePermIds = rolePermissions
-    .filter(rp => rp.role_id === selectedRole?.id)
-    .map(rp => rp.permission_id)
+    .filter(rp => rp.groupId === selectedRole?.id)
+    .map(rp => rp.permissionId)
 
   const togglePermission = async (perm: Permission) => {
     if (!selectedRole) return
-    const existing = rolePermissions.find(rp => rp.role_id === selectedRole.id && rp.permission_id === perm.id)
+    const existing = rolePermissions.find(rp => rp.groupId === selectedRole.id && rp.permissionId === perm.id)
     try {
       if (existing) {
-        const res = await fetch(`/api/dashboard/role-permissions?id=${existing.id}`, { method: 'DELETE' })
+        const res = await fetch(`/api/dashboard/role-permissions?group_id=${existing.groupId}&permission_id=${existing.permissionId}`, { method: 'DELETE' })
         if (!res.ok) throw new Error('Failed to remove permission')
       } else {
         const res = await fetch('/api/dashboard/role-permissions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role_id: selectedRole.id, permission_id: perm.id }),
+          body: JSON.stringify({ group_id: selectedRole.id, permission_id: perm.id }),
         })
         if (!res.ok) throw new Error('Failed to add permission')
       }
