@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
-import { db, cart_items, product_template } from '@/lib/drizzle/server'
+import { db } from '@/lib/drizzle/server'
+import { cart_items, product_template } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 
 export async function GET() {
