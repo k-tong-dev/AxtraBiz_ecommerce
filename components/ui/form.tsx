@@ -30,7 +30,7 @@ export function FormField({ name, label, type, placeholder, className, variant, 
 
     if (variant === 'bordered') {
         return (
-            <FormGroup controlId={name}>
+            <FormGroup controlId={name} className="w-full">
                 {label && <FormControlLabel>{label}</FormControlLabel>}
                 <div className={cn('relative w-full', className)}>
                     {icon && (
