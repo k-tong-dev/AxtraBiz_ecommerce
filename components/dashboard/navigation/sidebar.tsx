@@ -15,7 +15,7 @@ import type { SidebarLeaf } from './config/sections'
 
 function GroupLabel({ label }: { label: string }) {
   return (
-    <div className="px-3 pt-4 pb-1">
+    <div className="pt-4 pb-1">
       <div className="flex items-center gap-2">
         <div className="h-px flex-1 bg-border/40" />
         <span className="text-[10px] font-semibold text-muted-foreground/40 uppercase tracking-[0.15em]">
@@ -139,7 +139,7 @@ export function AdminSidebar() {
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto px-1.5 pb-2 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto px-0 pb-2 scrollbar-thin">
           {mounted ? (
             <Sidenav
               expanded
@@ -151,7 +151,7 @@ export function AdminSidebar() {
               <Sidenav.Body>
                 <Nav
                   activeKey={activeSection}
-                  className="!bg-transparent"
+                  className="!bg-transparent !px-0"
                 >
                   {sidebarGroups.map((group) => (
                     <div key={group.label}>

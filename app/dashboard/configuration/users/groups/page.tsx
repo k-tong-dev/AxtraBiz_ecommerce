@@ -3,10 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ResourceView } from '@/components/Base/Views'
 import type { CustomViewProps } from '@/components/Base/Views/types'
-import { Table, Button, Modal, Input, Tag, Loader, Message, Checkbox, IconButton, Whisper, Popover } from 'rsuite'
+import { Button, IconButton } from '@/components/ui/button'
+import { Modal } from '@/components/ui/modal'
+import { Input } from '@/components/ui/input'
+import { Table, Tag, Loader, Message } from 'rsuite'
 import { Plus, Edit2, Trash2, Shield } from 'lucide-react'
 import { ConfirmationModal } from '@/components/Base/Actions'
 import {Switch} from "@/components/ui/switch";
+import {IoCreate, IoReturnUpBack} from "react-icons/io5";
 
 const { Column, HeaderCell, Cell } = Table
 
@@ -167,14 +171,20 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
         <div className="w-1/2">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Roles</h3>
-            <Button appearance="primary" size="sm" color={"violet"} onClick={openCreateRole}>
+            <Button size="sm"
+                    appearance={"primary"}
+                    onClick={openCreateRole}
+                    style={{
+                      backgroundColor: '#000000',
+                    }}>
               <Plus className="w-4 h-4 mr-1" />Add Role
             </Button>
           </div>
           <Table
-            height={400}
+            autoHeight={true}
             data={roles}
             rowKey="id"
+            affixHeader={true}
             onRowClick={(rowData: Role) => setSelectedRole(rowData)}
             rowClassName={(rowData: Role | undefined) =>
               rowData && selectedRole?.id === rowData.id ? 'rs-table-row-selected' : ''
@@ -228,7 +238,7 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
         <div className="w-1/2">
           <h3 className="text-lg font-semibold mb-4">
             Permissions :
-            {selectedRole && <span className="text-muted-foreground bg-slate-100 p-2 px-3 rounded-xl font-normal ml-2">{selectedRole.name}</span>}
+            {selectedRole && <span className="text-slate-500 p-1 px-3 rounded-md font-bold ml-2">{selectedRole.name}</span>}
           </h3>
           {!selectedRole ? (
             <div className="flex items-center justify-center h-64 text-muted-foreground border rounded-lg">
@@ -259,7 +269,9 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
         </div>
       </div>
 
-      <Modal open={roleModalOpen} onClose={() => setRoleModalOpen(false)} size="sm" backdrop="static" draggable>
+      <Modal open={roleModalOpen}
+             onClose={() => setRoleModalOpen(false)}
+             size="sm" backdrop="static" draggable>
         <Modal.Header>
           <Modal.Title>{editingRole ? 'Edit Role' : 'New Role'}</Modal.Title>
         </Modal.Header>
@@ -269,25 +281,34 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
               <label className="block text-sm font-medium mb-1">Name</label>
               <Input
                 placeholder="e.g. Editor, Support Agent"
+                fullWidth={true}
                 value={roleForm.name}
-                onChange={(v: string) => setRoleForm(prev => ({ ...prev, name: v }))}
+                onChange={e => setRoleForm(prev => ({ ...prev, name: e.target.value }))}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Description</label>
               <Input
                 as="textarea"
+                fullWidth={true}
                 rows={3}
                 placeholder="Describe the role's purpose and permissions..."
                 value={roleForm.description}
-                onChange={(v: string) => setRoleForm(prev => ({ ...prev, description: v }))}
+                onChange={e => setRoleForm(prev => ({ ...prev, description: e.target.value }))}
               />
             </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => setRoleModalOpen(false)} appearance="subtle">Cancel</Button>
-          <Button onClick={saveRole} appearance="primary" disabled={!roleForm.name.trim()}>
+          <Button onClick={() => setRoleModalOpen(false)}
+                  appearance="subtle">Cancel</Button>
+          <Button onClick={saveRole}
+                  appearance="primary"
+                  startIcon={<IoCreate />}
+                  style={{
+                    backgroundColor: '#000000',
+                  }}
+                  disabled={!roleForm.name.trim()}>
             {editingRole ? 'Update' : 'Create'}
           </Button>
         </Modal.Footer>

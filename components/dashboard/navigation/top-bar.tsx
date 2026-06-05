@@ -200,10 +200,12 @@ export function AdminTopBar() {
             Cancel
           </Button>
           <Button
-            appearance="primary"
-            color="red"
+            style={{
+              backgroundColor: '#000000',
+            }}
+            appearance={"primary"}
             onClick={handleLogout}
-            className="ml-2"
+            className="ml-2 text-muted"
             endIcon={<MdLogout />}
           >
             Logout

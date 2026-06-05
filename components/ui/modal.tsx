@@ -1,9 +1,8 @@
 'use client'
 
 import { Modal as RsuiteModal } from 'rsuite'
-import type { ModalProps } from 'rsuite'
 
-export function Modal({ children, ...props }: ModalProps) {
+export function Modal({ children, ...props }: any) {
   return <RsuiteModal {...props}>{children}</RsuiteModal>
 }
 
