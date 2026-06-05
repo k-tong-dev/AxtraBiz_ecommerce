@@ -63,7 +63,7 @@ export async function fetchTables(): Promise<TableInfo[]> {
       AND n.nspname NOT IN ('pg_catalog', 'information_schema')
     ORDER BY n.nspname, c.relname
   `
-  return rows as TableInfo[]
+  return rows as unknown as TableInfo[]
 }
 
 export async function executeSql(sql: string): Promise<any> {

@@ -1,6 +1,6 @@
-import { db, irUserConfig } from '../drizzle/server'
+import { db, irUserConfig } from '../server'
 import { createCrudService } from './base-crud'
-import type { IrUserConfig } from '../drizzle/server'
+import type { IrUserConfig } from '@/lib/drizzle/schema'
 
 export const irUserConfigService = createCrudService<IrUserConfig, any, any>(
   irUserConfig

@@ -43,29 +43,4 @@ export {
   menus,
 } from '../../drizzle/schema'
 
-export type {
-  Currency,
-  ProductTemplate,
-  Order,
-  Invoice,
-  Announcement,
-  IrUserConfig,
-  ProductCategory,
-  Brand,
-  TaxRate,
-  ShippingZone,
-  ProductAttribute,
-  ProductAttributeValue,
-  ProductVariant,
-  ResUserAddress,
-  PaymentMethod,
-  OrderLine,
-  PaymentTransaction,
-  Coupon,
-  ProductReview,
-  WishlistItem,
-  CartItem,
-  ShippingMethod,
-  Page,
-  Menu,
-} from '../../drizzle/schema'
+

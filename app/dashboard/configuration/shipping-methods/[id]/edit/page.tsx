@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import type { ShippingMethod } from '@/lib/drizzle/server'
+import type { ShippingMethod } from '@/lib/drizzle/schema'
 import { ResourceView } from '@/components/Base/Views'
 import { shippingMethodConfig } from '../../config'
 import { useResource } from '@/components/Base/Views/hooks/useResource'

@@ -1,6 +1,6 @@
-import { db, invoices } from '../drizzle/server'
+import { db, invoices } from '../server'
 import { createCrudService } from './base-crud'
-import type { Invoice } from '../drizzle/server'
+import type { Invoice } from '@/lib/drizzle/schema'
 
 // Create CRUD service for invoices
 export const invoiceService = createCrudService<Invoice, any, any>(

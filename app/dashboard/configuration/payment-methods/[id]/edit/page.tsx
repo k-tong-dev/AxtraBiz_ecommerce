@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import type { PaymentMethod } from '@/lib/drizzle/server'
+import type { PaymentMethod } from '@/lib/drizzle/schema'
 import { ResourceView } from '@/components/Base/Views'
 import { paymentMethodConfig } from '../../config'
 import { useResource } from '@/components/Base/Views/hooks/useResource'

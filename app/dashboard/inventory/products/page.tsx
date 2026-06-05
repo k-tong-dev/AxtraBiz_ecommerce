@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import type { ProductTemplate } from '@/lib/drizzle/server'
+import type { ProductTemplate } from '@/lib/drizzle/schema'
 import { ResourceView } from '@/components/Base/Views'
 import { productConfig } from './config'
 import { useResource } from '@/components/Base/Views/hooks/useResource'

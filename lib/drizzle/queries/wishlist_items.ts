@@ -1,6 +1,6 @@
-import { db, wishlist_items } from './server'
+import { db, wishlist_items } from '../server'
 import { createCrudService } from './base-crud'
-import type { WishlistItem } from './server'
+import type { WishlistItem } from '@/lib/drizzle/schema'
 
 export const wishlistItemService = createCrudService<WishlistItem, any, any>(
   wishlist_items

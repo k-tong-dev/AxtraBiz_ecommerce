@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import type { Menu } from '@/lib/drizzle/server'
+import type { Menu } from '@/lib/drizzle/schema'
 import { ResourceView } from '@/components/Base/Views'
 import { menuConfig } from '../../config'
 import { useResource } from '@/components/Base/Views/hooks/useResource'

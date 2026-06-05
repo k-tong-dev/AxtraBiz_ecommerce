@@ -14,7 +14,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { Package, AlertTriangle, CheckCircle, XCircle, Warehouse, TrendingUp } from 'lucide-react'
-import type { ProductTemplate } from '@/lib/drizzle/server'
+import type { ProductTemplate } from '@/lib/drizzle/schema'
 import { useResource } from '@/components/Base/Views/hooks/useResource'
 import { Stat, StatGroup, StatLabel, StatValue, StatTrend, StatHelpText } from '@/components/ui/stat'
 import Link from 'next/link'

@@ -1,6 +1,6 @@
-import { db, product_categories } from './server'
+import { db, product_categories } from '../server'
 import { createCrudService } from './base-crud'
-import type { ProductCategory } from './server'
+import type { ProductCategory } from '@/lib/drizzle/schema'
 
 export const categoryService = createCrudService<ProductCategory, any, any>(
   product_categories

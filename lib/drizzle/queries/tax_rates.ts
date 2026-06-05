@@ -1,6 +1,6 @@
-import { db, tax_rates } from './server'
+import { db, tax_rates } from '../server'
 import { createCrudService } from './base-crud'
-import type { TaxRate } from './server'
+import type { TaxRate } from '@/lib/drizzle/schema'
 
 export const taxRateService = createCrudService<TaxRate, any, any>(
   tax_rates

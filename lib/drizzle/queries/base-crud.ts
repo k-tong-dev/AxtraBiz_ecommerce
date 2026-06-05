@@ -1,4 +1,4 @@
-import { db } from '../drizzle/server'
+import { db } from '../server'
 import { eq } from 'drizzle-orm'
 import { PgTable } from 'drizzle-orm/pg-core'
 import { getCurrentUserId } from '@/utils/supabase/current-user'

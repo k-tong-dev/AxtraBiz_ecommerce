@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import type { ProductVariant } from '@/lib/drizzle/server'
+import type { ProductVariant } from '@/lib/drizzle/schema'
 import { ResourceView } from '@/components/Base/Views'
 import { productVariantConfig } from '../../config'
 import { useResource } from '@/components/Base/Views/hooks/useResource'

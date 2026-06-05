@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import type { CartItem } from '@/lib/drizzle/server'
+import type { CartItem } from '@/lib/drizzle/schema'
 import { ResourceView } from '@/components/Base/Views'
 import { cartItemConfig } from '../../config'
 import { useResource } from '@/components/Base/Views/hooks/useResource'

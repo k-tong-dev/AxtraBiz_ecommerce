@@ -1,4 +1,4 @@
-import { db } from './client'
+import { db } from '../client'
 import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import type { ResUser } from '@/lib/drizzle/schema'

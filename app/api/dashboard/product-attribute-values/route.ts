@@ -4,8 +4,8 @@ import {
   fetchProductAttributeValuesFromDrizzle,
   productAttributeValueService,
   deleteProductAttributeValueFromDrizzle,
-} from '@/lib/drizzle/product-attributes'
-import type { ProductAttributeValue } from '@/drizzle/schema'
+} from '@/lib/drizzle/queries/product-attributes'
+import type { ProductAttributeValue } from '@/lib/drizzle/schema'
 
 export async function GET(request: Request) {
   try {

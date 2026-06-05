@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import type { ShippingZone } from '@/lib/drizzle/server'
+import type { ShippingZone } from '@/lib/drizzle/schema'
 import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { shippingZoneConfig } from './config'

@@ -1,6 +1,6 @@
-import { db, product_variants } from '../drizzle/server'
+import { db, product_variants } from '../server'
 import { createCrudService } from './base-crud'
-import type { ProductVariant } from '../drizzle/server'
+import type { ProductVariant } from '@/lib/drizzle/schema'
 
 // Create CRUD service for product variants
 export const productVariantService = createCrudService<ProductVariant, any, any>(

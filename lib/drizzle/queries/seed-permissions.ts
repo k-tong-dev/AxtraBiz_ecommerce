@@ -1,4 +1,4 @@
-import { db } from './client'
+import { db } from '../client'
 import { resPermissions, resGroups, m2mGroupsPermissions } from '@/lib/drizzle/schema'
 import { sql, inArray } from 'drizzle-orm'
 

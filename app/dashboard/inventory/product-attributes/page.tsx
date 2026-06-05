@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import type { ProductAttribute } from '@/lib/drizzle/server'
+import type { ProductAttribute } from '@/lib/drizzle/schema'
 import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { productAttributeConfig } from './config'

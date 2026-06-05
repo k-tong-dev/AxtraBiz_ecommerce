@@ -1,6 +1,6 @@
-import { db, order_lines } from './server'
+import { db, order_lines } from '../server'
 import { createCrudService } from './base-crud'
-import type { OrderLine } from './server'
+import type { OrderLine } from '@/lib/drizzle/schema'
 
 export const orderLineService = createCrudService<OrderLine, any, any>(
   order_lines

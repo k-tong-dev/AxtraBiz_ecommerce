@@ -1,6 +1,5 @@
-import { db, coupons } from './server'
 import { createCrudService } from './base-crud'
-import type { Coupon } from './server'
+import { coupons, type  Coupon } from '../schema'
 
 export const couponService = createCrudService<Coupon, any, any>(
   coupons

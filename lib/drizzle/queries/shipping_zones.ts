@@ -1,6 +1,6 @@
-import { db, shipping_zones } from './server'
+import { db, shipping_zones } from '../server'
 import { createCrudService } from './base-crud'
-import type { ShippingZone } from './server'
+import type { ShippingZone } from '@/lib/drizzle/schema'
 
 export const shippingZoneService = createCrudService<ShippingZone, any, any>(
   shipping_zones

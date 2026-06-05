@@ -1,6 +1,6 @@
-import { db } from './client'
+import { db } from '../client'
 import { m2mGroupsPermissions } from '@/lib/drizzle/schema'
-import { syncRolePermissions } from './m2m/roles-permissions'
+import { syncRolePermissions } from '../m2m/roles-permissions'
 
 export async function fetchRolePermissionsFromDrizzle() {
   try {

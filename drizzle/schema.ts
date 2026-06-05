@@ -91,6 +91,10 @@ import {
   menus,
 } from '@/lib/drizzle/schema'
 
+// ─── Alias ───
+
+export const shops = resShops
+
 // ─── Relations ───
 
 export const shopsStaffRelations = relations(resShops, ({ many }) => ({
@@ -130,3 +134,11 @@ export type Page = typeof pages.$inferSelect;
 export type Menu = typeof menus.$inferSelect;
 
 export type Shop = typeof resShops.$inferSelect;
+
+import type { ResUser, ResGroup, ResPermission } from '@/lib/drizzle/schema'
+
+// ─── Backward-compat aliases ───
+export type User = ResUser
+export type StaffAccount = ResUser
+export type Role = ResGroup
+export type Permission = ResPermission

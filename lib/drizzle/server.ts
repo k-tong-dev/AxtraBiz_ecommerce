@@ -48,60 +48,6 @@ export {
   menus,
   currencies,
   audit_logs,
+  // Alias
+  shops,
 } from '@/drizzle/schema'
-
-import type {
-  ResUser,
-  ResGroup,
-  ResPermission,
-  ResShop,
-  ResPartner,
-  M2mUsersGroup,
-  M2mGroupsPermission,
-  M2mUsersShop,
-} from '@/drizzle/schema'
-
-export type {
-  ResUser, NewResUser,
-  ResGroup, NewResGroup,
-  ResPermission, NewResPermission,
-  ResShop, NewResShop,
-  ResPartner, NewResPartner,
-  M2mUsersGroup, NewM2mUsersGroup,
-  M2mGroupsPermission, NewM2mGroupsPermission,
-  M2mUsersShop, NewM2mUsersShop,
-  // Legacy business types
-  Currency,
-  ProductTemplate,
-  Order,
-  Invoice,
-  Announcement,
-  IrUserConfig,
-  ProductAttribute,
-  ProductAttributeValue,
-  ProductVariant,
-  ProductCategory,
-  Brand,
-  TaxRate,
-  ShippingZone,
-  ShippingZoneProduct,
-  ResUserAddress,
-  PaymentMethod,
-  OrderLine,
-  PaymentTransaction,
-  Coupon,
-  ProductReview,
-  WishlistItem,
-  CartItem,
-  ShippingMethod,
-  Page,
-  Menu,
-  AuditLog,
-  Shop,
-} from '@/drizzle/schema'
-
-// Backward-compat aliases (old tables merged into new schema)
-export type User = ResUser
-export type StaffAccount = ResUser
-export type Role = ResGroup
-export type Permission = ResPermission

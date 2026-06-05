@@ -1,7 +1,7 @@
-import { db, product_attributes, product_attribute_values } from './server'
+import { db, product_attributes, product_attribute_values } from '../server'
 import { createCrudService } from './base-crud'
 import { eq, sql } from 'drizzle-orm'
-import type { ProductAttribute, ProductAttributeValue } from './server'
+import type { ProductAttribute, ProductAttributeValue } from '@/lib/drizzle/schema'
 
 // Create CRUD service for product attributes
 export const productAttributeService = createCrudService<ProductAttribute, any, any>(

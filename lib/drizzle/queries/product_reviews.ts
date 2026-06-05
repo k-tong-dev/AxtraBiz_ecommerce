@@ -1,6 +1,6 @@
-import { db, product_reviews } from './server'
+import { db, product_reviews } from '../server'
 import { createCrudService } from './base-crud'
-import type { ProductReview } from './server'
+import type { ProductReview } from '@/lib/drizzle/schema'
 
 export const productReviewService = createCrudService<ProductReview, any, any>(
   product_reviews
