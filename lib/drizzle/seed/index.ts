@@ -1,5 +1,6 @@
 import { seedCurrencies }             from './res_currencies';
 import { seedPermissions }            from './res_permissions';
+import { seedGroups }                 from './res_groups';
 import { seedProductAttributes }      from './product_attributes';
 import { seedProductAttributeValues } from './product_attribute_values';
 import { seedProductCategories }      from './product_categories';
@@ -11,6 +12,7 @@ async function main() {
         // Order matters — seed parent tables first
         await seedCurrencies();
         await seedPermissions();
+        await seedGroups();
         await seedProductAttributes();
         await seedProductAttributeValues(); // depends on attributes
         await seedProductCategories();
