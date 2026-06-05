@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server'
-import {
-  fetchUsersFromDrizzle,
-  userService,
-  deleteUserFromDrizzle
-} from '@/lib/drizzle/queries/users'
+import { fetchUsersFromDrizzle, userService, deleteUserFromDrizzle } from '@/lib/drizzle/queries/users'
+import { createServiceRoleClient } from '@/utils/supabase/service-role'
+import { db } from '@/lib/drizzle/client'
+import { resUsers } from '@/lib/drizzle/schema'
+import { eq } from 'drizzle-orm'
 
 export async function GET() {
   try {
-    const allUsers = await fetchUsersFromDrizzle()
-    return NextResponse.json(allUsers)
+    const all = await fetchUsersFromDrizzle()
+    return NextResponse.json(all)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
   }
@@ -17,48 +17,66 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    
-    const result = await userService.upsert(body)
-    
-    if (result.success) {
-      return NextResponse.json({ success: true, data: result.data })
-    } else {
-      return NextResponse.json({ 
-        success: false, 
-        error: result.error 
-      }, { status: 400 })
+    const items = Array.isArray(body) ? body : [body]
+    const results: any[] = []
+
+    for (const item of items) {
+      const { password, ...userData } = item
+      const r = await userService.upsert(userData)
+      if (!r.success) return NextResponse.json({ success: false, error: r.error }, { status: 400 })
+      const created = r.data
+
+      if (password && created?.id) {
+        const email = userData.email
+        const supabase = createServiceRoleClient()
+        const { error: authError } = await supabase.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: {
+            name: userData.displayName || userData.full_name,
+            full_name: userData.displayName || userData.full_name,
+          },
+        })
+
+        if (authError) {
+          await db.delete(resUsers).where(eq(resUsers.id, created.id))
+          return NextResponse.json({ success: false, error: `Failed to create auth user: ${authError.message}` }, { status: 400 })
+        }
+
+        await db.update(resUsers)
+          .set({ active: true })
+          .where(eq(resUsers.id, created.id))
+      }
+
+      results.push(created ?? { ...userData })
     }
+
+    return NextResponse.json(
+      { success: true, data: Array.isArray(body) ? results : results[0] },
+      { status: 201 }
+    )
   } catch (error) {
-    return NextResponse.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const url = new URL(request.url)
-    const id = url.searchParams.get('id')
-    
-    if (!id) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
-    }
-    
+    const id = new URL(request.url).searchParams.get('id')
+    if (!id) return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
+
     const result = await deleteUserFromDrizzle(id)
-    
-    if (result) {
-      return NextResponse.json({ success: true })
-    } else {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Failed to delete user'
-      }, { status: 400 })
-    }
+    return result
+      ? NextResponse.json({ success: true })
+      : NextResponse.json({ success: false, error: 'Failed to delete user' }, { status: 400 })
   } catch (error) {
-    return NextResponse.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     }, { status: 500 })
   }
 }

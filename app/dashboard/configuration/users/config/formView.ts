@@ -3,7 +3,7 @@ import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 export const staffFormConfig: FormConfig = {
   entityName: 'Users',
   entityNamePlural: 'Users',
-  apiEndpoint: '/api/dashboard/staff-accounts',
+  apiEndpoint: '/api/dashboard/users',
   fields: [
     {
       key: 'full_name',

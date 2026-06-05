@@ -80,7 +80,7 @@ export default function AuthSetupPage() {
       const meRes = await fetch('/api/auth/me')
       const me = await meRes.json()
       if (me.authenticated && me.user?.id) {
-        await fetch(`/api/dashboard/staff-accounts/${me.user.id}`, {
+        await fetch(`/api/dashboard/users/${me.user.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ shop_id: shopId }),

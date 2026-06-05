@@ -9,8 +9,8 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminStaffPage() {
   const router = useRouter()
-  const { data: staff, loading, refresh } = useResource<User[]>('/api/dashboard/staff-accounts')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/dashboard/staff-accounts', entityName: 'user', refresh, useQueryParam: true })
+  const { data: staff, loading, refresh } = useResource<User[]>('/api/dashboard/users')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/dashboard/users', entityName: 'user', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/dashboard/configuration/users/new')
   const openEdit = (row: User) => router.push(`/dashboard/configuration/users/${row.id}/edit`)

@@ -6,6 +6,7 @@ import type { CustomViewProps } from '@/components/Base/Views/types'
 import { Table, Button, Modal, Input, Tag, Loader, Message, Checkbox, IconButton, Whisper, Popover } from 'rsuite'
 import { Plus, Edit2, Trash2, Shield } from 'lucide-react'
 import { ConfirmationModal } from '@/components/Base/Actions'
+import {Switch} from "@/components/ui/switch";
 
 const { Column, HeaderCell, Cell } = Table
 
@@ -166,8 +167,8 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
         <div className="w-1/2">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Roles</h3>
-            <Button appearance="primary" size="sm" onClick={openCreateRole}>
-              <Plus className="w-4 h-4 mr-1" /> New Role
+            <Button appearance="primary" size="sm" color={"violet"} onClick={openCreateRole}>
+              <Plus className="w-4 h-4 mr-1" />Add Role
             </Button>
           </div>
           <Table
@@ -204,14 +205,15 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
                 <div className="flex gap-1">
                   <IconButton
                     size="sm"
-                    appearance="subtle"
+                    color={"violet"}
+                    appearance="link"
                     icon={<Edit2 className="w-3.5 h-3.5" />}
                     onClick={(e: React.MouseEvent) => { e.stopPropagation(); openEditRole(rowData) }}
                   />
                   {rowData.role_type !== 'predefined' && (
                     <IconButton
                       size="sm"
-                      appearance="subtle"
+                      appearance="link"
                       color="red"
                       icon={<Trash2 className="w-3.5 h-3.5" />}
                       onClick={(e: React.MouseEvent) => { e.stopPropagation(); deleteRole(rowData) }}
@@ -225,8 +227,8 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
 
         <div className="w-1/2">
           <h3 className="text-lg font-semibold mb-4">
-            Permissions
-            {selectedRole && <span className="text-muted-foreground font-normal ml-2">— {selectedRole.name}</span>}
+            Permissions :
+            {selectedRole && <span className="text-muted-foreground bg-slate-100 p-2 px-3 rounded-xl font-normal ml-2">{selectedRole.name}</span>}
           </h3>
           {!selectedRole ? (
             <div className="flex items-center justify-center h-64 text-muted-foreground border rounded-lg">
@@ -240,9 +242,11 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
                   <div className="px-4 py-2 flex gap-4">
                     {perms.map(perm => (
                       <label key={perm.id} className="flex items-center gap-2 cursor-pointer text-sm">
-                        <Checkbox
-                          checked={rolePermIds.includes(perm.id)}
-                          onChange={() => togglePermission(perm)}
+                        <Switch
+                            color="green"
+                            size="sm"
+                            checked={rolePermIds.includes(perm.id)}
+                            onChange={() => togglePermission(perm)}
                         />
                         <span className="capitalize">{perm.action}</span>
                       </label>
