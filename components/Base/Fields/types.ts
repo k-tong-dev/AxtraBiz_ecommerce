@@ -8,7 +8,7 @@ export interface SelectOption {
 
 export type FieldType =
   | 'selection' | 'many2many' | 'many2one' | 'one2many'
-  | 'boolean' | 'string' | 'number' | 'textarea' | 'html' | 'json'
+  | 'boolean' | 'checkbox' | 'string' | 'number' | 'textarea' | 'html' | 'json'
   | 'date' | 'datetime' | 'time' | 'year' | 'month' | 'day'
 
 export interface FieldConfig {

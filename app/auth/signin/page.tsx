@@ -167,7 +167,7 @@ export default function LoginPage() {
                   <div className="space-y-3.5 auth-page-form">
                     <FormField name="email" type="email" placeholder="Email address" variant="bordered" icon={<Mail className="h-4 w-4" />} />
 
-                    <div className={"min-w-fit"}>
+                    <div className={"min-w-95"}>
                       <FormField
                         name="password"
                         type={showPassword ? 'text' : 'password'}

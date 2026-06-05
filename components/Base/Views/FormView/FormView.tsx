@@ -14,13 +14,13 @@ import {
     ActionBarClose
 } from '@/components/ui/action-bar'
 import {Button} from '@/components/ui/button'
-import {Input, NumberInput} from '@/components/ui/input'
 import {
     SelectionField,
     Many2ManyField,
     Many2OneField,
     One2ManyField,
     BooleanField,
+    CheckboxField,
     StringField,
     NumberField,
     TextareaField,
@@ -698,22 +698,19 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
         switch (field.type) {
             case 'number':
                 return (
-                    <div>
-                        <NumberInput
-                            value={value ?? null}
-                            onChange={(val) => onChange(val ?? 0)}
-                            placeholder={field.placeholder}
-                            disabled={readonly}
-                            error={hasError}
-                            fullWidth
-                            className={readonly ? 'opacity-60 cursor-not-allowed' : ''}
-                            min={0}
-                            controls={false}
-                        />
-                        {errorMessage && (
-                            <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
-                        )}
-                    </div>
+                    <NumberField
+                        config={{
+                            name: field.key,
+                            type: 'number',
+                            placeholder: field.placeholder,
+                            required: field.required,
+                            readonly: readonly,
+                            size: field.size,
+                        }}
+                        value={value ?? null}
+                        onChange={(val) => onChange(val ?? 0)}
+                        error={errorMessage}
+                    />
                 )
 
             case 'file':
@@ -750,14 +747,17 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
                         </div>
                         {(value || []).map((item: string, index: number) => (
                             <div key={index} className="flex items-center gap-2">
-                                <Input
+                                <StringField
+                                    config={{
+                                        name: `array-${field.key}-${index}`,
+                                        type: 'string',
+                                        placeholder: field.placeholder,
+                                        size: 'sm',
+                                        readonly: readonly,
+                                    }}
                                     value={item}
-                                    onChange={(e) => updateArrayItem(field.key, index, e.target.value)}
-                                    placeholder={field.placeholder}
-                                    variant="outlined"
-                                    inputSize="sm"
-                                    fullWidth
-                                    disabled={readonly}
+                                    onChange={(val) => updateArrayItem(field.key, index, val)}
+                                    error={undefined}
                                 />
                                 {!readonly && (
                                     <Button
@@ -778,19 +778,17 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
             case 'checkbox':
                 return (
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id={field.key}
-                            checked={value || false}
-                            onChange={(e) => onChange(e.target.checked)}
-                            disabled={readonly}
-                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
-                        />
-                        <label htmlFor={field.key} className="text-sm font-medium">
-                            {field.label}
-                        </label>
-                    </div>
+                    <CheckboxField
+                        config={{
+                            name: field.key,
+                            label: field.label,
+                            type: 'checkbox',
+                            readonly: readonly,
+                        }}
+                        value={value || false}
+                        onChange={(val) => onChange(val)}
+                        error={errorMessage}
+                    />
                 )
 
             case 'boolean':

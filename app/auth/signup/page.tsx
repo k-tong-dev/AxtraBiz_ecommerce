@@ -188,7 +188,7 @@ export default function SignupPage() {
               </div>
 
               <Form ref={formRef} model={model} onSubmit={handleSubmit} fluid formDefaultValue={{ name: '', email: '', password: '' }}>
-                <div className="space-y-3.5 auth-page-form">
+                <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
                   <FormField name="email" type="email" placeholder="Email address" variant="bordered" icon={<Mail className="h-4 w-4" />} />
