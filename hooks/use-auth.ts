@@ -80,23 +80,43 @@ export function useAuth() {
       password,
       options: {
         data: { name, full_name: name },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/website`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
       },
     })
-    if (error) return null
+    if (error) return { success: false, error: error.message } as const
 
     if (data.user) {
       return {
+        success: true as const,
         id: data.user.id,
         name,
         email,
         role: 'customer' as const,
         createdAt: data.user.created_at ?? new Date().toISOString(),
-        needsVerification: !data.user.email_confirmed_at,
+        needsVerification: !data.session,
       }
     }
 
-    return null
+    return { success: false, error: 'Signup failed' } as const
+  }
+
+  const verifyOtp = async (email: string, token: string) => {
+    const supabase = createClient()
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'signup',
+    })
+    return { success: !error, error: error?.message }
+  }
+
+  const resendOtp = async (email: string) => {
+    const supabase = createClient()
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+    })
+    return { success: !error, error: error?.message }
   }
 
   const loginWithGoogle = async () => {
@@ -132,6 +152,8 @@ export function useAuth() {
     login,
     logout,
     signup,
+    verifyOtp,
+    resendOtp,
     loginWithGoogle,
     sendPasswordReset,
     updatePassword,

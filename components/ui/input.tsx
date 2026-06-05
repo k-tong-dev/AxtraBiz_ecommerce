@@ -17,9 +17,11 @@ import {
 } from 'rsuite'
 
 type InputSize = 'sm' | 'md' | 'lg'
+type InputVariant = 'underline' | 'bordered'
 
 interface InputProps extends Omit<React.ComponentProps<typeof RsInput>, 'size' | 'onChange'> {
     inputSize?: InputSize
+    variant?: InputVariant
     label?: string
     error?: boolean
     helperText?: string
@@ -54,6 +56,7 @@ const sizeStyles: Record<InputSize, { input: string; label: string }> = {
 function Input({
     className,
     inputSize = 'md',
+    variant = 'underline',
     label,
     error = false,
     helperText,
@@ -65,6 +68,55 @@ function Input({
     ...props
 }: InputProps) {
     const inputId = id || React.useId()
+    const isBordered = variant === 'bordered'
+
+    if (isBordered) {
+        return (
+            <div className={cn('w-full', className)}>
+                <div className="relative">
+                    <RsInput
+                        id={inputId}
+                        data-slot="input"
+                        classPrefix=""
+                        style={{
+                            border: error ? '1px solid rgb(220 38 38)' : '1px solid rgba(0,0,0,0.12)',
+                            borderRadius: '10px',
+                            outlineColor: 'transparent',
+                            background: 'rgba(255,255,255,0.6)',
+                            transition: 'all 0.2s ease',
+                            ...style,
+                        }}
+                        placeholder={placeholder}
+                        className={cn(
+                            'w-full px-3.5 py-2.5 text-foreground ' +
+                            'placeholder:text-muted-foreground/60 ' +
+                            'disabled:cursor-not-allowed disabled:opacity-50 ' +
+                            '[&:focus]:border-primary [&:focus]:shadow-lg [&:focus]:shadow-primary/10 ' +
+                            'dark:[&:focus]:border-primary',
+                            sizeStyles[inputSize].input,
+                        )}
+                        onChange={(value: string) => {
+                            onChange?.({
+                                target: { value },
+                                currentTarget: { value },
+                            } as React.ChangeEvent<HTMLInputElement>)
+                        }}
+                        {...props}
+                    />
+                </div>
+                {helperText && (
+                    <p
+                        className={cn(
+                            'text-xs transition-colors duration-200 mt-1.5',
+                            error ? 'text-destructive' : 'text-muted-foreground',
+                        )}
+                    >
+                        {helperText}
+                    </p>
+                )}
+            </div>
+        )
+    }
 
     return (
         <div className={cn(fullWidth ? 'w-full' : 'w-full max-w-sm', 'space-y-1', className)}>
