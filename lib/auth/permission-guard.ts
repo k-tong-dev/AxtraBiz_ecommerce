@@ -52,6 +52,9 @@ export async function getStaffAuthContext(shopId: string): Promise<ShopAccess | 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) return null
 
+  const shopIdNum = Number(shopId)
+  if (isNaN(shopIdNum)) return null
+
   // Find user by email
   const [resUser] = await db.select().from(resUsers)
     .where(eq(resUsers.email, user.email))
@@ -76,7 +79,7 @@ export async function getStaffAuthContext(shopId: string): Promise<ShopAccess | 
     .from(m2mUsersShops)
     .where(and(
       eq(m2mUsersShops.userId, resUser.id),
-      eq(m2mUsersShops.shopId, shopId),
+      eq(m2mUsersShops.shopId, shopIdNum),
     ))
     .limit(1)
 

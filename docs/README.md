@@ -4,12 +4,12 @@ Multi-tenant eCommerce platform where each **client** owns 1+ **shops**, and eac
 
 ## Who's Who
 
-| Role | Description |
-|---|---|
-| **System Owner** | Platform admin — manages shops, billing, and predefined permissions. Not scoped to any shop. |
-| **Shop Admin** (Client) | Owner of a shop. Creates staff, manages resources. One client can own multiple shops. |
-| **Staff** | Invited by shop admin. Has limited permissions based on assigned roles/scopes. |
-| **Customer** | Storefront user — separate table, separate auth, no admin access. |
+| Role                    | Description                                                                                  |
+|-------------------------|----------------------------------------------------------------------------------------------|
+| **System Owner**        | Platform admin — manages shops, billing, and predefined permissions. Not scoped to any shop. |
+| **Shop Admin** (Client) | Owner of a shop. Creates staff, manages resources. One client can own multiple shops.        |
+| **Staff**               | Invited by shop admin. Has limited permissions based on assigned roles/scopes.               |
+| **Customer**            | Storefront user — separate table, separate auth, no admin access.                            |
 
 ## Core Principles
 

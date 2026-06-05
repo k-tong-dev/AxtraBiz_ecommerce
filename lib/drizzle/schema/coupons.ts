@@ -1,10 +1,11 @@
 import { pgTable, serial, text, timestamp, numeric, boolean, integer } from 'drizzle-orm/pg-core'
 import { couponTypeEnum } from './_enums'
 import { auditColumns } from './_shared'
+import { resShops } from './res_shops'
 
 export const coupons = pgTable('coupons', {
   id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
+  shop_id: integer('shop_id').references(() => resShops.id, { onDelete: 'set null' }),
   code: text('code').notNull().unique(),
   description: text('description'),
   type: couponTypeEnum('type').notNull().default('percentage'),

@@ -1,10 +1,11 @@
 import { pgTable, serial, text, boolean, timestamp, jsonb, integer } from 'drizzle-orm/pg-core'
 import { announcementTypeEnum } from './_enums'
 import { auditColumns } from './_shared'
+import { resShops } from './res_shops'
 
 export const announcements = pgTable('announcements', {
   id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
+  shop_id: integer('shop_id').references(() => resShops.id, { onDelete: 'set null' }),
   title: text('title').notNull(),
   content: text('content').notNull(),
   type: announcementTypeEnum('type').notNull().default('info'),

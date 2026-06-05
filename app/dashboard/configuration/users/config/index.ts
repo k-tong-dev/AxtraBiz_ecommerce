@@ -5,8 +5,8 @@ import { staffFormConfig } from './formView'
 import { staffListConfig } from './listView'
 
 export const staffConfig = {
-  entityName: 'Staff Account',
-  entityNamePlural: 'Staff Accounts',
+  entityName: 'Users',
+  entityNamePlural: 'Users',
   apiEndpoint: '/api/dashboard/staff-accounts',
   defaultActions: {
     print: true, exportExcel: true, delete: true,

@@ -1,7 +1,7 @@
 import { ListViewConfig } from '@/components/Base/Views/ListView'
 
 export const staffListConfig: ListViewConfig = {
-  title: 'Staff Accounts',
+  title: 'Users',
   data: [],
   columns: [
     { key: 'full_name', title: 'Name', width: 200, sortable: true },

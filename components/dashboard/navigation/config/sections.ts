@@ -148,7 +148,7 @@ export const sidebarGroups: SidebarGroup[] = [
       {
         label: 'Users', icon: 'Users',
         children: [
-          { label: 'Staff Accounts', icon: 'Users', href: '/dashboard/configuration/users', section: 'users_staff' },
+          { label: 'Users', icon: 'Users', href: '/dashboard/configuration/users', section: 'users_staff' },
           { label: 'Groups', icon: 'Users', href: '/dashboard/configuration/users/groups', section: 'users_groups' },
         ],
       },
@@ -319,7 +319,7 @@ export const sectionModules: SectionModules = {
   users_staff: {
     label: 'Users',
     entries: [
-      { label: 'Staff Accounts', icon: 'Users', href: '/dashboard/configuration/users' },
+      { label: 'Users', icon: 'Users', href: '/dashboard/configuration/users' },
     ],
   },
   users_groups: {

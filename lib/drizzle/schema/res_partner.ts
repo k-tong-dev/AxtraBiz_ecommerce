@@ -1,11 +1,12 @@
-import { pgTable, uuid, text, boolean, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, serial, integer, text, boolean, pgEnum } from 'drizzle-orm/pg-core'
 import { auditFields } from './audit'
+import { resShops } from './res_shops'
 
 export const partnerTypeEnum = pgEnum('partner_type', ['contact', 'customer', 'vendor'])
 
 export const resPartner = pgTable('res_partner', {
-  id:        uuid('id').defaultRandom().primaryKey(),
-  shopId:    uuid('shop_id').notNull(),
+  id:        serial('id').primaryKey(),
+  shopId:    integer('shop_id').notNull().references(() => resShops.id),
   name:      text('name').notNull(),
   email:     text('email'),
   phone:     text('phone'),

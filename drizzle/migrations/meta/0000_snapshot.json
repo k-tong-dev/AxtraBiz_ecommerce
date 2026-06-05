@@ -1,5 +1,5 @@
 {
-  "id": "156f5c8f-5500-43ef-9b52-cb57ba4eab0a",
+  "id": "2092f459-d70c-4bc2-a58e-cbbae4c790f1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -75,19 +75,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "announcements_shop_id_res_shops_id_fk": {
+          "name": "announcements_shop_id_res_shops_id_fk",
+          "tableFrom": "announcements",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -368,19 +382,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "coupons_shop_id_res_shops_id_fk": {
+          "name": "coupons_shop_id_res_shops_id_fk",
+          "tableFrom": "coupons",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "coupons_code_unique": {
@@ -454,13 +482,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -543,6 +571,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -559,13 +593,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -584,6 +618,19 @@
           ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
+        },
+        "invoices_shop_id_res_shops_id_fk": {
+          "name": "invoices_shop_id_res_shops_id_fk",
+          "tableFrom": "invoices",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -769,13 +816,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -808,13 +855,13 @@
       "columns": {
         "group_id": {
           "name": "group_id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
         "permission_id": {
           "name": "permission_id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -887,7 +934,7 @@
         },
         "group_id": {
           "name": "group_id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -960,7 +1007,7 @@
         },
         "shop_id": {
           "name": "shop_id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -1057,6 +1104,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "slug": {
           "name": "slug",
           "type": "text",
@@ -1093,19 +1146,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "ir_menus_shop_id_res_shops_id_fk": {
+          "name": "ir_menus_shop_id_res_shops_id_fk",
+          "tableFrom": "ir_menus",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "ir_menus_slug_unique": {
@@ -1337,19 +1404,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "orders_shop_id_res_shops_id_fk": {
+          "name": "orders_shop_id_res_shops_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -1432,19 +1513,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "ir_pages_shop_id_res_shops_id_fk": {
+          "name": "ir_pages_shop_id_res_shops_id_fk",
+          "tableFrom": "ir_pages",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "ir_pages_slug_unique": {
@@ -1584,13 +1679,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -1689,13 +1784,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -1793,13 +1888,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -1835,6 +1930,12 @@
           "type": "serial",
           "primaryKey": true,
           "notNull": true
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -1873,19 +1974,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "product_attributes_shop_id_res_shops_id_fk": {
+          "name": "product_attributes_shop_id_res_shops_id_fk",
+          "tableFrom": "product_attributes",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -2040,19 +2155,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "product_brand_shop_id_res_shops_id_fk": {
+          "name": "product_brand_shop_id_res_shops_id_fk",
+          "tableFrom": "product_brand",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "product_brand_slug_unique": {
@@ -2143,19 +2272,32 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
+        "product_categories_shop_id_res_shops_id_fk": {
+          "name": "product_categories_shop_id_res_shops_id_fk",
+          "tableFrom": "product_categories",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
         "product_categories_parent_id_product_categories_id_fk": {
           "name": "product_categories_parent_id_product_categories_id_fk",
           "tableFrom": "product_categories",
@@ -2254,13 +2396,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -2585,19 +2727,32 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
+        "product_template_shop_id_res_shops_id_fk": {
+          "name": "product_template_shop_id_res_shops_id_fk",
+          "tableFrom": "product_template",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
         "product_template_currency_code_res_currencies_code_fk": {
           "name": "product_template_currency_code_res_currencies_code_fk",
           "tableFrom": "product_template",
@@ -2778,13 +2933,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -2832,10 +2987,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -2897,14 +3051,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "shop_id": {
           "name": "shop_id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -3048,7 +3201,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "res_partner_shop_id_res_shops_id_fk": {
+          "name": "res_partner_shop_id_res_shops_id_fk",
+          "tableFrom": "res_partner",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -3061,10 +3228,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "key": {
           "name": "key",
@@ -3140,10 +3306,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -3406,13 +3571,13 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
@@ -3454,7 +3619,7 @@
           "name": "auth_user_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "username": {
           "name": "username",
@@ -3501,9 +3666,16 @@
           "notNull": true,
           "default": false
         },
+        "is_verified": {
+          "name": "is_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "shop_id": {
           "name": "shop_id",
-          "type": "uuid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -3542,16 +3714,36 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "res_users_shop_id_res_shops_id_fk": {
+          "name": "res_users_shop_id_res_shops_id_fk",
+          "tableFrom": "res_users",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "res_users_auth_user_id_res_users_id_fk": {
+          "name": "res_users_auth_user_id_res_users_id_fk",
+          "tableFrom": "res_users",
+          "tableTo": "res_users",
+          "columnsFrom": [
+            "auth_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "res_users_auth_user_id_unique": {
-          "name": "res_users_auth_user_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "auth_user_id"
-          ]
-        },
         "res_users_username_unique": {
           "name": "res_users_username_unique",
           "nullsNotDistinct": false,
@@ -3648,19 +3840,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "shipping_methods_shop_id_res_shops_id_fk": {
+          "name": "shipping_methods_shop_id_res_shops_id_fk",
+          "tableFrom": "shipping_methods",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -3830,19 +4036,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "shipping_zones_shop_id_res_shops_id_fk": {
+          "name": "shipping_zones_shop_id_res_shops_id_fk",
+          "tableFrom": "shipping_zones",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -3918,19 +4138,33 @@
         },
         "create_uid": {
           "name": "create_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
         "write_uid": {
           "name": "write_uid",
-          "type": "text",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "tax_rates_shop_id_res_shops_id_fk": {
+          "name": "tax_rates_shop_id_res_shops_id_fk",
+          "tableFrom": "tax_rates",
+          "tableTo": "res_shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

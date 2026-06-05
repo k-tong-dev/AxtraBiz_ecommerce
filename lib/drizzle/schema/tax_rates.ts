@@ -1,9 +1,10 @@
 import { pgTable, serial, text, numeric, integer, boolean } from 'drizzle-orm/pg-core'
 import { auditColumns } from './_shared'
+import { resShops } from './res_shops'
 
 export const tax_rates = pgTable('tax_rates', {
   id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
+  shop_id: integer('shop_id').references(() => resShops.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   rate: numeric('rate', { precision: 5, scale: 2 }).notNull(),
   country: text('country').notNull(),

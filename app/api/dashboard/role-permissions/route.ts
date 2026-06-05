@@ -37,8 +37,8 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const groupId = new URL(request.url).searchParams.get('group_id') || new URL(request.url).searchParams.get('role_id')
-    const permissionId = new URL(request.url).searchParams.get('permission_id')
+    const groupId = Number(new URL(request.url).searchParams.get('group_id') || new URL(request.url).searchParams.get('role_id'))
+    const permissionId = Number(new URL(request.url).searchParams.get('permission_id'))
 
     if (!groupId || !permissionId) {
       return NextResponse.json({ error: 'group_id and permission_id are required' }, { status: 400 })

@@ -1,8 +1,8 @@
-import { pgTable, uuid, text } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text } from 'drizzle-orm/pg-core'
 import { auditFields } from './audit'
 
 export const resGroups = pgTable('res_groups', {
-  id:          uuid('id').defaultRandom().primaryKey(),
+  id:          serial('id').primaryKey(),
   name:        text('name').notNull(),
   description: text('description'),
   ...auditFields,

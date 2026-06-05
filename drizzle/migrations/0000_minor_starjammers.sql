@@ -27,8 +27,8 @@ CREATE TABLE "announcements" (
 	"end_date" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "ir_audit_logs" (
@@ -71,8 +71,8 @@ CREATE TABLE "coupons" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "coupons_code_unique" UNIQUE("code")
 );
 --> statement-breakpoint
@@ -85,8 +85,8 @@ CREATE TABLE "res_currencies" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "invoices" (
@@ -100,10 +100,11 @@ CREATE TABLE "invoices" (
 	"total" numeric(12, 2) DEFAULT '0' NOT NULL,
 	"status" "invoice_status" DEFAULT 'draft' NOT NULL,
 	"due_date" timestamp,
+	"shop_id" integer,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "invoices_invoice_number_unique" UNIQUE("invoice_number")
 );
 --> statement-breakpoint
@@ -133,13 +134,13 @@ CREATE TABLE "ir_user_config" (
 	"notify_low_stock" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "m2m_groups_permissions" (
-	"group_id" uuid NOT NULL,
-	"permission_id" uuid NOT NULL,
+	"group_id" integer NOT NULL,
+	"permission_id" integer NOT NULL,
 	"granted_at" timestamp DEFAULT now(),
 	"granted_by" uuid,
 	CONSTRAINT "m2m_groups_permissions_group_id_permission_id_pk" PRIMARY KEY("group_id","permission_id")
@@ -147,7 +148,7 @@ CREATE TABLE "m2m_groups_permissions" (
 --> statement-breakpoint
 CREATE TABLE "m2m_users_groups" (
 	"user_id" uuid NOT NULL,
-	"group_id" uuid NOT NULL,
+	"group_id" integer NOT NULL,
 	"assigned_at" timestamp DEFAULT now(),
 	"assigned_by" uuid,
 	CONSTRAINT "m2m_users_groups_user_id_group_id_pk" PRIMARY KEY("user_id","group_id")
@@ -155,7 +156,7 @@ CREATE TABLE "m2m_users_groups" (
 --> statement-breakpoint
 CREATE TABLE "m2m_users_shops" (
 	"user_id" uuid NOT NULL,
-	"shop_id" uuid NOT NULL,
+	"shop_id" integer NOT NULL,
 	"is_default" boolean DEFAULT false,
 	"assigned_at" timestamp DEFAULT now(),
 	"assigned_by" uuid,
@@ -165,13 +166,14 @@ CREATE TABLE "m2m_users_shops" (
 CREATE TABLE "ir_menus" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
+	"shop_id" integer,
 	"slug" text NOT NULL,
 	"items" jsonb DEFAULT '[]' NOT NULL,
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "ir_menus_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -203,8 +205,8 @@ CREATE TABLE "orders" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "ir_pages" (
@@ -219,8 +221,8 @@ CREATE TABLE "ir_pages" (
 	"published_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "ir_pages_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -244,8 +246,8 @@ CREATE TABLE "payment_methods" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "payment_transactions" (
@@ -261,8 +263,8 @@ CREATE TABLE "payment_transactions" (
 	"paid_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "product_attribute_values" (
@@ -274,19 +276,20 @@ CREATE TABLE "product_attribute_values" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "product_attributes" (
 	"id" serial PRIMARY KEY NOT NULL,
+	"shop_id" integer,
 	"name" text NOT NULL,
 	"type" "attribute_type" DEFAULT 'select' NOT NULL,
 	"position" integer DEFAULT 0,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "product_attributes_rel" (
@@ -309,8 +312,8 @@ CREATE TABLE "product_brand" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "product_brand_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -326,8 +329,8 @@ CREATE TABLE "product_categories" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "product_categories_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -342,8 +345,8 @@ CREATE TABLE "product_reviews" (
 	"approved" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "product_template" (
@@ -389,8 +392,8 @@ CREATE TABLE "product_template" (
 	"features" jsonb DEFAULT '[]' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "product_template_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
@@ -411,14 +414,14 @@ CREATE TABLE "product_variants" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text,
+	"create_uid" uuid,
+	"write_uid" uuid,
 	CONSTRAINT "product_variants_sku_unique" UNIQUE("sku"),
 	CONSTRAINT "product_variants_barcode_unique" UNIQUE("barcode")
 );
 --> statement-breakpoint
 CREATE TABLE "res_groups" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
 	"active" boolean DEFAULT true NOT NULL,
@@ -429,8 +432,8 @@ CREATE TABLE "res_groups" (
 );
 --> statement-breakpoint
 CREATE TABLE "res_partner" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"shop_id" uuid NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
+	"shop_id" integer NOT NULL,
 	"name" text NOT NULL,
 	"email" text,
 	"phone" text,
@@ -456,7 +459,7 @@ CREATE TABLE "res_partner" (
 );
 --> statement-breakpoint
 CREATE TABLE "res_permissions" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"key" text NOT NULL,
 	"resource" text NOT NULL,
 	"action" text NOT NULL,
@@ -469,7 +472,7 @@ CREATE TABLE "res_permissions" (
 );
 --> statement-breakpoint
 CREATE TABLE "res_shops" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
 	"domain" text,
@@ -511,13 +514,13 @@ CREATE TABLE "res_user_addresses" (
 	"is_default" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "res_users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"auth_user_id" uuid NOT NULL,
+	"auth_user_id" uuid,
 	"username" text NOT NULL,
 	"display_name" text,
 	"avatar_url" text,
@@ -525,13 +528,13 @@ CREATE TABLE "res_users" (
 	"email" text NOT NULL,
 	"user_role" "user_role" DEFAULT 'new' NOT NULL,
 	"is_shop_owner" boolean DEFAULT false NOT NULL,
-	"shop_id" uuid,
+	"is_verified" boolean DEFAULT false NOT NULL,
+	"shop_id" integer,
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	"created_by" uuid,
 	"updated_by" uuid,
-	CONSTRAINT "res_users_auth_user_id_unique" UNIQUE("auth_user_id"),
 	CONSTRAINT "res_users_username_unique" UNIQUE("username")
 );
 --> statement-breakpoint
@@ -548,8 +551,8 @@ CREATE TABLE "shipping_methods" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "shipping_zone_product" (
@@ -574,8 +577,8 @@ CREATE TABLE "shipping_zones" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "tax_rates" (
@@ -589,8 +592,8 @@ CREATE TABLE "tax_rates" (
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"create_uid" text,
-	"write_uid" text
+	"create_uid" uuid,
+	"write_uid" uuid
 );
 --> statement-breakpoint
 CREATE TABLE "wishlist_items" (
@@ -601,9 +604,12 @@ CREATE TABLE "wishlist_items" (
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+ALTER TABLE "announcements" ADD CONSTRAINT "announcements_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "cart_items" ADD CONSTRAINT "cart_items_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "coupons" ADD CONSTRAINT "coupons_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invoices" ADD CONSTRAINT "invoices_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
+ALTER TABLE "invoices" ADD CONSTRAINT "invoices_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "ir_user_config" ADD CONSTRAINT "ir_user_config_user_id_res_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."res_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "m2m_groups_permissions" ADD CONSTRAINT "m2m_groups_permissions_group_id_res_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."res_groups"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "m2m_groups_permissions" ADD CONSTRAINT "m2m_groups_permissions_permission_id_res_permissions_id_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."res_permissions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -612,24 +618,37 @@ ALTER TABLE "m2m_users_groups" ADD CONSTRAINT "m2m_users_groups_group_id_res_gro
 ALTER TABLE "m2m_users_shops" ADD CONSTRAINT "m2m_users_shops_user_id_res_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."res_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "m2m_users_shops" ADD CONSTRAINT "m2m_users_shops_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "m2m_users_shops" ADD CONSTRAINT "m2m_users_shops_assigned_by_res_users_id_fk" FOREIGN KEY ("assigned_by") REFERENCES "public"."res_users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ir_menus" ADD CONSTRAINT "ir_menus_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_lines" ADD CONSTRAINT "order_lines_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_lines" ADD CONSTRAINT "order_lines_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_lines" ADD CONSTRAINT "order_lines_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "orders" ADD CONSTRAINT "orders_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ir_pages" ADD CONSTRAINT "ir_pages_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "payment_transactions" ADD CONSTRAINT "payment_transactions_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "payment_transactions" ADD CONSTRAINT "payment_transactions_invoice_id_invoices_id_fk" FOREIGN KEY ("invoice_id") REFERENCES "public"."invoices"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_attribute_values" ADD CONSTRAINT "product_attribute_values_attribute_id_product_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."product_attributes"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "product_attributes" ADD CONSTRAINT "product_attributes_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_attributes_rel" ADD CONSTRAINT "product_attributes_rel_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_attributes_rel" ADD CONSTRAINT "product_attributes_rel_attribute_id_product_attributes_id_fk" FOREIGN KEY ("attribute_id") REFERENCES "public"."product_attributes"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "product_brand" ADD CONSTRAINT "product_brand_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "product_categories" ADD CONSTRAINT "product_categories_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_categories" ADD CONSTRAINT "product_categories_parent_id_product_categories_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."product_categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_reviews" ADD CONSTRAINT "product_reviews_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_reviews" ADD CONSTRAINT "product_reviews_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "product_template" ADD CONSTRAINT "product_template_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_template" ADD CONSTRAINT "product_template_currency_code_res_currencies_code_fk" FOREIGN KEY ("currency_code") REFERENCES "public"."res_currencies"("code") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_template" ADD CONSTRAINT "product_template_category_id_product_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."product_categories"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_template" ADD CONSTRAINT "product_template_brand_id_product_brand_id_fk" FOREIGN KEY ("brand_id") REFERENCES "public"."product_brand"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_template" ADD CONSTRAINT "product_template_tax_rate_id_tax_rates_id_fk" FOREIGN KEY ("tax_rate_id") REFERENCES "public"."tax_rates"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "product_variants" ADD CONSTRAINT "product_variants_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "res_partner" ADD CONSTRAINT "res_partner_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "res_user_addresses" ADD CONSTRAINT "res_user_addresses_user_id_res_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."res_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "res_users" ADD CONSTRAINT "res_users_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "res_users" ADD CONSTRAINT "res_users_auth_user_id_res_users_id_fk" FOREIGN KEY ("auth_user_id") REFERENCES "public"."res_users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "shipping_methods" ADD CONSTRAINT "shipping_methods_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shipping_zone_product" ADD CONSTRAINT "shipping_zone_product_shipping_zone_id_shipping_zones_id_fk" FOREIGN KEY ("shipping_zone_id") REFERENCES "public"."shipping_zones"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "shipping_zone_product" ADD CONSTRAINT "shipping_zone_product_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "shipping_zones" ADD CONSTRAINT "shipping_zones_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "tax_rates" ADD CONSTRAINT "tax_rates_shop_id_res_shops_id_fk" FOREIGN KEY ("shop_id") REFERENCES "public"."res_shops"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_product_id_product_template_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."product_template"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "wishlist_items" ADD CONSTRAINT "wishlist_items_variant_id_product_variants_id_fk" FOREIGN KEY ("variant_id") REFERENCES "public"."product_variants"("id") ON DELETE cascade ON UPDATE no action;

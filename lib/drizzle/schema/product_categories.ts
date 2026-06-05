@@ -1,9 +1,10 @@
 import { pgTable, serial, text, integer, jsonb, boolean } from 'drizzle-orm/pg-core'
 import { auditColumns } from './_shared'
+import { resShops } from './res_shops'
 
 export const product_categories = pgTable('product_categories', {
   id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
+  shop_id: integer('shop_id').references(() => resShops.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),

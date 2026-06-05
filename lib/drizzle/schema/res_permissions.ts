@@ -1,8 +1,8 @@
-import { pgTable, uuid, text } from 'drizzle-orm/pg-core'
+import { pgTable, serial, text } from 'drizzle-orm/pg-core'
 import { auditFields } from './audit'
 
 export const resPermissions = pgTable('res_permissions', {
-  id:       uuid('id').defaultRandom().primaryKey(),
+  id:       serial('id').primaryKey(),
   key:      text('key').notNull().unique(),
   resource: text('resource').notNull(),
   action:   text('action').notNull(),

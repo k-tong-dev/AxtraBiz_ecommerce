@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import type { StaffAccount } from '@/lib/drizzle/schema'
+import type { User } from '@/lib/drizzle/schema'
 import { useConfirmDelete } from '@/components/Base/Views/hooks/useConfirmDelete'
 import { ResourceView } from '@/components/Base/Views'
 import { staffConfig } from './config'
@@ -9,12 +9,12 @@ import { useResource } from '@/components/Base/Views/hooks/useResource'
 
 export default function AdminStaffPage() {
   const router = useRouter()
-  const { data: staff, loading, refresh } = useResource<StaffAccount[]>('/api/dashboard/staff-accounts')
-  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/dashboard/staff-accounts', entityName: 'staff account', refresh, useQueryParam: true })
+  const { data: staff, loading, refresh } = useResource<User[]>('/api/dashboard/staff-accounts')
+  const { confirmDelete, deleteModal } = useConfirmDelete({ apiEndpoint: '/api/dashboard/staff-accounts', entityName: 'user', refresh, useQueryParam: true })
 
   const openCreate = () => router.push('/dashboard/configuration/users/new')
-  const openEdit = (row: StaffAccount) => router.push(`/dashboard/configuration/users/${row.id}/edit`)
-  const handleRowClick = (rowData: StaffAccount) => openEdit(rowData)
+  const openEdit = (row: User) => router.push(`/dashboard/configuration/users/${row.id}/edit`)
+  const handleRowClick = (rowData: User) => openEdit(rowData)
 
   const config = staffConfig.listViewConfig(staff ?? [])
 
@@ -22,7 +22,7 @@ export default function AdminStaffPage() {
     <>{deleteModal}<ResourceView
       config={{
         type: 'list',
-        title: 'Staff Accounts',
+        title: 'Users',
         description: 'Manage staff accounts and their access.',
         listViewConfig: config,
         formViewConfig: staffConfig.formViewConfig,

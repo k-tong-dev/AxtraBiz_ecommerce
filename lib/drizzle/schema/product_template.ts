@@ -5,10 +5,11 @@ import { currencies } from './res_currencies'
 import { product_categories } from './product_categories'
 import { product_brand } from './product_brand'
 import { tax_rates } from './tax_rates'
+import { resShops } from './res_shops'
 
 export const product_template = pgTable('product_template', {
   id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
+  shop_id: integer('shop_id').references(() => resShops.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description').notNull().default(''),

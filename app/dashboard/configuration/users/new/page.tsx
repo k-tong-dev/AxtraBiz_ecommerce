@@ -8,7 +8,7 @@ export default function NewStaffPage() {
     <ResourceView
       config={{
         type: 'form',
-        title: 'New Staff Account',
+        title: 'New Users',
         formViewConfig: staffConfig.formViewConfig,
         enableDefaultActions: true,
         defaultActions: staffConfig.defaultActions,

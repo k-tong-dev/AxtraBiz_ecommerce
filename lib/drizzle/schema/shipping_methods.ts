@@ -1,10 +1,11 @@
 import { pgTable, serial, text, numeric, boolean, integer } from 'drizzle-orm/pg-core'
 import { shippingRateTypeEnum } from './_enums'
 import { auditColumns } from './_shared'
+import { resShops } from './res_shops'
 
 export const shipping_methods = pgTable('shipping_methods', {
   id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
+  shop_id: integer('shop_id').references(() => resShops.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   carrier: text('carrier'),
   rate_type: shippingRateTypeEnum('rate_type').notNull().default('flat'),

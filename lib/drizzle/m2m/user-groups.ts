@@ -2,19 +2,19 @@ import { db } from '@/lib/drizzle/client'
 import { m2mUsersGroups } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 
-export interface AssignStaffRoleInput {
+export interface AssignUserGroupInput {
   userId: string
-  groupId: string
+  groupId: number
   assignedBy?: string
 }
 
-export interface SyncStaffRolesInput {
+export interface SyncUserGroupsInput {
   userId: string
-  groupIds: string[]
+  groupIds: number[]
   assignedBy?: string
 }
 
-export async function assignStaffRole(input: AssignStaffRoleInput) {
+export async function assignUserGroup(input: AssignUserGroupInput) {
   try {
     await db.insert(m2mUsersGroups)
       .values({
@@ -25,11 +25,11 @@ export async function assignStaffRole(input: AssignStaffRoleInput) {
       .onConflictDoNothing()
     return { success: true }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : 'Failed to assign role' }
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to assign group' }
   }
 }
 
-export async function removeStaffRole(userId: string, groupId: string) {
+export async function removeUserGroup(userId: string, groupId: number) {
   try {
     await db.delete(m2mUsersGroups)
       .where(and(
@@ -38,11 +38,11 @@ export async function removeStaffRole(userId: string, groupId: string) {
       ))
     return { success: true }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : 'Failed to remove role' }
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to remove group' }
   }
 }
 
-export async function syncStaffRoles(input: SyncStaffRolesInput) {
+export async function syncUserGroups(input: SyncUserGroupsInput) {
   try {
     await db.delete(m2mUsersGroups)
       .where(eq(m2mUsersGroups.userId, input.userId))
@@ -58,11 +58,11 @@ export async function syncStaffRoles(input: SyncStaffRolesInput) {
 
     return { success: true }
   } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : 'Failed to sync roles' }
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to sync groups' }
   }
 }
 
-export async function getStaffRoles(userId: string) {
+export async function getUserGroups(userId: string) {
   try {
     return await db.select()
       .from(m2mUsersGroups)

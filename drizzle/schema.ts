@@ -115,8 +115,8 @@ export const shops = resShops
 
 // ─── Relations ───
 
-export const shopsStaffRelations = relations(resShops, ({ many }) => ({
-  m2mStaff: many(m2mUsersShops),
+export const shopsUserRelations = relations(resShops, ({ many }) => ({
+  m2mUsers: many(m2mUsersShops),
 }))
 
 // ─── Type exports ───
@@ -157,6 +157,5 @@ import type { ResUser, ResGroup, ResPermission } from '@/lib/drizzle/schema'
 
 // ─── Backward-compat aliases ───
 export type User = ResUser
-export type StaffAccount = ResUser
 export type Role = ResGroup
 export type Permission = ResPermission

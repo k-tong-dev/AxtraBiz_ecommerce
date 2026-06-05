@@ -1,8 +1,8 @@
 import type { FormConfig } from '@/components/Base/Views/FormView/FormView'
 
 export const staffFormConfig: FormConfig = {
-  entityName: 'Staff Account',
-  entityNamePlural: 'Staff Accounts',
+  entityName: 'Users',
+  entityNamePlural: 'Users',
   apiEndpoint: '/api/dashboard/staff-accounts',
   fields: [
     {

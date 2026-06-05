@@ -51,7 +51,7 @@ export async function GET() {
         }
 
         // Fetch shops from m2mUsersShops
-        let userShops: { id: string; name: string }[] = []
+        let userShops: { id: number; name: string }[] = []
         try {
           const shopRows = await db.select({ id: resShops.id, name: resShops.name })
             .from(m2mUsersShops)

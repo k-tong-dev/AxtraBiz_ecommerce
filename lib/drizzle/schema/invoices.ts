@@ -2,6 +2,7 @@ import { pgTable, serial, text, timestamp, jsonb, numeric, integer } from 'drizz
 import { invoiceStatusEnum } from './_enums'
 import { auditColumns } from './_shared'
 import { orders } from './orders'
+import { resShops } from './res_shops'
 
 export const invoices = pgTable('invoices', {
   id: serial('id').primaryKey(),
@@ -14,5 +15,6 @@ export const invoices = pgTable('invoices', {
   total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
   status: invoiceStatusEnum('status').notNull().default('draft'),
   due_date: timestamp('due_date', { mode: 'string' }),
+  shop_id: integer('shop_id').references(() => resShops.id, { onDelete: 'set null' }),
   ...auditColumns,
 })

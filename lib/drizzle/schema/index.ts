@@ -116,6 +116,5 @@ import type { ResPermission, NewResPermission } from './res_permissions'
 
 export type Shop = typeof resShops.$inferSelect
 export type User = ResUser
-export type StaffAccount = ResUser
 export type Role = ResGroup
 export type Permission = ResPermission

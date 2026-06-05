@@ -3,14 +3,14 @@ import { m2mGroupsPermissions } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 
 export interface AssignRolePermissionInput {
-  groupId: string
-  permissionId: string
+  groupId: number
+  permissionId: number
   grantedBy?: string
 }
 
 export interface SyncRolePermissionsInput {
-  groupId: string
-  permissionIds: string[]
+  groupId: number
+  permissionIds: number[]
   grantedBy?: string
 }
 
@@ -29,7 +29,7 @@ export async function assignRolePermission(input: AssignRolePermissionInput) {
   }
 }
 
-export async function removeRolePermission(groupId: string, permissionId: string) {
+export async function removeRolePermission(groupId: number, permissionId: number) {
   try {
     await db.delete(m2mGroupsPermissions)
       .where(and(
@@ -62,7 +62,7 @@ export async function syncRolePermissions(input: SyncRolePermissionsInput) {
   }
 }
 
-export async function getRolePermissions(groupId: string) {
+export async function getRolePermissions(groupId: number) {
   try {
     return await db.select()
       .from(m2mGroupsPermissions)

@@ -2,20 +2,20 @@ import { db } from '@/lib/drizzle/client'
 import { m2mUsersShops } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
 
-export interface AssignStaffShopInput {
+export interface AssignUserShopInput {
   userId: string
-  shopId: string
+  shopId: number
   isDefault?: boolean
   assignedBy?: string
 }
 
-export interface SyncStaffShopsInput {
+export interface SyncUserShopsInput {
   userId: string
-  shopIds: string[]
+  shopIds: number[]
   assignedBy?: string
 }
 
-export async function assignStaffShop(input: AssignStaffShopInput) {
+export async function assignUserShop(input: AssignUserShopInput) {
   try {
     await db.insert(m2mUsersShops)
       .values({
@@ -31,7 +31,7 @@ export async function assignStaffShop(input: AssignStaffShopInput) {
   }
 }
 
-export async function removeStaffShop(userId: string, shopId: string) {
+export async function removeUserShop(userId: string, shopId: number) {
   try {
     await db.delete(m2mUsersShops)
       .where(and(
@@ -44,7 +44,7 @@ export async function removeStaffShop(userId: string, shopId: string) {
   }
 }
 
-export async function syncStaffShops(input: SyncStaffShopsInput) {
+export async function syncUserShops(input: SyncUserShopsInput) {
   try {
     await db.delete(m2mUsersShops)
       .where(eq(m2mUsersShops.userId, input.userId))
@@ -65,7 +65,7 @@ export async function syncStaffShops(input: SyncStaffShopsInput) {
   }
 }
 
-export async function getStaffShops(userId: string) {
+export async function getUserShops(userId: string) {
   try {
     return await db.select()
       .from(m2mUsersShops)
