@@ -242,10 +242,10 @@ export default function CheckoutPage() {
 
                   <div className="flex gap-4 pt-4">
                     <Button
-                      type="button"
-                      variant="outline"
+                      appearance="primary"
                       onClick={() => setStep('shipping')}
                       className="flex-1"
+                      background={"black"}
                     >
                       Back
                     </Button>

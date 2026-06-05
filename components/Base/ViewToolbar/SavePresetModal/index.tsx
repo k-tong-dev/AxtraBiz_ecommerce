@@ -6,6 +6,7 @@ import {Input} from '@/components/ui/input'
 import {Button} from '@/components/ui/button'
 import {Popover, Whisper} from 'rsuite'
 import {Bookmark, Info} from "lucide-react";
+import { GiSaveArrow } from "react-icons/gi";
 
 export interface SavePresetModalProps {
     open: boolean
@@ -54,8 +55,9 @@ export function SavePresetModal({open, presetName, onPresetNameChange, onSave, o
                 </Button>
                 <Button
                     onClick={onSave}
+                    style={{backgroundColor: '#000000'}}
                     appearance="primary"
-                    color="violet"
+                    startIcon={<GiSaveArrow />}
                 >
                     Save
                 </Button>
