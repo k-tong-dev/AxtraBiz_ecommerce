@@ -80,7 +80,7 @@ export function useAuth() {
       password,
       options: {
         data: { name, full_name: name },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/shop`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/website`,
       },
     })
     if (error) return null
@@ -104,7 +104,7 @@ export function useAuth() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/shop`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/website`,
       },
     })
     return !error
@@ -113,7 +113,7 @@ export function useAuth() {
   const sendPasswordReset = async (email: string) => {
     const supabase = createClient()
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/shop/reset-password`,
+      redirectTo: `${window.location.origin}/website/reset-password`,
     })
     return !error
   }

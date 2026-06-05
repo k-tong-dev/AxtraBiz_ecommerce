@@ -22,7 +22,7 @@ Login at /admin
 ## 3. Customer (Storefront)
 
 ```
-Login at /account (or /shop/login)
+Login at /account (or /website/login)
   → Authenticate against customers table
   → NO admin access whatsoever
   → Scoped to their own data (orders, addresses, wishlist)

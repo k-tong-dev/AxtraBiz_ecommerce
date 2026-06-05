@@ -13,7 +13,7 @@ import { showToast } from '@/lib/ui/toast'
 function SignupPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/shop'
+  const redirect = searchParams.get('redirect') || '/website'
   const { user, isLoading: authLoading, signup, loginWithGoogle, logout } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')

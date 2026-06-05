@@ -33,7 +33,7 @@ export default function ProfilePage() {
   const handleLogout = () => {
     ;(async () => {
       await logout()
-      router.push('/shop')
+      router.push('/website')
     })()
   }
 
@@ -55,7 +55,8 @@ export default function ProfilePage() {
               </div>
             </div>
             <Button
-              variant="destructive"
+              appearance="primary"
+              color={"red"}
               onClick={handleLogout}
               className="gap-2"
             >
@@ -92,13 +93,13 @@ export default function ProfilePage() {
               <h3 className="font-semibold mb-4 text-lg">Quick Links</h3>
               <div className="space-y-2">
                 <Link href="/website/orders">
-                  <Button variant="outline" className="w-full justify-start gap-2">
+                  <Button appearance="default" className="w-full justify-start gap-2">
                     <User className="w-4 h-4" />
                     View My Orders
                   </Button>
                 </Link>
                 <Link href="/website/wishlist">
-                  <Button variant="outline" className="w-full justify-start gap-2">
+                  <Button appearance="default" className="w-full justify-start gap-2">
                     <MapPin className="w-4 h-4" />
                     My Wishlist
                   </Button>

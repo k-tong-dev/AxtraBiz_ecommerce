@@ -25,16 +25,16 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/shop" className="flex items-center gap-3 group">
+          <Link href="/website" className="flex items-center gap-3 group">
             <div className="w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center group-hover:shadow-lg group-hover:shadow-primary/50 transition-all">
               <span className="text-primary-foreground font-bold text-sm">A</span>
             </div>
-            <span className="font-bold text-lg hidden sm:inline bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">Agile Shop</span>
+            <span className="font-bold text-lg hidden sm:inline bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">AxtraBiz</span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/shop" className="text-foreground hover:text-primary transition">
+            <Link href="/website" className="text-foreground hover:text-primary transition">
               Home
             </Link>
             <Link href="/website/products" className="text-foreground hover:text-primary transition">
@@ -132,7 +132,7 @@ export function Navbar() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 border-t border-border">
-            <Link href="/shop" className="block px-4 py-2 hover:bg-secondary rounded">
+            <Link href="/website" className="block px-4 py-2 hover:bg-secondary rounded">
               Home
             </Link>
             <Link href="/website/products" className="block px-4 py-2 hover:bg-secondary rounded">

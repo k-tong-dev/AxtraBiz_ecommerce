@@ -87,7 +87,7 @@ npm run dev
 ```
 
 ### 5.2 Test Signup Flow
-1. Navigate to `/shop/signup`
+1. Navigate to `/website/signup`
 2. Fill in the signup form:
    - Name: Test User
    - Email: your-test-email@example.com
@@ -95,7 +95,7 @@ npm run dev
 3. Click "Create account"
 4. You should see: "Account created! Check your email for verification code"
 5. Check your email for the 6-digit verification code
-6. You'll be redirected to `/shop/verify-otp`
+6. You'll be redirected to `/website/verify-otp`
 
 ### 5.3 Test OTP Verification
 1. Enter the 6-digit code from your email
@@ -162,7 +162,7 @@ console.log('Verification attempt:', { email, tokenLength: token?.length })
 ## Files Created/Modified
 
 ### New Files
-- `app/shop/verify-otp/page.tsx` - OTP verification page
+- `app/website/verify-otp/page.tsx` - OTP verification page
 - `app/api/auth/verify-otp/route.ts` - OTP verification API
 - `app/api/auth/resend-otp/route.ts` - Resend OTP API
 - `docs/supabase-email-templates.md` - Email templates
@@ -170,7 +170,7 @@ console.log('Verification attempt:', { email, tokenLength: token?.length })
 
 ### Modified Files
 - `hooks/use-auth.ts` - Updated signup function
-- `app/shop/signup/page.tsx` - Updated signup flow
+- `app/website/signup/page.tsx` - Updated signup flow
 - `supabase/schema.sql` - Added RLS policies
 
 ## Next Steps

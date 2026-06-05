@@ -13,7 +13,7 @@ function VerifyOTPPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get('email') || ''
-  const redirectTo = searchParams.get('redirect') || '/shop'
+  const redirectTo = searchParams.get('redirect') || '/website'
   
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [isLoading, setIsLoading] = useState(false)

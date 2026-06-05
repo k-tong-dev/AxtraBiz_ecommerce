@@ -145,9 +145,9 @@ Your current schema already includes the necessary `users` table. The OTP functi
 
 ## Testing the Flow
 
-1. Go to `/shop/signup` and create a new account
+1. Go to `/website/signup` and create a new account
 2. You should receive an email with a 6-digit code
-3. You'll be redirected to `/shop/verify-otp`
+3. You'll be redirected to `/website/verify-otp`
 4. Enter the code to verify your email
 5. After verification, you'll be logged in and redirected to the shop
 

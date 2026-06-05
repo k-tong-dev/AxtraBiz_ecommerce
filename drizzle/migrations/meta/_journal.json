@@ -57,6 +57,13 @@
       "when": 1780607234607,
       "tag": "0007_system_redesign",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780607234608,
+      "tag": "0008_remaining_renames",
+      "breakpoints": true
     }
   ]
 }

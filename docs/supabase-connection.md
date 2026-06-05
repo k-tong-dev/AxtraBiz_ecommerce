@@ -35,9 +35,9 @@ In Supabase Auth settings:
 - Site URL: `http://localhost:3000` (dev) and your production domain.
 - Additional redirect URLs:
   - `http://localhost:3000/auth/callback`
-  - `http://localhost:3000/shop/reset-password`
+  - `http://localhost:3000/website/reset-password`
   - `<YOUR_PROD_DOMAIN>/auth/callback`
-  - `<YOUR_PROD_DOMAIN>/shop/reset-password`
+  - `<YOUR_PROD_DOMAIN>/website/reset-password`
 
 For Google provider, Supabase may display a provider callback URL like:
 

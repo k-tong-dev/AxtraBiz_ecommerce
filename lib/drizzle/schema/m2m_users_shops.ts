@@ -18,13 +18,5 @@ export const m2mUsersShopsRelations = relations(m2mUsersShops, ({ one }) => ({
   shop: one(resShops, { fields: [m2mUsersShops.shopId], references: [resShops.id] }),
 }))
 
-export const resUsersM2mShopsRelations = relations(resUsers, ({ many }) => ({
-  m2mShops: many(m2mUsersShops),
-}))
-
-export const resShopsM2mUsersRelations = relations(resShops, ({ many }) => ({
-  m2mUsers: many(m2mUsersShops),
-}))
-
 export type M2mUsersShop = typeof m2mUsersShops.$inferSelect
 export type NewM2mUsersShop = typeof m2mUsersShops.$inferInsert

@@ -17,13 +17,5 @@ export const m2mGroupsPermissionsRelations = relations(m2mGroupsPermissions, ({ 
   permission: one(resPermissions, { fields: [m2mGroupsPermissions.permissionId], references: [resPermissions.id] }),
 }))
 
-export const resGroupsM2mPermissionsRelations = relations(resGroups, ({ many }) => ({
-  m2mPermissions: many(m2mGroupsPermissions),
-}))
-
-export const resPermissionsM2mGroupsRelations = relations(resPermissions, ({ many }) => ({
-  m2mGroups: many(m2mGroupsPermissions),
-}))
-
 export type M2mGroupsPermission = typeof m2mGroupsPermissions.$inferSelect
 export type NewM2mGroupsPermission = typeof m2mGroupsPermissions.$inferInsert

@@ -80,7 +80,7 @@ export const users = pgTable('users', {
   ...auditColumns,
 });
 
-export const currencies = pgTable('currencies', {
+export const currencies = pgTable('res_currencies', {
   code: text('code').primaryKey(),
   name: text('name').notNull(),
   symbol: text('symbol').notNull(),
@@ -520,7 +520,7 @@ export const shipping_methods = pgTable('shipping_methods', {
  * Pages — CMS pages with slug-based routing.
  * Supports draft/published/archived status and SEO meta fields.
  */
-export const pages = pgTable('pages', {
+export const pages = pgTable('ir_pages', {
   id: serial('id').primaryKey(),
   shop_id: integer('shop_id').references(() => shops.id, { onDelete: 'cascade' }),
   slug: text('slug').notNull().unique(),
@@ -537,7 +537,7 @@ export const pages = pgTable('pages', {
  * Menus — navigation menus with JSON-structured items.
  * Supports multi-level menu structures for storefront navigation.
  */
-export const menus = pgTable('menus', {
+export const menus = pgTable('ir_menus', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
@@ -550,7 +550,7 @@ export const menus = pgTable('menus', {
  * Audit Logs — immutable record of system actions.
  * Tracks who did what, when, with optional severity for alerting.
  */
-export const audit_logs = pgTable('audit_logs', {
+export const audit_logs = pgTable('ir_audit_logs', {
   id: serial('id').primaryKey(),
   user_id: text('user_id').references(() => users.id, { onDelete: 'set null' }),
   action: auditActionEnum('action').notNull().default('create'),

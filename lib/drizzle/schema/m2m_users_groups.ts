@@ -17,13 +17,5 @@ export const m2mUsersGroupsRelations = relations(m2mUsersGroups, ({ one }) => ({
   group: one(resGroups, { fields: [m2mUsersGroups.groupId], references: [resGroups.id] }),
 }))
 
-export const resUsersM2mGroupsRelations = relations(resUsers, ({ many }) => ({
-  m2mGroups: many(m2mUsersGroups),
-}))
-
-export const resGroupsM2mUsersRelations = relations(resGroups, ({ many }) => ({
-  m2mUsers: many(m2mUsersGroups),
-}))
-
 export type M2mUsersGroup = typeof m2mUsersGroups.$inferSelect
 export type NewM2mUsersGroup = typeof m2mUsersGroups.$inferInsert

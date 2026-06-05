@@ -26,7 +26,7 @@ export function Footer() {
             </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link href="/shop" className="hover:text-primary transition">
+                <Link href="/website" className="hover:text-primary transition">
                   Home
                 </Link>
               </li>
