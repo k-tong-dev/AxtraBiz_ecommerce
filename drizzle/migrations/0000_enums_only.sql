@@ -1,0 +1,19 @@
+-- Create ALL enums first (run BEFORE the generated migration)
+CREATE TYPE "product_type" AS ENUM ('simple','variable','grouped','bundle','digital','subscription','virtual','dropship','gift_card');
+CREATE TYPE "product_status" AS ENUM ('draft','published','archived');
+CREATE TYPE "fulfillment_type" AS ENUM ('self','dropship','digital','pickup','tpl');
+CREATE TYPE "attribute_type" AS ENUM ('select','radio','color','text','image');
+CREATE TYPE "order_status" AS ENUM ('pending','confirmed','processing','shipped','delivered','cancelled','refunded','returned');
+CREATE TYPE "invoice_status" AS ENUM ('draft','pending','paid','overdue','cancelled','refunded');
+CREATE TYPE "transaction_status" AS ENUM ('pending','completed','failed','refunded','cancelled');
+CREATE TYPE "payment_method" AS ENUM ('stripe','paypal','square','bank_transfer','cash','crypto');
+CREATE TYPE "announcement_type" AS ENUM ('info','success','warning','error','promo');
+CREATE TYPE "address_type" AS ENUM ('shipping','billing','both');
+CREATE TYPE "payment_method_type" AS ENUM ('credit_card','paypal','stripe','bank_transfer','crypto');
+CREATE TYPE "coupon_type" AS ENUM ('percentage','fixed_amount','free_shipping','buy_x_get_y');
+CREATE TYPE "shipping_rate_type" AS ENUM ('flat','per_item','weight_based','free','tiered');
+CREATE TYPE "page_status" AS ENUM ('draft','published','archived');
+CREATE TYPE "audit_action" AS ENUM ('create','update','delete','login','logout','export','import','restore');
+CREATE TYPE "audit_severity" AS ENUM ('info','warning','error','critical');
+CREATE TYPE "user_role" AS ENUM ('_admin_system_','employee','business','new');
+CREATE TYPE "partner_type" AS ENUM ('individual','company');
