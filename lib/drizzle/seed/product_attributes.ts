@@ -1,0 +1,50 @@
+import { db } from '../client';
+import { product_attributes } from '@/lib/drizzle/schema';
+
+export async function seedProductAttributes() {
+    await db.insert(product_attributes).values([
+        { id: 2,  name: 'Size',              type: 'select', position: 0 },
+        { id: 3,  name: 'Color',             type: 'color',  position: 0 },
+        { id: 4,  name: 'Material',          type: 'select', position: 0 },
+        { id: 5,  name: 'Gender',            type: 'radio',  position: 0 },
+        { id: 6,  name: 'Brand',             type: 'text',   position: 0 },
+        { id: 7,  name: 'Model',             type: 'text',   position: 0 },
+        { id: 8,  name: 'Storage Capacity',  type: 'select', position: 0 },
+        { id: 9,  name: 'RAM',               type: 'select', position: 0 },
+        { id: 10, name: 'Processor',         type: 'text',   position: 0 },
+        { id: 11, name: 'Screen Size',       type: 'select', position: 0 },
+        { id: 12, name: 'Resolution',        type: 'text',   position: 0 },
+        { id: 13, name: 'Battery Capacity',  type: 'text',   position: 0 },
+        { id: 14, name: 'Operating System',  type: 'select', position: 0 },
+        { id: 15, name: 'Connectivity',      type: 'select', position: 0 },
+        { id: 16, name: 'Weight',            type: 'text',   position: 0 },
+        { id: 17, name: 'Dimensions',        type: 'text',   position: 0 },
+        { id: 18, name: 'Warranty',          type: 'select', position: 0 },
+        { id: 19, name: 'Country of Origin', type: 'text',   position: 0 },
+        { id: 20, name: 'Pattern',           type: 'select', position: 0 },
+        { id: 21, name: 'Fit Type',          type: 'select', position: 0 },
+        { id: 22, name: 'Sleeve Type',       type: 'select', position: 1 },
+        { id: 23, name: 'Neck Type',         type: 'select', position: 0 },
+        { id: 24, name: 'Closure Type',      type: 'select', position: 0 },
+        { id: 25, name: 'Heel Height',       type: 'select', position: 0 },
+        { id: 26, name: 'Sole Material',     type: 'select', position: 0 },
+        { id: 27, name: 'Water Resistance',  type: 'radio',  position: 0 },
+        { id: 28, name: 'Usage',             type: 'select', position: 0 },
+        { id: 29, name: 'Season',            type: 'select', position: 0 },
+        { id: 30, name: 'Power Source',      type: 'select', position: 0 },
+        { id: 31, name: 'Voltage',           type: 'text',   position: 0 },
+        { id: 32, name: 'Capacity',          type: 'text',   position: 0 },
+        { id: 33, name: 'Number of Pieces',  type: 'text',   position: 0 },
+        { id: 34, name: 'Fragrance',         type: 'select', position: 0 },
+        { id: 35, name: 'Skin Type',         type: 'select', position: 0 },
+        { id: 36, name: 'Ingredients',       type: 'text',   position: 0 },
+        { id: 37, name: 'SPF',               type: 'select', position: 0 },
+        { id: 38, name: 'Coverage',          type: 'select', position: 0 },
+        { id: 39, name: 'Finish',            type: 'select', position: 0 },
+        { id: 40, name: 'Age Group',         type: 'select', position: 0 },
+        { id: 41, name: 'Custom Engraving',  type: 'radio',  position: 0 },
+        { id: 42, name: 'Notes',             type: 'text',   position: 0 },
+    ]).onConflictDoNothing();
+
+    console.log('✅ Product attributes seeded');
+}
