@@ -176,8 +176,8 @@ function GroupsView({ loading: _loading, onRefresh }: CustomViewProps) {
             data={roles}
             rowKey="id"
             onRowClick={(rowData: Role) => setSelectedRole(rowData)}
-            rowClassName={(rowData: Role) =>
-              selectedRole?.id === rowData.id ? 'rs-table-row-selected' : ''
+            rowClassName={(rowData: Role | undefined) =>
+              rowData && selectedRole?.id === rowData.id ? 'rs-table-row-selected' : ''
             }
             loading={loading}
           >
