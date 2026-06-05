@@ -569,8 +569,8 @@ export const audit_logs = pgTable('ir_audit_logs', {
  * Shops — multi-store tenant entities for data isolation.
  * Each shop has its own domain, contact info, and configuration.
  */
-export const shops = pgTable('shops', {
-  id: serial('id').primaryKey(),
+export const resShopsLegacy = pgTable('res_shops', {
+  id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   domain: text('domain'),
@@ -578,9 +578,13 @@ export const shops = pgTable('shops', {
   phone: text('phone'),
   address: jsonb('address').default('{}'),
   logo: jsonb('logo'),
+  company: text('company'),
   active: boolean('active').default(true).notNull(),
-  ...auditColumns,
+  createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow(),
 });
+
+export const shops = resShopsLegacy;
 
 /**
  * Staff Accounts — admin panel user accounts linked to shops.
@@ -701,17 +705,7 @@ export const shopsStaffRelations = relations(shops, ({ many }) => ({
   m2mStaff: many(m2m_staff_accounts_shops),
 }));
 
-/**
- * Platform Admins — system-level operators outside the shop tenancy.
- * NOT scoped by shop_id. Has full access across all shops.
- */
-export const platform_admins = pgTable('platform_admins', {
-  id: serial('id').primaryKey(),
-  email: text('email').notNull(),
-  full_name: text('full_name'),
-  last_login_at: timestamp('last_login_at', { mode: 'string' }),
-  ...auditColumns,
-});
+
 
 // ─── Type exports ──────────────────────────────────────────────
 
@@ -747,7 +741,7 @@ export type ShippingMethod = typeof shipping_methods.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type Menu = typeof menus.$inferSelect;
 
-export type PlatformAdmin = typeof platform_admins.$inferSelect;
+
 
 export type Shop = typeof shops.$inferSelect;
 export type StaffAccount = typeof staff_accounts.$inferSelect;

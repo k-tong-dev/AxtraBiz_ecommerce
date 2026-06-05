@@ -1,10 +1,10 @@
-import { pgTable, uuid, integer, text, boolean, timestamp, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, boolean, timestamp, pgEnum } from 'drizzle-orm/pg-core'
 
 export const partnerTypeEnum = pgEnum('partner_type', ['contact', 'customer', 'vendor'])
 
 export const resPartner = pgTable('res_partner', {
   id:        uuid('id').defaultRandom().primaryKey(),
-  shopId:    integer('shop_id').notNull(),
+  shopId:    uuid('shop_id').notNull(),
   name:      text('name').notNull(),
   email:     text('email'),
   phone:     text('phone'),

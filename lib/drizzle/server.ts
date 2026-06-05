@@ -50,7 +50,6 @@ export {
   m2m_roles_permissions,
   m2m_staff_accounts_roles,
   m2m_staff_accounts_shops,
-  platform_admins,
 } from '../../drizzle/schema'
 
 // New schema tables (lib/drizzle/schema/)
@@ -112,5 +111,4 @@ export type {
   M2mRolesPermission,
   M2mStaffAccountsRole,
   M2mStaffAccountsShop,
-  PlatformAdmin,
 } from '../../drizzle/schema'

@@ -1,7 +1,7 @@
-import { pgTable, serial, text, jsonb, boolean, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, jsonb, boolean, timestamp } from 'drizzle-orm/pg-core'
 
 export const resShops = pgTable('res_shops', {
-  id:        serial('id').primaryKey(),
+  id:        uuid('id').defaultRandom().primaryKey(),
   name:      text('name').notNull(),
   slug:      text('slug').notNull().unique(),
   domain:    text('domain'),
