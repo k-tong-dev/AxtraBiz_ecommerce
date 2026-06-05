@@ -2,19 +2,25 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from '../../drizzle/schema'
 
-// For server-side usage only
 const connectionString = process.env.DATABASE_URL
 if (!connectionString) {
   throw new Error('DATABASE_URL is not set')
 }
 
-// Disable prefetch as it is not supported for "Transaction" pool mode
 const client = postgres(connectionString, { prepare: false })
 export const db = drizzle(client, { schema })
 
-// Export all tables for easy access
 export {
-  users,
+  // New schema tables
+  resUsers, userRoleEnum,
+  resGroups,
+  resPermissions,
+  resShops,
+  resPartner, partnerTypeEnum,
+  m2mUsersGroups,
+  m2mGroupsPermissions,
+  m2mUsersShops,
+  // Legacy business tables
   product_template,
   orders,
   invoices,
@@ -44,25 +50,18 @@ export {
   currencies,
   audit_logs,
   shops,
-  staff_accounts,
-  roles,
-  permissions,
-  m2m_roles_permissions,
-  m2m_staff_accounts_roles,
-  m2m_staff_accounts_shops,
 } from '../../drizzle/schema'
 
-// New schema tables (lib/drizzle/schema/)
-export {
-  resUsers, userRoleEnum,
-  resGroups,
-  resPermissions,
-  resShops,
-  resPartner, partnerTypeEnum,
-  m2mUsersGroups,
-  m2mGroupsPermissions,
-  m2mUsersShops,
-} from './schema'
+import type {
+  ResUser,
+  ResGroup,
+  ResPermission,
+  ResShop,
+  ResPartner,
+  M2mUsersGroup,
+  M2mGroupsPermission,
+  M2mUsersShop,
+} from '../../drizzle/schema'
 
 export type {
   ResUser, NewResUser,
@@ -73,10 +72,7 @@ export type {
   M2mUsersGroup, NewM2mUsersGroup,
   M2mGroupsPermission, NewM2mGroupsPermission,
   M2mUsersShop, NewM2mUsersShop,
-} from './schema'
-
-export type {
-  User,
+  // Legacy business types
   Currency,
   ProductTemplate,
   Order,
@@ -105,10 +101,10 @@ export type {
   Menu,
   AuditLog,
   Shop,
-  StaffAccount,
-  Role,
-  Permission,
-  M2mRolesPermission,
-  M2mStaffAccountsRole,
-  M2mStaffAccountsShop,
 } from '../../drizzle/schema'
+
+// Backward-compat aliases (old tables merged into new schema)
+export type User = ResUser
+export type StaffAccount = ResUser
+export type Role = ResGroup
+export type Permission = ResPermission

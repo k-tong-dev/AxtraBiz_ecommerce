@@ -15,7 +15,7 @@ export default function EditStaffPage() {
     <ResourceView
       config={{
         type: 'form',
-        title: `${account?.full_name || 'Edit Staff Account'}`,
+        title: `${account?.displayName || 'Edit Staff Account'}`,
         formViewConfig: staffConfig.formViewConfig,
         enableDefaultActions: true,
         defaultActions: staffConfig.defaultActions,

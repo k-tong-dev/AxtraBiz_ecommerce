@@ -15,11 +15,11 @@ export { partnerTypeEnum, resPartner } from './res_partner'
 export type { ResPartner, NewResPartner } from './res_partner'
 
 // M2M tables after parent tables
-export { m2mUsersGroups } from './m2m_users_groups'
+export { m2mUsersGroups, m2mUsersGroupsRelations } from './m2m_users_groups'
 export type { M2mUsersGroup, NewM2mUsersGroup } from './m2m_users_groups'
 
-export { m2mGroupsPermissions } from './m2m_groups_permissions'
+export { m2mGroupsPermissions, m2mGroupsPermissionsRelations } from './m2m_groups_permissions'
 export type { M2mGroupsPermission, NewM2mGroupsPermission } from './m2m_groups_permissions'
 
-export { m2mUsersShops } from './m2m_users_shops'
+export { m2mUsersShops, m2mUsersShopsRelations } from './m2m_users_shops'
 export type { M2mUsersShop, NewM2mUsersShop } from './m2m_users_shops'

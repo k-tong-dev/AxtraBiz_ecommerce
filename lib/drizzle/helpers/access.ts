@@ -10,7 +10,7 @@ export async function getUserShops(userId: string) {
   return rows.map(r => r.shop)
 }
 
-export async function hasShopAccess(userId: string, shopId: number): Promise<boolean> {
+export async function hasShopAccess(userId: string, shopId: string): Promise<boolean> {
   const [row] = await db.select({ id: m2mUsersShops.userId })
     .from(m2mUsersShops)
     .where(and(eq(m2mUsersShops.userId, userId), eq(m2mUsersShops.shopId, shopId)))

@@ -4,14 +4,14 @@ import { eq, and } from 'drizzle-orm'
 
 export interface AssignStaffShopInput {
   userId: string
-  shopId: number
+  shopId: string
   isDefault?: boolean
   assignedBy?: string
 }
 
 export interface SyncStaffShopsInput {
   userId: string
-  shopIds: number[]
+  shopIds: string[]
   assignedBy?: string
 }
 
@@ -31,7 +31,7 @@ export async function assignStaffShop(input: AssignStaffShopInput) {
   }
 }
 
-export async function removeStaffShop(userId: string, shopId: number) {
+export async function removeStaffShop(userId: string, shopId: string) {
   try {
     await db.delete(m2mUsersShops)
       .where(and(

@@ -81,7 +81,7 @@ export function calculateVariants(attributes: Attribute[]): Variant[] {
 
     combination.forEach((value, idx) => {
       const attr = attributesWithValues[idx]
-      attributesMap[attr.id] = value.id
+      attributesMap[String(attr.id)] = String(value.id)
       nameParts.push(value.name)
     })
 

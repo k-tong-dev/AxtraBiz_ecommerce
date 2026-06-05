@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server'
 export type ShopAccess = {
   userId: string
   email: string
-  shopId: number
+  shopId: string
   isOwner: boolean
   scopes: string[]
   isPlatformAdmin: boolean
@@ -32,7 +32,7 @@ export async function getAuthContext(): Promise<ShopAccess | null> {
     return {
       userId: resUser.id,
       email: user.email,
-      shopId: 0,
+      shopId: '',
       isOwner: true,
       scopes: [],
       isPlatformAdmin: true,
@@ -47,7 +47,7 @@ export async function getAuthContext(): Promise<ShopAccess | null> {
  * Staff accounts are scoped to a shop. The shop_id must be explicitly provided
  * (from URL subdomain, header, or session).
  */
-export async function getStaffAuthContext(shopId: number): Promise<ShopAccess | null> {
+export async function getStaffAuthContext(shopId: string): Promise<ShopAccess | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) return null
@@ -64,7 +64,7 @@ export async function getStaffAuthContext(shopId: number): Promise<ShopAccess | 
     return {
       userId: resUser.id,
       email: user.email,
-      shopId: 0,
+      shopId: '',
       isOwner: true,
       scopes: [],
       isPlatformAdmin: true,
@@ -121,7 +121,7 @@ export async function getStaffAuthContext(shopId: number): Promise<ShopAccess | 
  */
 export async function requirePermission(
   scope: string,
-  shopId?: number,
+  shopId?: string,
 ): Promise<ShopAccess> {
   const ctx = shopId ? await getStaffAuthContext(shopId) : await getAuthContext()
 
@@ -146,8 +146,8 @@ export async function requirePermission(
  */
 export function checkRecordShopAccess(
   ctx: ShopAccess,
-  recordShopId: number,
-  recordShopIds?: number[],
+  recordShopId: string,
+  recordShopIds?: string[],
 ): void {
   if (ctx.isPlatformAdmin) return
 
