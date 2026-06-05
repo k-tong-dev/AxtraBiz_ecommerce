@@ -1,14 +1,13 @@
-import { pgTable, pgEnum, serial, text, varchar, numeric, timestamp, integer, jsonb, boolean, primaryKey, uuid } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// ─── Import new schema tables from lib/drizzle/schema/ ───
+// ─── Import everything from lib/drizzle/schema/ ───
 
 import {
   userRoleEnum,
   resUsers,
   resGroups,
   resPermissions,
-  resShops as resShopsImport,
+  resShops,
   partnerTypeEnum,
   resPartner,
   m2mUsersGroups,
@@ -17,6 +16,34 @@ import {
   m2mGroupsPermissionsRelations,
   m2mUsersShops,
   m2mUsersShopsRelations,
+  currencies,
+  product_template,
+  product_brand,
+  tax_rates,
+  product_categories,
+  shipping_zones,
+  shipping_zone_product,
+  product_attributes,
+  product_attribute_values,
+  product_attributes_rel,
+  product_variants,
+  orders,
+  invoices,
+  announcements,
+  settings,
+  configurations,
+  addresses,
+  payment_methods,
+  order_lines,
+  payment_transactions,
+  coupons,
+  product_reviews,
+  wishlist_items,
+  cart_items,
+  shipping_methods,
+  pages,
+  menus,
+  audit_logs,
 } from '../lib/drizzle/schema'
 
 export {
@@ -24,7 +51,7 @@ export {
   resUsers,
   resGroups,
   resPermissions,
-  resShopsImport as resShops,
+  resShops,
   partnerTypeEnum,
   resPartner,
   m2mUsersGroups,
@@ -33,6 +60,34 @@ export {
   m2mGroupsPermissionsRelations,
   m2mUsersShops,
   m2mUsersShopsRelations,
+  currencies,
+  product_template,
+  product_brand,
+  tax_rates,
+  product_categories,
+  shipping_zones,
+  shipping_zone_product,
+  product_attributes,
+  product_attribute_values,
+  product_attributes_rel,
+  product_variants,
+  orders,
+  invoices,
+  announcements,
+  settings,
+  configurations,
+  addresses,
+  payment_methods,
+  order_lines,
+  payment_transactions,
+  coupons,
+  product_reviews,
+  wishlist_items,
+  cart_items,
+  shipping_methods,
+  pages,
+  menus,
+  audit_logs,
 }
 
 export type {
@@ -46,445 +101,17 @@ export type {
   M2mUsersShop, NewM2mUsersShop,
 } from '../lib/drizzle/schema'
 
-// ─── Legacy alias: shops (referenced by 15+ business tables) ───
+// ─── Legacy alias: shops ───
 
-export const shops = resShopsImport
+export const shops = resShops
 
-// ─── Business Enums ───────────────────────────────────────
-
-export const productTypeEnum = pgEnum('product_type', [
-  'simple', 'variable', 'grouped', 'bundle', 'digital',
-  'subscription', 'virtual', 'dropship', 'gift_card',
-])
-export const productStatusEnum = pgEnum('product_status', ['draft', 'published', 'archived'])
-export const fulfillmentTypeEnum = pgEnum('fulfillment_type', ['self', 'dropship', 'digital', 'pickup', 'tpl'])
-
-export const attributeTypeEnum = pgEnum('attribute_type', ['select', 'radio', 'color', 'text', 'image'])
-
-export const orderStatusEnum = pgEnum('order_status', [
-  'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded', 'returned',
-])
-export const invoiceStatusEnum = pgEnum('invoice_status', ['draft', 'pending', 'paid', 'overdue', 'cancelled', 'refunded'])
-export const transactionStatusEnum = pgEnum('transaction_status', ['pending', 'completed', 'failed', 'refunded', 'cancelled'])
-export const paymentMethodEnum = pgEnum('payment_method', ['stripe', 'paypal', 'square', 'bank_transfer', 'cash', 'crypto'])
-
-export const announcementTypeEnum = pgEnum('announcement_type', ['info', 'success', 'warning', 'error', 'promo'])
-
-export const addressTypeEnum = pgEnum('address_type', ['shipping', 'billing', 'both'])
-export const paymentMethodTypeEnum = pgEnum('payment_method_type', ['credit_card', 'paypal', 'stripe', 'bank_transfer', 'crypto'])
-
-export const couponTypeEnum = pgEnum('coupon_type', ['percentage', 'fixed_amount', 'free_shipping', 'buy_x_get_y'])
-
-export const shippingRateTypeEnum = pgEnum('shipping_rate_type', ['flat', 'per_item', 'weight_based', 'free', 'tiered'])
-
-export const pageStatusEnum = pgEnum('page_status', ['draft', 'published', 'archived'])
-
-export const settingCategoryEnum = pgEnum('setting_category', ['general', 'store', 'email', 'payment', 'shipping', 'seo'])
-export const configTypeEnum = pgEnum('config_type', ['string', 'number', 'boolean', 'json', 'text'])
-export const configCategoryEnum = pgEnum('config_category', ['general', 'store', 'email', 'payment', 'shipping', 'seo', 'api'])
-
-export const auditActionEnum = pgEnum('audit_action', ['create', 'update', 'delete', 'login', 'logout', 'export', 'import', 'restore'])
-export const auditSeverityEnum = pgEnum('audit_severity', ['info', 'warning', 'error', 'critical'])
-
-// ─── Audit columns ────────────────────────────────────────
-
-export const auditColumns = {
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-  create_uid: text('create_uid'),
-  write_uid: text('write_uid'),
-};
-
-export const timestamps = {
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-};
-
-// ─── Business Tables ──────────────────────────────────────
-
-export const currencies = pgTable('res_currencies', {
-  code: text('code').primaryKey(),
-  name: text('name').notNull(),
-  symbol: text('symbol').notNull(),
-  decimal_places: integer('decimal_places').notNull().default(2),
-  exchange_rate: numeric('exchange_rate', { precision: 14, scale: 6 }).notNull().default('1'),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const product_template = pgTable('product_template', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  description: text('description').notNull().default(''),
-  price: numeric('price', { precision: 12, scale: 2 }).notNull().default('0'),
-  compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
-  cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
-  original_price: numeric('original_price', { precision: 12, scale: 2 }),
-  currency_code: text('currency_code').notNull().default('USD').references(() => currencies.code, { onDelete: 'set null' }),
-  image_id: jsonb('image_id'),
-  image_ids: jsonb('image_ids').notNull().default('[]'),
-  base_sku: text('base_sku').default(''),
-  barcode: text('barcode').default(''),
-  category_id: integer('category_id').references(() => product_categories.id, { onDelete: 'set null' }),
-  brand_id: integer('brand_id').references(() => product_brand.id, { onDelete: 'set null' }),
-  tax_rate_id: integer('tax_rate_id').references(() => tax_rates.id, { onDelete: 'set null' }),
-  product_type: productTypeEnum('product_type').notNull().default('simple'),
-  fulfillment_type: fulfillmentTypeEnum('fulfillment_type').notNull().default('self'),
-  status: productStatusEnum('status').notNull().default('draft'),
-  meta_title: text('meta_title'),
-  meta_description: text('meta_description'),
-  meta_keywords: text('meta_keywords'),
-  tags: jsonb('tags').notNull().default('[]'),
-  rating: numeric('rating', { precision: 3, scale: 2 }).notNull().default('0'),
-  reviews: integer('reviews').notNull().default(0),
-  stock: integer('stock').notNull().default(0),
-  track_inventory: boolean('track_inventory').default(true).notNull(),
-  low_stock_threshold: integer('low_stock_threshold').default(10),
-  allow_backorders: boolean('allow_backorders').default(false),
-  weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
-  dimensions: text('dimensions').default(''),
-  supplier_id: integer('supplier_id'),
-  supplier_sku: text('supplier_sku'),
-  supplier_url: text('supplier_url'),
-  sale_start_date: timestamp('sale_start_date', { mode: 'string' }),
-  sale_end_date: timestamp('sale_end_date', { mode: 'string' }),
-  published_at: timestamp('published_at', { mode: 'string' }),
-  active: boolean('active').default(true).notNull(),
-  features: jsonb('features').notNull().default('[]'),
-  ...auditColumns,
-});
-
-export const product_brand = pgTable('product_brand', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  description: text('description'),
-  image_id: jsonb('image_id'),
-  website: text('website'),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const tax_rates = pgTable('tax_rates', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  name: text('name').notNull(),
-  rate: numeric('rate', { precision: 5, scale: 2 }).notNull(),
-  country: text('country').notNull(),
-  region: text('region'),
-  postal_code: text('postal_code'),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const product_categories = pgTable('product_categories', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  description: text('description'),
-  parent_id: integer('parent_id').references(() => product_categories.id, { onDelete: 'set null' }),
-  image_id: jsonb('image_id'),
-  position: integer('position').default(0),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-}) as any;
-
-export const shipping_zones = pgTable('shipping_zones', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  name: text('name').notNull(),
-  description: text('description'),
-  countries: jsonb('countries').notNull().default('[]'),
-  regions: jsonb('regions').notNull().default('[]'),
-  base_rate: numeric('base_rate', { precision: 12, scale: 2 }).default('0'),
-  free_shipping_threshold: numeric('free_shipping_threshold', { precision: 12, scale: 2 }),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const shipping_zone_product = pgTable('shipping_zone_product', {
-  id: serial('id').primaryKey(),
-  shipping_zone_id: integer('shipping_zone_id').notNull().references(() => shipping_zones.id, { onDelete: 'cascade' }),
-  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
-  custom_rate: numeric('custom_rate', { precision: 12, scale: 2 }),
-  active: boolean('active').default(true).notNull(),
-  ...timestamps,
-});
-
-export const product_attributes = pgTable('product_attributes', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  type: attributeTypeEnum('type').notNull().default('select'),
-  position: integer('position').default(0),
-  ...auditColumns,
-});
-
-export const product_attribute_values = pgTable('product_attribute_values', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  value: text('value').notNull(),
-  attribute_id: integer('attribute_id').references(() => product_attributes.id, { onDelete: 'set null' }),
-  position: integer('position').default(0),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const product_attributes_rel = pgTable('product_attributes_rel', {
-  id: serial('id').primaryKey(),
-  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
-  attribute_id: integer('attribute_id').notNull().references(() => product_attributes.id, { onDelete: 'cascade' }),
-  position: integer('position').default(0),
-  ...timestamps,
-});
-
-export const product_variants = pgTable('product_variants', {
-  id: serial('id').primaryKey(),
-  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  sku: text('sku').unique(),
-  barcode: text('barcode').unique(),
-  price: numeric('price', { precision: 12, scale: 2 }).notNull().default('0'),
-  compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
-  cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
-  stock: integer('stock').notNull().default(0),
-  weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
-  image_ids: jsonb('image_ids').notNull().default('[]'),
-  attributes: jsonb('attributes').notNull().default('{}'),
-  position: integer('position').default(0),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const orders = pgTable('orders', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  user_id: text('user_id').notNull(),
-  items: jsonb('items').notNull().default('[]'),
-  shipping_address: jsonb('shipping_address').notNull(),
-  total_price: numeric('total_price', { precision: 12, scale: 2 }).notNull().default('0'),
-  status: orderStatusEnum('status').notNull().default('pending'),
-  tracking_number: text('tracking_number'),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const invoices = pgTable('invoices', {
-  id: serial('id').primaryKey(),
-  order_id: integer('order_id').notNull().references(() => orders.id, { onUpdate: 'cascade', onDelete: 'restrict' }),
-  invoice_number: text('invoice_number').notNull().unique(),
-  user_id: text('user_id').notNull(),
-  items: jsonb('items').notNull().default('[]'),
-  subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
-  tax: numeric('tax', { precision: 12, scale: 2 }).notNull().default('0'),
-  total: numeric('total', { precision: 12, scale: 2 }).notNull().default('0'),
-  status: invoiceStatusEnum('status').notNull().default('draft'),
-  due_date: timestamp('due_date', { mode: 'string' }),
-  ...auditColumns,
-});
-
-export const announcements = pgTable('announcements', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  title: text('title').notNull(),
-  content: text('content').notNull(),
-  type: announcementTypeEnum('type').notNull().default('info'),
-  active: boolean('active').notNull().default(true),
-  start_date: timestamp('start_date', { mode: 'string' }),
-  end_date: timestamp('end_date', { mode: 'string' }),
-  ...auditColumns,
-});
-
-export const settings = pgTable('settings', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  key: text('key').notNull().unique(),
-  value: text('value').notNull(),
-  category: settingCategoryEnum('category').notNull().default('general'),
-  ...auditColumns,
-});
-
-export const configurations = pgTable('configurations', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull().unique(),
-  value: text('value').notNull(),
-  type: configTypeEnum('type').notNull().default('string'),
-  category: configCategoryEnum('category').notNull().default('general'),
-  ...auditColumns,
-});
-
-export const addresses = pgTable('addresses', {
-  id: serial('id').primaryKey(),
-  user_id: text('user_id').notNull(),
-  type: addressTypeEnum('type').notNull().default('shipping'),
-  name: text('name').notNull(),
-  street: text('street').notNull(),
-  street2: text('street2'),
-  city: text('city').notNull(),
-  state: text('state'),
-  postal_code: text('postal_code').notNull(),
-  country: text('country').notNull().default('US'),
-  phone: text('phone'),
-  is_default: boolean('is_default').default(false),
-  ...auditColumns,
-});
-
-export const payment_methods = pgTable('payment_methods', {
-  id: serial('id').primaryKey(),
-  user_id: text('user_id').notNull(),
-  type: paymentMethodTypeEnum('type').notNull(),
-  card_holder_name: text('card_holder_name'),
-  last4: text('last4'),
-  brand: text('brand'),
-  expiry_month: integer('expiry_month'),
-  expiry_year: integer('expiry_year'),
-  issuer: text('issuer'),
-  stripe_payment_method_id: text('stripe_payment_method_id'),
-  paypal_email: text('paypal_email'),
-  bank_name: text('bank_name'),
-  bank_account_last4: text('bank_account_last4'),
-  crypto_wallet_address: text('crypto_wallet_address'),
-  crypto_network: text('crypto_network'),
-  is_default: boolean('is_default').default(false),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const order_lines = pgTable('order_lines', {
-  id: serial('id').primaryKey(),
-  order_id: integer('order_id').notNull().references(() => orders.id, { onDelete: 'cascade' }),
-  product_id: integer('product_id').references(() => product_template.id, { onDelete: 'set null' }),
-  variant_id: integer('variant_id').references(() => product_variants.id, { onDelete: 'set null' }),
-  name: text('name').notNull(),
-  sku: text('sku'),
-  quantity: integer('quantity').notNull().default(1),
-  unit_price: numeric('unit_price', { precision: 12, scale: 2 }).notNull().default('0'),
-  discount: numeric('discount', { precision: 12, scale: 2 }).default('0'),
-  tax: numeric('tax', { precision: 12, scale: 2 }).default('0'),
-  subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
-  ...timestamps,
-});
-
-export const payment_transactions = pgTable('payment_transactions', {
-  id: serial('id').primaryKey(),
-  order_id: integer('order_id').notNull().references(() => orders.id, { onDelete: 'restrict' }),
-  invoice_id: integer('invoice_id').references(() => invoices.id, { onDelete: 'set null' }),
-  user_id: text('user_id').notNull(),
-  amount: numeric('amount', { precision: 12, scale: 2 }).notNull().default('0'),
-  currency: text('currency').notNull().default('USD'),
-  payment_method: paymentMethodEnum('payment_method').notNull().default('stripe'),
-  status: transactionStatusEnum('status').notNull().default('pending'),
-  transaction_id: text('transaction_id'),
-  paid_at: timestamp('paid_at', { mode: 'string' }),
-  ...auditColumns,
-});
-
-export const coupons = pgTable('coupons', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  code: text('code').notNull().unique(),
-  description: text('description'),
-  type: couponTypeEnum('type').notNull().default('percentage'),
-  value: numeric('value', { precision: 12, scale: 2 }).notNull().default('0'),
-  min_order_amount: numeric('min_order_amount', { precision: 12, scale: 2 }),
-  max_uses: integer('max_uses'),
-  used_count: integer('used_count').notNull().default(0),
-  starts_at: timestamp('starts_at', { mode: 'string' }),
-  expires_at: timestamp('expires_at', { mode: 'string' }),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const product_reviews = pgTable('product_reviews', {
-  id: serial('id').primaryKey(),
-  user_id: text('user_id').notNull(),
-  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
-  variant_id: integer('variant_id').references(() => product_variants.id, { onDelete: 'set null' }),
-  rating: integer('rating').notNull().default(5),
-  title: text('title'),
-  body: text('body'),
-  approved: boolean('approved').default(false),
-  ...auditColumns,
-});
-
-export const wishlist_items = pgTable('wishlist_items', {
-  id: serial('id').primaryKey(),
-  user_id: text('user_id').notNull(),
-  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
-  variant_id: integer('variant_id').references(() => product_variants.id, { onDelete: 'cascade' }),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-});
-
-export const cart_items = pgTable('cart_items', {
-  id: serial('id').primaryKey(),
-  user_id: text('user_id'),
-  session_id: text('session_id'),
-  product_id: integer('product_id').notNull().references(() => product_template.id, { onDelete: 'cascade' }),
-  variant_id: integer('variant_id').references(() => product_variants.id, { onDelete: 'cascade' }),
-  quantity: integer('quantity').notNull().default(1),
-  created_at: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-  updated_at: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
-});
-
-export const shipping_methods = pgTable('shipping_methods', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  name: text('name').notNull(),
-  carrier: text('carrier'),
-  rate_type: shippingRateTypeEnum('rate_type').notNull().default('flat'),
-  rate_amount: numeric('rate_amount', { precision: 12, scale: 2 }).notNull().default('0'),
-  free_shipping_threshold: numeric('free_shipping_threshold', { precision: 12, scale: 2 }),
-  estimated_days_min: integer('estimated_days_min'),
-  estimated_days_max: integer('estimated_days_max'),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const pages = pgTable('ir_pages', {
-  id: serial('id').primaryKey(),
-  shop_id: integer('shop_id'),
-  slug: text('slug').notNull().unique(),
-  title: text('title').notNull(),
-  content: text('content'),
-  meta_title: text('meta_title'),
-  meta_description: text('meta_description'),
-  status: pageStatusEnum('status').notNull().default('draft'),
-  published_at: timestamp('published_at', { mode: 'string' }),
-  ...auditColumns,
-});
-
-export const menus = pgTable('ir_menus', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  items: jsonb('items').notNull().default('[]'),
-  active: boolean('active').default(true).notNull(),
-  ...auditColumns,
-});
-
-export const audit_logs = pgTable('ir_audit_logs', {
-  id: serial('id').primaryKey(),
-  user_id: text('user_id'),
-  action: auditActionEnum('action').notNull().default('create'),
-  entity_type: text('entity_type').notNull(),
-  entity_id: text('entity_id'),
-  details: jsonb('details').default('{}'),
-  ip_address: text('ip_address'),
-  user_agent: text('user_agent'),
-  severity: auditSeverityEnum('severity').notNull().default('info'),
-  ...timestamps,
-});
-
-// ─── Relations ─────────────────────────────────────────────
+// ─── Relations ───
 
 export const shopsStaffRelations = relations(shops, ({ many }) => ({
   m2mStaff: many(m2mUsersShops),
-}));
+}))
 
-// ─── Type exports ─────────────────────────────────────────
+// ─── Type exports ───
 
 export type AuditLog = typeof audit_logs.$inferSelect;
 export type Currency = typeof currencies.$inferSelect;
