@@ -215,6 +215,43 @@
   animation: pulse-slow 8s ease-in-out infinite;
 }
 
+/* ─── Auth page cinematic animations ─── */
+.auth-card-enter {
+  animation: fadeSlideUp 0.5s ease-out forwards;
+}
+
+.auth-page-form > * {
+  opacity: 0;
+  animation: fadeSlideUp 0.45s ease-out forwards;
+}
+.auth-page-form > *:nth-child(1) { animation-delay: 0.05s; }
+.auth-page-form > *:nth-child(2) { animation-delay: 0.12s; }
+.auth-page-form > *:nth-child(3) { animation-delay: 0.19s; }
+.auth-page-form > *:nth-child(4) { animation-delay: 0.26s; }
+.auth-page-form > *:nth-child(5) { animation-delay: 0.33s; }
+
+.orb-1 {
+  animation: orbFloat 16s ease-in-out infinite;
+}
+.orb-2 {
+  animation: orbFloat 11s ease-in-out infinite reverse;
+}
+.orb-3 {
+  animation: orbFloat 20s ease-in-out infinite 2s;
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(40px, -25px) scale(1.08); }
+  50% { transform: translate(-20px, -40px) scale(0.92); }
+  75% { transform: translate(-40px, 10px) scale(1.03); }
+}
+
 /* Custom premium scrollbar for storefront list */
 .custom-scrollbar::-webkit-scrollbar {
   height: 6px;

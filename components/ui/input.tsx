@@ -73,32 +73,43 @@ function Input({
     if (isBordered) {
         return (
             <div className={cn('w-full', className)}>
-                <div className="relative">
+                <div
+                    className={cn(
+                        'relative transition-all duration-200 rounded-[10px]',
+                        'border',
+                        error ? 'border-destructive' : 'border-black/10 dark:border-white/10',
+                        'focus-within:border-indigo-500 dark:focus-within:border-indigo-400',
+                        'focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.15)]',
+                    )}
+                >
                     <RsInput
                         id={inputId}
                         data-slot="input"
-                        classPrefix=""
-                        style={{
-                            border: error ? '1px solid rgb(220 38 38)' : '1px solid rgba(0,0,0,0.12)',
-                            borderRadius: '10px',
-                            outlineColor: 'transparent',
-                            background: 'rgba(255,255,255,0.6)',
-                            transition: 'all 0.2s ease',
-                            ...style,
-                        }}
                         placeholder={placeholder}
+                        style={{
+                            width: '100%',
+                            border: 'none',
+                            borderRadius: '10px',
+                            outline: 'none',
+                            boxShadow: 'none',
+                            background: 'transparent',
+                            padding: '10px 14px',
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                            color: 'inherit',
+                            boxSizing: 'border-box',
+                            display: 'block',
+                            transition: 'none',
+                        }}
                         className={cn(
-                            'w-full px-3.5 py-2.5 text-foreground ' +
+                            'bg-transparent text-foreground ' +
                             'placeholder:text-muted-foreground/60 ' +
-                            'disabled:cursor-not-allowed disabled:opacity-50 ' +
-                            '[&:focus]:border-primary [&:focus]:shadow-lg [&:focus]:shadow-primary/10 ' +
-                            'dark:[&:focus]:border-primary',
-                            sizeStyles[inputSize].input,
+                            'disabled:cursor-not-allowed disabled:opacity-50',
                         )}
-                        onChange={(value: string) => {
+                        onChange={(val: string) => {
                             onChange?.({
-                                target: { value },
-                                currentTarget: { value },
+                                target: { value: val },
+                                currentTarget: { value: val },
                             } as React.ChangeEvent<HTMLInputElement>)
                         }}
                         {...props}

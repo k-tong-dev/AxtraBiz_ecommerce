@@ -54,8 +54,8 @@ export default function ResetPasswordPage() {
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.12),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(20,184,166,0.1),transparent_50%)]" />
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-emerald-300/30 to-teal-300/20 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-cyan-300/25 to-sky-200/20 blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-emerald-300/30 to-teal-300/20 blur-3xl orb-1" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-cyan-300/25 to-sky-200/20 blur-3xl orb-2" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.015)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:56px_56px]" />
       </div>
 
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
           <div className="relative">
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 blur-2xl" />
 
-            <div className="relative rounded-2xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 p-8 shadow-2xl shadow-emerald-500/10 backdrop-blur-2xl">
+            <div className="relative rounded-2xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 p-8 shadow-2xl shadow-emerald-500/10 backdrop-blur-2xl auth-card-enter">
               <div className="lg:hidden mb-6 flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
                   <Sparkles className="h-4 w-4 text-white" />
@@ -150,7 +150,7 @@ export default function ResetPasswordPage() {
                   </div>
 
                   <Form ref={formRef} model={model} onSubmit={handleSubmit} fluid formDefaultValue={{ password: '', confirm: '' }}>
-                    <div className="space-y-3.5">
+                    <div className="space-y-3.5 auth-page-form">
                       <FormField
                         name="password"
                         type={showPassword ? 'text' : 'password'}
