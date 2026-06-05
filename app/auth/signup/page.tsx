@@ -3,33 +3,36 @@
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { ArrowRight, UserPlus, Store, BarChart3, ShieldCheck } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { ArrowRight, UserPlus, Store, BarChart3, ShieldCheck, Quote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
+
+type SignupForm = {
+  name: string
+  email: string
+  password: string
+}
 
 function SignupPageContent() {
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/website'
   const { signup, loginWithGoogle } = useAuth()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [saving, setSaving] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
-  const handleSignup = async () => {
-    if (!name || !email || !password) return
-    setSaving(true)
-    const created = await signup(name, email, password)
-    setSaving(false)
+  const form = useForm<SignupForm>({
+    defaultValues: { name: '', email: '', password: '' },
+  })
 
+  const onSubmit = async (data: SignupForm) => {
+    const created = await signup(data.name, data.email, data.password)
     if (!created) {
       showToast('error', 'Could not create account', 'Please try again.')
       return
     }
-
     showToast('success', 'Check your email',
       created.needsVerification ? 'Verification code sent.' : 'Account created successfully.')
   }
@@ -37,10 +40,8 @@ function SignupPageContent() {
   const handleGoogleSignup = async () => {
     setGoogleLoading(true)
     const ok = await loginWithGoogle()
-    if (!ok) {
-      showToast('error', 'Google sign-up failed', 'Please try again.')
-      setGoogleLoading(false)
-    }
+    if (!ok) { showToast('error', 'Google sign-up failed', 'Please try again.') }
+    setGoogleLoading(false)
   }
 
   const perks = [
@@ -50,19 +51,29 @@ function SignupPageContent() {
   ]
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 lg:p-8">
-      <div className="flex w-full max-w-5xl gap-8 xl:gap-12 items-center">
-        <div className="hidden lg:flex lg:w-[45%] flex-col gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 -right-32 w-[450px] h-[450px] rounded-full bg-blue-500/5 blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
+        <div className="absolute -bottom-32 -left-32 w-[380px] h-[380px] rounded-full bg-primary/5 blur-3xl animate-pulse" style={{ animationDuration: '9s' }} />
+        <div className="absolute top-1/2 right-1/3 w-[250px] h-[250px] rounded-full bg-emerald-500/5 blur-3xl animate-pulse" style={{ animationDuration: '11s' }} />
+      </div>
+
+      <div className="relative z-10 flex w-full max-w-6xl mx-auto px-4 lg:px-8 gap-8 xl:gap-16 items-center">
+        <div className="hidden lg:flex lg:w-[45%] flex-col gap-8">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/[0.08] px-4 py-1.5 text-xs font-semibold text-blue-500 tracking-wide uppercase">
               <UserPlus className="h-3.5 w-3.5" />
               Get started free
             </div>
-            <h1 className="text-3xl xl:text-4xl font-bold tracking-tight">
-              Join AxtraBiz
+            <h1 className="text-4xl xl:text-5xl font-bold tracking-tight leading-[1.1]">
+              Start your{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-primary to-emerald-500 bg-clip-text text-transparent">
+                e-commerce journey
+              </span>
             </h1>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Create your account and start selling online in minutes.
+            <p className="text-base text-muted-foreground leading-relaxed max-w-md">
+              Create your account and launch your online store in minutes. No technical skills required.
             </p>
           </div>
 
@@ -70,39 +81,51 @@ function SignupPageContent() {
             {perks.map((p) => (
               <div
                 key={p.title}
-                className="group rounded-2xl border border-border/50 bg-card/60 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-card/80 hover:shadow-lg hover:shadow-primary/5"
+                className="group relative rounded-2xl border border-border/40 bg-card/40 p-4 transition-all duration-500 hover:border-blue-500/30 hover:bg-card/70 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-0.5"
               >
                 <div className="flex items-start gap-3">
-                  <div className="shrink-0 rounded-xl bg-primary/10 p-2.5 transition-colors group-hover:bg-primary/15">
-                    <p.icon className="h-4 w-4 text-primary" />
+                  <div className="shrink-0 rounded-xl bg-gradient-to-br from-blue-500/20 to-primary/20 p-2.5 ring-1 ring-blue-500/10 group-hover:ring-blue-500/20 transition-all">
+                    <p.icon className="h-4 w-4 text-blue-500" />
                   </div>
                   <div>
                     <p className="text-sm font-semibold">{p.title}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{p.desc}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground/80">{p.desc}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
+          <div className="relative rounded-2xl border border-border/30 bg-gradient-to-br from-blue-500/[0.03] to-primary/[0.03] p-5">
+            <Quote className="h-6 w-6 text-blue-500/30 absolute top-3 right-3" />
+            <p className="text-sm text-muted-foreground/90 italic leading-relaxed">
+              &ldquo;We went from idea to first sale in under 48 hours. The setup process is incredibly smooth.&rdquo;
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-500 to-primary flex items-center justify-center text-[10px] font-bold text-white">MJ</div>
+              <div>
+                <p className="text-xs font-medium">Marcus Johnson</p>
+                <p className="text-[10px] text-muted-foreground/70">Founder, Urban Threads</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="w-full lg:w-[55%]">
-          <div className="rounded-3xl border border-border/50 bg-card/80 p-6 sm:p-8 shadow-2xl shadow-black/5 backdrop-blur-xl">
-            <div className="mb-6 lg:hidden">
+        <div className="w-full lg:w-[55%] max-w-md mx-auto lg:mx-0">
+          <div className="rounded-3xl border border-border/40 bg-card/70 p-6 sm:p-8 shadow-2xl shadow-black/5 backdrop-blur-2xl">
+            <div className="mb-7 lg:hidden">
               <h1 className="text-2xl font-bold">Join AxtraBiz</h1>
               <p className="text-sm text-muted-foreground">Create your account</p>
             </div>
 
             <div className="space-y-5">
               <Button
-                className="w-full"
+                className="w-full h-11"
                 appearance="default"
                 onClick={handleGoogleSignup}
-                disabled={googleLoading || saving}
+                disabled={googleLoading || form.formState.isSubmitting}
               >
-                {googleLoading ? (
-                  'Connecting...'
-                ) : (
+                {googleLoading ? 'Connecting...' : (
                   <>
                     <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -117,57 +140,82 @@ function SignupPageContent() {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border/60" />
+                  <div className="w-full border-t border-border/40" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-3 text-muted-foreground">or sign up with email</span>
+                  <span className="bg-card px-3 text-muted-foreground/60 tracking-wider">or sign up with email</span>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <Input
-                  label="Full name"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e: any) => setName(e.target.value)}
-                  fullWidth
-                />
-                <Input
-                  label="Email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e: any) => setEmail(e.target.value)}
-                  fullWidth
-                />
-                <Input
-                  label="Password"
-                  type="password"
-                  placeholder="Min. 8 characters"
-                  value={password}
-                  onChange={(e: any) => setPassword(e.target.value)}
-                  fullWidth
-                />
-              </div>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    rules={{ required: 'Name is required' }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <Button
-                className="w-full"
-                appearance="primary"
-                loading={saving}
-                disabled={saving || !email || !password || !name}
-                onClick={handleSignup}
-              >
-                {saving ? 'Creating...' : 'Create account'}
-                <ArrowRight className="w-4 h-4 ml-1.5" />
-              </Button>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    rules={{
+                      required: 'Email is required',
+                      pattern: { value: /^[^\s@]+@[^\s@]+$/, message: 'Invalid email' },
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="you@example.com" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    rules={{
+                      required: 'Password is required',
+                      minLength: { value: 8, message: 'At least 8 characters' },
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="Min. 8 characters" value={field.value} onChange={(e) => field.onChange(e.target.value)} fullWidth />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    className="w-full h-11"
+                    appearance="primary"
+                    loading={form.formState.isSubmitting}
+                  >
+                    {form.formState.isSubmitting ? 'Creating...' : 'Create account'}
+                    <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </form>
+              </Form>
             </div>
 
-            <p className="mt-6 text-center text-xs text-muted-foreground">
+            <p className="mt-6 text-center text-xs text-muted-foreground/70">
               Already have an account?{' '}
-              <Link
-                href={`/auth/signin?redirect=${encodeURIComponent(redirect)}`}
-                className="font-medium text-primary hover:underline"
-              >
+              <Link href={`/auth/signin?redirect=${encodeURIComponent(redirect)}`} className="font-medium text-primary hover:underline">
                 Sign in
               </Link>
             </p>
@@ -180,13 +228,7 @@ function SignupPageContent() {
 
 export default function SignupPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center p-4 lg:p-8">
-          <div className="w-full max-w-md h-[500px] rounded-3xl border border-border/50 bg-card/80 animate-pulse" />
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center p-4"><div className="w-full max-w-md h-[540px] rounded-3xl border border-border/40 bg-card/70 animate-pulse" /></div>}>
       <SignupPageContent />
     </Suspense>
   )
