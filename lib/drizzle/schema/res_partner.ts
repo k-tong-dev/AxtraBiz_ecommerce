@@ -1,4 +1,5 @@
-import { pgTable, uuid, text, boolean, timestamp, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, boolean, pgEnum } from 'drizzle-orm/pg-core'
+import { auditFields } from './audit'
 
 export const partnerTypeEnum = pgEnum('partner_type', ['contact', 'customer', 'vendor'])
 
@@ -22,11 +23,7 @@ export const resPartner = pgTable('res_partner', {
   vat:       text('vat'),
   ref:       text('ref'),
   comment:   text('comment'),
-  active:    boolean('active').notNull().default(true),
-  createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
-  updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow(),
-  createdBy: uuid('created_by'),
-  updatedBy: uuid('updated_by'),
+  ...auditFields,
 })
 
 export type ResPartner = typeof resPartner.$inferSelect

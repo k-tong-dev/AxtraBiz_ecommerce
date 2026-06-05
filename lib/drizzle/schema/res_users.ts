@@ -1,4 +1,5 @@
-import { pgTable, uuid, text, boolean, timestamp, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, boolean, pgEnum } from 'drizzle-orm/pg-core'
+import { auditFields } from './audit'
 
 export const userRoleEnum = pgEnum('user_role', ['_admin_system_', 'employee', 'business', 'new'])
 
@@ -13,11 +14,7 @@ export const resUsers = pgTable('res_users', {
   userRole:    userRoleEnum('user_role').notNull().default('new'),
   isShopOwner: boolean('is_shop_owner').notNull().default(false),
   shopId:      uuid('shop_id'),
-  active:      boolean('active').notNull().default(true),
-  createdAt:   timestamp('created_at', { mode: 'string' }).defaultNow(),
-  updatedAt:   timestamp('updated_at', { mode: 'string' }).defaultNow(),
-  createdBy:   uuid('created_by'),
-  updatedBy:   uuid('updated_by'),
+  ...auditFields,
 })
 
 export type ResUser = typeof resUsers.$inferSelect

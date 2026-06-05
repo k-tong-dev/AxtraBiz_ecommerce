@@ -9,7 +9,7 @@ import {
   integer,
   jsonb,
   boolean,
-  primaryKey,
+  primaryKey, uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -568,8 +568,9 @@ export const audit_logs = pgTable('ir_audit_logs', {
 /**
  * Shops — multi-store tenant entities for data isolation.
  * Each shop has its own domain, contact info, and configuration.
+ * Alias for res_shops — kept for backward compat with legacy FK references.
  */
-export const resShopsLegacy = pgTable('res_shops', {
+export const shops = pgTable('res_shops', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
@@ -583,8 +584,6 @@ export const resShopsLegacy = pgTable('res_shops', {
   createdAt: timestamp('created_at', { mode: 'string' }).defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow(),
 });
-
-export const shops = resShopsLegacy;
 
 /**
  * Staff Accounts — admin panel user accounts linked to shops.
