@@ -1,6 +1,5 @@
-import { db, menus } from '../server'
 import { createCrudService } from './base-crud'
-import type { Menu } from '@/lib/drizzle/schema'
+import {menus,  type Menu } from '@/lib/drizzle/schema'
 
 export const menuService = createCrudService<Menu, any, any>(
   menus

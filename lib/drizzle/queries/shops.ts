@@ -1,14 +1,13 @@
-import { db, shops } from '../server'
 import { createCrudService } from './base-crud'
-import type { Shop } from '@/lib/drizzle/schema'
+import {resShops , type ResShop } from '@/lib/drizzle/schema'
 
-export const shopService = createCrudService<Shop, any, any>(shops)
+export const shopService = createCrudService<ResShop, any, any>(resShops)
 
-export async function fetchShopsFromDrizzle(): Promise<Shop[]> {
+export async function fetchShopsFromDrizzle(): Promise<ResShop[]> {
   return shopService.search()
 }
 
-export async function fetchShopFromDrizzle(shopId: string): Promise<Shop | null> {
+export async function fetchShopFromDrizzle(shopId: string): Promise<ResShop | null> {
   return shopService.read(shopId)
 }
 

@@ -1,6 +1,5 @@
-import { db, resUserAddresses } from '../server'
 import { createCrudService } from './base-crud'
-import type { ResUserAddress } from '@/lib/drizzle/schema'
+import { resUserAddresses, type ResUserAddress } from '@/lib/drizzle/schema'
 
 export const resUserAddressService = createCrudService<ResUserAddress, any, any>(
   resUserAddresses

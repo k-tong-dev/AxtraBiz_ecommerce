@@ -1,6 +1,6 @@
 import { db } from '../client'
 import { m2mUsersGroups } from '@/lib/drizzle/schema'
-import { syncStaffRoles } from '../m2m/staff-roles'
+import { syncStaffRoles } from '@/lib/drizzle/m2m'
 
 export async function fetchStaffRolesFromDrizzle() {
   try {

@@ -1,6 +1,5 @@
-import { db, resPermissions } from '../server'
 import { createCrudService } from './base-crud'
-import type { ResPermission } from '@/lib/drizzle/schema'
+import  { resPermissions, ResPermission } from '@/lib/drizzle/schema'
 
 export const permissionService = createCrudService<ResPermission, any, any>(resPermissions)
 

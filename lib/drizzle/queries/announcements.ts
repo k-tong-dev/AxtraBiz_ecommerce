@@ -1,6 +1,5 @@
-import { db, announcements } from '../server'
 import { createCrudService } from './base-crud'
-import type { Announcement } from '@/lib/drizzle/schema'
+import {announcements, type Announcement } from '@/lib/drizzle/schema'
 
 // Create CRUD service for announcements
 export const announcementService = createCrudService<Announcement, any, any>(

@@ -1,6 +1,5 @@
-import { db, pages } from '../server'
 import { createCrudService } from './base-crud'
-import type { Page } from '@/lib/drizzle/schema'
+import { pages, type Page } from '@/lib/drizzle/schema'
 
 export const pageService = createCrudService<Page, any, any>(
   pages
