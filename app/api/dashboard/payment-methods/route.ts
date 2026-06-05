@@ -3,7 +3,7 @@ import {
   fetchPaymentMethodsFromDrizzle,
   paymentMethodService,
   deletePaymentMethodFromDrizzle
-} from '@/lib/drizzle/payment_methods'
+} from '@/lib/drizzle/queries/payment_methods'
 
 export async function GET() {
   try {

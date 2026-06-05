@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchPermissionsFromDrizzle, permissionService, deletePermissionFromDrizzle } from '@/lib/drizzle/permissions'
+import { fetchPermissionsFromDrizzle, permissionService, deletePermissionFromDrizzle } from '@/lib/drizzle/queries/permissions'
 
 export async function GET() {
   try {

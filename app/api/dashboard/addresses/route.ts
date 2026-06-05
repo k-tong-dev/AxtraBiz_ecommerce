@@ -3,7 +3,7 @@ import {
   fetchResUserAddressesFromDrizzle,
   resUserAddressService,
   deleteResUserAddressFromDrizzle
-} from '@/lib/drizzle/res-user-addresses'
+} from '@/lib/drizzle/queries/res-user-addresses'
 
 export async function GET() {
   try {

@@ -3,7 +3,7 @@ import {
   fetchProductReviewFromDrizzle,
   productReviewService,
   deleteProductReviewFromDrizzle
-} from '@/lib/drizzle/product_reviews'
+} from '@/lib/drizzle/queries/product_reviews'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

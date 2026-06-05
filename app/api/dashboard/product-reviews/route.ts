@@ -3,7 +3,7 @@ import {
   fetchProductReviewsFromDrizzle,
   productReviewService,
   deleteProductReviewFromDrizzle
-} from '@/lib/drizzle/product_reviews'
+} from '@/lib/drizzle/queries/product_reviews'
 
 export async function GET() {
   try {

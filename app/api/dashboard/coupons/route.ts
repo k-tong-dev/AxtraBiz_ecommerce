@@ -3,7 +3,7 @@ import {
   fetchCouponsFromDrizzle,
   couponService,
   deleteCouponFromDrizzle
-} from '@/lib/drizzle/coupons'
+} from '@/lib/drizzle/queries/coupons'
 
 export async function GET() {
   try {

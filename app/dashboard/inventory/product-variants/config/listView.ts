@@ -1,5 +1,5 @@
 import { ListViewConfig } from '@/components/Base/Views/ListView'
-import type { ProductVariant } from '@/lib/drizzle/server'
+import type { ProductVariant } from '@/lib/drizzle/schema'
 
 export const productVariantListConfig: ListViewConfig = {
   title: 'Product Variants',

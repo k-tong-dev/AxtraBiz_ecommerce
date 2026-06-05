@@ -3,7 +3,7 @@ import {
   fetchPagesFromDrizzle,
   pageService,
   deletePageFromDrizzle
-} from '@/lib/drizzle/pages'
+} from '@/lib/drizzle/queries/pages'
 
 export async function GET() {
   try {

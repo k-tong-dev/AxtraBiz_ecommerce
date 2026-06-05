@@ -3,7 +3,7 @@ import {
   fetchCouponFromDrizzle,
   couponService,
   deleteCouponFromDrizzle
-} from '@/lib/drizzle/coupons'
+} from '@/lib/drizzle/queries/coupons'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

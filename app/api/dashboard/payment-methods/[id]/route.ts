@@ -3,7 +3,7 @@ import {
   fetchPaymentMethodFromDrizzle,
   paymentMethodService,
   deletePaymentMethodFromDrizzle
-} from '@/lib/drizzle/payment_methods'
+} from '@/lib/drizzle/queries/payment_methods'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

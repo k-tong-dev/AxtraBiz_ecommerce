@@ -3,7 +3,7 @@ import {
   fetchMenusFromDrizzle,
   menuService,
   deleteMenuFromDrizzle
-} from '@/lib/drizzle/menus'
+} from '@/lib/drizzle/queries/menus'
 
 export async function GET() {
   try {

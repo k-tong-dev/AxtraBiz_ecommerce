@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, jsonb } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, jsonb, boolean } from 'drizzle-orm/pg-core'
 import { auditFields } from './audit'
 
 export const resShops = pgTable('res_shops', {
@@ -11,6 +11,22 @@ export const resShops = pgTable('res_shops', {
   phone:   text('phone'),
   address: jsonb('address').default('{}'),
   logo:    jsonb('logo'),
+
+  defaultCurrency: text('default_currency').default('USD'),
+  timezone:        text('timezone').default('Asia/Phnom_Penh'),
+  language:        text('language').default('en'),
+  logoUrl:         text('logo_url'),
+
+  // Features toggle (like Odoo module enable/disable)
+  enableOtp:       boolean('enable_otp').default(true),
+  enableReviews:   boolean('enable_reviews').default(true),
+  enableCoupons:   boolean('enable_coupons').default(false),
+
+  // Notifications
+  smtpHost:        text('smtp_host'),
+  smtpPort:        text('smtp_port'),
+  supportEmail:    text('support_email'),
+
   ...auditFields,
 })
 

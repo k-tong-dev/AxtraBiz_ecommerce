@@ -3,7 +3,7 @@ import {
   fetchShippingMethodFromDrizzle,
   shippingMethodService,
   deleteShippingMethodFromDrizzle
-} from '@/lib/drizzle/shipping_methods'
+} from '@/lib/drizzle/queries/shipping_methods'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

@@ -3,7 +3,7 @@ import {
   fetchUsersFromDrizzle,
   userService,
   deleteUserFromDrizzle
-} from '@/lib/drizzle/users'
+} from '@/lib/drizzle/queries/users'
 
 export async function GET() {
   try {

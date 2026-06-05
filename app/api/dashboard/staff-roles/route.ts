@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchStaffRolesFromDrizzle, deleteStaffRoleFromDrizzle } from '@/lib/drizzle/staff-roles'
+import { fetchStaffRolesFromDrizzle, deleteStaffRoleFromDrizzle } from '@/lib/drizzle/queries/staff-roles'
 import { assignStaffRole, removeStaffRole } from '@/lib/drizzle/m2m/staff-roles'
 
 export async function GET() {

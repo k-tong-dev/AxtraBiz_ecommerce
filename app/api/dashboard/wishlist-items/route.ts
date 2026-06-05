@@ -3,7 +3,7 @@ import {
   fetchWishlistItemsFromDrizzle,
   wishlistItemService,
   deleteWishlistItemFromDrizzle
-} from '@/lib/drizzle/wishlist_items'
+} from '@/lib/drizzle/queries/wishlist_items'
 
 export async function GET() {
   try {

@@ -3,7 +3,7 @@ import {
   fetchWishlistItemFromDrizzle,
   wishlistItemService,
   deleteWishlistItemFromDrizzle
-} from '@/lib/drizzle/wishlist_items'
+} from '@/lib/drizzle/queries/wishlist_items'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

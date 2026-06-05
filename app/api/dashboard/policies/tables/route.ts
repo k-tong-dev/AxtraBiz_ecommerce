@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchTables } from '@/lib/drizzle/policies'
+import { fetchTables } from '@/lib/drizzle/queries/policies'
 
 export async function GET() {
   try {

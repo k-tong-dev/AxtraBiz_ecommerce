@@ -3,7 +3,7 @@ import {
   fetchOrderLinesFromDrizzle,
   orderLineService,
   deleteOrderLineFromDrizzle
-} from '@/lib/drizzle/order_lines'
+} from '@/lib/drizzle/queries/order_lines'
 
 export async function GET() {
   try {

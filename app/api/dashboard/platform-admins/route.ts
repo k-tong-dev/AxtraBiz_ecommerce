@@ -3,7 +3,7 @@ import {
   fetchPlatformAdminsFromDrizzle,
   createPlatformAdminFromDrizzle,
   deletePlatformAdminFromDrizzle,
-} from '@/lib/drizzle/platform-admins'
+} from '@/lib/drizzle/queries/platform-admins'
 
 export async function GET() {
   try {

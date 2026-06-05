@@ -3,7 +3,7 @@ import {
   fetchShippingZonesFromDrizzle,
   shippingZoneService,
   deleteShippingZoneFromDrizzle
-} from '@/lib/drizzle/shipping_zones'
+} from '@/lib/drizzle/queries/shipping_zones'
 
 export async function GET() {
   try {

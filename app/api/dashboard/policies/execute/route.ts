@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { executeSql } from '@/lib/drizzle/policies'
+import { executeSql } from '@/lib/drizzle/queries/policies'
 
 export async function POST(request: Request) {
   try {

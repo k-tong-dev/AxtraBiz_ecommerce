@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchRolesFromDrizzle, groupService, deleteRoleFromDrizzle } from '@/lib/drizzle/roles'
+import { fetchRolesFromDrizzle, groupService, deleteRoleFromDrizzle } from '@/lib/drizzle/queries/roles'
 
 export async function GET() {
   try {

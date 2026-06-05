@@ -3,7 +3,7 @@ import {
   fetchIrUserConfigsFromDrizzle,
   irUserConfigService,
   deleteIrUserConfigFromDrizzle
-} from '@/lib/drizzle/ir-user-config'
+} from '@/lib/drizzle/queries/ir-user-config'
 
 export async function GET() {
   try {

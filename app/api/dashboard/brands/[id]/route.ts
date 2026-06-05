@@ -3,7 +3,7 @@ import {
   fetchBrandFromDrizzle,
   brandService,
   deleteBrandFromDrizzle
-} from '@/lib/drizzle/brands'
+} from '@/lib/drizzle/queries/brands'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

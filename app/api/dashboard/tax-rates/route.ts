@@ -3,7 +3,7 @@ import {
   fetchTaxRatesFromDrizzle,
   taxRateService,
   deleteTaxRateFromDrizzle
-} from '@/lib/drizzle/tax_rates'
+} from '@/lib/drizzle/queries/tax_rates'
 
 export async function GET() {
   try {

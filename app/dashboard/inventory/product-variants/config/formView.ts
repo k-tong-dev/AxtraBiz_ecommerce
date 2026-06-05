@@ -1,5 +1,5 @@
 import { FormConfig } from '@/components/Base/Views/FormView'
-import type { ProductVariant } from '@/lib/drizzle/server'
+import type { ProductVariant } from '@/lib/drizzle/schema'
 
 export const productVariantFormConfig: FormConfig = {
   entityName: 'Product Variant',

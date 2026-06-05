@@ -3,7 +3,7 @@ import {
   fetchTaxRateFromDrizzle,
   taxRateService,
   deleteTaxRateFromDrizzle
-} from '@/lib/drizzle/tax_rates'
+} from '@/lib/drizzle/queries/tax_rates'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

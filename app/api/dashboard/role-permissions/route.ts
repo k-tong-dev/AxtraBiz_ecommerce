@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchRolePermissionsFromDrizzle } from '@/lib/drizzle/role-permissions'
+import { fetchRolePermissionsFromDrizzle } from '@/lib/drizzle/queries/role-permissions'
 import { assignRolePermission, removeRolePermission } from '@/lib/drizzle/m2m/roles-permissions'
 
 export async function GET() {

@@ -3,7 +3,7 @@ import {
   fetchProductVariantsFromDrizzle,
   productVariantService,
   deleteProductVariantFromDrizzle,
-} from '@/lib/drizzle/product-variants'
+} from '@/lib/drizzle/queries/product-variants'
 
 export async function GET() {
   try {

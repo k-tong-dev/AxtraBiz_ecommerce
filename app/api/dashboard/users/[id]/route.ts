@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchUserFromDrizzle, userService, deleteUserFromDrizzle } from '@/lib/drizzle/users'
+import { fetchUserFromDrizzle, userService, deleteUserFromDrizzle } from '@/lib/drizzle/queries/users'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {

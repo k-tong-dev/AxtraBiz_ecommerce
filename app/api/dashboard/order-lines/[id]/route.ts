@@ -3,7 +3,7 @@ import {
   fetchOrderLineFromDrizzle,
   orderLineService,
   deleteOrderLineFromDrizzle
-} from '@/lib/drizzle/order_lines'
+} from '@/lib/drizzle/queries/order_lines'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

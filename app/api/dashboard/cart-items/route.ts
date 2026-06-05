@@ -3,7 +3,7 @@ import {
   fetchCartItemsFromDrizzle,
   cartItemService,
   deleteCartItemFromDrizzle
-} from '@/lib/drizzle/cart_items'
+} from '@/lib/drizzle/queries/cart_items'
 
 export async function GET() {
   try {

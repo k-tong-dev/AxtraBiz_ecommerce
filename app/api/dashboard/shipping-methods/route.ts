@@ -3,7 +3,7 @@ import {
   fetchShippingMethodsFromDrizzle,
   shippingMethodService,
   deleteShippingMethodFromDrizzle
-} from '@/lib/drizzle/shipping_methods'
+} from '@/lib/drizzle/queries/shipping_methods'
 
 export async function GET() {
   try {

@@ -3,7 +3,7 @@ import {
   fetchShippingZoneFromDrizzle,
   shippingZoneService,
   deleteShippingZoneFromDrizzle
-} from '@/lib/drizzle/shipping_zones'
+} from '@/lib/drizzle/queries/shipping_zones'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

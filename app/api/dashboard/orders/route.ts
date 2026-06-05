@@ -3,7 +3,7 @@ import {
   fetchOrdersFromDrizzle,
   orderService,
   deleteOrderFromDrizzle
-} from '@/lib/drizzle/orders'
+} from '@/lib/drizzle/queries/orders'
 
 export async function GET() {
   try {

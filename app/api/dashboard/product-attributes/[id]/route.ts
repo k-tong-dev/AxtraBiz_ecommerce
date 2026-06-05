@@ -4,7 +4,7 @@ import {
   productAttributeService,
   deleteProductAttributeFromDrizzle,
   updateProductAttributeValueRelationsForAttribute,
-} from '@/lib/drizzle/product-attributes'
+} from '@/lib/drizzle/queries/product-attributes'
 import { eq } from 'drizzle-orm'
 import { product_attributes_rel, product_template, product_variants, product_attributes, product_attribute_values } from '@/drizzle/schema'
 import { db } from '@/lib/drizzle/server'

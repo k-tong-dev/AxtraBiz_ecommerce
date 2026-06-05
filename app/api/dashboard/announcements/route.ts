@@ -3,7 +3,7 @@ import {
   fetchAnnouncementsFromDrizzle,
   announcementService,
   deleteAnnouncementFromDrizzle
-} from '@/lib/drizzle/announcements'
+} from '@/lib/drizzle/queries/announcements'
 
 export async function GET() {
   try {

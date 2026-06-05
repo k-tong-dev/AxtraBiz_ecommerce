@@ -3,7 +3,7 @@ import {
   fetchInvoicesFromDrizzle,
   invoiceService,
   deleteInvoiceFromDrizzle
-} from '@/lib/drizzle/invoices'
+} from '@/lib/drizzle/queries/invoices'
 
 export async function GET() {
   try {

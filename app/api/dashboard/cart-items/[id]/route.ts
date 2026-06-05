@@ -3,7 +3,7 @@ import {
   fetchCartItemFromDrizzle,
   cartItemService,
   deleteCartItemFromDrizzle
-} from '@/lib/drizzle/cart_items'
+} from '@/lib/drizzle/queries/cart_items'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

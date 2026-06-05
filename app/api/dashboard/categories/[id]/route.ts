@@ -3,7 +3,7 @@ import {
   fetchCategoryFromDrizzle,
   categoryService,
   deleteCategoryFromDrizzle
-} from '@/lib/drizzle/categories'
+} from '@/lib/drizzle/queries/categories'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

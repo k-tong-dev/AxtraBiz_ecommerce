@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchStaffAccountFromDrizzle, resUserService, deleteStaffAccountFromDrizzle } from '@/lib/drizzle/staff-accounts'
+import { fetchStaffAccountFromDrizzle, resUserService, deleteStaffAccountFromDrizzle } from '@/lib/drizzle/queries/staff-accounts'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

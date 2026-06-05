@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchOrderFromDrizzle, orderService, deleteOrderFromDrizzle } from '@/lib/drizzle/orders'
+import { fetchOrderFromDrizzle, orderService, deleteOrderFromDrizzle } from '@/lib/drizzle/queries/orders'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {

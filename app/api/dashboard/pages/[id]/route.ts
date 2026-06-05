@@ -3,7 +3,7 @@ import {
   fetchPageFromDrizzle,
   pageService,
   deletePageFromDrizzle
-} from '@/lib/drizzle/pages'
+} from '@/lib/drizzle/queries/pages'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

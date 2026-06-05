@@ -3,7 +3,7 @@ import {
   fetchProductFromDrizzle,
   productService,
   deleteProductFromDrizzle
-} from '@/lib/drizzle/products'
+} from '@/lib/drizzle/queries/products'
 import { eq } from 'drizzle-orm'
 import { product_template, product_variants, product_attributes, product_attribute_values } from '@/drizzle/schema'
 import { db } from '@/lib/drizzle/server'

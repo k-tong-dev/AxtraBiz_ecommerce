@@ -3,7 +3,7 @@ import {
   fetchPaymentTransactionsFromDrizzle,
   paymentTransactionService,
   deletePaymentTransactionFromDrizzle
-} from '@/lib/drizzle/payment_transactions'
+} from '@/lib/drizzle/queries/payment_transactions'
 
 export async function GET() {
   try {

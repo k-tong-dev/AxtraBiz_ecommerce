@@ -3,7 +3,7 @@ import {
   fetchBrandsFromDrizzle,
   brandService,
   deleteBrandFromDrizzle
-} from '@/lib/drizzle/brands'
+} from '@/lib/drizzle/queries/brands'
 
 export async function GET() {
   try {

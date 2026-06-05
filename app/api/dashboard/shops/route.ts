@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchShopsFromDrizzle, shopService, deleteShopFromDrizzle } from '@/lib/drizzle/shops'
+import { fetchShopsFromDrizzle, shopService, deleteShopFromDrizzle } from '@/lib/drizzle/queries/shops'
 
 export async function GET() {
   try {

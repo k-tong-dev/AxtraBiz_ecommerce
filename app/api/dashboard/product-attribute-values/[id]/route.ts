@@ -4,7 +4,7 @@ import {
   fetchProductAttributeValueFromDrizzle,
   deleteProductAttributeValueFromDrizzle,
   productAttributeValueService,
-} from '@/lib/drizzle/product-attributes'
+} from '@/lib/drizzle/queries/product-attributes'
 
 function processScalarFields(body: Record<string, unknown>, id: string) {
   const processedBody: Record<string, unknown> = { id }

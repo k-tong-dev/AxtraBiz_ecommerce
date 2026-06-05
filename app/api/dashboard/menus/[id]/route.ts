@@ -3,7 +3,7 @@ import {
   fetchMenuFromDrizzle,
   menuService,
   deleteMenuFromDrizzle
-} from '@/lib/drizzle/menus'
+} from '@/lib/drizzle/queries/menus'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

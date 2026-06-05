@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import {
   fetchProductsFromDrizzle,
   productService
-} from '@/lib/drizzle/products'
+} from '@/lib/drizzle/queries/products'
 
 export async function GET() {
   try {

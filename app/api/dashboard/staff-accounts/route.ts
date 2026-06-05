@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { fetchStaffAccountsFromDrizzle, resUserService, deleteStaffAccountFromDrizzle } from '@/lib/drizzle/staff-accounts'
+import { fetchStaffAccountsFromDrizzle, resUserService, deleteStaffAccountFromDrizzle } from '@/lib/drizzle/queries/staff-accounts'
 import { createServiceRoleClient } from '@/utils/supabase/service-role'
 import { db } from '@/lib/drizzle/client'
 import { resUsers } from '@/lib/drizzle/schema'

@@ -4,7 +4,7 @@ import {
   fetchProductAttributeFromDrizzle,
   productAttributeService,
   deleteProductAttributeFromDrizzle
-} from '@/lib/drizzle/product-attributes'
+} from '@/lib/drizzle/queries/product-attributes'
 // import type { ProductAttribute } from '../../../../lib/drizzle/server'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 

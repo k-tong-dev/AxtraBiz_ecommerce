@@ -3,7 +3,7 @@ import {
   fetchResUserAddressFromDrizzle,
   resUserAddressService,
   deleteResUserAddressFromDrizzle
-} from '@/lib/drizzle/res-user-addresses'
+} from '@/lib/drizzle/queries/res-user-addresses'
 import { getCurrentUserId } from '@/utils/supabase/current-user'
 
 export async function GET(

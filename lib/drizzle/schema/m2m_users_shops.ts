@@ -1,7 +1,7 @@
 import { pgTable, uuid, boolean, timestamp, primaryKey } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
-import { resUsers } from '../schema/res_users'
-import { resShops } from '../schema/res_shops'
+import { resUsers } from './res_users'
+import { resShops } from './res_shops'
 
 export const m2mUsersShops = pgTable('m2m_users_shops', {
   userId:     uuid('user_id').notNull().references(() => resUsers.id, { onDelete: 'cascade' }),

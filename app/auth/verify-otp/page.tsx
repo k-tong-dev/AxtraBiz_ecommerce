@@ -152,7 +152,7 @@ function VerifyOTPPageContent() {
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(index, e)}
+                      onKeyDown={(e:any) => handleKeyDown(index, e)}
                       onPaste={index === 0 ? handlePaste : undefined}
                       className="w-12 h-12 text-center text-lg font-semibold"
                     />
