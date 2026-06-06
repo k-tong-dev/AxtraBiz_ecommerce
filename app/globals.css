@@ -269,3 +269,12 @@
   background: var(--primary);
 }
 
+/* CountrySelect — when the wrapper has the icon slot, push the picker text right
+   so the flag emoji / country label never overlaps the leading icon. */
+.country-select-has-icon .rs-picker-toggle {
+  padding-left: 40px;
+}
+.country-select-has-icon .rs-picker-toggle .rs-picker-toggle-textbox {
+  padding-inline-start: 0;
+}
+
