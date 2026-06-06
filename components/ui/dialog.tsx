@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Modal } from 'rsuite'
+import Modal from '@/components/ui/RSuite/Overlays/Modal'
 
 import { cn } from '@/lib/utils'
 

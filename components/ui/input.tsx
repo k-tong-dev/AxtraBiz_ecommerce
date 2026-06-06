@@ -1,20 +1,18 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import {
-    Input as RsInput,
-    InputGroup,
-    NumberInput as RsNumberInput,
-    InputGroupAddon,
-    InputGroupButton,
-    InputPicker,
-    DateInput,
-    DateRangeInput,
-    Form,
-    FormControl,
-    FormGroup,
-    FormControlLabel,
-    FormErrorMessage,
-} from 'rsuite'
+import RsInput from '@/components/ui/RSuite/DataEntry/Input'
+import InputGroup from '@/components/ui/RSuite/Misc/InputGroup'
+import RsNumberInput from '@/components/ui/RSuite/DataEntry/NumberInput'
+import InputGroupAddon from '@/components/ui/RSuite/Misc/InputGroupAddon'
+import InputGroupButton from '@/components/ui/RSuite/Misc/InputGroupButton'
+import InputPicker from '@/components/ui/RSuite/DataPickers/InputPicker'
+import DateInput from '@/components/ui/RSuite/DateAndTime/DateInput'
+import DateRangeInput from '@/components/ui/RSuite/DateAndTime/DateRangeInput'
+import Form from '@/components/ui/RSuite/Form/Form'
+import FormControl from '@/components/ui/RSuite/Form/FormControl'
+import FormGroup from '@/components/ui/RSuite/Form/FormGroup'
+import FormControlLabel from '@/components/ui/RSuite/Form/FormControlLabel'
+import FormErrorMessage from '@/components/ui/RSuite/Form/FormErrorMessage'
 
 type InputSize = 'sm' | 'md' | 'lg'
 type InputVariant = 'underline' | 'bordered'

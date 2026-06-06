@@ -1,3 +1,3 @@
-import { Breadcrumb } from 'rsuite'
+import Breadcrumb from '@/components/ui/RSuite/Navigation/Breadcrumb'
 
 export  { Breadcrumb }

@@ -1,5 +1,5 @@
 'use client'
 
-import { Toggle } from 'rsuite'
+import Toggle from '@/components/ui/RSuite/DataEntry/Toggle'
 
 export { Toggle as Switch }

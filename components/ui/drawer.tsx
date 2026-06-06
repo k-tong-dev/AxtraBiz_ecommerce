@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Drawer as RsDrawer } from 'rsuite'
+import RsDrawer from '@/components/ui/RSuite/Overlays/Drawer'
 
 import { cn } from '@/lib/utils'
 

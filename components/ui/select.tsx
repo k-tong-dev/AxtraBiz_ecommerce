@@ -1,14 +1,12 @@
 'use client'
 
 import * as React from 'react'
-import {
-  SelectPicker,
-  CheckPicker,
-  TreePicker,
-  CheckTreePicker,
-  Avatar,
-  Badge,
-} from 'rsuite'
+import SelectPicker from '@/components/ui/RSuite/DataPickers/SelectPicker'
+import CheckPicker from '@/components/ui/RSuite/DataPickers/CheckPicker'
+import TreePicker from '@/components/ui/RSuite/DataPickers/TreePicker'
+import CheckTreePicker from '@/components/ui/RSuite/DataPickers/CheckTreePicker'
+import Avatar from '@/components/ui/RSuite/DataDisplay/Avatar'
+import Badge from '@/components/ui/RSuite/DataDisplay/Badge'
 import type { SelectPickerProps, CheckPickerProps, TreePickerProps, CheckTreePickerProps } from 'rsuite'
 import { cn } from '@/lib/utils'
 

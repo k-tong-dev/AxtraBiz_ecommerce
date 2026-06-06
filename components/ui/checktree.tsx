@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { CheckTree } from 'rsuite'
+import CheckTree from '@/components/ui/RSuite/DataEntry/CheckTree'
 import { ChevronDown, ChevronRight, File, Folder } from 'lucide-react'
 
 export interface CheckTreeData {

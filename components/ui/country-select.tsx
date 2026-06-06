@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { SelectPicker } from 'rsuite'
+import SelectPicker from '@/components/ui/RSuite/DataPickers/SelectPicker'
 import { Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { countries } from '@/lib/countries'
@@ -28,7 +28,7 @@ export function CountrySelect({ value, onChange, disabled, className, icon }: Co
       <SelectPicker
         data={countries}
         value={value}
-        onChange={(v) => onChange?.(v)}
+        onChange={(v:any) => onChange?.(v)}
         block
         searchable
         placeholder="Select country"

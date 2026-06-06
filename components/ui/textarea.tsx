@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { Textarea as RsTextarea } from 'rsuite'
+import RsTextarea from '@/components/ui/RSuite/DataEntry/Textarea'
 
 type InputSize = 'sm' | 'md' | 'lg'
 

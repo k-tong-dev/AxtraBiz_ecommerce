@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Pagination as RsPagination } from 'rsuite'
+import RsPagination from '@/components/ui/RSuite/Navigation/Pagination'
 
 import { cn } from '@/lib/utils'
 type PaginationContextType = {

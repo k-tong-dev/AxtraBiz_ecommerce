@@ -1,19 +1,16 @@
 'use client'
 
 import * as React from 'react'
-import { useFormControl, FormGroup, FormControlLabel, FormErrorMessage } from 'rsuite'
+import useFormControl from '@/components/ui/RSuite/Misc/useFormControl'
+import FormGroup from '@/components/ui/RSuite/Form/FormGroup'
+import FormControlLabel from '@/components/ui/RSuite/Form/FormControlLabel'
+import FormErrorMessage from '@/components/ui/RSuite/Form/FormErrorMessage'
+import Form from '@/components/ui/RSuite/Form/Form'
+import FormControl from '@/components/ui/RSuite/Form/FormControl'
+import FormStack from '@/components/ui/RSuite/Form/FormStack'
+import FormHelpText from '@/components/ui/RSuite/Form/FormHelpText'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-
-export {
-    Form,
-    FormControl,
-    FormControlLabel,
-    FormErrorMessage,
-    FormGroup,
-    FormStack,
-    FormHelpText,
-} from 'rsuite';
 
 export function FormField({ name, label, type, placeholder, className, variant, icon, trailing, ...props }: {
     name: string

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Card as RsuiteCard } from 'rsuite'
+import RsuiteCard from '@/components/ui/RSuite/DataDisplay/Card'
 import { cn } from '@/lib/utils'
 
 function Card({ className, bordered = true, ...props }: React.ComponentProps<typeof RsuiteCard>) {

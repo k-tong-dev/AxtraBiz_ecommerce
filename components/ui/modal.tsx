@@ -1,6 +1,6 @@
 'use client'
 
-import { Modal as RsuiteModal } from 'rsuite'
+import RsuiteModal from '@/components/ui/RSuite/Overlays/Modal'
 
 export function Modal({ children, ...props }: any) {
   return <RsuiteModal {...props}>{children}</RsuiteModal>

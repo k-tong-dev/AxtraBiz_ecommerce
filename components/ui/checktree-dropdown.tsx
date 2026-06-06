@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Popover, Whisper, Button } from 'rsuite'
+import Popover from '@/components/ui/RSuite/Overlays/Popover'
+import Whisper from '@/components/ui/RSuite/Overlays/Whisper'
+import Button from '@/components/ui/RSuite/Buttons/Button'
 import { CheckTree, CheckTreeData, CheckTreeProps } from './checktree'
 
 export interface CheckTreeDropdownProps extends Omit<CheckTreeProps, 'value' | 'onChange'> {

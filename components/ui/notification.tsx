@@ -1,6 +1,9 @@
 'use client'
 
-import { useToaster, Notification, Message, toaster } from 'rsuite'
+import useToaster from '@/components/ui/RSuite/Misc/useToaster'
+import Notification from '@/components/ui/RSuite/Status/Notification'
+import Message from '@/components/ui/RSuite/Status/Message'
+import toaster from '@/components/ui/RSuite/Misc/toaster'
 
 export { useToaster, Notification, Message, toaster }
 
