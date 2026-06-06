@@ -6,7 +6,7 @@ import { ArrowLeft, Trash2, Plus, Minus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
-import { mockProducts } from '@/lib/mock-data'
+import { mockProducts } from '@/lib/mock/mock-data'
 
 export default function CartPage() {
   const { items, totalPrice, updateQuantity, removeItem, clearCart } = useCart()

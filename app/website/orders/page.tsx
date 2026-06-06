@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
-import { mockOrders } from '@/lib/mock-data'
+import { mockOrders } from '@/lib/mock/mock-data'
 import { Package, ChevronRight, CheckCircle, Clock, Truck } from 'lucide-react'
 
 const statusIcons = {

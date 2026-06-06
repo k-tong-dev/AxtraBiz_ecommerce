@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
-import { mockProducts } from '@/lib/mock-data'
+import { mockProducts } from '@/lib/mock/mock-data'
 import type { ShippingAddress } from '@/lib/types'
 
 export default function CheckoutPage() {

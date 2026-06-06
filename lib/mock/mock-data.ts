@@ -7,7 +7,7 @@ import type {
   Setting,
   ChartData,
   DashboardStats,
-} from './types'
+} from '../types'
 
 export const mockProducts: Product[] = [
   {

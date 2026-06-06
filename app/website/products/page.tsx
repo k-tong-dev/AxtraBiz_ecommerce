@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { mockProducts } from '@/lib/mock-data'
+import { mockProducts } from '@/lib/mock/mock-data'
 import type { Product } from '@/lib/types'
 import { Search, ChevronDown, SlidersHorizontal, Filter, X, Sparkles } from 'lucide-react'
 

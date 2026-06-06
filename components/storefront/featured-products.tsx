@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ProductCard } from './product-card'
-import { mockProducts } from '@/lib/mock-data'
+import { mockProducts } from '@/lib/mock/mock-data'
 import { ArrowRight, Sparkles } from 'lucide-react'
 
 export function FeaturedProducts() {

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ProductCard } from '@/components/storefront/product-card'
 import { useAuth } from '@/hooks/use-auth'
 import { useWishlist } from '@/hooks/use-wishlist'
-import { mockProducts } from '@/lib/mock-data'
+import { mockProducts } from '@/lib/mock/mock-data'
 
 export default function WishlistPage() {
   const router = useRouter()
