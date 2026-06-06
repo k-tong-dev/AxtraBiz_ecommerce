@@ -195,7 +195,7 @@ export default function SignupPage() {
         </div>
 
         <div className="w-full max-w-md mx-auto">
-          <div className="relative">
+          <div className="relative z-0">
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-fuchsia-500/10 blur-2xl" />
 
             <div className="relative rounded-2xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 p-8 shadow-2xl shadow-indigo-500/10 backdrop-blur-2xl auth-card-enter">
@@ -246,6 +246,25 @@ export default function SignupPage() {
                 <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
+                  <CountrySelect
+                      value={formData.country}
+                      onChange={(v) => setFormData((prev) => ({ ...prev, country: v ?? '' }))}
+                  />
+
+                  <div className="relative w-full">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <Input
+                        type="tel"
+                        placeholder="Phone number"
+                        value={formData.phone}
+                        variant="bordered"
+                        onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                        className="pl-10"
+                    />
+                  </div>
+
                   <FormField name="email" type="email" placeholder="Email address" variant="bordered" icon={<Mail className="h-4 w-4" />} />
 
                   <FormField
@@ -274,24 +293,6 @@ export default function SignupPage() {
                     }
                   />
 
-                  <div className="relative w-full">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
-                      <Phone className="h-4 w-4" />
-                    </div>
-                    <Input
-                      type="tel"
-                      placeholder="Phone number"
-                      value={formData.phone}
-                      variant="bordered"
-                      onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                      className="pl-10"
-                    />
-                  </div>
-
-                  <CountrySelect
-                    value={formData.country}
-                    onChange={(v) => setFormData((prev) => ({ ...prev, country: v ?? '' }))}
-                  />
                 </div>
 
                 <Button type="submit" className="w-full h-11 mt-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-500/25 transition-all duration-300" appearance="primary" loading={submitting}>

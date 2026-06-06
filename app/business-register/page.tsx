@@ -19,14 +19,14 @@ const model = Schema.Model({
 
 export default function RegisterPage() {
   const formRef = useRef<any>(null)
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [step, setStep] = useState<'form' | 'success'>('form')
 
   const onSubmit = async () => {
     if (!formRef.current?.check()) return
-    const values = formRef.current.value
     setError('')
     setSubmitting(true)
 
@@ -34,7 +34,7 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/business-register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify(formData),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -164,8 +164,8 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              <Form ref={formRef} model={model} onSubmit={onSubmit} fluid formDefaultValue={{ name: '', email: '', password: '' }}>
-                <div className="space-y-3.5 auth-page-form">
+              <Form ref={formRef} model={model} onChange={(v: any) => setFormData(v)} onSubmit={onSubmit} fluid formDefaultValue={{ name: '', email: '', password: '' }}>
+                <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Owner name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
                   <FormField name="email" type="email" placeholder="Email address" variant="bordered" icon={<Mail className="h-4 w-4" />} />
@@ -189,13 +189,6 @@ export default function RegisterPage() {
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
               </Form>
-
-              <p className="mt-6 text-center text-sm text-muted-foreground/80">
-                Have an account?{' '}
-                <Link href="/auth/signin" className="font-medium text-violet-600 dark:text-violet-400 hover:underline">
-                  Sign in
-                </Link>
-              </p>
             </div>
           </div>
         </div>

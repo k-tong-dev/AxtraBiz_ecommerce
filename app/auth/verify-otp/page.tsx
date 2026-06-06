@@ -246,7 +246,7 @@ function VerifyOTPPageContent() {
 
                 <div className="text-center pt-2">
                   <p className="text-sm text-muted-foreground/80">
-                    Didn&apos;t receive the code?
+                    Didn't receive the code?
                   </p>
                   {canResend ? (
                     <button
