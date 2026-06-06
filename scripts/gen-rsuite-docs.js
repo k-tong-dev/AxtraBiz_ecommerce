@@ -380,30 +380,34 @@ for (const cat of fs.readdirSync(OUR_DIR)) {
   }
 }
 
-// ─── Generate docs ──────────────────────────────────────────────
+// ─── Generate consolidated PROPS.md ──────────────────────────────
 let total = 0;
-let success = 0;
+let md = `# RSuite Components — Props Reference\n\n`;
+md += `Auto-generated from rsuite type definitions. Each component links to its official rsuite documentation.\n\n`;
+md += `---\n\n`;
+
+const allComponents = [];
 
 for (const [cat, comps] of Object.entries(categoryCache)) {
-  for (const comp of comps) {
-    total++;
-    const compDir = path.join(OUR_DIR, cat, comp);
-    const { props, note } = extractProps(comp);
+  md += `## ${CATEGORY_LABELS[cat] || cat}\n\n`;
 
-    let md = `# ${comp}\n\n`;
-    md += `**Category:** ${CATEGORY_LABELS[cat] || cat}\n`;
-    md += `**Source:** \`@/components/ui/RSuite/${cat}/${comp}\`\n\n`;
+  for (const comp of [...comps].sort()) {
+    total++;
+    const { props, note } = extractProps(comp);
+    const compUrl = `https://rsuitejs.com/components/${comp.toLowerCase()}/#props`;
+
+    md += `### ${comp}\n\n`;
+    md += `**Source:** \`@/components/ui/RSuite/${cat}/${comp}\` | [rsuite docs](${compUrl})\n\n`;
 
     if (note) {
       md += `> **Note:** ${note}\n\n`;
     }
 
-    md += `## Props\n\n`;
-    md += `| Prop | Type | Required | Inherited From | Description |\n`;
-    md += `|------|------|----------|----------------|-------------|\n`;
+    md += `| Prop | Type | Required | Inherited From |\n`;
+    md += `|------|------|----------|----------------|\n`;
 
     if (props.length === 0) {
-      md += `| — | — | — | — | (See rsuite documentation) |\n`;
+      md += `| — | — | — | — |\n`;
     } else {
       props.sort((a, b) => {
         if (a.required !== b.required) return a.required ? -1 : 1;
@@ -417,19 +421,18 @@ for (const [cat, comps] of Object.entries(categoryCache)) {
       for (const p of props) {
         const required = p.optional ? '' : '✓';
         const source = p.inheritedFrom || '—';
-        const desc = p.desc ? p.desc.replace(/\n/g, ' ') : '';
-        md += `| \`${p.name}\` | \`${p.type}\` | ${required} | \`${source}\` | ${desc} |\n`;
+        md += `| \`${p.name}\` | \`${p.type}\` | ${required} | \`${source}\` |\n`;
       }
     }
 
-    md += `\n---\n`;
-    md += `*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/${comp.toLowerCase()}/#props) for full details.*\n`;
-
-    // Update README
-    fs.writeFileSync(path.join(compDir, 'README.md'), md);
-    success++;
+    md += `\n`;
+    allComponents.push({ cat, comp, props: props.length });
     console.log(`✓ ${comp} (${props.length} props)`);
   }
 }
 
-console.log(`\nDone: ${success}/${total} components documented.`);
+// Write consolidated file
+fs.writeFileSync(path.join(OUR_DIR, 'PROPS.md'), md);
+
+// Summary
+console.log(`\nDone: ${total} components documented in PROPS.md`);
