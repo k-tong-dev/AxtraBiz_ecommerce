@@ -6,6 +6,7 @@ import {HStack, Schema} from 'rsuite'
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Check, Shield, Zap, RefreshCw, CheckCircle2, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Form, FormField } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { CountrySelect } from '@/components/ui/country-select'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
@@ -273,16 +274,17 @@ export default function SignupPage() {
                     }
                   />
 
-                  <div className="relative">
+                  <div className="relative w-full">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
                       <Phone className="h-4 w-4" />
                     </div>
-                    <input
+                    <Input
                       type="tel"
                       placeholder="Phone number"
                       value={formData.phone}
+                      variant="bordered"
                       onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                      className="w-full rounded-[10px] border border-black/10 dark:border-white/10 bg-transparent px-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200"
+                      className="pl-10"
                     />
                   </div>
 
