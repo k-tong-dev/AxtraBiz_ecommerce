@@ -73,7 +73,7 @@ export function useAuth() {
     await supabase.auth.signOut()
   }
 
-  const signup = async (name: string, email: string, password: string) => {
+  const signup = async (name: string, email: string, password: string, phone?: string, country?: string) => {
     const supabase = createClient()
 
     // Check if email already exists in our system
@@ -91,7 +91,7 @@ export function useAuth() {
       email,
       password,
       options: {
-        data: { name, full_name: name },
+        data: { name, full_name: name, phone, country },
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
       },
     })

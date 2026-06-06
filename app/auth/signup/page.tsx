@@ -3,9 +3,10 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import {HStack, Schema} from 'rsuite'
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Check, Shield, Zap, RefreshCw, CheckCircle2 } from 'lucide-react'
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Check, Shield, Zap, RefreshCw, CheckCircle2, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Form, FormField } from '@/components/ui/form'
+import { CountrySelect } from '@/components/ui/country-select'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
 import {IoReturnUpBack} from "react-icons/io5";
@@ -29,7 +30,7 @@ const model = Schema.Model({
 export default function SignupPage() {
   const { signup, loginWithGoogle } = useAuth()
   const formRef = useRef<any>(null)
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '' })
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '', phone: '', country: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -42,7 +43,7 @@ export default function SignupPage() {
     try {
       if (!formRef.current?.check()) return
       setSubmitting(true)
-      const result = await signup(formData.name, formData.email, formData.password)
+      const result = await signup(formData.name, formData.email, formData.password, formData.phone, formData.country)
       if (result?.success) {
         setEmail(formData.email)
         setDone(true)
@@ -240,7 +241,7 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <Form ref={formRef} model={model} onChange={(v: any) => setFormData(v)} onSubmit={handleSubmit} fluid formDefaultValue={{ name: '', email: '', password: '', confirm: '' }}>
+              <Form ref={formRef} model={model} onChange={(v: any) => setFormData((prev) => ({ ...prev, ...v }))} onSubmit={handleSubmit} fluid formDefaultValue={{ name: '', email: '', password: '', confirm: '' }}>
                 <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
@@ -270,6 +271,24 @@ export default function SignupPage() {
                         {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     }
+                  />
+
+                  <div className="relative">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <input
+                      type="tel"
+                      placeholder="Phone number"
+                      value={formData.phone}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                      className="w-full rounded-[10px] border border-black/10 dark:border-white/10 bg-transparent px-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-indigo-500 focus:shadow-[0_0_0_3px_rgba(99,102,241,0.15)] transition-all duration-200"
+                    />
+                  </div>
+
+                  <CountrySelect
+                    value={formData.country}
+                    onChange={(v) => setFormData((prev) => ({ ...prev, country: v ?? '' }))}
                   />
                 </div>
 
