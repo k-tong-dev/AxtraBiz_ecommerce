@@ -75,6 +75,18 @@ export function useAuth() {
 
   const signup = async (name: string, email: string, password: string) => {
     const supabase = createClient()
+
+    // Check if email already exists in our system
+    try {
+      const res = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`)
+      const { exists } = await res.json()
+      if (exists) {
+        return { success: false, error: 'Email already registered' } as const
+      }
+    } catch {
+      // fall through — Supabase check is the fallback
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -83,9 +95,27 @@ export function useAuth() {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
       },
     })
-    if (error) return { success: false, error: error.message } as const
+
+    console.log('[signup] Supabase response:', { data, error: error?.message })
+
+    if (error) {
+      // Detect "already registered" even if our DB check missed it (race / config)
+      if (error.message.toLowerCase().includes('already registered')) {
+        return { success: false, error: 'Email already registered' } as const
+      }
+      return { success: false, error: error.message } as const
+    }
 
     if (data.user) {
+      // Newly created users always have >=1 identity in the identities array.
+      // Empty identities means Supabase touched an existing user but didn't create one.
+      const isNewUser = (data.user.identities?.length ?? 0) > 0
+
+      if (!isNewUser) {
+        console.log('[signup] Existing auth user detected (identities empty) — rejecting')
+        return { success: false, error: 'Email already registered' } as const
+      }
+
       return {
         success: true as const,
         id: data.user.id,
