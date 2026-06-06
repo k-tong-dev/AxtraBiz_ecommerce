@@ -5,14 +5,16 @@
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `defaultVisible` | `boolean` |  |  |
-| `endIcon` | `React.ReactNode` |  |  |
-| `onVisibleChange` | `(visible: boolean) =\> void` |  |  |
-| `renderVisibilityIcon` | `(visible: boolean) =\> React.ReactNode` |  |  |
-| `startIcon` | `React.ReactNode` |  |  |
-| `visible` | `boolean` |  |  |
+| Prop | Type | Required | Inherited From | Description |
+|------|------|----------|----------------|-------------|
+| `defaultVisible` | `boolean` |  | `PasswordInputProps` |  |
+| `endIcon` | `React.ReactNode` |  | `PasswordInputProps` |  |
+| `onVisibleChange` | `(visible: boolean) =\> void` |  | `PasswordInputProps` |  |
+| `renderVisibilityIcon` | `(visible: boolean) =\> React.ReactNode` |  | `PasswordInputProps` |  |
+| `startIcon` | `React.ReactNode` |  | `PasswordInputProps` |  |
+| `visible` | `boolean` |  | `PasswordInputProps` |  |
+| `multi` | `boolean` |  | `InputProps` |  |
+| `triggerRef` | `React.RefObject\<OverlayTriggerHandle \| null\>` | ✓ | `InputProps` |  |
 
 ---
-*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/passwordinput) for full details.*
+*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/passwordinput/#props) for full details.*

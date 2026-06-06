@@ -5,18 +5,16 @@
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `activeKey` | `T` |  |  |
-| `appearance` | `'default' \| 'subtle' \| 'tabs'` |  | 'default' |
-| `defaultActiveKey` | `T` |  |  |
-| `justified` | `boolean` |  |  |
-| `onSelect` | `(eventKey: T \| undefined, event: React.SyntheticEvent) =\> void` |  |  |
-| `pullRight` | `boolean` |  | Use `Navbar.Content` instead. |
-| `reversed` | `boolean` |  |  |
-| `vertical` | `boolean` |  |  |
-
-> **Extends:** `BaseBoxProps`
+| Prop | Type | Required | Inherited From | Description |
+|------|------|----------|----------------|-------------|
+| `activeKey` | `T` |  | `NavProps` |  |
+| `appearance` | `'default' \| 'subtle' \| 'tabs'` |  | `NavProps` | 'default' |
+| `defaultActiveKey` | `T` |  | `NavProps` |  |
+| `justified` | `boolean` |  | `NavProps` |  |
+| `onSelect` | `(eventKey: T \| undefined,  event: React.SyntheticEvent) =\> void` |  | `NavProps` |  |
+| `pullRight` | `boolean` |  | `NavProps` | Use `Navbar.Content` instead. |
+| `reversed` | `boolean` |  | `NavProps` |  |
+| `vertical` | `boolean` |  | `NavProps` |  |
 
 ---
-*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/nav) for full details.*
+*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/nav/#props) for full details.*

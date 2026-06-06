@@ -3,13 +3,13 @@
 **Category:** Form
 **Source:** `@/components/ui/RSuite/Form/useFormControl`
 
-> Interface useFormControlProps not found
+> **Note:** Interface useFormControlProps not found
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| — | — | — | (See rsuite documentation) |
+| Prop | Type | Required | Inherited From | Description |
+|------|------|----------|----------------|-------------|
+| — | — | — | — | (See rsuite documentation) |
 
 ---
-*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/useformcontrol) for full details.*
+*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/useformcontrol/#props) for full details.*

@@ -5,14 +5,14 @@
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `anchorIcon` | `React.ReactNode` |  |  |
-| `external` | `boolean` |  |  |
-| `showAnchorIcon` | `boolean` |  |  |
-| `underline` | `'always' \| 'hover' \| 'not-hover' \| 'never'` |  |  |
-
-> **Extends:** `SafeAnchorProps`
+| Prop | Type | Required | Inherited From | Description |
+|------|------|----------|----------------|-------------|
+| `anchorIcon` | `React.ReactNode` |  | `LinkProps` |  |
+| `external` | `boolean` |  | `LinkProps` |  |
+| `showAnchorIcon` | `boolean` |  | `LinkProps` |  |
+| `underline` | `'always' \| 'hover' \| 'not-hover' \| 'never'` |  | `LinkProps` |  |
+| `disabled` | `boolean` |  | `SafeAnchorProps` |  |
+| `href` | `string` |  | `SafeAnchorProps` |  |
 
 ---
-*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/link) for full details.*
+*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/link/#props) for full details.*

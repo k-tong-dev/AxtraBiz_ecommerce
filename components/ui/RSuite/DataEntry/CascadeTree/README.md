@@ -3,13 +3,13 @@
 **Category:** Data Entry
 **Source:** `@/components/ui/RSuite/DataEntry/CascadeTree`
 
-> Interface CascadeTreeProps not found
+> **Note:** Interface CascadeTreeProps not found
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| — | — | — | (See rsuite documentation) |
+| Prop | Type | Required | Inherited From | Description |
+|------|------|----------|----------------|-------------|
+| — | — | — | — | (See rsuite documentation) |
 
 ---
-*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/cascadetree) for full details.*
+*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/cascadetree/#props) for full details.*

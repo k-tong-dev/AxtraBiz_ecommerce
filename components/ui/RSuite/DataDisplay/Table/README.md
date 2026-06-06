@@ -3,13 +3,13 @@
 **Category:** Data Display
 **Source:** `@/components/ui/RSuite/DataDisplay/Table`
 
-> Interface TableProps not found
+> **Note:** Interface TableProps not found
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| — | — | — | (See rsuite documentation) |
+| Prop | Type | Required | Inherited From | Description |
+|------|------|----------|----------------|-------------|
+| — | — | — | — | (See rsuite documentation) |
 
 ---
-*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/table) for full details.*
+*Auto-generated from rsuite type definitions. Refer to [rsuite documentation](https://rsuitejs.com/components/table/#props) for full details.*
