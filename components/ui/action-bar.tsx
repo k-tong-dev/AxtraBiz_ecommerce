@@ -28,9 +28,9 @@ interface DivProps extends React.ComponentProps<"div"> {
   asChild?: boolean;
 }
 
-type RootElement = React.ComponentRef<typeof ActionBar>;
-type ItemElement = React.ComponentRef<typeof ActionBarItem>;
-type CloseElement = React.ComponentRef<typeof ActionBarClose>;
+type RootElement = HTMLElement;
+type ItemElement = HTMLElement;
+type CloseElement = HTMLButtonElement;
 
 function focusFirst(
   candidates: React.RefObject<HTMLElement | null>[],
@@ -478,7 +478,7 @@ function ActionBarItem(props: ActionBarItemProps) {
         cancelable: true,
       });
 
-      item.addEventListener(ITEM_SELECT, (event) => onSelect?.(event), {
+      item.addEventListener(ITEM_SELECT, (event:any) => onSelect?.(event), {
         once: true,
       });
 

@@ -4,7 +4,7 @@ import * as React from 'react'
 import SelectPicker from '@/components/ui/RSuite/DataPickers/SelectPicker'
 import { Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { countries, type Country } from '@/lib/countries'
+import { countries, type Country } from '@/lib/mock/countries'
 
 interface CountrySelectProps {
     value?: string
@@ -15,7 +15,12 @@ interface CountrySelectProps {
     icon?: React.ReactNode
 }
 
-const formatOption = (item: Country) => `${item.flag} ${item.label}`
+const formatOption = (item?: Country | null) => {
+    if (!item) return ''
+    const flag = item.flag ?? ''
+    const label = item.label ?? ''
+    return `${flag} ${label}`.trim()
+}
 
 export function CountrySelect({ value, onChange, disabled, className, icon, error }: CountrySelectProps) {
     const showIcon = icon !== null
