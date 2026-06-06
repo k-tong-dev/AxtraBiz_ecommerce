@@ -246,11 +246,16 @@ export default function SignupPage() {
                 <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
-                  <CountrySelect
-                      icon={<Globe className="h-4 w-4" />}
-                      value={formData.country}
-                      onChange={(v) => setFormData((prev) => ({ ...prev, country: v ?? '' }))}
-                  />
+                  <div className="relative w-full">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
+                      <Globe className="h-4 w-4" />
+                    </div>
+                    <CountrySelect
+                        value={formData.country}
+                        onChange={(v) => setFormData((prev) => ({ ...prev, country: v ?? '' }))}
+                        className="pl-10"
+                    />
+                  </div>
 
                   <div className="relative w-full">
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">

@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import SelectPicker from '@/components/ui/RSuite/DataPickers/SelectPicker'
-import { Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { countries, type Country } from '@/lib/mock/countries'
 
@@ -12,7 +11,6 @@ interface CountrySelectProps {
     disabled?: boolean
     className?: string
     error?: boolean
-    icon?: React.ReactNode
 }
 
 const formatOption = (item?: Country | null) => {
@@ -22,15 +20,11 @@ const formatOption = (item?: Country | null) => {
     return `${flag} ${label}`.trim()
 }
 
-export function CountrySelect({ value, onChange, disabled, className, icon, error }: CountrySelectProps) {
-    const showIcon = icon !== null
-    const iconElement = icon ?? <Globe className="h-4 w-4" />
-
+export function CountrySelect({ value, onChange, disabled, className, error }: CountrySelectProps) {
     return (
         <div
             className={cn(
                 'relative w-full transition-all duration-200 rounded-[10px] border',
-                showIcon && 'country-select-has-icon',
                 error
                     ? 'border-destructive'
                     : 'border-black/10 dark:border-white/10',
@@ -40,11 +34,6 @@ export function CountrySelect({ value, onChange, disabled, className, icon, erro
                 className,
             )}
         >
-            {showIcon && (
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
-                    {iconElement}
-                </div>
-            )}
             <SelectPicker
                 placement="bottom"
                 data={countries}
@@ -55,6 +44,7 @@ export function CountrySelect({ value, onChange, disabled, className, icon, erro
                 searchable
                 placeholder="Select country"
                 labelKey="label"
+                appearance={"subtle"}
                 valueKey="value"
                 disabled={disabled}
                 searchBy={(_keyword, _label, item) => {
