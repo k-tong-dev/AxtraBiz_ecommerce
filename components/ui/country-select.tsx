@@ -22,7 +22,7 @@ interface CountrySelectProps {
 export function CountrySelect({
   value,
   onChange,
-  placement = 'topStart',
+  placement = 'bottomStart',
   size = 'md',
   block = true,
   disabled,
@@ -31,21 +31,21 @@ export function CountrySelect({
   error,
   icon,
 }: CountrySelectProps) {
-  const hasIcon = icon !== null && icon !== undefined
-  const iconElement = hasIcon ? icon : <Globe className="h-4 w-4" />
+  const iconElement = icon === null ? null : (icon ?? <Globe className="h-4 w-4" />)
 
   return (
     <>
       <style jsx global>{`
-        .country-select-bordered .rs-picker-toggle {
+        .country-select-bordered .rs-picker-toggle,
+        .country-select-bordered .rs-picker-toggle-read-only {
           border: 1px solid rgba(0, 0, 0, 0.1);
           border-radius: 10px;
-          padding: 0;
           background: transparent;
           transition: all 0.2s;
           min-height: 42px;
         }
-        .dark .country-select-bordered .rs-picker-toggle {
+        .dark .country-select-bordered .rs-picker-toggle,
+        .dark .country-select-bordered .rs-picker-toggle-read-only {
           border-color: rgba(255, 255, 255, 0.1);
         }
         .country-select-bordered .rs-picker-toggle:hover {
@@ -57,13 +57,9 @@ export function CountrySelect({
           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
           outline: none;
         }
-        .country-select-bordered .rs-picker-toggle-error {
+        .country-select-bordered .rs-picker-toggle-error,
+        .country-select-bordered .rs-picker-toggle.rs-picker-toggle-error {
           border-color: rgb(239, 68, 68) !important;
-        }
-        .country-select-bordered .rs-picker-toggle-caret,
-        .country-select-bordered .rs-picker-toggle-clean {
-          top: 50%;
-          transform: translateY(-50%);
         }
         .country-select-bordered .rs-picker-toggle-placeholder {
           color: rgba(0, 0, 0, 0.4);
@@ -71,29 +67,29 @@ export function CountrySelect({
         .dark .country-select-bordered .rs-picker-toggle-placeholder {
           color: rgba(255, 255, 255, 0.5);
         }
-        .country-select-bordered .rs-picker-toggle-value,
-        .country-select-bordered .rs-picker-toggle-textbox {
+        .country-select-bordered .rs-picker-toggle-value {
           padding-left: 32px;
         }
         .country-select-bordered .rs-picker-search {
           padding-left: 32px;
         }
-        .country-select-bordered .rs-picker-menu {
+        .rs-picker-menu.country-select-dropdown {
           border-radius: 10px;
           border: 1px solid rgba(0, 0, 0, 0.1);
           overflow: hidden;
+          z-index: 9999;
         }
-        .dark .country-select-bordered .rs-picker-menu {
+        .dark .rs-picker-menu.country-select-dropdown {
           border-color: rgba(255, 255, 255, 0.1);
         }
-        .country-select-bordered .rs-picker-select-menu-item {
+        .country-select-dropdown .rs-picker-select-menu-item {
           padding: 8px 12px;
         }
-        .country-select-bordered .rs-picker-select-menu-item:hover,
-        .country-select-bordered .rs-picker-select-menu-item-active {
+        .country-select-dropdown .rs-picker-select-menu-item:hover,
+        .country-select-dropdown .rs-picker-select-menu-item-active {
           background: rgba(99, 102, 241, 0.08);
         }
-        .country-select-bordered .rs-picker-select-menu-item.rs-picker-select-menu-item-selected {
+        .country-select-dropdown .rs-picker-select-menu-item.rs-picker-select-menu-item-selected {
           background: rgba(99, 102, 241, 0.15);
           color: rgb(99, 102, 241);
           font-weight: 500;
@@ -117,10 +113,9 @@ export function CountrySelect({
           placeholder="Select country"
           labelKey="label"
           valueKey="value"
-          className={cn('country-select-bordered', error && 'rs-picker-error')}
-          style={{
-            width: '100%',
-          }}
+          className="country-select-bordered"
+          popupClassName="country-select-dropdown"
+          style={{ width: '100%' }}
           listboxMaxHeight={220}
           renderOption={(label, item) => (
             <div className="flex items-center gap-2.5">
