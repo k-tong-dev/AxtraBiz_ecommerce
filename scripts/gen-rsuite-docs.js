@@ -380,59 +380,141 @@ for (const cat of fs.readdirSync(OUR_DIR)) {
   }
 }
 
-// ─── Generate consolidated PROPS.md ──────────────────────────────
+// ─── Generate consolidated docs with deduplicated shared props ──
 let total = 0;
-let md = `# RSuite Components — Props Reference\n\n`;
-md += `Auto-generated from rsuite type definitions. Each component links to its official rsuite documentation.\n\n`;
-md += `---\n\n`;
+let success = 0;
 
-const allComponents = [];
+// Collect per-component data
+const compEntries = [];
 
 for (const [cat, comps] of Object.entries(categoryCache)) {
-  md += `## ${CATEGORY_LABELS[cat] || cat}\n\n`;
-
-  for (const comp of [...comps].sort()) {
+  for (const comp of comps) {
     total++;
     const { props, note } = extractProps(comp);
-    const compUrl = `https://rsuitejs.com/components/${comp.toLowerCase()}/#props`;
 
-    md += `### ${comp}\n\n`;
-    md += `**Source:** \`@/components/ui/RSuite/${cat}/${comp}\` | [rsuite docs](${compUrl})\n\n`;
+    const ownPropsName = `${comp}Props`;
+    const ownProps = props.filter(p => p.inheritedFrom === ownPropsName || !p.inheritedFrom);
+    if (ownProps.length === 0) continue;
 
-    if (note) {
-      md += `> **Note:** ${note}\n\n`;
-    }
+    // Collect inherited-from names (shared base interfaces)
+    const inheritedFrom = new Set(
+      props.map(p => p.inheritedFrom).filter(Boolean)
+    );
+    inheritedFrom.delete(ownPropsName);
 
-    md += `| Prop | Type | Required | Inherited From |\n`;
-    md += `|------|------|----------|----------------|\n`;
-
-    if (props.length === 0) {
-      md += `| — | — | — | — |\n`;
-    } else {
-      props.sort((a, b) => {
-        if (a.required !== b.required) return a.required ? -1 : 1;
-        if (a.inheritedFrom !== b.inheritedFrom) {
-          if (a.inheritedFrom === `${comp}Props`) return -1;
-          if (b.inheritedFrom === `${comp}Props`) return 1;
-        }
-        return a.name.localeCompare(b.name);
-      });
-
-      for (const p of props) {
-        const required = p.optional ? '' : '✓';
-        const source = p.inheritedFrom || '—';
-        md += `| \`${p.name}\` | \`${p.type}\` | ${required} | \`${source}\` |\n`;
-      }
-    }
-
-    md += `\n`;
-    allComponents.push({ cat, comp, props: props.length });
-    console.log(`✓ ${comp} (${props.length} props)`);
+    compEntries.push({
+      comp,
+      cat: CATEGORY_LABELS[cat] || cat,
+      ownProps,
+      inheritedFrom: [...inheritedFrom].sort(),
+    });
+    success++;
+    console.log(`✓ ${comp} (${ownProps.length} own, ${inheritedFrom.size} inherited)`);
   }
 }
 
-// Write consolidated file
-fs.writeFileSync(path.join(OUR_DIR, 'PROPS.md'), md);
+// Build output
+let fullMd = `# RSuite Component Props\n\n`;
+fullMd += `Auto-generated from rsuite type definitions. For each component, only its **own unique props** are listed.\n`;
+fullMd += `Props inherited from shared base interfaces (BoxProps, WithAsProps, etc.) are documented once below.\n\n`;
+fullMd += `---\n\n`;
 
-// Summary
-console.log(`\nDone: ${total} components documented in PROPS.md`);
+// ─── Shared Interfaces Section ────────────────────────────────────
+// Collect all unique inherited base interfaces and their props
+const sharedInterfaces = new Map();
+for (const entry of compEntries) {
+  for (const baseName of entry.inheritedFrom) {
+    if (!sharedInterfaces.has(baseName)) {
+      // Re-extract props for this base interface
+      const map = buildTypeMap();
+      const wrapper = map.get(baseName);
+      if (wrapper) {
+        const baseProps = extractAllProps(wrapper, baseName, new Set());
+        const directBaseProps = baseProps.filter(p => p.inheritedFrom === baseName || !p.inheritedFrom);
+        sharedInterfaces.set(baseName, {
+          props: directBaseProps,
+          usedBy: [entry.comp],
+        });
+      }
+    } else {
+      sharedInterfaces.get(baseName).usedBy.push(entry.comp);
+    }
+  }
+}
+
+if (sharedInterfaces.size > 0) {
+  fullMd += `## Shared / Inherited Interfaces\n\n`;
+  fullMd += `These base interfaces are inherited by multiple components. Their props are documented here once.\n\n`;
+
+  const sortedShared = [...sharedInterfaces.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+
+  for (const [name, data] of sortedShared) {
+    fullMd += `### ${name}\n\n`;
+    fullMd += `**Used by:** ${data.usedBy.join(', ')}\n\n`;
+
+    if (data.props.length === 0) {
+      fullMd += `No direct props.\n\n`;
+    } else {
+      data.props.sort((a, b) => {
+        if (a.optional !== b.optional) return a.optional ? 1 : -1;
+        return a.name.localeCompare(b.name);
+      });
+
+      fullMd += `| Prop | Type | Required | Description |\n`;
+      fullMd += `|------|------|----------|-------------|\n`;
+      for (const p of data.props) {
+        const required = p.optional ? '' : '✓';
+        const desc = p.desc ? p.desc.replace(/\n/g, ' ') : '';
+        fullMd += `| \`${p.name}\` | \`${p.type}\` | ${required} | ${desc} |\n`;
+      }
+    }
+    fullMd += `\n`;
+  }
+  fullMd += `---\n\n`;
+}
+
+// ─── Components Section ───────────────────────────────────────────
+fullMd += `## Components (own props only)\n\n`;
+fullMd += `Only the unique props for each component. Shared props are documented above.\n\n`;
+
+compEntries.sort((a, b) => {
+  if (a.cat !== b.cat) return a.cat.localeCompare(b.cat);
+  return a.comp.localeCompare(b.comp);
+});
+
+let currentCat = '';
+for (const entry of compEntries) {
+  if (entry.cat !== currentCat) {
+    currentCat = entry.cat;
+    fullMd += `### ${currentCat}\n\n`;
+  }
+
+  fullMd += `**${entry.comp}**  \n`;
+  fullMd += `\`@/components/ui/RSuite/${entry.comp}\`  \n`;
+  if (entry.inheritedFrom.length > 0) {
+    fullMd += `Inherits: ${entry.inheritedFrom.join(', ')}  \n`;
+  }
+  fullMd += `\n`;
+
+  entry.ownProps.sort((a, b) => {
+    if (a.optional !== b.optional) return a.optional ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  });
+
+  fullMd += `| Prop | Type | Required | Description |\n`;
+  fullMd += `|------|------|----------|-------------|\n`;
+  for (const p of entry.ownProps) {
+    const required = p.optional ? '' : '✓';
+    const desc = p.desc ? p.desc.replace(/\n/g, ' ') : '';
+    fullMd += `| \`${p.name}\` | \`${p.type}\` | ${required} | ${desc} |\n`;
+  }
+  fullMd += `\n`;
+}
+
+fullMd += `---\n`;
+fullMd += `*Auto-generated by \`scripts/gen-rsuite-docs.js\`. Refer to [rsuite documentation](https://rsuitejs.com/components) for full details.*\n`;
+
+const outputPath = path.join(OUR_DIR, 'PROPS.md');
+fs.writeFileSync(outputPath, fullMd);
+console.log(`\nWritten: ${outputPath}`);
+console.log(`Done: ${success}/${total} components with own props. ${sharedInterfaces.size} shared interfaces documented.`);
