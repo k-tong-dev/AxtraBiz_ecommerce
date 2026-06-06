@@ -6,7 +6,7 @@ import {
 } from "radix-ui";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { useComposedRefs } from "@/lib/compose-refs";
+import { useComposedRefs } from "./compose-refs";
 import { cn } from "@/lib/utils";
 import { useAsRef } from "@/hooks/use-as-ref";
 import { useIsomorphicLayoutEffect } from "@/hooks/use-isomorphic-layout-effect";

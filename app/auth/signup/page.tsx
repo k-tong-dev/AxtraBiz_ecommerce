@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import {HStack, Schema} from 'rsuite'
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Check, Shield, Zap, RefreshCw, CheckCircle2, Phone } from 'lucide-react'
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Check, Shield, Zap, RefreshCw, CheckCircle2, Phone, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Form, FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -247,6 +247,7 @@ export default function SignupPage() {
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
                   <CountrySelect
+                      icon={<Globe className="h-4 w-4" />}
                       value={formData.country}
                       onChange={(v) => setFormData((prev) => ({ ...prev, country: v ?? '' }))}
                   />

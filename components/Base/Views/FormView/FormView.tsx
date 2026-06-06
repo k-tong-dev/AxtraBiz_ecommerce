@@ -12,7 +12,7 @@ import {
     ActionBarSeparator,
     ActionBarSelection,
     ActionBarClose
-} from '@/components/ui/action-bar'
+} from '@/components/Base/ActionBar'
 import {Button} from '@/components/ui/button'
 import {
     SelectionField,
