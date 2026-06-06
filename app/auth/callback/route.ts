@@ -29,6 +29,8 @@ export async function GET(request: Request) {
             displayName: data.user.user_metadata?.full_name ||
                         data.user.user_metadata?.name ||
                         username,
+            phone: data.user.user_metadata?.phone || null,
+            country: data.user.user_metadata?.country || null,
             userRole: 'new',
           })
         }

@@ -39,8 +39,26 @@ export default function SignupPage() {
   const [done, setDone] = useState(false)
   const [email, setEmail] = useState('')
   const [resending, setResending] = useState(false)
+  const [phoneError, setPhoneError] = useState('')
+  const [countryError, setCountryError] = useState('')
+
+  const validatePhone = (phone: string): string => {
+    if (!phone.trim()) return ''
+    const digits = phone.replace(/\D/g, '')
+    if (digits.length < 7) return 'Phone must contain at least 7 digits'
+    if (!/^[\d\s\-+()]+$/.test(phone)) return 'Phone contains invalid characters'
+    return ''
+  }
 
   const handleSubmit = async () => {
+    setPhoneError('')
+    setCountryError('')
+
+    const phoneErr = validatePhone(formData.phone)
+    if (phoneErr) { setPhoneError(phoneErr); return }
+
+    if (!formData.country.trim()) { setCountryError('Country is required'); return }
+
     try {
       if (!formRef.current?.check()) return
       setSubmitting(true)
@@ -246,13 +264,15 @@ export default function SignupPage() {
                 <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
-                  <div className="relative w-full flex items-center">
-                    <div className="p-3 left-3.5 top-1/2  z-10 text-muted-foreground/60 pointer-events-none">
+                  <div className="relative w-full">
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
                       <Globe className="h-4 w-4" />
                     </div>
                     <CountrySelect
                         value={formData.country}
-                        onChange={(v) => setFormData((prev) => ({ ...prev, country: v ?? '' }))}
+                        error={!!countryError}
+                        onChange={(v) => { setCountryError(''); setFormData((prev) => ({ ...prev, country: v ?? '' })) }}
+                        className="pl-10"
                     />
                   </div>
 
@@ -265,7 +285,8 @@ export default function SignupPage() {
                         placeholder="Phone number"
                         value={formData.phone}
                         variant="bordered"
-                        onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                        error={!!phoneError}
+                        onChange={(e) => { setPhoneError(''); setFormData((prev) => ({ ...prev, phone: e.target.value })) }}
                         className="pl-10"
                     />
                   </div>
@@ -300,7 +321,9 @@ export default function SignupPage() {
 
                 </div>
 
-                <Button type="submit" className="w-full h-11 mt-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-500/25 transition-all duration-300" appearance="primary" loading={submitting}>
+                <Button type="submit"
+                        className="w-full h-11 mt-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-500/25 transition-all duration-300"
+                        appearance="primary" loading={submitting}>
                   {submitting ? 'Creating account...' : 'Create account'}
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>

@@ -11,6 +11,7 @@ export const resUsers = pgTable('res_users', {
   displayName: text('display_name'),
   avatarUrl:   text('avatar_url'),
   phone:       text('phone'),
+  country:     text('country'),
   email:       text('email').notNull(),
   userRole:    userRoleEnum('user_role').notNull().default('new'),
   isShopOwner: boolean('is_shop_owner').notNull().default(false),

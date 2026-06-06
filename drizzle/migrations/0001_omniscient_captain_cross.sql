@@ -1,0 +1,1 @@
+ALTER TABLE "res_users" ADD COLUMN "country" text;

@@ -8,6 +8,13 @@
       "when": 1780663828082,
       "tag": "0000_minor_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780745508516,
+      "tag": "0001_omniscient_captain_cross",
+      "breakpoints": true
     }
   ]
 }
