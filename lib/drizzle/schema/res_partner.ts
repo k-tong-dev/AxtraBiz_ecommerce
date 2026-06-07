@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, text, boolean, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, serial, integer, text, boolean, pgEnum, json } from 'drizzle-orm/pg-core'
 import { auditFields } from './audit'
 import { resShops } from './res_shops'
 

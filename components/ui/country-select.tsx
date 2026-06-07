@@ -2,18 +2,25 @@
 
 import * as React from 'react'
 import SelectPicker from '@/components/ui/RSuite/DataPickers/SelectPicker'
-import { cn } from '@/lib/utils'
-import { countries, type Country } from '@/lib/mock/countries'
+import { useCountryDetect } from '@/hooks/useCountryDetect'
+
+interface CountryItem {
+  value: string
+  label: string
+  flag: string
+  phoneCode: string
+}
 
 interface CountrySelectProps {
     value?: string
+    data?: CountryItem[] | 'undefined'
     onChange?: (value: string | null) => void
     disabled?: boolean
     className?: string
     error?: boolean
 }
 
-const formatOption = (item?: Country | null) => {
+const formatOption = (item?: CountryItem | null) => {
     if (!item) return ''
     const flag = item.flag ?? ''
     const label = item.label ?? ''
@@ -21,6 +28,29 @@ const formatOption = (item?: Country | null) => {
 }
 
 export function CountrySelect({ value, onChange, disabled, className, error }: CountrySelectProps) {
+    const [countries, setCountries] = React.useState<CountryItem[]>([])
+    const { country: detectedCountry } = useCountryDetect()
+    const autoSelected = React.useRef(false)
+
+    React.useEffect(() => {
+        fetch('/api/countries')
+            .then(r => r.json())
+            .then(res => {
+                if (res.data) setCountries(res.data)
+            })
+            .catch(() => {})
+    }, [])
+
+    React.useEffect(() => {
+        if (!value && detectedCountry && countries.length > 0 && !autoSelected.current) {
+            const match = countries.find(c => c.value === detectedCountry)
+            if (match) {
+                autoSelected.current = true
+                onChange?.(detectedCountry)
+            }
+        }
+    }, [detectedCountry, countries, value, onChange])
+
     return (
         <SelectPicker
             placement="bottom"
@@ -36,14 +66,14 @@ export function CountrySelect({ value, onChange, disabled, className, error }: C
             valueKey="value"
             disabled={disabled}
             searchBy={(_keyword, _label, item) => {
-                const text = formatOption(item as Country).toLowerCase()
+                const text = formatOption(item as CountryItem).toLowerCase()
                 return text.includes(_keyword.toLowerCase())
             }}
             renderValue={(_value, item) => (
-                <span className="truncate">{formatOption(item as Country)}</span>
+                <span className="truncate">{formatOption(item as CountryItem)}</span>
             )}
             renderOption={(_label, item) => (
-                <span className="truncate">{formatOption(item as Country)}</span>
+                <span className="truncate">{formatOption(item as CountryItem)}</span>
             )}
             style={{
                 border: 'none',

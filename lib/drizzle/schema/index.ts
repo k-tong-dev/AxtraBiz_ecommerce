@@ -32,6 +32,7 @@ export { auditColumns, timestamps } from '@/lib/drizzle/schema/_shared'
 
 // ─── Auth / Access schema ───
 export { userRoleEnum, resUsers } from '@/lib/drizzle/schema/res_users'
+export { resCountries } from '@/lib/drizzle/schema/res_country'
 export { resGroups } from '@/lib/drizzle/schema/res_groups'
 export { resPermissions } from '@/lib/drizzle/schema/res_permissions'
 

@@ -1,6 +1,6 @@
 {
-  "id": "2092f459-d70c-4bc2-a58e-cbbae4c790f1",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "3c87a648-5dfa-4adb-99e2-81ece3163245",
+  "prevId": "5988ae98-069f-48fc-8fe5-8731fe39fd38",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2981,6 +2981,69 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.res_country": {
+      "name": "res_country",
+      "schema": "",
+      "columns": {
+        "code": {
+          "name": "code",
+          "type": "varchar(2)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "flag": {
+          "name": "flag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone_code": {
+          "name": "phone_code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "create_uid": {
+          "name": "create_uid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "write_uid": {
+          "name": "write_uid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.res_groups": {
       "name": "res_groups",
       "schema": "",
@@ -3645,6 +3708,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "country": {
+          "name": "country",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "email": {
           "name": "email",
           "type": "text",
@@ -3715,25 +3784,25 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "res_users_country_res_country_code_fk": {
+          "name": "res_users_country_res_country_code_fk",
+          "tableFrom": "res_users",
+          "tableTo": "res_country",
+          "columnsFrom": [
+            "country"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "res_users_shop_id_res_shops_id_fk": {
           "name": "res_users_shop_id_res_shops_id_fk",
           "tableFrom": "res_users",
           "tableTo": "res_shops",
           "columnsFrom": [
             "shop_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "res_users_auth_user_id_res_users_id_fk": {
-          "name": "res_users_auth_user_id_res_users_id_fk",
-          "tableFrom": "res_users",
-          "tableTo": "res_users",
-          "columnsFrom": [
-            "auth_user_id"
           ],
           "columnsTo": [
             "id"

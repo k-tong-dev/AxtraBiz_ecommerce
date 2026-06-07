@@ -24,6 +24,7 @@ export {
   auditSeverityEnum,
   // Tables
   resUsers,
+  resCountries,
   resGroups,
   resPermissions,
   resShops,
@@ -79,6 +80,7 @@ export type {
 
 import {
   resShops,
+  resCountries,
   m2mUsersShops,
   audit_logs,
   currencies,
@@ -123,6 +125,7 @@ export const shopsUserRelations = relations(resShops, ({ many }) => ({
 
 export type AuditLog = typeof audit_logs.$inferSelect;
 export type Currency = typeof currencies.$inferSelect;
+export type Countries = typeof resCountries.$inferSelect;
 export type ProductTemplate = typeof product_template.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;

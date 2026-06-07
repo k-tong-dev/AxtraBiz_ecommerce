@@ -88,6 +88,10 @@ function VerifyOTPPageContent() {
     setError('')
     const result = await verifyOtp(email, otpCode)
     if (result.success) {
+      // Create res_users profile
+      try {
+        await fetch('/api/auth/complete-signup', { method: 'POST' })
+      } catch {}
       showToast('success', 'Email verified', 'Welcome to AxtraBiz.')
       setTimeout(() => {
         window.location.href = redirectTo

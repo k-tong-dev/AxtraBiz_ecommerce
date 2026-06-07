@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import { db } from '@/lib/drizzle/server'
-import { resUsers } from '@/lib/drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { getUserByAuthId, createUser } from '@/lib/drizzle/queries/users'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -15,14 +13,11 @@ export async function GET(request: Request) {
 
     if (!error && data.user) {
       try {
-        const [existing] = await db.select({ id: resUsers.id })
-          .from(resUsers)
-          .where(eq(resUsers.authUserId, data.user.id))
-          .limit(1)
+        const existing = await getUserByAuthId(data.user.id)
 
         if (!existing) {
           const username = data.user.email?.split('@')[0] || 'user'
-          await db.insert(resUsers).values({
+          await createUser({
             authUserId: data.user.id,
             username,
             email: data.user.email!,

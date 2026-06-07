@@ -87,6 +87,13 @@ export function useAuth() {
       // fall through — Supabase check is the fallback
     }
 
+    console.log('[signup] Sending confirmation email →', {
+      email,
+      name,
+      phone,
+      country,
+      emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+    })
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -96,7 +103,13 @@ export function useAuth() {
       },
     })
 
-    console.log('[signup] Supabase response:', { data, error: error?.message })
+    console.log('[signup] Supabase response:', {
+      userId: data.user?.id,
+      identities: data.user?.identities?.length ?? 0,
+      hasSession: !!data.session,
+      needsVerification: !data.session,
+      error: error?.message ?? null,
+    })
 
     if (error) {
       // Detect "already registered" even if our DB check missed it (race / config)

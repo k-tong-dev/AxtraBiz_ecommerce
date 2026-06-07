@@ -2,15 +2,16 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import {HStack, Schema} from 'rsuite'
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Check, Shield, Zap, RefreshCw, CheckCircle2, Phone, Globe } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import {Schema} from 'rsuite'
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Check, Shield, Zap, Phone, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Form, FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { CountrySelect } from '@/components/ui/country-select'
 import { useAuth } from '@/hooks/use-auth'
 import { showToast } from '@/lib/ui/toast'
-import {IoReturnUpBack} from "react-icons/io5";
+import { getPhoneCode, validatePhone as validatePhoneWithCountry } from '@/lib/mock/phone-utils'
 
 const model = Schema.Model({
   name: Schema.Types.StringType().isRequired('Name is required'),
@@ -23,12 +24,12 @@ const model = Schema.Model({
   confirm: Schema.Types.StringType()
     .isRequired('Please confirm your password')
     .addRule((value, data) => {
-      if (value !== data?.password) return false
-      return true
+      return value === data?.password;
     }, 'Passwords do not match'),
 })
 
 export default function SignupPage() {
+  const router = useRouter()
   const { signup, loginWithGoogle } = useAuth()
   const formRef = useRef<any>(null)
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirm: '', phone: '', country: '' })
@@ -36,36 +37,49 @@ export default function SignupPage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
-  const [done, setDone] = useState(false)
-  const [email, setEmail] = useState('')
-  const [resending, setResending] = useState(false)
   const [phoneError, setPhoneError] = useState('')
   const [countryError, setCountryError] = useState('')
-
-  const validatePhone = (phone: string): string => {
-    if (!phone.trim()) return ''
-    const digits = phone.replace(/\D/g, '')
-    if (digits.length < 7) return 'Phone must contain at least 7 digits'
-    if (!/^[\d\s\-+()]+$/.test(phone)) return 'Phone contains invalid characters'
-    return ''
-  }
+  const [formErrors, setFormErrors] = useState<string[]>([])
+  const phoneCode = formData.country ? getPhoneCode(formData.country) : ''
 
   const handleSubmit = async () => {
     setPhoneError('')
     setCountryError('')
+    setFormErrors([])
 
-    const phoneErr = validatePhone(formData.phone)
-    if (phoneErr) { setPhoneError(phoneErr); return }
+    if (!formData.country.trim()) {
+      setCountryError('Country is required')
+      showToast('error', 'Validation', 'Country is required')
+      return
+    }
 
-    if (!formData.country.trim()) { setCountryError('Country is required'); return }
+    const phoneErr = validatePhoneWithCountry(formData.phone, formData.country)
+    if (phoneErr) {
+      setPhoneError(phoneErr)
+      showToast('error', 'Validation', phoneErr)
+      return
+    }
 
     try {
-      if (!formRef.current?.check()) return
+      const valid = formRef.current?.check()
+      if (!valid) {
+        const errors: string[] = []
+        if (!formData.name.trim()) errors.push('Name is required')
+        if (!formData.email.trim()) errors.push('Email is required')
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.push('Invalid email address')
+        if (formData.password.length < 8) errors.push('Password must be at least 8 characters')
+        if (formData.password !== formData.confirm) errors.push('Passwords do not match')
+        if (errors.length) {
+          setFormErrors(errors)
+          showToast('error', 'Validation', errors[0])
+          return
+        }
+        return
+      }
       setSubmitting(true)
       const result = await signup(formData.name, formData.email, formData.password, formData.phone, formData.country)
       if (result?.success) {
-        setEmail(formData.email)
-        setDone(true)
+        router.push(`/auth/verify-otp?email=${encodeURIComponent(formData.email)}`)
       } else {
         const msg = result?.error || 'Please try again.'
         if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already exists')) {
@@ -79,80 +93,6 @@ export default function SignupPage() {
       showToast('error', 'Signup failed', 'An unexpected error occurred.')
     }
     setSubmitting(false)
-  }
-
-  const handleResend = async () => {
-    setResending(true)
-    const supabase = (await import('@/utils/supabase/client')).createClient()
-    const { error } = await supabase.auth.resend({ type: 'signup', email })
-    if (error) {
-      showToast('error', 'Resend failed', error.message)
-    } else {
-      showToast('success', 'Email resent', 'Check your inbox for the confirmation link.')
-    }
-    setResending(false)
-  }
-
-  if (done) {
-    return (
-      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50/70 via-white to-violet-50/50 dark:from-indigo-950/30 dark:via-slate-950 dark:to-violet-950/20">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-indigo-300/30 to-violet-300/20 blur-3xl orb-1" />
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-fuchsia-300/25 to-pink-200/20 blur-3xl orb-2" />
-        </div>
-        <div className="relative z-10 w-full max-w-md px-4">
-          <div className="relative">
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-fuchsia-500/10 blur-2xl" />
-            <div className="relative rounded-2xl border border-white/40 dark:border-white/10 bg-white/80 dark:bg-slate-900/70 p-8 shadow-2xl shadow-indigo-500/10 backdrop-blur-2xl text-center space-y-5">
-              <div className="flex justify-center">
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-2xl bg-indigo-400/30 blur-xl animate-pulse" />
-                  <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                    <CheckCircle2 className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold tracking-[-0.02em]">Check your email</h2>
-                <p className="text-sm text-muted-foreground/80 mt-2 max-w-xs mx-auto">
-                  We sent a confirmation link to{' '}
-                  <span className="font-medium text-foreground">{email}</span>
-                </p>
-              </div>
-              <div className="rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 p-4 text-xs text-muted-foreground/80 space-y-1 text-left">
-                <p className="flex items-start gap-2">
-                  <Check className="h-3.5 w-3.5 text-indigo-500 mt-0.5 shrink-0" />
-                  Click the link in the email to activate your account
-                </p>
-                <p className="flex items-start gap-2">
-                  <Check className="h-3.5 w-3.5 text-indigo-500 mt-0.5 shrink-0" />
-                  The link expires in 1 hour
-                </p>
-                <p className="flex items-start gap-2">
-                  <Check className="h-3.5 w-3.5 text-indigo-500 mt-0.5 shrink-0" />
-                  Didn't receive it? Check spam or resend below
-                </p>
-              </div>
-              <Button
-                className="w-full h-11 bg-white dark:bg-slate-800 border border-border/60 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200"
-                appearance="default"
-                onClick={handleResend}
-                disabled={resending}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${resending ? 'animate-spin' : ''}`} />
-                {resending ? 'Resending...' : 'Resend confirmation email'}
-              </Button>
-              <Link href="/auth/signin" className="block text-xs text-muted-foreground/70 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors mt-3">
-                <div className={"flex gap-3 items-center justify-center"}>
-                  <IoReturnUpBack />
-                  Back to sign in
-                </div>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -260,7 +200,7 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              <Form ref={formRef} model={model} onChange={(v: any) => setFormData((prev) => ({ ...prev, ...v }))} onSubmit={handleSubmit} fluid formDefaultValue={{ name: '', email: '', password: '', confirm: '' }}>
+              <Form ref={formRef} model={model} onChange={(v: any) => setFormData((prev) => ({ ...prev, ...v }))} fluid formDefaultValue={{ name: '', email: '', password: '', confirm: '' }}>
                 <div className="space-y-3.5 auth-page-form min-w-95">
                   <FormField name="name" placeholder="Full name" variant="bordered" icon={<User className="h-4 w-4" />} />
 
@@ -280,6 +220,11 @@ export default function SignupPage() {
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground/60 pointer-events-none">
                       <Phone className="h-4 w-4" />
                     </div>
+                    {phoneCode && (
+                      <div className="absolute left-[2.25rem] top-1/2 -translate-y-1/2 z-10 text-sm font-medium text-muted-foreground/70 pointer-events-none border-r border-border/40 pr-2">
+                        {phoneCode}
+                      </div>
+                    )}
                     <Input
                         type="tel"
                         placeholder="Phone number"
@@ -287,7 +232,7 @@ export default function SignupPage() {
                         variant="bordered"
                         error={!!phoneError}
                         onChange={(e) => { setPhoneError(''); setFormData((prev) => ({ ...prev, phone: e.target.value })) }}
-                        className="pl-10"
+                        className={phoneCode ? 'pl-[5.5rem]' : 'pl-10'}
                     />
                   </div>
 
@@ -318,12 +263,12 @@ export default function SignupPage() {
                       </button>
                     }
                   />
-
                 </div>
 
-                <Button type="submit"
+                <Button
                         className="w-full h-11 mt-5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg shadow-indigo-500/25 transition-all duration-300"
-                        appearance="primary" loading={submitting}>
+                        appearance="primary" loading={submitting}
+                        onClick={handleSubmit}>
                   {submitting ? 'Creating account...' : 'Create account'}
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>

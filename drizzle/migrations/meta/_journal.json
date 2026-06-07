@@ -3,17 +3,24 @@
   "dialect": "postgresql",
   "entries": [
     {
-      "idx": 0,
+      "idx": 2,
       "version": "7",
-      "when": 1780663828082,
-      "tag": "0000_minor_starjammers",
+      "when": 1780835203999,
+      "tag": "0002_special_captain_flint",
       "breakpoints": true
     },
     {
-      "idx": 1,
+      "idx": 3,
       "version": "7",
-      "when": 1780745508516,
-      "tag": "0001_omniscient_captain_cross",
+      "when": 1780844070505,
+      "tag": "0003_drop_auth_user_fk",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1780845000000,
+      "tag": "0004_cascade_delete_auth_user",
       "breakpoints": true
     }
   ]
