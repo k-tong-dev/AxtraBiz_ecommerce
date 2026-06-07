@@ -38,6 +38,10 @@ function initSharedAuth() {
     sharedUser = data.user ? mapUser(data.user) : null
     sharedLoading = false
     notifyListeners()
+  }).catch(() => {
+    sharedUser = null
+    sharedLoading = false
+    notifyListeners()
   })
 
   supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {

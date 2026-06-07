@@ -32,8 +32,12 @@ export default function LoginPage() {
     if (!authLoading && user) {
       fetch('/api/auth/me')
         .then(r => r.json())
-        .then(me => { window.location.href = redirectParam || me.redirect || '/dashboard' })
-        .catch(() => { window.location.href = redirectParam || '/dashboard' })
+        .then(me => {
+          if (me.authenticated) {
+            window.location.href = redirectParam || me.redirect || '/dashboard'
+          }
+        })
+        .catch(() => {})
     }
   }, [authLoading, user, redirectParam])
 
