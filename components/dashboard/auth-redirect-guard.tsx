@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react'
 import {useRouter, usePathname} from 'next/navigation'
-import {PageLoading} from '@/components/ui/page-loading'
+import Loader from '@/components/ui/RSuite/Status/Loader'
 
 export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
     const router = useRouter()
@@ -53,7 +53,7 @@ export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
     }, [router, pathname])
 
     if (state === 'loading') {
-        return <PageLoading theme="dashboard" />
+        return <Loader center size="lg" content="Loading..." />
     }
 
     return <>{children}</>
