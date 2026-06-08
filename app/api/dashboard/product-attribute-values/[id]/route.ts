@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 import {
   fetchProductAttributeValueFromDrizzle,
   deleteProductAttributeValueFromDrizzle,

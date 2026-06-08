@@ -4,7 +4,7 @@ import {
   cartItemService,
   deleteCartItemFromDrizzle
 } from '@/lib/drizzle/queries/cart_items'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET(
   _request: Request,

@@ -3,6 +3,7 @@ import { timestamps } from './_shared'
 import { orders } from './orders'
 import { product_template } from './product_template'
 import { product_variants } from './product_variants'
+import { lineStatusEnum } from './_enums'
 
 export const order_lines = pgTable('order_lines', {
   id: serial('id').primaryKey(),
@@ -13,8 +14,10 @@ export const order_lines = pgTable('order_lines', {
   sku: text('sku'),
   quantity: integer('quantity').notNull().default(1),
   unit_price: numeric('unit_price', { precision: 12, scale: 2 }).notNull().default('0'),
+  cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
   discount: numeric('discount', { precision: 12, scale: 2 }).default('0'),
   tax: numeric('tax', { precision: 12, scale: 2 }).default('0'),
   subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
+  status: lineStatusEnum('status').default('pending'),
   ...timestamps,
 })

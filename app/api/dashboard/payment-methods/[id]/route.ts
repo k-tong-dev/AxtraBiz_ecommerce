@@ -4,7 +4,7 @@ import {
   paymentMethodService,
   deletePaymentMethodFromDrizzle
 } from '@/lib/drizzle/queries/payment_methods'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET(
   _request: Request,

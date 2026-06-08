@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { fetchAnnouncementFromDrizzle, announcementService, deleteAnnouncementFromDrizzle } from '@/lib/drizzle/queries/announcements'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

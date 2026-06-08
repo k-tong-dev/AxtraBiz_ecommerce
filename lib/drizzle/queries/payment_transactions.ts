@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { payment_transactions, PaymentTransaction } from '@/lib/drizzle/schema'
 
 export const paymentTransactionService = createCrudService<PaymentTransaction, any, any>(

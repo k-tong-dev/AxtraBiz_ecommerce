@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import {menus,  type Menu } from '@/lib/drizzle/schema'
 
 export const menuService = createCrudService<Menu, any, any>(

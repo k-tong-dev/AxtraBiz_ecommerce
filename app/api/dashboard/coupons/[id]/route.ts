@@ -4,7 +4,7 @@ import {
   couponService,
   deleteCouponFromDrizzle
 } from '@/lib/drizzle/queries/coupons'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET(
   _request: Request,

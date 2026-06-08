@@ -4,7 +4,7 @@ import {
   categoryService,
   deleteCategoryFromDrizzle
 } from '@/lib/drizzle/queries/categories'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET() {
   try {

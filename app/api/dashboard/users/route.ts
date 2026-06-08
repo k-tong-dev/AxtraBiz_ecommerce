@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server'
-import { fetchUsersFromDrizzle, userService, deleteUserFromDrizzle } from '@/lib/drizzle/queries/users'
+import { userService, deleteUserFromDrizzle, getUserByShop} from '@/lib/drizzle/queries/users'
 import { createServiceRoleClient } from '@/lib/utils/supabase-service-role'
 import { db } from '@/lib/drizzle/client'
 import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
+import { getCurrentShopId } from '@/lib/drizzle/queries/users'
 
 export async function GET() {
   try {
-    const all = await fetchUsersFromDrizzle()
+    const shopId = await getCurrentShopId()
+    const all = shopId ? await getUserByShop(shopId) : null
     return NextResponse.json(all)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })

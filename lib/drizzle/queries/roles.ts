@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { resGroups, type ResGroup } from '@/lib/drizzle/schema'
 
 export const groupService = createCrudService<ResGroup, any, any>(resGroups)

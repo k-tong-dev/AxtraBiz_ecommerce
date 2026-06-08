@@ -6,7 +6,7 @@ import {
   deleteProductAttributeFromDrizzle
 } from '@/lib/drizzle/queries/product-attributes'
 // import type { ProductAttribute } from '../../../../lib/drizzle/server'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET() {
   try {

@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { eq, sql } from 'drizzle-orm'
 import {
   product_attributes,

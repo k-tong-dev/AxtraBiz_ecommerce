@@ -4,7 +4,7 @@ import {
   productReviewService,
   deleteProductReviewFromDrizzle
 } from '@/lib/drizzle/queries/product_reviews'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET(
   _request: Request,

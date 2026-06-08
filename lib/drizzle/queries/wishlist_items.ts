@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { wishlist_items, type  WishlistItem } from '@/lib/drizzle/schema'
 
 export const wishlistItemService = createCrudService<WishlistItem, any, any>(

@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { resUserAddresses, type ResUserAddress } from '@/lib/drizzle/schema'
 
 export const resUserAddressService = createCrudService<ResUserAddress, any, any>(

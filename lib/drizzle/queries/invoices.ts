@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { invoices, Invoice } from '@/lib/drizzle/schema'
 
 // Create CRUD service for invoices

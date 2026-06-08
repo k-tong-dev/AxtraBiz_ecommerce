@@ -12,6 +12,7 @@ export const product_variants = pgTable('product_variants', {
   compare_price: numeric('compare_price', { precision: 12, scale: 2 }).default('0'),
   cost_price: numeric('cost_price', { precision: 12, scale: 2 }).default('0'),
   stock: integer('stock').notNull().default(0),
+  total_sold: integer('total_sold').notNull().default(0),
   weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
   image_ids: jsonb('image_ids').notNull().default('[]'),
   attributes: jsonb('attributes').notNull().default('{}'),

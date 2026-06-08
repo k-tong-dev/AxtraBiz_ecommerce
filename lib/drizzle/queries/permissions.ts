@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import  { resPermissions, ResPermission } from '@/lib/drizzle/schema'
 
 export const permissionService = createCrudService<ResPermission, any, any>(resPermissions)

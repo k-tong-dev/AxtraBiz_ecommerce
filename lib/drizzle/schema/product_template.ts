@@ -37,6 +37,7 @@ export const product_template = pgTable('product_template', {
   stock: integer('stock').notNull().default(0),
   track_inventory: boolean('track_inventory').default(true).notNull(),
   low_stock_threshold: integer('low_stock_threshold').default(10),
+  total_sold: integer('total_sold').notNull().default(0),
   allow_backorders: boolean('allow_backorders').default(false),
   weight: numeric('weight', { precision: 8, scale: 2 }).default('0'),
   dimensions: text('dimensions').default(''),

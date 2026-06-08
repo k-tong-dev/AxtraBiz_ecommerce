@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { coupons, type  Coupon } from '../schema'
 
 export const couponService = createCrudService<Coupon, any, any>(

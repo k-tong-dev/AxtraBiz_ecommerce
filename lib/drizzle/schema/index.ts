@@ -19,6 +19,7 @@ import { coupons } from '@/lib/drizzle/schema/coupons'
 import { product_reviews } from '@/lib/drizzle/schema'
 import { wishlist_items } from '@/lib/drizzle/schema'
 import { cart_items } from '@/lib/drizzle/schema'
+import { return_requests } from '@/lib/drizzle/schema/return_requests'
 import { shipping_methods } from '@/lib/drizzle/schema'
 import { pages } from '@/lib/drizzle/schema/ir_pages'
 import { menus } from '@/lib/drizzle/schema/ir_menus'
@@ -62,6 +63,7 @@ export { coupons } from '@/lib/drizzle/schema/coupons'
 export { product_reviews } from '@/lib/drizzle/schema/product_reviews'
 export { wishlist_items } from '@/lib/drizzle/schema/wishlist_items'
 export { cart_items } from '@/lib/drizzle/schema/cart_items'
+export { return_requests } from '@/lib/drizzle/schema/return_requests'
 export { shipping_methods } from '@/lib/drizzle/schema/shipping_methods'
 export { pages } from '@/lib/drizzle/schema/ir_pages'
 export { menus } from '@/lib/drizzle/schema/ir_menus'
@@ -102,6 +104,7 @@ export type  Coupon  = typeof coupons.$inferSelect
 export type ProductReview = typeof product_reviews.$inferSelect
 export type WishlistItem = typeof wishlist_items.$inferSelect
 export type CartItem = typeof cart_items.$inferSelect
+export type ReturnRequest = typeof return_requests.$inferSelect
 export type ShippingMethod = typeof shipping_methods.$inferSelect
 export type Page = typeof pages.$inferSelect
 export type Menu = typeof menus.$inferSelect

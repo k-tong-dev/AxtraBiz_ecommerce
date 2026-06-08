@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import {announcements, type Announcement } from '@/lib/drizzle/schema'
 
 // Create CRUD service for announcements

@@ -4,7 +4,7 @@ import {
   brandService,
   deleteBrandFromDrizzle
 } from '@/lib/drizzle/queries/brands'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET(
   _request: Request,

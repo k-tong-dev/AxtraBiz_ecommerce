@@ -1,4 +1,4 @@
-import { createCrudService } from './base-crud'
+import { createCrudService } from './base-orm/base-crud'
 import { order_lines, OrderLine } from '@/lib/drizzle/schema'
 
 export const orderLineService = createCrudService<OrderLine, any, any>(

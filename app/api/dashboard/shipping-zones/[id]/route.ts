@@ -4,7 +4,7 @@ import {
   shippingZoneService,
   deleteShippingZoneFromDrizzle
 } from '@/lib/drizzle/queries/shipping_zones'
-import { getCurrentUserId } from '@/lib/utils/current-user'
+import { getCurrentUserId } from '@/lib/drizzle/queries/users'
 
 export async function GET(
   _request: Request,

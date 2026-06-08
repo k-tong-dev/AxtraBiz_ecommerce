@@ -1,10 +1,25 @@
 import { NextResponse } from 'next/server'
-import { fetchShopsFromDrizzle, shopService, deleteShopFromDrizzle } from '@/lib/drizzle/queries/shops'
+import { shopService, deleteShopFromDrizzle } from '@/lib/drizzle/queries/shops'
+import { getCurrentUserId, getUserByAuthId } from '@/lib/drizzle/queries/users'
+import { getUserShops } from '@/lib/drizzle/m2m'
+import { db } from '@/lib/drizzle/server'
+import { resShops } from '@/lib/drizzle/schema'
+import { inArray } from 'drizzle-orm'
 
 export async function GET() {
   try {
-    const all = await fetchShopsFromDrizzle()
-    return NextResponse.json(all)
+    const userAuthId = await getCurrentUserId()
+    if (!userAuthId) return NextResponse.json([])
+
+    const user = await getUserByAuthId(userAuthId)
+    if (!user) return NextResponse.json([])
+
+    const m2mRecords = await getUserShops(user.id)
+    if (!m2mRecords || m2mRecords.length === 0) return NextResponse.json([])
+
+    const shopIds = m2mRecords.map(r => r.shopId)
+    const shops = await db.select().from(resShops).where(inArray(resShops.id, shopIds))
+    return NextResponse.json(shops)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch shops' }, { status: 500 })
   }

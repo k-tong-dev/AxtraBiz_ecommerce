@@ -58,6 +58,7 @@ export {
   product_reviews,
   wishlist_items,
   cart_items,
+  return_requests,
   shipping_methods,
   pages,
   menus,
@@ -106,6 +107,7 @@ import {
   product_reviews,
   wishlist_items,
   cart_items,
+  return_requests,
   shipping_methods,
   pages,
   menus,
@@ -153,7 +155,7 @@ export type CartItem = typeof cart_items.$inferSelect;
 export type ShippingMethod = typeof shipping_methods.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type Menu = typeof menus.$inferSelect;
-
+export type ReturnRequest = typeof return_requests.$inferSelect;
 export type Shop = typeof resShops.$inferSelect;
 
 import type { ResUser, ResGroup, ResPermission } from '@/lib/drizzle/schema'

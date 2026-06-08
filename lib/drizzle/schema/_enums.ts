@@ -25,6 +25,10 @@ export const couponTypeEnum = pgEnum('coupon_type', ['percentage', 'fixed_amount
 
 export const shippingRateTypeEnum = pgEnum('shipping_rate_type', ['flat', 'per_item', 'weight_based', 'free', 'tiered'])
 
+export const lineStatusEnum = pgEnum('line_status', ['pending', 'confirmed', 'fulfilled', 'cancelled', 'returned'])
+export const orderChannelEnum = pgEnum('order_channel', ['web', 'mobile', 'pos', 'marketplace', 'manual'])
+export const returnStatusEnum = pgEnum('return_status', ['pending', 'approved', 'rejected', 'received', 'refunded'])
+
 export const pageStatusEnum = pgEnum('page_status', ['draft', 'published', 'archived'])
 
 

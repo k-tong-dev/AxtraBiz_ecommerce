@@ -1,5 +1,5 @@
 import {db} from '@/lib/drizzle/server'
-import {createCrudService} from './base-crud'
+import {createCrudService} from './base-orm/base-crud'
 import {resShops, resUsers, resGroups, m2mUsersShops, m2mUsersGroups, type ResShop} from '@/lib/drizzle/schema'
 import {eq} from 'drizzle-orm'
 
