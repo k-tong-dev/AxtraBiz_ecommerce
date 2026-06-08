@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Store, ArrowRight, Plus, Building2 } from 'lucide-react'
+import { setActiveShop } from '@/lib/active-shop'
 
 interface ShopOption {
   id: number
@@ -47,7 +48,7 @@ export default function ShopSelectPage() {
 
   const selectShop = async (shop: ShopOption) => {
     // Set active shop in localStorage for the admin UI to pick up
-    localStorage.setItem('active_shop_id', String(shop.id))
+    setActiveShop(shop.id)
     localStorage.setItem('active_shop_name', shop.name)
     router.push('/dashboard')
   }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronDown, Plus, Store } from 'lucide-react'
+import { setActiveShop, getActiveShop } from '@/lib/active-shop'
 
 type Shop = {
   id: number
@@ -24,7 +25,7 @@ export function ShopSwitcher({ user: _user }: { user: { name?: string | null; em
       .then(data => {
         if (data.shops?.length) {
           setShops(data.shops)
-          const activeId = localStorage.getItem('active_shop_id')
+          const activeId = getActiveShop()
           const active = data.shops.find((s: Shop) => String(s.id) === activeId) || data.shops[0]
           setCurrentShop(active)
         }
@@ -41,8 +42,7 @@ export function ShopSwitcher({ user: _user }: { user: { name?: string | null; em
   }, [])
 
   const switchShop = (shop: Shop) => {
-    localStorage.setItem('active_shop_id', String(shop.id))
-    document.cookie = `active_shop_id=${shop.id}; path=/; max-age=86400`
+    setActiveShop(shop.id)
     setCurrentShop(shop)
     setOpen(false)
     router.push('/dashboard')

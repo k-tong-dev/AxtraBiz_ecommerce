@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Store, ArrowRight, Building2, Loader2, CheckCircle2 } from 'lucide-react'
+import { setActiveShop } from '@/lib/active-shop'
 
 export default function AuthSetupPage() {
   const [step, setStep] = useState<'loading' | 'select' | 'create' | 'done'>('loading')
@@ -88,7 +89,7 @@ export default function AuthSetupPage() {
       }
 
       setStep('done')
-      localStorage.setItem('active_shop_id', String(shopId))
+      setActiveShop(shopId)
       localStorage.setItem('active_shop_name', data.data?.name || name.trim())
     } catch {
       setError('Network error. Please try again.')
@@ -123,7 +124,7 @@ export default function AuthSetupPage() {
               <button
                 key={shop.id}
                 onClick={() => {
-                  localStorage.setItem('active_shop_id', String(shop.id))
+                  setActiveShop(shop.id)
                   localStorage.setItem('active_shop_name', shop.name)
                   window.location.href = '/dashboard'
                 }}

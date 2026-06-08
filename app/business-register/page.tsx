@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { CheckCircle2, AlertCircle, Sparkles, ShoppingBag, Check, Zap, Shield, Store, Building2, Phone, DollarSign, ArrowRight, Banknote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { showToast } from '@/lib/ui/toast'
+import { setActiveShop } from '@/lib/active-shop'
 import Input from '@/components/ui/RSuite/DataEntry/Input'
 import SelectPicker from '@/components/ui/RSuite/DataPickers/SelectPicker'
 
@@ -48,7 +49,7 @@ export default function BusinessRegisterPage() {
         setSubmitting(false)
         return
       }
-      localStorage.setItem('active_shop_id', String(data.data.shopId))
+      setActiveShop(data.data.shopId)
       setStep(4)
       setTimeout(() => router.push('/dashboard'), 2000)
     } catch {
