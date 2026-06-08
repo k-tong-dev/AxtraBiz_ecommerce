@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react'
 import {useRouter, usePathname} from 'next/navigation'
-import {Sparkles} from 'lucide-react'
+import {PageLoading} from '@/components/ui/page-loading'
 
 export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
     const router = useRouter()
@@ -53,16 +53,7 @@ export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
     }, [router, pathname])
 
     if (state === 'loading') {
-        return (
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                        <Sparkles className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="w-6 h-6 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin" />
-                </div>
-            </div>
-        )
+        return <PageLoading theme="dashboard" />
     }
 
     return <>{children}</>
