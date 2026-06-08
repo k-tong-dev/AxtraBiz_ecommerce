@@ -4,7 +4,7 @@ import {
   shippingMethodService,
   deleteShippingMethodFromDrizzle
 } from '@/lib/drizzle/queries/shipping_methods'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 
 export async function GET(
   _request: Request,

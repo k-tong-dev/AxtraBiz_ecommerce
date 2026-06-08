@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 import {
   fetchProductAttributeValuesFromDrizzle,
   productAttributeValueService,

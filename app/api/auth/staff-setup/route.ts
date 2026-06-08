@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createServiceRoleClient } from '@/utils/supabase/service-role'
+import { createServiceRoleClient } from '@/lib/utils/supabase-service-role'
 import { db } from '@/lib/drizzle/client'
 import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'

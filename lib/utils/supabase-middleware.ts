@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { supabaseUrl, supabaseAnonKey, requireEnv } from './config'
+import { supabaseUrl, supabaseAnonKey, requireEnv } from './supabase-config'
 
 const AUTH_COOKIE_NAMES = [
   'sb-access-token',
@@ -40,7 +40,6 @@ export const updateSession = async (request: NextRequest) => {
 
   const { pathname, search } = request.nextUrl
 
-  // ── Legacy route redirects ──
   const legacyMap: Record<string, string> = {
     '/dashboard/settings': '/dashboard/configuration/settings',
     '/dashboard/configurations': '/dashboard/configuration/configurations',
@@ -91,14 +90,12 @@ export const updateSession = async (request: NextRequest) => {
 
   const isLoginPage = pathname === '/auth/signin'
 
-  // Authenticated user on /auth/signin → redirect to dashboard
   if (user && isLoginPage) {
     const dest = request.nextUrl.clone()
     dest.pathname = '/dashboard'
     return NextResponse.redirect(dest)
   }
 
-  // Unauthenticated → protect routes
   if (!user) {
     if (isAdminApiRoute) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

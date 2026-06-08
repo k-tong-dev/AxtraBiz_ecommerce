@@ -4,7 +4,7 @@ import {
   orderLineService,
   deleteOrderLineFromDrizzle
 } from '@/lib/drizzle/queries/order_lines'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 
 export async function GET(
   _request: Request,

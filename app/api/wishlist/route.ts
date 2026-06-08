@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 import { db, wishlist_items } from '@/lib/drizzle/server'
 import { eq, and } from 'drizzle-orm'
 

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { supabaseUrl, supabaseServiceRoleKey, requireEnv } from './config'
+import { supabaseUrl, supabaseServiceRoleKey, requireEnv } from './supabase-config'
 
 export const createServiceRoleClient = () => {
   return createClient(

@@ -1,7 +1,7 @@
 import { db } from '../server'
 import { eq } from 'drizzle-orm'
 import { PgTable } from 'drizzle-orm/pg-core'
-import { getCurrentUserId, getCurrentShopId } from '@/utils/supabase/current-user'
+import { getCurrentUserId, getCurrentShopId } from '@/lib/utils/current-user'
 
 const FK_META = Symbol.for('drizzle:PgInlineForeignKeys')
 const COLUMNS_META = Symbol.for('drizzle:Columns')

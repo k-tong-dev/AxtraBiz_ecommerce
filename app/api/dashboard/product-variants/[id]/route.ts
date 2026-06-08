@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { fetchProductVariantFromDrizzle, productVariantService, deleteProductVariantFromDrizzle } from '@/lib/drizzle/queries/product-variants'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

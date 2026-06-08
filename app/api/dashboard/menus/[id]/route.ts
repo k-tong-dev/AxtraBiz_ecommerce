@@ -4,7 +4,7 @@ import {
   menuService,
   deleteMenuFromDrizzle
 } from '@/lib/drizzle/queries/menus'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 
 export async function GET(
   _request: Request,

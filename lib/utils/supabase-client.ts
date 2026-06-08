@@ -1,5 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { supabaseUrl, supabaseAnonKey, requireEnv } from './config'
+import { supabaseUrl, supabaseAnonKey, requireEnv } from './supabase-config'
 
 declare global {
   var __agileShopSupabaseClient:

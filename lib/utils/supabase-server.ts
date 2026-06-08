@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { supabaseUrl, supabaseAnonKey, requireEnv } from './config'
+import { supabaseUrl, supabaseAnonKey, requireEnv } from './supabase-config'
 
 export const createClient = async () => {
   const cookieStore = await cookies()
@@ -26,4 +26,3 @@ export const createClient = async () => {
     },
   )
 }
-

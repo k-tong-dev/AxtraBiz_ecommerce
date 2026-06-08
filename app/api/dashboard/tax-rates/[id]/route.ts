@@ -4,7 +4,7 @@ import {
   taxRateService,
   deleteTaxRateFromDrizzle
 } from '@/lib/drizzle/queries/tax_rates'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 
 export async function GET(
   _request: Request,

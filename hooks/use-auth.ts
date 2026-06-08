@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import type { User } from '@/lib/types'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/lib/utils/supabase-client'
 
 function mapUser(authUser: { id: string; email?: string | null; user_metadata?: Record<string, unknown>; created_at?: string | null }): User {
   return {

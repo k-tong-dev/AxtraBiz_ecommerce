@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/utils/supabase-server'
 import { db } from '@/lib/drizzle/client'
 import { resUsers, m2mUsersGroups, m2mGroupsPermissions, m2mUsersShops, resPermissions } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'

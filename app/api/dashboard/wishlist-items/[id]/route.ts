@@ -4,7 +4,7 @@ import {
   wishlistItemService,
   deleteWishlistItemFromDrizzle
 } from '@/lib/drizzle/queries/wishlist_items'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId } from '@/lib/utils/current-user'
 
 export async function GET(
   _request: Request,
