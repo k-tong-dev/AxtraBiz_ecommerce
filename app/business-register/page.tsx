@@ -6,30 +6,26 @@ import { CheckCircle2, AlertCircle, Sparkles, ShoppingBag, Check, Zap, Shield, S
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { showToast } from '@/lib/ui/toast'
+import {BsShopWindow} from "react-icons/bs";
 
-const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar', symbol: '$' },
-  { code: 'EUR', name: 'Euro', symbol: '€' },
-  { code: 'GBP', name: 'British Pound', symbol: '£' },
-  { code: 'KHR', name: 'Cambodian Riel', symbol: '៛' },
-  { code: 'THB', name: 'Thai Baht', symbol: '฿' },
-  { code: 'VND', name: 'Vietnamese Dong', symbol: '₫' },
-  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
-  { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
-  { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
-  { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
-  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-]
+type Currency = { code: string; name: string; symbol: string }
 
 export default function BusinessRegisterPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
+  const [currencies, setCurrencies] = useState<Currency[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', company: '', phone: '', currency: 'USD' })
+
+  useEffect(() => {
+    fetch('/api/dashboard/currencies')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setCurrencies(data)
+      })
+      .catch(() => {})
+  }, [])
 
   const handleSubmit = async () => {
     if (!form.name.trim()) {
@@ -165,9 +161,9 @@ export default function BusinessRegisterPage() {
                     {step === 1 && (
                       <>
                         <div>
-                          <label className="text-xs font-medium text-muted-foreground/80 mb-1.5 block">Shop name *</label>
+                          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Shop name *</label>
                           <div className="relative">
-                            <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                            <BsShopWindow className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                             <input
                               value={form.name}
                               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -180,7 +176,7 @@ export default function BusinessRegisterPage() {
                         <div>
                           <label className="text-xs font-medium text-muted-foreground/80 mb-1.5 block">Company name (optional)</label>
                           <div className="relative">
-                            <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                            <Building2 className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                             <input
                               value={form.company}
                               onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
@@ -197,7 +193,7 @@ export default function BusinessRegisterPage() {
                         <div>
                           <label className="text-xs font-medium text-muted-foreground/80 mb-1.5 block">Phone (optional)</label>
                           <div className="relative">
-                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                            <Phone className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                             <input
                               value={form.phone}
                               onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
@@ -209,13 +205,13 @@ export default function BusinessRegisterPage() {
                         <div>
                           <label className="text-xs font-medium text-muted-foreground/80 mb-1.5 block">Default currency</label>
                           <div className="relative">
-                            <Banknote className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 z-10" />
+                            <Banknote className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 z-10" />
                             <select
                               value={form.currency}
                               onChange={e => setForm(f => ({ ...f, currency: e.target.value }))}
                               className="w-full h-11 pl-10 pr-4 rounded-xl border border-border/60 bg-white/60 dark:bg-slate-900/40 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur appearance-none cursor-pointer"
                             >
-                              {CURRENCIES.map(c => (
+                              {(currencies.length > 0 ? currencies : []).map(c => (
                                 <option key={c.code} value={c.code}>{c.symbol} — {c.name} ({c.code})</option>
                               ))}
                             </select>
@@ -240,7 +236,7 @@ export default function BusinessRegisterPage() {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground/70">Currency</span>
-                          <span className="font-medium">{CURRENCIES.find(c => c.code === form.currency)?.symbol} {form.currency}</span>
+                          <span className="font-medium">{currencies.find(c => c.code === form.currency)?.symbol} {form.currency}</span>
                         </div>
                       </div>
                     )}
