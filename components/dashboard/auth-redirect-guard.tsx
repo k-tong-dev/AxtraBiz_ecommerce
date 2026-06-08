@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react'
 import {useRouter, usePathname} from 'next/navigation'
-import {setActiveShop} from '@/lib/active-shop'
+import {setActiveShop, getActiveShop} from '@/lib/active-shop'
 
 
 export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
@@ -30,8 +30,11 @@ export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
                 }
 
                 if (data.shops?.length > 1) {
-                    window.location.href = '/auth/setup'
-                    return
+                    const activeShopId = getActiveShop()
+                    if (!activeShopId || !data.shops.some((s: any) => String(s.id) === activeShopId)) {
+                        window.location.href = '/auth/setup'
+                        return
+                    }
                 }
 
                 if (data.shops?.length === 1) {
