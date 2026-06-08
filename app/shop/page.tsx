@@ -63,7 +63,7 @@ export default function ShopPage() {
   }
 
   if (shops.length === 0) {
-    router.replace('/app/shop/register')
+    router.replace('/shop/register')
     return null
   }
 
@@ -109,7 +109,7 @@ export default function ShopPage() {
             />
           </div>
           <button
-            onClick={() => router.push('/app/shop/register')}
+            onClick={() => router.push('/shop/register')}
             className="flex items-center gap-1.5 h-10 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
           >
             <Plus className="w-4 h-4" />

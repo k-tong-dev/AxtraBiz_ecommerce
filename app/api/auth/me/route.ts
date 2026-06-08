@@ -25,9 +25,9 @@ function buildResponse(resUser: typeof resUsers.$inferSelect, shopCount = 0) {
   if (role === 'platform_admin') {
     redirect = '/dashboard'
   } else if (needsVerification || needsShop) {
-    redirect = '/app/shop/register'
+    redirect = '/shop/register'
   } else if (shopCount > 1) {
-    redirect = '/app/shop'
+    redirect = '/shop'
   } else {
     redirect = '/dashboard'
   }

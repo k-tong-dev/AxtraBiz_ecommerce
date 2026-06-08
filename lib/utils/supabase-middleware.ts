@@ -87,7 +87,7 @@ export const updateSession = async (request: NextRequest) => {
     pathname.startsWith('/website/orders') ||
     pathname.startsWith('/website/checkout') ||
     pathname.startsWith('/website/wishlist')
-  const isAppRoute = pathname.startsWith('/app')
+  const isAppRoute = pathname.startsWith('/shop')
 
   const isLoginPage = pathname === '/auth/signin'
 

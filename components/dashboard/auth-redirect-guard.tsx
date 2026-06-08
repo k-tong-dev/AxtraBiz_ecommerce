@@ -25,14 +25,14 @@ export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
                 }
 
                 if (data.needsVerification || data.needsShop) {
-                    window.location.href = '/app/shop/register'
+                    window.location.href = '/shop/register'
                     return
                 }
 
                 if (data.shops?.length > 1) {
                     const activeShopId = getActiveShop()
                     if (!activeShopId || !data.shops.some((s: any) => String(s.id) === activeShopId)) {
-                        window.location.href = '/app/shop'
+                        window.location.href = '/shop'
                         return
                     }
                 }

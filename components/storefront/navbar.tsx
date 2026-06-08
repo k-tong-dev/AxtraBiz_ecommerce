@@ -90,7 +90,7 @@ export function Navbar() {
                                             Profile
                                         </HStack>
                                     </Link>
-                                    <Link href="/app/shop/register"
+                                    <Link href="/shop/register"
                                           className="block px-4 py-2 hover:bg-secondary text-sm">
                                         <HStack spacing={10}>
                                             <FaShopify />
