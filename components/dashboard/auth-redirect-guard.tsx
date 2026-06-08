@@ -29,16 +29,28 @@ export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
                     return
                 }
 
+                if (data.shops?.length === 1) {
+                    setActiveShop(data.shops[0].id)
+                    if (pathname !== '/dashboard') {
+                        window.location.href = '/dashboard'
+                        return
+                    }
+                    setState('done')
+                    return
+                }
+
                 if (data.shops?.length > 1) {
                     const activeShopId = getActiveShop()
                     if (!activeShopId || !data.shops.some((s: any) => String(s.id) === activeShopId)) {
                         window.location.href = '/shop'
                         return
                     }
-                }
-
-                if (data.shops?.length === 1) {
-                    setActiveShop(data.shops[0].id)
+                    if (pathname !== '/dashboard') {
+                        window.location.href = '/dashboard'
+                        return
+                    }
+                    setState('done')
+                    return
                 }
 
                 if (data.redirect && data.redirect !== pathname) {
