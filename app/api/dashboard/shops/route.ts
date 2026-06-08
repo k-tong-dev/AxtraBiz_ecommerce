@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { shopService, deleteShopFromDrizzle } from '@/lib/drizzle/queries/shops'
-import { getCurrentUserId, getUserByAuthId } from '@/lib/drizzle/queries/users'
 import { getUserShops } from '@/lib/drizzle/m2m'
 import { db } from '@/lib/drizzle/server'
 import { resShops } from '@/lib/drizzle/schema'
@@ -10,6 +9,7 @@ export async function GET() {
   try {
     const m2mRecords = await getUserShops()
     if (!m2mRecords || m2mRecords.length === 0) return NextResponse.json([])
+
     const shopIds = m2mRecords.map(r => r.shopId)
     const shops = await db.select().from(resShops).where(inArray(resShops.id, shopIds))
     return NextResponse.json(shops)
