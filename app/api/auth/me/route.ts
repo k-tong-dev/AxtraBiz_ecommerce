@@ -12,7 +12,7 @@ const AUTH_COOKIE_NAMES = [
   'supabase-auth-token',
 ]
 
-function buildResponse(resUser: typeof resUsers.$inferSelect) {
+function buildResponse(resUser: typeof resUsers.$inferSelect, shopCount = 0) {
   const role = resUser.userRole === '_admin_system_' ? 'platform_admin'
     : resUser.userRole === 'new' ? 'new'
     : resUser.isShopOwner ? 'business_owner'
@@ -26,6 +26,8 @@ function buildResponse(resUser: typeof resUsers.$inferSelect) {
     redirect = '/dashboard'
   } else if (needsVerification || needsShop) {
     redirect = '/business-register'
+  } else if (shopCount > 1) {
+    redirect = '/auth/setup'
   } else {
     redirect = '/dashboard'
   }
@@ -86,7 +88,7 @@ export async function GET() {
       .where(eq(m2mUsersGroups.userId, resUser.id))
       .catch(() => [] as { id: number; name: string }[])
 
-    const data = buildResponse(resUser)
+    const data = buildResponse(resUser, userShops.length)
     data.shops = userShops
     data.groups = userGroups
 
