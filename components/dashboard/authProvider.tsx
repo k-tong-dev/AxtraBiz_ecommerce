@@ -5,7 +5,7 @@ import {useRouter, usePathname} from 'next/navigation'
 import {setActiveShop, getActiveShop} from '@/lib/active-shop'
 
 
-export function AuthRedirectGuard({children}: { children: React.ReactNode }) {
+export function AuthProvider({children}: { children: React.ReactNode }) {
     const router = useRouter()
     const pathname = usePathname()
     const [state, setState] = useState<'loading' | 'done'>('loading')
