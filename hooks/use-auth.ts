@@ -99,6 +99,7 @@ export function useAuth() {
       emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
     })
     const { data, error } = await supabase.auth.signUp({
+      phone,
       email,
       password,
       options: {
@@ -191,6 +192,27 @@ export function useAuth() {
     return !error
   }
 
+  const clearAuth = () => {
+    sharedUser = null
+    sharedLoading = false
+    notifyListeners()
+  }
+
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/me')
+      const data = await res.json()
+      if (data.deleted || !data.authenticated) {
+        clearAuth()
+        return { authenticated: false, deleted: data.deleted }
+      }
+      return { authenticated: true, user: data.user }
+    } catch {
+      clearAuth()
+      return { authenticated: false, deleted: false }
+    }
+  }
+
   return {
     user: sharedUser,
     isLoading: sharedLoading,
@@ -204,5 +226,7 @@ export function useAuth() {
     loginWithGoogle,
     sendPasswordReset,
     updatePassword,
+    clearAuth,
+    checkAuth,
   }
 }

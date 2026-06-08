@@ -6,101 +6,69 @@ import { eq } from 'drizzle-orm'
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json()
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    // Check if email already registered
-    const existingUser = await db.select()
+    const { name, company, phone, currency } = await request.json()
+
+    if (!name?.trim()) {
+      return NextResponse.json({ error: 'Shop name is required' }, { status: 400 })
+    }
+
+    const slug = name
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+      .slice(0, 60)
+
+    const [existingUser] = await db.select()
       .from(resUsers)
-      .where(eq(resUsers.email, email))
+      .where(eq(resUsers.authUserId, user.id))
       .limit(1)
 
-    if (existingUser.length > 0) {
-      return NextResponse.json(
-        { error: 'An account with this email already exists. Please sign in.' },
-        { status: 409 },
-      )
+    if (!existingUser) {
+      return NextResponse.json({ error: 'User profile not found. Please sign out and sign in again.' }, { status: 400 })
     }
 
-    const supabase = await createClient()
-
-    // Try to create Supabase auth user
-    let authUser = null
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password: password || crypto.randomUUID(),
-      options: {
-        data: { name, full_name: name },
-        emailRedirectTo: `${request.headers.get('origin') || ''}/auth/signin`,
-      },
-    })
-
-    if (signUpError && signUpError.message?.includes('already registered')) {
-      console.log('[business-register] auth user already exists for', email)
-    } else if (signUpError) {
-      return NextResponse.json({ error: signUpError.message }, { status: 400 })
-    } else {
-      authUser = signUpData.user
-    }
-
-    // Get authUserId from session if not returned by signUp
-    let authUserId = authUser?.id
-    if (!authUserId) {
-      const { data: { user } } = await supabase.auth.getUser()
-      authUserId = user?.id
-    }
-
-    // Create the shop
-    const slug = (name || email.split('@')[0])
-      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     const [shop] = await db.insert(resShops)
       .values({
-        name: name || email.split('@')[0],
+        name: name.trim(),
         slug,
-        email,
+        company: company?.trim() || null,
+        phone: phone?.trim() || null,
+        email: user.email!,
+        defaultCurrency: currency || 'USD',
       })
       .returning()
 
-    // Create resUsers entry as business owner
-    const username = email.split('@')[0]
-    if (!authUserId) {
-      return NextResponse.json({ error: 'Authentication failed' }, { status: 500 })
-    }
-    const [resUser] = await db.insert(resUsers)
-      .values({
-        authUserId,
-        username,
-        email,
-        displayName: name,
+    await db.update(resUsers)
+      .set({
         userRole: 'business',
         isShopOwner: true,
         shopId: shop.id,
+        isVerified: true,
+        updatedBy: user.id,
       })
-      .returning()
+      .where(eq(resUsers.id, existingUser.id))
 
-    // Link user to shop in m2m
     await db.insert(m2mUsersShops)
-      .values({
-        userId: resUser.id,
-        shopId: shop.id,
-        isDefault: true,
-      })
+      .values({ userId: existingUser.id, shopId: shop.id, isDefault: true })
       .onConflictDoNothing()
 
     return NextResponse.json({
       success: true,
       data: {
-        id: resUser.id,
-        email: resUser.email,
-        name: resUser.displayName,
+        id: existingUser.id,
+        email: existingUser.email,
+        name: existingUser.displayName,
         shopId: shop.id,
-        needsVerification: authUser ? !authUser.email_confirmed_at : false,
+        shopName: shop.name,
       },
     })
   } catch (error) {
+    console.error('[business-register] Error:', error)
     return NextResponse.json({
       error: error instanceof Error ? error.message : 'Registration failed',
     }, { status: 500 })

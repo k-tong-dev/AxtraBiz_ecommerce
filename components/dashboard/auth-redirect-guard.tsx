@@ -10,7 +10,6 @@ export function AuthRedirectGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (checked.current) return
-    if (pathname === '/auth/setup') return
     checked.current = true
 
     fetch('/api/auth/me')
@@ -20,15 +19,26 @@ export function AuthRedirectGuard({ children }: { children: React.ReactNode }) {
           router.push('/auth/signin')
           return
         }
-        if (data.role === 'staff' && data.isOwner && data.needsShop) {
-          window.location.href = '/auth/setup'
+
+        if (data.needsVerification || data.needsShop) {
+          window.location.href = '/business-register'
           return
         }
-        if (data.role === 'staff' && data.isOwner && data.shops?.length > 1) {
+
+        if (data.shops?.length > 1) {
           const activeShopId = localStorage.getItem('active_shop_id')
-          if (!activeShopId) {
+          if (!activeShopId || !data.shops.some((s: any) => String(s.id) === activeShopId)) {
             window.location.href = '/auth/setup'
+            return
           }
+        }
+
+        if (data.shops?.length === 1) {
+          localStorage.setItem('active_shop_id', String(data.shops[0].id))
+        }
+
+        if (data.redirect && data.redirect !== pathname) {
+          window.location.href = data.redirect
         }
       })
       .catch(() => {})

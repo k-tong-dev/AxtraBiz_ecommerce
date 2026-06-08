@@ -2,6 +2,13 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { supabaseUrl, supabaseAnonKey, requireEnv } from './config'
 
+const AUTH_COOKIE_NAMES = [
+  'sb-access-token',
+  'sb-refresh-token',
+  'sb-auth-token',
+  'supabase-auth-token',
+]
+
 export const updateSession = async (request: NextRequest) => {
   const url = requireEnv('NEXT_PUBLIC_SUPABASE_URL', supabaseUrl)
   const key = requireEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', supabaseAnonKey)
@@ -23,9 +30,13 @@ export const updateSession = async (request: NextRequest) => {
     },
   })
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error && !user) {
+    AUTH_COOKIE_NAMES.forEach(name => {
+      response.cookies.set(name, '', { maxAge: 0, path: '/' })
+    })
+  }
 
   const { pathname, search } = request.nextUrl
 

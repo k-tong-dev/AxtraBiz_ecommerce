@@ -2,118 +2,88 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/drizzle/client'
 import { resUsers, m2mUsersShops, resShops } from '@/lib/drizzle/schema'
-import { eq, inArray } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
+import { checkCreateUserIfNotExit } from '@/lib/drizzle/queries/users'
+
+const AUTH_COOKIE_NAMES = [
+  'sb-access-token',
+  'sb-refresh-token',
+  'sb-auth-token',
+  'supabase-auth-token',
+]
+
+function buildResponse(resUser: typeof resUsers.$inferSelect) {
+  const role = resUser.userRole === '_admin_system_' ? 'platform_admin'
+    : resUser.userRole === 'new' ? 'new'
+    : resUser.isShopOwner ? 'business_owner'
+    : resUser.userRole
+
+  const needsShop = resUser.userRole === 'new' || (resUser.isShopOwner && !resUser.shopId)
+  const needsVerification = resUser.userRole === 'new' || !resUser.isVerified
+
+  let redirect: string
+  if (role === 'platform_admin') {
+    redirect = '/dashboard'
+  } else if (needsVerification || needsShop) {
+    redirect = '/business-register'
+  } else {
+    redirect = '/dashboard'
+  }
+
+  return {
+    authenticated: true,
+    role,
+    redirect,
+    user: {
+      id: resUser.id,
+      email: resUser.email,
+      name: resUser.displayName,
+      isVerified: resUser.isVerified,
+    },
+    shopId: resUser.shopId,
+    isOwner: resUser.isShopOwner,
+    needsShop,
+    needsVerification,
+    shops: [] as { id: number; name: string }[],
+  }
+}
 
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user }, error } = await supabase.auth.getUser()
 
-    console.log('[auth/me] supabase user:', user?.email, !!user)
+    console.log('[auth/me] supabase user:', user?.email, !!user, error?.message)
 
-    if (!user?.email) {
-      return NextResponse.json({ authenticated: false }, { status: 401 })
+    if (error || !user?.email) {
+      const response = NextResponse.json({ authenticated: false, deleted: !!error }, { status: 401 })
+      AUTH_COOKIE_NAMES.forEach(name => {
+        response.cookies.set(name, '', { maxAge: 0, path: '/' })
+      })
+      return response
     }
 
-    // Query resUsers by email
+    const { user: resUser, created } = await checkCreateUserIfNotExit(user.id, user.email, user.user_metadata)
+    if (created) {
+      console.log('[auth/me] auto-created profile for:', user.email)
+    }
+
+    // Fetch shops from m2mUsersShops
+    let userShops: { id: number; name: string }[] = []
     try {
-      const [resUser] = await db.select().from(resUsers)
-        .where(eq(resUsers.email, user.email))
-        .limit(1)
-
-      if (resUser) {
-        // Role: _admin_system_ → platform admin
-        if (resUser.userRole === '_admin_system_') {
-          return NextResponse.json({
-            authenticated: true,
-            role: 'platform_admin',
-            redirect: '/dashboard',
-            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
-            shopId: null,
-            isOwner: false,
-            needsShop: false,
-            shops: [],
-          })
-        }
-
-        // Role: new → needs business registration
-        if (resUser.userRole === 'new') {
-          return NextResponse.json({
-            authenticated: true,
-            role: 'new',
-            redirect: '/business-register',
-            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
-            shopId: null,
-            isOwner: false,
-            needsShop: true,
-            shops: [],
-          })
-        }
-
-        // Fetch shops from m2mUsersShops
-        let userShops: { id: number; name: string }[] = []
-        try {
-          const shopRows = await db.select({ id: resShops.id, name: resShops.name })
-            .from(m2mUsersShops)
-            .innerJoin(resShops, eq(m2mUsersShops.shopId, resShops.id))
-            .where(eq(m2mUsersShops.userId, resUser.id))
-          userShops = shopRows
-        } catch (e) {
-          console.log('[auth/me] m2mUsersShops query failed:', (e as Error).message)
-        }
-
-        // isShopOwner → business owner (with or without shop)
-        if (resUser.isShopOwner) {
-          const needsShop = !resUser.shopId
-          return NextResponse.json({
-            authenticated: true,
-            role: 'business_owner',
-            redirect: needsShop ? '/auth/setup' : '/dashboard',
-            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
-            shopId: resUser.shopId,
-            isOwner: true,
-            needsShop,
-            shops: userShops,
-          })
-        }
-
-        // Employee
-        if (resUser.userRole === 'employee') {
-          return NextResponse.json({
-            authenticated: true,
-            role: 'employee',
-            redirect: '/dashboard',
-            user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
-            shopId: resUser.shopId,
-            isOwner: false,
-            needsShop: false,
-            shops: userShops,
-          })
-        }
-
-        // Fallback for other roles
-        return NextResponse.json({
-          authenticated: true,
-          role: resUser.userRole,
-          redirect: resUser.shopId ? '/dashboard' : '/auth/setup',
-          user: { id: resUser.id, email: resUser.email, name: resUser.displayName },
-          shopId: resUser.shopId,
-          isOwner: resUser.isShopOwner,
-          needsShop: !resUser.shopId,
-          shops: userShops,
-        })
-      }
+      const shopRows = await db.select({ id: resShops.id, name: resShops.name })
+        .from(m2mUsersShops)
+        .innerJoin(resShops, eq(m2mUsersShops.shopId, resShops.id))
+        .where(eq(m2mUsersShops.userId, resUser.id))
+      userShops = shopRows
     } catch (e) {
-      console.log('[auth/me] resUsers query failed:', (e as Error).message)
+      console.log('[auth/me] m2mUsersShops query failed:', (e as Error).message)
     }
 
-    // Authenticated but no profile found
-    return NextResponse.json({
-      authenticated: true,
-      role: 'unknown',
-      redirect: '/auth/signin',
-      user: { email: user.email },
-    })
+    const data = buildResponse(resUser)
+    data.shops = userShops
+
+    return NextResponse.json(data)
   } catch (error) {
     console.error('[auth/me] UNCAUGHT ERROR:', error instanceof Error ? error.message : error, error instanceof Error ? error.stack : '')
     return NextResponse.json({ authenticated: false, error: 'Internal error' }, { status: 500 })

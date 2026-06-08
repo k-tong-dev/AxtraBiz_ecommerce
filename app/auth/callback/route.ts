@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import { getUserByAuthId, createUser } from '@/lib/drizzle/queries/users'
+import { checkCreateUserIfNotExit } from '@/lib/drizzle/queries/users'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -13,22 +13,8 @@ export async function GET(request: Request) {
 
     if (!error && data.user) {
       try {
-        const existing = await getUserByAuthId(data.user.id)
-
-        if (!existing) {
-          const username = data.user.email?.split('@')[0] || 'user'
-          await createUser({
-            authUserId: data.user.id,
-            username,
-            email: data.user.email!,
-            displayName: data.user.user_metadata?.full_name ||
-                        data.user.user_metadata?.name ||
-                        username,
-            phone: data.user.user_metadata?.phone || null,
-            country: data.user.user_metadata?.country || null,
-            userRole: 'new',
-          })
-        }
+        const { created } = await checkCreateUserIfNotExit(data.user.id, data.user.email!, data.user.user_metadata)
+        if (created) console.log('[callback] profile created for:', data.user.email)
       } catch (profileError) {
         console.error('Profile creation error in callback:', profileError)
       }
