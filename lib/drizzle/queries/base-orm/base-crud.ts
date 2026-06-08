@@ -178,7 +178,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
       const [result] = await db
         .select()
         .from(this.table)
-        .where(eq((this.table as any).id, Number(id)))
+        .where(eq((this.table as any).id, id))
         .limit(1)
 
       return result as T || null
@@ -241,12 +241,13 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
       }
 
       const idList = Array.isArray(ids) ? ids : [ids]
-      const setData = this.sanitizeData({ ...data, ...trackingData } as any)
+      const { id: _ignored, ...rest } = { ...data, ...trackingData } as Record<string, any>
+      const setData = this.sanitizeData(rest)
 
       await db
         .update(this.table)
         .set(setData as any)
-        .where(eq((this.table as any).id, Number(idList[0]))) // Simplified — IN clause for true multi
+        .where(eq((this.table as any).id, idList[0]))
 
       return { success: true }
     } catch (err) {
@@ -266,7 +267,7 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
 
       await db
         .delete(this.table)
-        .where(eq((this.table as any).id, Number(idList[0]))) // Simplified — IN clause for true multi
+        .where(eq((this.table as any).id, idList[0]))
 
       return { success: true }
     } catch (err) {

@@ -8,15 +8,8 @@ import { inArray } from 'drizzle-orm'
 
 export async function GET() {
   try {
-    const userAuthId = await getCurrentUserId()
-    if (!userAuthId) return NextResponse.json([])
-
-    const user = await getUserByAuthId(userAuthId)
-    if (!user) return NextResponse.json([])
-
-    const m2mRecords = await getUserShops(user.id)
+    const m2mRecords = await getUserShops()
     if (!m2mRecords || m2mRecords.length === 0) return NextResponse.json([])
-
     const shopIds = m2mRecords.map(r => r.shopId)
     const shops = await db.select().from(resShops).where(inArray(resShops.id, shopIds))
     return NextResponse.json(shops)

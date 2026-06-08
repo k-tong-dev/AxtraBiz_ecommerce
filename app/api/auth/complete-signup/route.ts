@@ -11,7 +11,7 @@ export async function POST() {
       return NextResponse.json({ success: false, error: 'Not authenticated' }, { status: 401 })
     }
 
-    const { user: profile, created } = await checkCreateUserIfNotExit(user.id, user.email!, user.user_metadata)
+    const { user: profile, created } = await checkCreateUserIfNotExit(user.email!, user.user_metadata)
     console.log('[complete-signup] profile:', created ? 'created' : 'existing', profile.id)
 
     return NextResponse.json({ success: true, user: profile })

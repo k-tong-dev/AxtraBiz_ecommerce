@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
     if (!error && data.user) {
       try {
-        const { created } = await checkCreateUserIfNotExit(data.user.id, data.user.email!, data.user.user_metadata)
+        const { created } = await checkCreateUserIfNotExit(data.user.email!, data.user.user_metadata)
         if (created) console.log('[callback] profile created for:', data.user.email)
       } catch (profileError) {
         console.error('Profile creation error in callback:', profileError)

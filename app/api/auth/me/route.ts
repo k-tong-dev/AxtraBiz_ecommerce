@@ -66,7 +66,7 @@ export async function GET() {
       return response
     }
 
-    const { user: resUser, created } = await checkCreateUserIfNotExit(user.id, user.email, user.user_metadata)
+    const { user: resUser, created } = await checkCreateUserIfNotExit(user.email, user.user_metadata)
     if (created) {
       console.log('[auth/me] auto-created profile for:', user.email)
     }

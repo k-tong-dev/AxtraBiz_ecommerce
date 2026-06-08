@@ -25,8 +25,11 @@ export async function getUser(id: string): Promise<ResUser | null> {
   return user ?? null
 }
 
-export async function getUserByAuthId(authUserId: string): Promise<ResUser | null> {
-  const [user] = await db.select().from(resUsers).where(eq(resUsers.authUserId, authUserId)).limit(1)
+// USED FOR GET USER FROM [ res_user ] ID FOR SOMETHING GET DATA FROM FIELD M2M.
+export async function getUserByAuthId() {
+  const userAuthId = await getCurrentUserId()
+  if (!userAuthId) return null
+  const [user] = await db.select().from(resUsers).where(eq(resUsers.authUserId, userAuthId)).limit(1)
   return user ?? null
 }
 
@@ -68,13 +71,13 @@ export async function getCurrentShopId(): Promise<number | undefined> {
  * If not, create one from the auth user's metadata.
  * Called after SignIn, Google OAuth, and OTP signup to ensure a profile always exists.
  */
-export async function checkCreateUserIfNotExit(authUserId: string, email: string, userMetadata?: Record<string, unknown> | null): Promise<{ user: ResUser; created: boolean }> {
-  const existing = await getUserByAuthId(authUserId)
-  if (existing) {
-    return { user: existing, created: false }
+export async function checkCreateUserIfNotExit(email: string, userMetadata?: Record<string, unknown> | null): Promise<{ user: ResUser; created: boolean }> {
+  const authUserId = await getUserByAuthId()
+  if (authUserId) {
+    return { user: authUserId, created: false }
   }
 
-  const username = email?.split('@')[0]?.replace(/[^a-zA-Z0-9_]/g, '_') || `user_${authUserId.slice(0, 8)}`
+  const username = email?.split('@')[0]?.replace(/[^a-zA-Z0-9_]/g, '_') || `user_${authUserId}`
   const created = await createUser({
     authUserId,
     username,

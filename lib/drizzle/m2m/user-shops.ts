@@ -1,6 +1,7 @@
 import { db } from '@/lib/drizzle/client'
 import { m2mUsersShops } from '@/lib/drizzle/schema'
 import { eq, and } from 'drizzle-orm'
+import {getCurrentUserId, getUserByAuthId} from "@/lib/drizzle/queries/users";
 
 export interface AssignUserShopInput {
   userId: string
@@ -65,11 +66,16 @@ export async function syncUserShops(input: SyncUserShopsInput) {
   }
 }
 
-export async function getUserShops(userId: string) {
+export async function getUserShops() {
   try {
+    const userAuthId = await getCurrentUserId()
+    if (!userAuthId) return []
+    const user = await getUserByAuthId()
+    if (!user) return []
+
     return await db.select()
       .from(m2mUsersShops)
-      .where(eq(m2mUsersShops.userId, userId))
+      .where(eq(m2mUsersShops.userId, user?.id))
   } catch {
     return []
   }
