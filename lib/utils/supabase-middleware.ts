@@ -87,6 +87,7 @@ export const updateSession = async (request: NextRequest) => {
     pathname.startsWith('/website/orders') ||
     pathname.startsWith('/website/checkout') ||
     pathname.startsWith('/website/wishlist')
+  const isAppRoute = pathname.startsWith('/app')
 
   const isLoginPage = pathname === '/auth/signin'
 
@@ -101,7 +102,7 @@ export const updateSession = async (request: NextRequest) => {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if ((isAdminRoute || isProtectedShopRoute) && !isLoginPage) {
+    if ((isAdminRoute || isProtectedShopRoute || isAppRoute) && !isLoginPage) {
       const loginUrl = request.nextUrl.clone()
       loginUrl.pathname = '/auth/signin'
       loginUrl.searchParams.set('redirect', `${pathname}${search}`)
