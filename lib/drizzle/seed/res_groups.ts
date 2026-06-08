@@ -3,6 +3,7 @@ import { resGroups, m2mGroupsPermissions, resPermissions } from '@/lib/drizzle/s
 import { eq, inArray } from 'drizzle-orm';
 
 const PERMISSION_KEYS = {
+  shop:         ['read_shop', 'write_shop', 'delete_shop', 'manage_shop'],
   products:     ['read_products', 'write_products', 'delete_products'],
   inventory:    ['read_inventory', 'write_inventory'],
   productCost:  ['read_product_cost', 'edit_product_cost'],
@@ -49,6 +50,33 @@ async function seedGroup(name: string, description: string, permissionKeys: stri
 export async function seedGroups() {
   // Admin — full access
   await seedGroup('Admin', 'Full system access', Object.values(PERMISSION_KEYS).flat());
+
+  // Shop Admin — full shop-level management
+  await seedGroup('Shop Admin', 'Manage shop settings, staff, and storefront', [
+    ...PERMISSION_KEYS.shop,
+    ...PERMISSION_KEYS.products,
+    ...PERMISSION_KEYS.inventory,
+    ...PERMISSION_KEYS.productCost,
+    ...PERMISSION_KEYS.productPrice,
+    ...PERMISSION_KEYS.orders,
+    ...PERMISSION_KEYS.fulfillment,
+    ...PERMISSION_KEYS.payments,
+    ...PERMISSION_KEYS.draftOrders,
+    ...PERMISSION_KEYS.customers,
+    ...PERMISSION_KEYS.marketing,
+    ...PERMISSION_KEYS.coupons,
+    ...PERMISSION_KEYS.reviews,
+    ...PERMISSION_KEYS.pages,
+    ...PERMISSION_KEYS.menus,
+    ...PERMISSION_KEYS.settings,
+    ...PERMISSION_KEYS.paymentsCfg,
+    ...PERMISSION_KEYS.shipping,
+    ...PERMISSION_KEYS.taxes,
+    ...PERMISSION_KEYS.currencies,
+    ...PERMISSION_KEYS.staff,
+    ...PERMISSION_KEYS.roles,
+    ...PERMISSION_KEYS.analytics,
+  ]);
 
   // Manager — everything except staff/roles management
   await seedGroup('Manager', 'Operational management',

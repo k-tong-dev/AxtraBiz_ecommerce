@@ -1,9 +1,10 @@
 import { db } from '../server'
 import { eq } from 'drizzle-orm'
 import { PgTable } from 'drizzle-orm/pg-core'
-import { getCurrentUserId } from '@/utils/supabase/current-user'
+import { getCurrentUserId, getCurrentShopId } from '@/utils/supabase/current-user'
 
 const FK_META = Symbol.for('drizzle:PgInlineForeignKeys')
+const COLUMNS_META = Symbol.for('drizzle:Columns')
 
 /**
  * Base CRUD operations with automatic tracking fields
@@ -15,6 +16,7 @@ export interface TrackingFields {
   updated_at?: string
   create_uid?: string
   write_uid?: string
+  shop_id?: number
 }
 
 export interface CreateResult<T> {
@@ -41,16 +43,18 @@ export interface SearchOptions {
 
 /**
  * Generic CRUD service for any Drizzle model
- * Automatically handles tracking fields (created_at, updated_at, create_uid, write_uid)
+ * Automatically handles tracking fields (created_at, updated_at, create_uid, write_uid, shop_id)
  */
 export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends any> {
   private fkColumns: Set<string>
+  private shopIdAccessor: string | null = null
 
   constructor(
     private table: PgTable,
     private userId?: string
   ) {
     this.fkColumns = this.initForeignKeyColumns()
+    this.shopIdAccessor = this.detectShopIdAccessor()
   }
 
   /**
@@ -75,6 +79,18 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
   }
 
   /**
+   * Detect whether the table has a `shop_id` column and determine its JS accessor name.
+   * Drizzle stores columns keyed by their JS property name.
+   */
+  private detectShopIdAccessor(): string | null {
+    const columns: Record<string, any> = (this.table as any)[COLUMNS_META] ?? {}
+    for (const key of Object.keys(columns)) {
+      if (key === 'shop_id' || key === 'shopId') return key
+    }
+    return null
+  }
+
+  /**
    * Resolve the effective user ID:
    * 1. Explicit userId parameter
    * 2. Constructor-injected userId
@@ -84,6 +100,17 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
     if (userId) return userId
     if (this.userId) return this.userId
     return getCurrentUserId()
+  }
+
+  /**
+   * Resolve the effective shop ID:
+   * 1. Explicit shopId parameter
+   * 2. Constructor-injected shopId (not implemented yet)
+   * 3. active_shop_id cookie
+   */
+  private async getEffectiveShopId(shopId?: number): Promise<number | undefined> {
+    if (shopId !== undefined) return shopId
+    return getCurrentShopId()
   }
 
   /**
@@ -105,16 +132,23 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Create — accepts a single record or an array of records.
    * Automatically sets created_at, create_uid, write_uid.
    */
-  async create(data: TInsert & Partial<TrackingFields>, userId?: string): Promise<CreateResult<T>>
-  async create(data: (TInsert & Partial<TrackingFields>)[], userId?: string): Promise<CreateResult<T[]>>
-  async create(data: any, userId?: string): Promise<CreateResult<T | T[]>> {
+  async create(data: TInsert & Partial<TrackingFields>, userId?: string, shopId?: number): Promise<CreateResult<T>>
+  async create(data: (TInsert & Partial<TrackingFields>)[], userId?: string, shopId?: number): Promise<CreateResult<T[]>>
+  async create(data: any, userId?: string, shopId?: number): Promise<CreateResult<T | T[]>> {
     try {
       const now = new Date().toISOString()
       const effectiveUserId = await this.getEffectiveUserId(userId)
-      const trackingData: Partial<TrackingFields> = {
+      const trackingData: Record<string, any> = {
         created_at: now,
         updated_at: now,
         ...(effectiveUserId ? { create_uid: effectiveUserId, write_uid: effectiveUserId } : {}),
+      }
+
+      if (this.shopIdAccessor) {
+        const effectiveShopId = await this.getEffectiveShopId(shopId)
+        if (effectiveShopId !== undefined) {
+          trackingData[this.shopIdAccessor] = effectiveShopId
+        }
       }
 
       if (Array.isArray(data)) {
@@ -189,14 +223,21 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Write — accepts a single ID or an array of IDs.
    * Automatically updates updated_at and write_uid fields.
    */
-  async write(id: string | number, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
-  async write(ids: (string | number)[], data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult>
-  async write(ids: any, data: TUpdate & Partial<TrackingFields>, userId?: string): Promise<UpdateResult> {
+  async write(id: string | number, data: TUpdate & Partial<TrackingFields>, userId?: string, shopId?: number): Promise<UpdateResult>
+  async write(ids: (string | number)[], data: TUpdate & Partial<TrackingFields>, userId?: string, shopId?: number): Promise<UpdateResult>
+  async write(ids: any, data: TUpdate & Partial<TrackingFields>, userId?: string, shopId?: number): Promise<UpdateResult> {
     try {
       const effectiveUserId = await this.getEffectiveUserId(userId)
-      const trackingData: Partial<TrackingFields> = {
+      const trackingData: Record<string, any> = {
         updated_at: new Date().toISOString(),
         ...(effectiveUserId ? { write_uid: effectiveUserId } : {}),
+      }
+
+      if (this.shopIdAccessor) {
+        const effectiveShopId = await this.getEffectiveShopId(shopId)
+        if (effectiveShopId !== undefined) {
+          trackingData[this.shopIdAccessor] = effectiveShopId
+        }
       }
 
       const idList = Array.isArray(ids) ? ids : [ids]
@@ -237,13 +278,13 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
    * Upsert — accepts a single record or an array of records.
    * Create or update based on ID existence.
    */
-  async upsert(data: TInsert & Partial<TrackingFields> & { id: string | number }, userId?: string): Promise<CreateResult<T>>
-  async upsert(data: (TInsert & Partial<TrackingFields> & { id: string | number })[], userId?: string): Promise<CreateResult<T[]>>
-  async upsert(data: any, userId?: string): Promise<CreateResult<T | T[]>> {
+  async upsert(data: TInsert & Partial<TrackingFields> & { id: string | number }, userId?: string, shopId?: number): Promise<CreateResult<T>>
+  async upsert(data: (TInsert & Partial<TrackingFields> & { id: string | number })[], userId?: string, shopId?: number): Promise<CreateResult<T[]>>
+  async upsert(data: any, userId?: string, shopId?: number): Promise<CreateResult<T | T[]>> {
     if (Array.isArray(data)) {
       const results: T[] = []
       for (const item of data) {
-        const r = await this.upsert(item, userId)
+        const r = await this.upsert(item, userId, shopId)
         if (!r.success) return { success: false, error: r.error }
         if (r.data) results.push(r.data)
       }
@@ -252,11 +293,11 @@ export class BaseCrudService<T extends any, TInsert extends any, TUpdate extends
 
     const existing = await this.read(data.id)
     if (existing) {
-      const result = await this.write(data.id, data as any, userId)
+      const result = await this.write(data.id, data as any, userId, shopId)
       const updated = await this.read(data.id)
       return result.success ? { success: true, data: updated || existing } : { success: false, error: result.error }
     }
-    return this.create(data, userId)
+    return this.create(data, userId, shopId)
   }
 }
 

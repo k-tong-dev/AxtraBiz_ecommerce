@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, HelpCircle } from 'lucide-react'
 import { Nav, Sidenav } from 'rsuite'
 import { useAuth } from '@/hooks/use-auth'
+import { ShopSwitcher } from './shop-switcher'
 import {
   sidebarGroups,
   detectSection,
@@ -117,24 +118,12 @@ export function AdminSidebar() {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0 flex flex-col border-r border-border/60 shadow-sm`}
       >
-        {/* Header — compact user */}
-        <div className="shrink-0 px-3 pt-3 pb-2">
+        {/* Header — shop switcher + user */}
+        <div className="shrink-0 px-3 pt-3 pb-2 space-y-1.5">
           {user && (
-            <div className="flex items-center gap-2.5 rounded-lg bg-muted/50 px-2.5 py-2 border border-border/40">
-              <div className="w-7 h-7 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shrink-0">
-                <span className="text-primary-foreground font-semibold text-[11px]">
-                  {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0 leading-tight">
-                <p className="text-xs font-medium text-foreground/80 truncate">
-                  {user.name || 'Admin User'}
-                </p>
-                <p className="text-[10px] text-muted-foreground/60 truncate">
-                  {user.email}
-                </p>
-              </div>
-            </div>
+            <>
+              <ShopSwitcher user={user} />
+            </>
           )}
         </div>
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { db } from '@/lib/drizzle/client'
-import { resUsers, m2mUsersShops, resShops } from '@/lib/drizzle/schema'
+import { resUsers, resGroups, m2mUsersShops, m2mUsersGroups, resShops } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { checkCreateUserIfNotExit } from '@/lib/drizzle/queries/users'
 
@@ -44,7 +44,8 @@ function buildResponse(resUser: typeof resUsers.$inferSelect) {
     isOwner: resUser.isShopOwner,
     needsShop,
     needsVerification,
-    shops: [] as { id: number; name: string }[],
+    shops: [] as { id: number; name: string; slug: string; isDefault: boolean | null }[],
+    groups: [] as { id: number; name: string }[],
   }
 }
 
@@ -68,14 +69,26 @@ export async function GET() {
       console.log('[auth/me] auto-created profile for:', user.email)
     }
 
-    const userShops = await db.select({ id: resShops.id, name: resShops.name })
+    const userShops = await db.select({
+        id: resShops.id,
+        name: resShops.name,
+        slug: resShops.slug,
+        isDefault: m2mUsersShops.isDefault,
+      })
       .from(m2mUsersShops)
       .innerJoin(resShops, eq(m2mUsersShops.shopId, resShops.id))
       .where(eq(m2mUsersShops.userId, resUser.id))
+      .catch(() => [] as { id: number; name: string; slug: string; isDefault: boolean | null }[])
+
+    const userGroups = await db.select({id: resGroups.id, name: resGroups.name})
+      .from(m2mUsersGroups)
+      .innerJoin(resGroups, eq(m2mUsersGroups.groupId, resGroups.id))
+      .where(eq(m2mUsersGroups.userId, resUser.id))
       .catch(() => [] as { id: number; name: string }[])
 
     const data = buildResponse(resUser)
     data.shops = userShops
+    data.groups = userGroups
 
     return NextResponse.json(data)
   } catch (error) {
