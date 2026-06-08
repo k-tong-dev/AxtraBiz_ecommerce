@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2, AlertCircle, Sparkles, ShoppingBag, Check, Zap, Shield, Store, Building2, Phone, DollarSign, ArrowRight, Banknote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { showToast } from '@/lib/ui/toast'
-import {BsShopWindow} from "react-icons/bs";
+import Input from '@/components/ui/RSuite/DataEntry/Input'
+import SelectPicker from '@/components/ui/RSuite/DataPickers/SelectPicker'
 
 type Currency = { code: string; name: string; symbol: string }
 
@@ -163,12 +163,12 @@ export default function BusinessRegisterPage() {
                         <div>
                           <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Shop name *</label>
                           <div className="relative">
-                            <BsShopWindow className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-                            <input
+                            <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none z-10" />
+                            <Input
                               value={form.name}
-                              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                              onChange={v => setForm(f => ({ ...f, name: v }))}
                               placeholder="My Awesome Shop"
-                              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border/60 bg-white/60 dark:bg-slate-900/40 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur"
+                              className="w-full !h-11 !pl-10"
                               autoFocus
                             />
                           </div>
@@ -176,12 +176,12 @@ export default function BusinessRegisterPage() {
                         <div>
                           <label className="text-xs font-medium text-muted-foreground/80 mb-1.5 block">Company name (optional)</label>
                           <div className="relative">
-                            <Building2 className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-                            <input
+                            <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none z-10" />
+                            <Input
                               value={form.company}
-                              onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
+                              onChange={v => setForm(f => ({ ...f, company: v }))}
                               placeholder="My Company Ltd."
-                              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border/60 bg-white/60 dark:bg-slate-900/40 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur"
+                              className="w-full !h-11 !pl-10"
                             />
                           </div>
                         </div>
@@ -193,29 +193,26 @@ export default function BusinessRegisterPage() {
                         <div>
                           <label className="text-xs font-medium text-muted-foreground/80 mb-1.5 block">Phone (optional)</label>
                           <div className="relative">
-                            <Phone className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-                            <input
+                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none z-10" />
+                            <Input
                               value={form.phone}
-                              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                              onChange={v => setForm(f => ({ ...f, phone: v }))}
                               placeholder="+1 (555) 123-4567"
-                              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border/60 bg-white/60 dark:bg-slate-900/40 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur"
+                              className="w-full !h-11 !pl-10"
                             />
                           </div>
                         </div>
                         <div>
                           <label className="text-xs font-medium text-muted-foreground/80 mb-1.5 block">Default currency</label>
-                          <div className="relative">
-                            <Banknote className="absolute z-1 left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 z-10" />
-                            <select
-                              value={form.currency}
-                              onChange={e => setForm(f => ({ ...f, currency: e.target.value }))}
-                              className="w-full h-11 pl-10 pr-4 rounded-xl border border-border/60 bg-white/60 dark:bg-slate-900/40 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur appearance-none cursor-pointer"
-                            >
-                              {(currencies.length > 0 ? currencies : []).map(c => (
-                                <option key={c.code} value={c.code}>{c.symbol} — {c.name} ({c.code})</option>
-                              ))}
-                            </select>
-                          </div>
+                          <SelectPicker
+                            data={currencies.map(c => ({ value: c.code, label: `${c.symbol} — ${c.name} (${c.code})` }))}
+                            value={form.currency}
+                            onChange={v => setForm(f => ({ ...f, currency: v || 'USD' }))}
+                            placeholder="Select currency"
+                            searchable={false}
+                            className="w-full"
+                            menuClassName="!z-50"
+                          />
                         </div>
                       </>
                     )}
