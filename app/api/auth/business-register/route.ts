@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import { db } from '@/lib/drizzle/client'
-import { resUsers, resShops, m2mUsersShops } from '@/lib/drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { createShopWithOwner } from '@/lib/drizzle/queries/shops'
 
 export async function POST(request: Request) {
   try {
@@ -19,52 +17,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Shop name is required' }, { status: 400 })
     }
 
-    const slug = name
-      .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-      .slice(0, 60)
-
-    const [existingUser] = await db.select()
-      .from(resUsers)
-      .where(eq(resUsers.authUserId, user.id))
-      .limit(1)
-
-    if (!existingUser) {
-      return NextResponse.json({ error: 'User profile not found. Please sign out and sign in again.' }, { status: 400 })
-    }
-
-    const [shop] = await db.insert(resShops)
-      .values({
-        name: name.trim(),
-        slug,
-        company: company?.trim() || null,
-        phone: phone?.trim() || null,
-        email: user.email!,
-        defaultCurrency: currency || 'USD',
-      })
-      .returning()
-
-    await db.update(resUsers)
-      .set({
-        userRole: 'business',
-        isShopOwner: true,
-        shopId: shop.id,
-        isVerified: true,
-        updatedBy: user.id,
-      })
-      .where(eq(resUsers.id, existingUser.id))
-
-    await db.insert(m2mUsersShops)
-      .values({ userId: existingUser.id, shopId: shop.id, isDefault: true })
-      .onConflictDoNothing()
+    const result = await createShopWithOwner(
+      { name, company, phone, currency },
+      user.id,
+      user.email!,
+    )
 
     return NextResponse.json({
       success: true,
       data: {
-        id: existingUser.id,
-        email: existingUser.email,
-        name: existingUser.displayName,
-        shopId: shop.id,
-        shopName: shop.name,
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        shopId: result.shop.id,
+        shopName: result.shop.name,
       },
     })
   } catch (error) {

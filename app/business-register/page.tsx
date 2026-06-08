@@ -195,6 +195,9 @@ export default function BusinessRegisterPage() {
                           <div className="relative">
                             <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 pointer-events-none z-10" />
                             <Input
+                              size={"md"}
+                              type="tel"
+                              inputMode={"tel"}
                               value={form.phone}
                               onChange={v => setForm(f => ({ ...f, phone: v }))}
                               placeholder="+1 (555) 123-4567"
@@ -210,8 +213,11 @@ export default function BusinessRegisterPage() {
                             onChange={v => setForm(f => ({ ...f, currency: v || 'USD' }))}
                             placeholder="Select currency"
                             searchable={false}
-                            className="w-full"
-                            menuClassName="!z-50"
+                            block
+                            size={"lg"}
+                            c={"white"}
+                            className="w-full !text-gray-100"
+                            popupClassName="!z-50"
                           />
                         </div>
                       </>
