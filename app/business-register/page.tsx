@@ -75,7 +75,7 @@ export default function BusinessRegisterPage() {
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-rose-500 flex items-center justify-center shadow-lg shadow-violet-500/25">
               <Sparkles className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">AxtraBiz</span>
+            <span className="text-lg font-semibold tracking-tight">Luxe</span>
           </div>
 
           {/* Steps indicator */}

@@ -1,4 +1,4 @@
-# AxtraBiz — Platform Architecture
+# Luxe — Platform Architecture
 
 Multi-tenant eCommerce platform where each **client** owns 1+ **shops**, and each shop has its own **staff**, **customers**, and **resources** — all isolated by `shop_id`.
 

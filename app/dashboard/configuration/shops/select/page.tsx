@@ -86,7 +86,7 @@ export default function ShopSelectPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold">{shop.name}</p>
                 {shop.slug && (
-                  <p className="text-xs text-muted-foreground truncate">{shop.slug}.axtrabiz.com</p>
+                  <p className="text-xs text-muted-foreground truncate">{shop.slug}.luxe.shop</p>
                 )}
               </div>
               <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />

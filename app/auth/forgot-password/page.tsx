@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-rose-500 flex items-center justify-center shadow-lg shadow-amber-500/25 transition-transform group-hover:scale-105">
               <Sparkles className="h-4 w-4 text-white" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">AxtraBiz</span>
+            <span className="text-lg font-semibold tracking-tight">Luxe</span>
           </Link>
 
           <div className="space-y-5">
@@ -102,7 +102,7 @@ export default function ForgotPasswordPage() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
                   <Sparkles className="h-4 w-4 text-white" />
                 </div>
-                <span className="text-base font-semibold">AxtraBiz</span>
+                <span className="text-base font-semibold">Luxe</span>
               </div>
 
               {sent ? (

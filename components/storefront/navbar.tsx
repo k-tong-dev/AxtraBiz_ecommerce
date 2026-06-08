@@ -34,7 +34,7 @@ export function Navbar() {
                             <span className="text-primary-foreground font-bold text-sm">A</span>
                         </div>
                         <span
-                            className="font-bold text-lg hidden sm:inline bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">AxtraBiz</span>
+                            className="font-bold text-lg hidden sm:inline bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">Luxe</span>
                     </Link>
 
                     {/* Desktop Menu */}
