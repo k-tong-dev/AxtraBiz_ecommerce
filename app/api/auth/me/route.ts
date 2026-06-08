@@ -68,17 +68,11 @@ export async function GET() {
       console.log('[auth/me] auto-created profile for:', user.email)
     }
 
-    // Fetch shops from m2mUsersShops
-    let userShops: { id: number; name: string }[] = []
-    try {
-      const shopRows = await db.select({ id: resShops.id, name: resShops.name })
-        .from(m2mUsersShops)
-        .innerJoin(resShops, eq(m2mUsersShops.shopId, resShops.id))
-        .where(eq(m2mUsersShops.userId, resUser.id))
-      userShops = shopRows
-    } catch (e) {
-      console.log('[auth/me] m2mUsersShops query failed:', (e as Error).message)
-    }
+    const userShops = await db.select({ id: resShops.id, name: resShops.name })
+      .from(m2mUsersShops)
+      .innerJoin(resShops, eq(m2mUsersShops.shopId, resShops.id))
+      .where(eq(m2mUsersShops.userId, resUser.id))
+      .catch(() => [] as { id: number; name: string }[])
 
     const data = buildResponse(resUser)
     data.shops = userShops
