@@ -6,8 +6,8 @@ export const staffFormConfig: FormConfig = {
   apiEndpoint: '/api/dashboard/users',
   fields: [
     {
-      key: 'full_name',
-      label: 'Full Name',
+      key: 'username',
+      label: 'Username',
       type: 'string',
       required: true,
       placeholder: 'John Doe',
@@ -28,12 +28,11 @@ export const staffFormConfig: FormConfig = {
       order: 1
     },
     {
-      key: 'shop_id',
-      label: 'Shop',
-      type: 'many2one',
+      key: 'shopId',
+      label: 'Shops',
+      type: 'many2many',
       fetchUrl: '/api/dashboard/shops',
-      required: true,
-      placeholder: 'Select shop',
+      placeholder: 'Select shops',
       columnWidth: 1,
       groupNumber: 1,
       groupColumn: 1,
@@ -55,7 +54,7 @@ export const staffFormConfig: FormConfig = {
       order: 3
     },
     {
-      key: 'is_owner',
+      key: 'isShopOwner',
       label: 'Is Owner',
       type: 'boolean',
       columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 4

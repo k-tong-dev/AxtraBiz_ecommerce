@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { userService, deleteUserFromDrizzle, getUserByShop} from '@/lib/drizzle/queries/users'
+import { syncUserShops } from '@/lib/drizzle/m2m'
 import { createServiceRoleClient } from '@/lib/utils/supabase-service-role'
 import { db } from '@/lib/drizzle/client'
 import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
-import { getCurrentShopId } from '@/lib/drizzle/queries/users'
+import { getCurrentShopId } from '@/lib/utils/current-user'
 
 export async function GET() {
   try {
@@ -23,10 +24,21 @@ export async function POST(request: Request) {
     const results: any[] = []
 
     for (const item of items) {
-      const { password, ...userData } = item
+      const { password, shopId: rawShopId, ...userData } = item
+
+      let shopIdArray: number[] = []
+      if (Array.isArray(rawShopId)) {
+        shopIdArray = rawShopId.map((s: any) => (typeof s === 'object' ? Number(s.id) : Number(s))).filter(Boolean)
+        userData.shopId = shopIdArray[0] || null
+      }
+
       const r = await userService.upsert(userData)
       if (!r.success) return NextResponse.json({ success: false, error: r.error }, { status: 400 })
       const created = r.data
+
+      if (created?.id && shopIdArray.length > 0) {
+        await syncUserShops({ userId: created.id, shopIds: shopIdArray })
+      }
 
       if (password && created?.id) {
         const email = userData.email
