@@ -12,7 +12,11 @@ export async function GET() {
 
     const shopIds = m2mRecords.map(r => r.shopId)
     const shops = await db.select().from(resShops).where(inArray(resShops.id, shopIds))
-    return NextResponse.json(shops)
+    const enriched = shops.map((s: any) => ({
+      ...s,
+      logo_url: s.logoUrl || (typeof s.logo === 'object' && s.logo?.url) || null,
+    }))
+    return NextResponse.json(enriched)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch shops' }, { status: 500 })
   }

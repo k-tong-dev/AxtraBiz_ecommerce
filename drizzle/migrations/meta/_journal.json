@@ -36,6 +36,13 @@
       "when": 1780937681305,
       "tag": "0006_lying_eternity",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781010000000,
+      "tag": "0007_add_mobile_to_res_users",
+      "breakpoints": true
     }
   ]
 }

@@ -12,6 +12,7 @@ export const resUsers = pgTable('res_users', {
   displayName: text('display_name'),
   avatarUrl:   text('avatar_url'),
   phone:       text('phone'),
+  mobile:      text('mobile'),
   country:     varchar('country', { length: 2 }).references(() => resCountries.code),
   email:       text('email').notNull(),
   userRole:    userRoleEnum('user_role').notNull().default('new'),

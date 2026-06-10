@@ -6,36 +6,24 @@ export const staffFormConfig: FormConfig = {
   apiEndpoint: '/api/dashboard/users',
   fields: [
     {
+      key: 'avatarUrl',
+      label: 'Avatar',
+      type: 'file',
+      maxFiles: 1,
+      accept: 'image/*',
+      uploadText: 'Click to upload user avatar',
+      required: false,
+    },
+    {
       key: 'displayName',
       label: 'Full Name',
       type: 'string',
       required: true,
       placeholder: 'John Doe',
-      columnWidth: 1,
+      columnWidth: 2,
       groupNumber: 1,
       groupColumn: 1,
       order: 0
-    },
-    {
-      key: 'email',
-      label: 'Email',
-      type: 'string',
-      required: true,
-      placeholder: 'staff@example.com',
-      columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 2,
-      order: 1
-    },
-    {
-      key: 'password',
-      label: 'Password',
-      type: 'string',
-      placeholder: 'Set password to allow login (create only)',
-      columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 1,
-      order: 2
     },
     {
       key: 'isShopOwner',
@@ -44,40 +32,18 @@ export const staffFormConfig: FormConfig = {
       columnWidth: 1,
       groupNumber: 1,
       groupColumn: 2,
-      order: 3
-    },
-    {
-      key: 'shopId',
-      label: 'Primary Shop',
-      type: 'many2one',
-      fetchUrl: '/api/dashboard/shops',
-      placeholder: 'Select primary shop',
-      columnWidth: 1,
-      groupNumber: 2,
-      groupColumn: 1,
-      order: 0
-    },
-    {
-      key: 'shop_ids',
-      label: 'All Shops',
-      type: 'many2many',
-      fetchUrl: '/api/dashboard/shops',
-      placeholder: 'Select additional shops',
-      columnWidth: 1,
-      groupNumber: 2,
-      groupColumn: 2,
       order: 1
     },
     {
-      key: 'group_ids',
-      label: 'Roles',
-      type: 'many2many',
-      fetchUrl: '/api/dashboard/roles',
-      placeholder: 'Select roles',
-      columnWidth: 1,
-      groupNumber: 3,
-      groupColumn: 1,
-      order: 0
+      key: 'username',
+      label: 'Username',
+      type: 'string',
+      required: true,
+      placeholder: 'Example : john123',
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 2,
+      order: 3
     },
     {
       key: 'status',
@@ -90,9 +56,95 @@ export const staffFormConfig: FormConfig = {
         { value: 'disabled', label: 'Disabled' }
       ],
       columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
+      order: 4
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      type: 'number',
+      required: false,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 2,
+      order: 4
+    },
+    {
+      key: 'mobile',
+      label: 'Mobile',
+      type: 'number',
+      required: false,
+      columnWidth: 1,
+      groupNumber: 2,
+      groupColumn: 2,
+      order: 5
+    },
+
+    {
+      key: 'email',
+      label: 'Email',
+      type: 'string',
+      required: true,
+      placeholder: 'staff@example.com',
+      columnWidth: 2,
       groupNumber: 3,
+      groupColumn: 1,
+      order: 1
+    },
+    {
+      key: 'mobile',
+      label: 'Mobile',
+      type: 'string',
+      placeholder: '+855 12 345 678',
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
+      order: 2
+    },
+    {
+      key: 'password',
+      label: 'Password',
+      type: 'string',
+      placeholder: 'Set password to allow login (create only)',
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
+      order: 3
+    },
+
+    {
+      key: 'shopId',
+      label: 'Primary Shop',
+      type: 'many2one',
+      fetchUrl: '/api/dashboard/shops',
+      placeholder: 'Select primary shop',
+      columnWidth: 1,
+      groupNumber: 4,
+      groupColumn: 1,
+      order: 0
+    },
+    {
+      key: 'shop_ids',
+      label: 'All Shops',
+      type: 'many2many',
+      fetchUrl: '/api/dashboard/shops',
+      placeholder: 'Select additional shops',
+      columnWidth: 2,
+      groupNumber: 4,
       groupColumn: 2,
       order: 1
+    },
+    {
+      key: 'group_ids',
+      label: 'User Groups',
+      type: 'many2many',
+      fetchUrl: '/api/dashboard/roles',
+      placeholder: 'Select roles',
+      columnWidth: 3,
+      groupNumber: 5,
+      groupColumn: 1,
+      order: 0
     },
   ],
   breadcrumbs: {
