@@ -38,13 +38,6 @@
       "breakpoints": true
     },
     {
-      "idx": 7,
-      "version": "7",
-      "when": 1781010000000,
-      "tag": "0007_add_mobile_to_res_users",
-      "breakpoints": true
-    },
-    {
       "idx": 8,
       "version": "7",
       "when": 1781091032225,

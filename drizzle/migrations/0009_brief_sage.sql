@@ -1,1 +1,1 @@
-ALTER TABLE "res_users" ADD COLUMN "image_id" json;
+ALTER TABLE "res_users" ADD COLUMN IF NOT EXISTS "image_id" json;
