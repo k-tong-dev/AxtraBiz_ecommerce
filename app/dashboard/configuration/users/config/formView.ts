@@ -18,34 +18,12 @@ export const staffFormConfig: FormConfig = {
     },
     {
       key: 'isShopOwner',
-      label: 'Is Owner',
+      label: 'Is Shop Owner',
       type: 'boolean',
       columnWidth: 1,
       groupNumber: 1,
-      groupColumn: 1,
-      order: 1
-    },
-    {
-      key: 'username',
-      label: 'Username',
-      type: 'string',
-      required: true,
-      placeholder: 'John Doe',
-      columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 1,
-      order: 1
-    },
-    {
-      key: 'email',
-      label: 'Email',
-      type: 'string',
-      required: true,
-      placeholder: 'staff@example.com',
-      columnWidth: 2,
-      groupNumber: 2,
-      groupColumn: 1,
-      order: 1
+      groupColumn: 2,
+      order: 5
     },
     {
       key: 'password',
@@ -68,14 +46,25 @@ export const staffFormConfig: FormConfig = {
     },
     {
       key: 'shop_ids',
-      label: 'Allow Shops',
+      label: 'All Shops',
       type: 'many2many',
       fetchUrl: '/api/dashboard/shops',
       placeholder: 'Select additional shops',
       columnWidth: 1,
-      groupNumber: 3,
+      groupNumber: 1,
       groupColumn: 2,
-      order: 2
+      order: 3
+    },
+    {
+      key: 'group_ids',
+      label: 'Roles',
+      type: 'many2many',
+      fetchUrl: '/api/dashboard/roles',
+      placeholder: 'Select roles',
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
+      order: 4
     },
     {
       key: 'status',

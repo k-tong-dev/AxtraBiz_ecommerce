@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server'
 import { userService, deleteUserFromDrizzle, getUserByShop} from '@/lib/drizzle/queries/users'
-import { syncUserShops } from '@/lib/drizzle/m2m'
+import { syncUserShops, syncUserGroups } from '@/lib/drizzle/m2m'
 import { createServiceRoleClient } from '@/lib/utils/supabase-service-role'
 import { db } from '@/lib/drizzle/client'
 import { resUsers } from '@/lib/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { getCurrentShopId } from '@/lib/utils/current-user'
+
+function extractM2MIds(body: Record<string, any>, key: string): number[] {
+  const raw = body[key]
+  delete body[key]
+  if (!Array.isArray(raw)) return []
+  return raw.map((s: any) => (typeof s === 'object' ? Number(s.id) : Number(s))).filter(Boolean)
+}
 
 export async function GET() {
   try {
@@ -24,19 +31,18 @@ export async function POST(request: Request) {
     const results: any[] = []
 
     for (const item of items) {
-      const { password, shop_ids, ...userData } = item
+      const { password, ...userData } = item
 
-      let shopIdArray: number[] = []
-      if (Array.isArray(shop_ids)) {
-        shopIdArray = shop_ids.map((s: any) => (typeof s === 'object' ? Number(s.id) : Number(s))).filter(Boolean)
-      }
+      const shopIdArray = extractM2MIds(userData, 'shop_ids')
+      const groupIdArray = extractM2MIds(userData, 'group_ids')
 
       const r = await userService.upsert(userData)
       if (!r.success) return NextResponse.json({ success: false, error: r.error }, { status: 400 })
       const created = r.data
 
-      if (created?.id && shopIdArray.length > 0) {
-        await syncUserShops({ userId: created.id, shopIds: shopIdArray })
+      if (created?.id) {
+        if (shopIdArray.length > 0) await syncUserShops({ userId: created.id, shopIds: shopIdArray })
+        if (groupIdArray.length > 0) await syncUserGroups({ userId: created.id, groupIds: groupIdArray })
       }
 
       if (password && created?.id) {
