@@ -905,7 +905,7 @@ export function ListView({
                                         return (
                                             <Switch 
                                                 checked={value === true || value === 'true' || value === 1 || value === '1'}
-                                                disabled={false} readOnly={true} color='violet'
+                                                disabled={false} readOnly={true} color='green'
                                                 checkedChildren={"ON"} unCheckedChildren={"OFF"}
                                                 size={'sm'} draggable 
                                             />

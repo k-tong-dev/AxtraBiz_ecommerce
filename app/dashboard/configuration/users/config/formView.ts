@@ -6,7 +6,7 @@ export const staffFormConfig: FormConfig = {
   apiEndpoint: '/api/dashboard/users',
   fields: [
     {
-      key: 'avatarUrl',
+      key: 'image_id',
       label: 'Avatar',
       type: 'file',
       maxFiles: 1,

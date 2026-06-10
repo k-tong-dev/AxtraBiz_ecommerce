@@ -16,7 +16,7 @@ export function BooleanField({ config, value, onChange, error }: FieldProps) {
           disabled={config.readonly}
           checkedChildren="ON"
           unCheckedChildren="OFF"
-          color={'violet'}
+          color={'red'}
           draggable
         />
         {config.label && (

@@ -306,6 +306,7 @@ export function ResourceView({config, onEdit, onCreate, onDelete, loading, entit
                                     color="violet"
                                     startIcon={<MdAdd />}
                                     appearance={"primary"}
+                                    className={"!bg-black"}
                                     size="sm">
                                 New
                             </Button>
