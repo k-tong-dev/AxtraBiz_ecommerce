@@ -11,10 +11,31 @@ export const staffFormConfig: FormConfig = {
       type: 'string',
       required: true,
       placeholder: 'John Doe',
-      columnWidth: 2,
+      columnWidth: 1,
       groupNumber: 1,
       groupColumn: 1,
       order: 0
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      type: 'string',
+      required: true,
+      placeholder: 'staff@example.com',
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 2,
+      order: 1
+    },
+    {
+      key: 'password',
+      label: 'Password',
+      type: 'string',
+      placeholder: 'Set password to allow login (create only)',
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
+      order: 2
     },
     {
       key: 'isShopOwner',
@@ -23,26 +44,18 @@ export const staffFormConfig: FormConfig = {
       columnWidth: 1,
       groupNumber: 1,
       groupColumn: 2,
-      order: 5
-    },
-    {
-      key: 'password',
-      label: 'Initial Password',
-      type: 'string',
-      placeholder: 'Set password to allow login (create only)',
-      columnWidth: 1, groupNumber: 2, groupColumn: 2, order: 2
+      order: 3
     },
     {
       key: 'shopId',
       label: 'Primary Shop',
-      readonly: true,
       type: 'many2one',
       fetchUrl: '/api/dashboard/shops',
       placeholder: 'Select primary shop',
       columnWidth: 1,
-      groupNumber: 3,
+      groupNumber: 2,
       groupColumn: 1,
-      order: 1
+      order: 0
     },
     {
       key: 'shop_ids',
@@ -51,9 +64,9 @@ export const staffFormConfig: FormConfig = {
       fetchUrl: '/api/dashboard/shops',
       placeholder: 'Select additional shops',
       columnWidth: 1,
-      groupNumber: 1,
+      groupNumber: 2,
       groupColumn: 2,
-      order: 3
+      order: 1
     },
     {
       key: 'group_ids',
@@ -62,9 +75,9 @@ export const staffFormConfig: FormConfig = {
       fetchUrl: '/api/dashboard/roles',
       placeholder: 'Select roles',
       columnWidth: 1,
-      groupNumber: 1,
+      groupNumber: 3,
       groupColumn: 1,
-      order: 4
+      order: 0
     },
     {
       key: 'status',
@@ -77,9 +90,9 @@ export const staffFormConfig: FormConfig = {
         { value: 'disabled', label: 'Disabled' }
       ],
       columnWidth: 1,
-      groupNumber: 1,
+      groupNumber: 3,
       groupColumn: 2,
-      order: 4
+      order: 1
     },
   ],
   breadcrumbs: {
