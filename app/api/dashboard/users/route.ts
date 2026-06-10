@@ -24,12 +24,11 @@ export async function POST(request: Request) {
     const results: any[] = []
 
     for (const item of items) {
-      const { password, shopId: rawShopId, ...userData } = item
+      const { password, shop_ids, ...userData } = item
 
       let shopIdArray: number[] = []
-      if (Array.isArray(rawShopId)) {
-        shopIdArray = rawShopId.map((s: any) => (typeof s === 'object' ? Number(s.id) : Number(s))).filter(Boolean)
-        userData.shopId = shopIdArray[0] || null
+      if (Array.isArray(shop_ids)) {
+        shopIdArray = shop_ids.map((s: any) => (typeof s === 'object' ? Number(s.id) : Number(s))).filter(Boolean)
       }
 
       const r = await userService.upsert(userData)

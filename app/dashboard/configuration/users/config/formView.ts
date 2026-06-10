@@ -6,6 +6,26 @@ export const staffFormConfig: FormConfig = {
   apiEndpoint: '/api/dashboard/users',
   fields: [
     {
+      key: 'displayName',
+      label: 'Full Name',
+      type: 'string',
+      required: true,
+      placeholder: 'John Doe',
+      columnWidth: 2,
+      groupNumber: 1,
+      groupColumn: 1,
+      order: 0
+    },
+    {
+      key: 'isShopOwner',
+      label: 'Is Owner',
+      type: 'boolean',
+      columnWidth: 1,
+      groupNumber: 1,
+      groupColumn: 1,
+      order: 1
+    },
+    {
       key: 'username',
       label: 'Username',
       type: 'string',
@@ -14,7 +34,7 @@ export const staffFormConfig: FormConfig = {
       columnWidth: 1,
       groupNumber: 1,
       groupColumn: 1,
-      order: 0
+      order: 1
     },
     {
       key: 'email',
@@ -22,20 +42,39 @@ export const staffFormConfig: FormConfig = {
       type: 'string',
       required: true,
       placeholder: 'staff@example.com',
-      columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 2,
+      columnWidth: 2,
+      groupNumber: 2,
+      groupColumn: 1,
       order: 1
     },
     {
+      key: 'password',
+      label: 'Initial Password',
+      type: 'string',
+      placeholder: 'Set password to allow login (create only)',
+      columnWidth: 1, groupNumber: 2, groupColumn: 2, order: 2
+    },
+    {
       key: 'shopId',
-      label: 'Shops',
+      label: 'Primary Shop',
+      readonly: true,
+      type: 'many2one',
+      fetchUrl: '/api/dashboard/shops',
+      placeholder: 'Select primary shop',
+      columnWidth: 1,
+      groupNumber: 3,
+      groupColumn: 1,
+      order: 1
+    },
+    {
+      key: 'shop_ids',
+      label: 'Allow Shops',
       type: 'many2many',
       fetchUrl: '/api/dashboard/shops',
-      placeholder: 'Select shops',
+      placeholder: 'Select additional shops',
       columnWidth: 1,
-      groupNumber: 1,
-      groupColumn: 1,
+      groupNumber: 3,
+      groupColumn: 2,
       order: 2
     },
     {
@@ -51,20 +90,7 @@ export const staffFormConfig: FormConfig = {
       columnWidth: 1,
       groupNumber: 1,
       groupColumn: 2,
-      order: 3
-    },
-    {
-      key: 'isShopOwner',
-      label: 'Is Owner',
-      type: 'boolean',
-      columnWidth: 1, groupNumber: 1, groupColumn: 1, order: 4
-    },
-    {
-      key: 'password',
-      label: 'Initial Password',
-      type: 'string',
-      placeholder: 'Set password to allow login (create only)',
-      columnWidth: 1, groupNumber: 1, groupColumn: 2, order: 5
+      order: 4
     },
   ],
   breadcrumbs: {

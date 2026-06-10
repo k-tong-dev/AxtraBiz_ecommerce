@@ -21,9 +21,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       const shops = await db.select({ id: resShops.id, name: resShops.name })
         .from(resShops)
         .where(inArray(resShops.id, shopIds))
-      result.shopId = shops
+      result.shop_ids = shops
     } else {
-      result.shopId = []
+      result.shop_ids = []
     }
 
     return NextResponse.json(result)
@@ -37,10 +37,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params
     const body = await request.json()
 
+    const shopIdsFromBody = body.shop_ids
+    delete body.shop_ids
+
     let shopIdArray: number[] = []
-    if (Array.isArray(body.shopId)) {
-      shopIdArray = body.shopId.map((s: any) => (typeof s === 'object' ? Number(s.id) : Number(s))).filter(Boolean)
-      body.shopId = shopIdArray[0] || null
+    if (Array.isArray(shopIdsFromBody)) {
+      shopIdArray = shopIdsFromBody.map((s: any) => (typeof s === 'object' ? Number(s.id) : Number(s))).filter(Boolean)
     }
 
     const result = await userService.write(id, body)
@@ -48,9 +50,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ success: false, error: result.error }, { status: 400 })
     }
 
-    if (shopIdArray.length > 0) {
-      await syncUserShops({ userId: id, shopIds: shopIdArray })
-    }
+    await syncUserShops({ userId: id, shopIds: shopIdArray })
 
     const user = await fetchUserFromDrizzle(id)
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
@@ -65,9 +65,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       const shops = await db.select({ id: resShops.id, name: resShops.name })
         .from(resShops)
         .where(inArray(resShops.id, shopIds))
-      resultData.shopId = shops
+      resultData.shop_ids = shops
     } else {
-      resultData.shopId = []
+      resultData.shop_ids = []
     }
 
     return NextResponse.json({ success: true, data: resultData })
