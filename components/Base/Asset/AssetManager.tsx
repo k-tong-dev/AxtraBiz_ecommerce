@@ -11,6 +11,7 @@ import { FileGrid } from './FileGrid'
 import type { StorageFile, StorageFolder } from './types'
 import {Modal, Input, Button, StatGroup, Stat, StatLabel, StatValue, StatHelpText, HStack} from 'rsuite'
 import {FaFolderPlus} from "react-icons/fa6";
+import {FaRegImages} from "react-icons/fa";
 
 const STORAGE_POLICY = {
   maxSize: 50 * 1024 * 1024,
@@ -350,14 +351,13 @@ export function AssetManager() {
   }
 
   return (
-    <div className="space-y-5">
-      {/* Stats bar */}
+    <div className="space-y-5 px-4">
       <StatGroup columns={4} spacing={16}>
         <Stat bordered icon={<HardDrive className="text-blue-500"/>}>
           <StatLabel >Total Size</StatLabel>
           <StatValue>{formatSize(stats.totalSize)}</StatValue>
         </Stat>
-        <Stat bordered icon={<FileImage className="text-emerald-500" />}>
+        <Stat bordered icon={<FaRegImages className="text-emerald-500 w-6 h-6" />}>
           <StatLabel >Files</StatLabel>
           <StatValue value={stats.totalFiles} />
         </Stat>
@@ -385,8 +385,9 @@ export function AssetManager() {
       <div className="flex items-center justify-between gap-4 m-0">
         <div className="flex items-center ml-auto gap-2">
           <Button
-            appearance="ghost"
             size="sm"
+            appearance="primary"
+            className={"!bg-black"}
             onClick={() => { setNewFolderParent(currentPath); setNewFolderName(''); setShowNewFolder(true) }}
             startIcon={<FolderPlus className="w-4 h-4" />}
           >
@@ -396,6 +397,7 @@ export function AssetManager() {
             <Button
               appearance="primary"
               size="sm"
+              className={"!bg-black"}
               onClick={() => setShowUploadMenu(!showUploadMenu)}
               startIcon={<Upload className="w-4 h-4" />}
               endIcon={<ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showUploadMenu ? 'rotate-180' : ''}`} />}
@@ -553,7 +555,7 @@ export function AssetManager() {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => setShowNewFolder(false)} appearance="subtle">Cancel</Button>
-          <Button onClick={handleCreateFolder} color={"violet"} appearance="primary" disabled={!newFolderName.trim()}>Create</Button>
+          <Button onClick={handleCreateFolder} color={"violet"} appearance="primary" className={"!bg-black"} disabled={!newFolderName.trim()}>Create</Button>
         </Modal.Footer>
       </Modal>
 
@@ -587,7 +589,7 @@ export function AssetManager() {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => { setShowUrlUpload(false); setUrlInput(''); setUrlError('') }} appearance="subtle" disabled={urlLoading}>Cancel</Button>
-          <Button onClick={handleUrlUpload} appearance="primary" disabled={!urlInput.trim() || urlLoading} loading={urlLoading}>
+          <Button onClick={handleUrlUpload} appearance="primary" className={"!bg-black"} disabled={!urlInput.trim() || urlLoading} loading={urlLoading}>
             {urlLoading ? 'Downloading...' : 'Upload'}
           </Button>
         </Modal.Footer>
@@ -600,7 +602,7 @@ export function AssetManager() {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => setShowRename(false)} appearance="subtle">Cancel</Button>
-          <Button onClick={handleRenameFolder} appearance="primary" disabled={!renameName.trim()}>Rename</Button>
+          <Button onClick={handleRenameFolder} appearance="primary" disabled={!renameName.trim()} className={"!bg-black"}>Rename</Button>
         </Modal.Footer>
       </Modal>
 
@@ -613,7 +615,7 @@ export function AssetManager() {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => setShowDeleteFolder(false)} appearance="subtle">Cancel</Button>
-          <Button onClick={handleDeleteFolder} color="red" appearance="primary">Delete</Button>
+          <Button onClick={handleDeleteFolder} color="red" appearance="primary" className={"!bg-black"} startIcon={<Trash2 className="w-4 h-4" />}>Delete</Button>
         </Modal.Footer>
       </Modal>
 
@@ -626,7 +628,8 @@ export function AssetManager() {
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => setShowDeleteFiles(false)} appearance="subtle">Cancel</Button>
-          <Button onClick={() => { handleDeleteFiles(deleteFilesTargets) }} color="red" appearance="primary">Delete</Button>
+          <Button onClick={() => { handleDeleteFiles(deleteFilesTargets) }}
+                  color="red" className={"!bg-black"} appearance="primary" startIcon={<Trash2 className="w-4 h-4" />}>Delete</Button>
         </Modal.Footer>
       </Modal>
 
@@ -702,10 +705,10 @@ export function AssetManager() {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={() => { setDeleteFilesTargets([detailFile]); setShowDeleteFiles(true); setDetailFile(null) }} color="red" appearance="primary" startIcon={<Trash2 className="w-4 h-4" />}>
+            <Button onClick={() => { setDeleteFilesTargets([detailFile]); setShowDeleteFiles(true); setDetailFile(null) }} color="red" appearance="primary" className={"!bg-black"} startIcon={<Trash2 className="w-4 h-4" />}>
               Delete
             </Button>
-            <Button onClick={() => setDetailFile(null)} appearance="primary">Close</Button>
+            <Button onClick={() => setDetailFile(null)} appearance="subtle">Close</Button>
           </Modal.Footer>
         </Modal>
       )}

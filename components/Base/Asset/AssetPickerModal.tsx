@@ -181,9 +181,9 @@ export function AssetPickerModal({ open, onClose, onSelect, maxFiles }: AssetPic
                         ? 'border-primary/40 shadow-lg shadow-primary/5 translate-y-[-1px]'
                         : 'border-border/60 hover:border-primary/30 shadow-sm'
                     }`}>
-                      <div className="aspect-square bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center">
+                      <div className="aspect-[6/2] bg-gradient-to-br from-amber-50/80 to-amber-100/40 dark:from-amber-950/30 dark:to-amber-900/20 flex items-center justify-center">
                         <div className={`transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}>
-                          <FaFolder className="w-10 h-10 text-amber-400" />
+                          <FaFolder className="w-8 h-8 text-amber-400" />
                         </div>
                       </div>
                       <div className="p-2">
