@@ -4,11 +4,13 @@ export const staffListConfig: ListViewConfig = {
   title: 'Users',
   data: [],
   columns: [
-    { key: 'full_name', title: 'Name', width: 200, sortable: true },
+    { key: 'displayName', title: 'Name', width: 200, sortable: true },
     { key: 'email', title: 'Email', width: 250, sortable: true },
-    { key: 'status', title: 'Status', width: 100, sortable: true },
-    { key: 'is_owner', title: 'Owner', type: 'boolean', width: 80, sortable: true },
-    { key: 'last_login_at', title: 'Last Login', width: 180 },
+    { key: 'phone', title: 'Phone', width: 150 },
+    { key: 'userRole', title: 'Role', width: 120, sortable: true },
+    { key: 'isVerified', title: 'Verified', type: 'boolean', width: 100, sortable: true },
+    { key: 'isShopOwner', title: 'Shop Owner', type: 'boolean', width: 110, sortable: true },
+    { key: 'active', title: 'Active', type: 'boolean', width: 90, sortable: true },
   ]
 }
 

@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import type { FieldProps } from '../types'
 
 const sizeStyles = {
+  xs: { input: 'text-xs', label: 'text-xs peer-placeholder-shown:text-xs' },
   sm: { input: 'text-sm', label: 'text-xs peer-placeholder-shown:text-sm' },
   md: { input: 'text-sm', label: 'text-sm peer-placeholder-shown:text-base' },
   lg: { input: 'text-base', label: 'text-base peer-placeholder-shown:text-lg' },

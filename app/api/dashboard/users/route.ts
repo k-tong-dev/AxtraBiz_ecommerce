@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { userService, deleteUserFromDrizzle, getUserByShop} from '@/lib/drizzle/queries/users'
+import { userService, deleteUserFromDrizzle, getUserByShop, enrichUsersWithM2M } from '@/lib/drizzle/queries/users'
 import { syncUserShops, syncUserGroups } from '@/lib/drizzle/m2m'
 import { createServiceRoleClient } from '@/lib/utils/supabase-service-role'
 import { db } from '@/lib/drizzle/client'
@@ -18,7 +18,8 @@ export async function GET() {
   try {
     const shopId = await getCurrentShopId()
     const all = shopId ? await getUserByShop(shopId) : null
-    return NextResponse.json(all)
+    if (!Array.isArray(all)) return NextResponse.json(all)
+    return NextResponse.json(await enrichUsersWithM2M(all))
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
   }

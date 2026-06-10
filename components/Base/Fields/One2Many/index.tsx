@@ -15,7 +15,7 @@ const PICKER_STYLE = {
   boxShadow: 'none',
 }
 
-const SIZE = { sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base' }
+const SIZE = { xs: 'top-3 text-xs', sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base' }
 
 export function One2ManyField({ config, value, onChange, error }: FieldProps) {
   const [open, setOpen] = React.useState(false)

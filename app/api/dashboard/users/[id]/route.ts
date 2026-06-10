@@ -1,41 +1,6 @@
 import { NextResponse } from 'next/server'
-import { fetchUserFromDrizzle, userService, deleteUserFromDrizzle } from '@/lib/drizzle/queries/users'
+import { fetchUserFromDrizzle, userService, deleteUserFromDrizzle, enrichUserWithM2M } from '@/lib/drizzle/queries/users'
 import { syncUserShops, syncUserGroups } from '@/lib/drizzle/m2m'
-import { db } from '@/lib/drizzle/server'
-import { resShops, resGroups, m2mUsersShops, m2mUsersGroups } from '@/lib/drizzle/schema'
-import { eq, inArray } from 'drizzle-orm'
-
-async function enrichWithM2M(user: any, id: string) {
-  const result: any = { ...user }
-
-  const shopRecords = await db.select()
-    .from(m2mUsersShops)
-    .where(eq(m2mUsersShops.userId, id))
-  if (shopRecords.length > 0) {
-    const shopIds = shopRecords.map(r => r.shopId)
-    const shops = await db.select({ id: resShops.id, name: resShops.name })
-      .from(resShops)
-      .where(inArray(resShops.id, shopIds))
-    result.shop_ids = shops
-  } else {
-    result.shop_ids = []
-  }
-
-  const groupRecords = await db.select()
-    .from(m2mUsersGroups)
-    .where(eq(m2mUsersGroups.userId, id))
-  if (groupRecords.length > 0) {
-    const groupIds = groupRecords.map(r => r.groupId)
-    const groups = await db.select({ id: resGroups.id, name: resGroups.name })
-      .from(resGroups)
-      .where(inArray(resGroups.id, groupIds))
-    result.group_ids = groups
-  } else {
-    result.group_ids = []
-  }
-
-  return result
-}
 
 function extractM2MIds(body: any, key: string): number[] {
   const raw = body[key]
@@ -49,7 +14,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const { id } = await params
     const user = await fetchUserFromDrizzle(id)
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    return NextResponse.json(await enrichWithM2M(user, id))
+    return NextResponse.json(await enrichUserWithM2M(user, id))
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 })
   }
@@ -74,7 +39,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const user = await fetchUserFromDrizzle(id)
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-    return NextResponse.json({ success: true, data: await enrichWithM2M(user, id) })
+    return NextResponse.json({ success: true, data: await enrichUserWithM2M(user, id) })
   } catch (error) {
     return NextResponse.json({
       success: false,

@@ -15,6 +15,10 @@ General-purpose selection field supporting single, multiple, grouped, and tree m
 - `groupBy`: `string` — group options by field
 - `tree`: `boolean` — tree mode with children
 
+## Avatar Support (fetchUrl mode)
+When using `fetchUrl`, dropdown options display an avatar if response items include one of these fields (checked in order):
+`avatar` > `image` > `thumbnail` > `logo_url` > `image_id?.url`
+
 ## Examples
 ```typescript
 { name: 'category', type: 'selection', label: 'Category',

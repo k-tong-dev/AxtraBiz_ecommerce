@@ -15,7 +15,6 @@ export const resShops = pgTable('res_shops', {
   defaultCurrency: text('default_currency').default('USD'),
   timezone:        text('timezone').default('Asia/Phnom_Penh'),
   language:        text('language').default('en'),
-  logoUrl:         text('logo_url'),
 
   // Features toggle (like Odoo module enable/disable)
   enableOtp:       boolean('enable_otp').default(true),

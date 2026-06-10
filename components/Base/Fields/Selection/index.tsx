@@ -37,7 +37,7 @@ function findOption(options: SelectOption[], value: string): SelectOption | unde
     }
 }
 
-const SIZE = {sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base'}
+const SIZE = {xs: 'top-3 text-xs', sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base'}
 
 export function SelectionField({config, value, onChange, error}: FieldProps) {
     const [open, setOpen] = React.useState(false)

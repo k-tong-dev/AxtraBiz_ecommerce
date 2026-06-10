@@ -1,4 +1,4 @@
-import { pgTable, uuid, integer, text, boolean, pgEnum, varchar } from 'drizzle-orm/pg-core'
+import {pgTable, uuid, integer, text, boolean, pgEnum, varchar, json} from 'drizzle-orm/pg-core'
 import { auditFields } from './audit'
 import { resShops } from './res_shops'
 import { resCountries } from './res_country'
@@ -11,6 +11,7 @@ export const resUsers = pgTable('res_users', {
   username:    text('username').notNull().unique(),
   displayName: text('display_name'),
   avatarUrl:   text('avatar_url'),
+  image_id:   json('image_id'),
   phone:       text('phone'),
   mobile:      text('mobile'),
   country:     varchar('country', { length: 2 }).references(() => resCountries.code),

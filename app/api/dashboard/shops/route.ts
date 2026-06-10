@@ -14,7 +14,7 @@ export async function GET() {
     const shops = await db.select().from(resShops).where(inArray(resShops.id, shopIds))
     const enriched = shops.map((s: any) => ({
       ...s,
-      logo_url: s.logoUrl || (typeof s.logo === 'object' && s.logo?.url) || null,
+      logo_url: typeof s.logo === 'object' && s.logo?.url || null,
     }))
     return NextResponse.json(enriched)
   } catch (error) {

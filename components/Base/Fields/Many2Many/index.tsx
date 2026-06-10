@@ -15,18 +15,19 @@ const PICKER_STYLE = {
   boxShadow: 'none',
 }
 
-const SIZE = { sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base' }
+const SIZE = { sm: 'top-3 text-sm', md: 'top-3 text-md', lg: 'top-3 text-lg', xs: 'top-3 text-xs', xl: 'top-3 text-xl' }
 
 export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
   const [open, setOpen] = React.useState(false)
   const [options, setOptions] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(false)
+  const fetchedRef = React.useRef(false)
 
   const selectedIds = React.useMemo(() => {
     if (!Array.isArray(value)) return []
     return value.map((v: any) => {
       if (typeof v === 'string') return v
-      return v.id || v.value_id || v.key
+      return String(v.id || v.value_id || v.key)
     }).filter(Boolean)
   }, [value])
 
@@ -41,7 +42,7 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
         .map((v: any) => ({
           id: v.id || v.value_id,
           name: v.name || v.label,
-          avatar: v.avatar || v.image || v.thumbnail,
+          avatar: v.avatar || v.image || v.thumbnail || v.logo_url,
         }))
         .filter((v: any) => v.id)
       if (valueOptions.length > 0) {
@@ -64,7 +65,13 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
       const items = Array.isArray(data) ? data : data.data || data.records || data.items || []
       setOptions(prev => {
         const existing = new Set(prev.map((o: any) => o.id))
-        const newOnes = items.filter((i: any) => !existing.has(i.id))
+        const newOnes = items
+          .filter((i: any) => !existing.has(i.id))
+          .map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            avatar: item.avatar || item.image || item.thumbnail || item.logo_url || item.image_id?.url,
+          }))
         return newOnes.length > 0 ? [...prev, ...newOnes] : prev
       })
     } catch (e) {
@@ -74,7 +81,11 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
     }
   }, [config.fetchUrl])
 
-  React.useEffect(() => { fetchOptions() }, [fetchOptions])
+  React.useEffect(() => {
+    if (fetchedRef.current) return
+    fetchedRef.current = true
+    fetchOptions()
+  }, [fetchOptions])
 
   const pickerData = options.map((item: any) => ({
     label: item.avatar
@@ -99,7 +110,7 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
             onChange={(next) => onChange(next)}
             creatable={false}
             onCreate={(value, item) => {
-              setOptions(prev => [...prev, { id: value, name: value, ...item }])
+              setOptions(prev => [...prev, { id: value, name: value, avatar: item?.avatar, ...item }])
               onChange([...selectedIds, value])
             }}
             searchable
@@ -110,10 +121,26 @@ export function Many2ManyField({ config, value, onChange, error }: FieldProps) {
             onSearch={(kw) => { if (kw.length >= 1) fetchOptions(kw) }}
             onOpen={() => setOpen(true)}
             onClose={() => setOpen(false)}
-            renderValue={(value, items, tags) => {
+            renderValue={(value:any[], items) => {
+              const tags = (items || []).map((item: any, i: number) => {
+                const opt = options.find(o => String(o.id) === String(item?.value || item))
+                return (
+                  <span key={i}
+                        className="rs-tag"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          borderRadius: 4,
+                  }}>
+                    {opt?.avatar && <Avatar src={opt.avatar} size="xs" circle style={{ border: '1px solid #fff' }} />}
+                    <span className="rs-tag-text">{opt?.name || item?.label || item || ''}</span>
+                  </span>
+                )
+              })
               return <div className="flex flex-wrap gap-0.5 py-0.5">{tags}</div>
             }}
-            tagProps={{ color: 'violet', closable: !config.readonly, size: 'sm' }}
+            tagProps={{ closable: !config.readonly, size: 'sm' }}
             style={PICKER_STYLE}
             size={config.size || 'md'}
             cleanable={true}

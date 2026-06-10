@@ -93,7 +93,7 @@ export interface FormField {
     groupBy?: string
     tree?: boolean
     searchable?: boolean
-    size?: 'sm' | 'md' | 'lg' | 'xs' | 'xl'
+    size?: 'xs' | 'sm' | 'md' | 'lg'
     selectOptions?: Array<{ id: string | number; name: string; avatar?: string; group?: string; children?: any[] }>
 }
 
@@ -438,7 +438,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
         // Validate required fields
         for (const field of config.fields) {
-            if (field.required && !data[field.key]) {
+            if (field.required && (data[field.key] === undefined || data[field.key] === null || data[field.key] === '')) {
                 showToast('error', 'Validation Error', `${field.label} is required`)
                 return
             }
@@ -626,7 +626,7 @@ function FormViewContent<T extends Entity>({mode, config, initialData, entityId,
 
         // Check for validation error
         let errorMessage = null
-        if (field.required && (!value || value === '')) {
+        if (field.required && (value === undefined || value === null || value === '')) {
             errorMessage = `${field.label} is required`
         } else if (field.validation && value !== undefined && value !== null && value !== '') {
             errorMessage = field.validation(value)

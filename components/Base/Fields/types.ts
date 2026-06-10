@@ -26,7 +26,7 @@ export interface FieldConfig {
   tree?: boolean
   searchable?: boolean
   default?: any
-  size?: 'sm' | 'md' | 'lg' | 'xs' | 'xl'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   className?: string
 }
 

@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import type { SelectOption, FieldProps } from '../types'
 
 const PICKER_STYLE = { borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, outlineColor: 'transparent', boxShadow: 'none' }
-const SIZE = { sm: 'top-3 text-xs', md: 'top-4 text-sm', lg: 'top-5 text-base' }
+const SIZE = { xs: 'top-3 text-xs', sm: 'top-3 text-sm', md: 'top-3 text-md', lg: 'top-3 text-lg', xl: 'top-3 text-xl' }
 
 function renderLabel(opt: SelectOption) {
   return opt.avatar
@@ -62,7 +62,7 @@ export function Many2OneField({ config, value, onChange, error }: FieldProps) {
           )}>
           <SelectPicker
             data={data}
-            value={(value as string) || null}
+            value={(value !== null && value !== undefined && value !== '') ? String(value) : null}
             onChange={(next) => onChange(next ?? null)}
             searchable
             block
